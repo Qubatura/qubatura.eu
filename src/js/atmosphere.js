@@ -1,26 +1,71 @@
 import * as THREE from 'three';
 import { onTick } from './scene.js';
 
-// ─── Fog — fullscreen nebula plane ────────────────────────────────────────────
+// ─── Shaders inline — no fetch needed ────────────────────────────────────────
 
-async function createFog(scene) {
-  const [vert, frag] = await Promise.all([
-    fetch('../shaders/fog.vert').then(r => r.text()),
-    fetch('../shaders/fog.frag').then(r => r.text()),
-  ]);
+const FOG_VERT = /* glsl */`
+  varying vec2 vUv;
+  void main() {
+    vUv = uv;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }
+`;
 
+const FOG_FRAG = /* glsl */`
+  uniform float time;
+  uniform vec3  fogColor;
+  uniform float fogAlpha;
+  varying vec2  vUv;
+
+  float hash(vec2 p) {
+    p = fract(p * vec2(127.1, 311.7));
+    p += dot(p, p + 43.21);
+    return fract(p.x * p.y);
+  }
+
+  float vnoise(vec2 p) {
+    vec2 i = floor(p);
+    vec2 f = fract(p);
+    f = f * f * (3.0 - 2.0 * f);
+    return mix(
+      mix(hash(i),                  hash(i + vec2(1.0, 0.0)), f.x),
+      mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), f.x),
+      f.y
+    );
+  }
+
+  float fbm(vec2 p) {
+    float v = 0.0, a = 0.5;
+    for (int i = 0; i < 5; i++) {
+      v += a * vnoise(p);
+      p  = p * 2.03 + vec2(0.31, 0.73);
+      a *= 0.5;
+    }
+    return v;
+  }
+
+  void main() {
+    vec2  p = vUv * 3.5 + vec2(time * 0.00012, time * 0.00008);
+    float n = fbm(p);
+    float a = max(0.0, n - 0.42) * fogAlpha;
+    gl_FragColor = vec4(fogColor, a);
+  }
+`;
+
+// ─── Fog plane ────────────────────────────────────────────────────────────────
+
+function createFog(scene) {
   const uniforms = {
     time:     { value: 0 },
     fogColor: { value: new THREE.Color(0x5B2EFF) },
     fogAlpha: { value: 0.20 },
   };
 
-  // Plane large enough to fill any viewport from camera z=300
   const mesh = new THREE.Mesh(
     new THREE.PlaneGeometry(1600, 900),
     new THREE.ShaderMaterial({
-      vertexShader:   vert,
-      fragmentShader: frag,
+      vertexShader:   FOG_VERT,
+      fragmentShader: FOG_FRAG,
       uniforms,
       transparent:    true,
       blending:       THREE.AdditiveBlending,
@@ -35,11 +80,11 @@ async function createFog(scene) {
   return uniforms;
 }
 
-// ─── Corona discharge — rare short lightning bolts ────────────────────────────
+// ─── Corona discharge ─────────────────────────────────────────────────────────
 
-const CORONA_CLR  = new THREE.Color(200 / 255, 185 / 255, 1.0); // cool lavender
-const POOL_SIZE   = 6;
-const MAX_PTS     = 8; // max 7 segments = 8 points
+const CORONA_CLR = new THREE.Color(200 / 255, 185 / 255, 1.0);
+const POOL_SIZE  = 6;
+const MAX_PTS    = 8;
 
 function makeSlot(scene) {
   const pos = new Float32Array(MAX_PTS * 3);
@@ -68,19 +113,18 @@ function spawnBolt(slot) {
   const x      = (Math.random() - 0.5) * 500;
   const y      = (Math.random() - 0.5) * 280;
   const angle  = Math.random() * Math.PI * 2;
-  const length = 5 + Math.random() * 8;              // ≈ 15–35px at scene scale
-  const nSeg   = 4 + Math.floor(Math.random() * 4);  // 4–7 segments
+  const length = 5 + Math.random() * 8;
+  const nSeg   = 4 + Math.floor(Math.random() * 4);
   const nPts   = nSeg + 1;
 
   for (let i = 0; i < nPts; i++) {
-    const t    = i / nSeg;
-    const bx   = x + Math.cos(angle) * length * t;
-    const by   = y + Math.sin(angle) * length * t;
-    // Perpendicular zigzag jitter on interior points
-    const jit  = (i > 0 && i < nSeg) ? (Math.random() - 0.5) * 3.5 : 0;
+    const t   = i / nSeg;
+    const bx  = x + Math.cos(angle) * length * t;
+    const by  = y + Math.sin(angle) * length * t;
+    const jit = (i > 0 && i < nSeg) ? (Math.random() - 0.5) * 3.5 : 0;
     slot.pos[i * 3]     = bx - Math.sin(angle) * jit;
     slot.pos[i * 3 + 1] = by + Math.cos(angle) * jit;
-    slot.pos[i * 3 + 2] = 10; // in front of creatures
+    slot.pos[i * 3 + 2] = 10;
   }
 
   slot.geo.setDrawRange(0, nPts);
@@ -89,12 +133,12 @@ function spawnBolt(slot) {
   slot.line.visible = true;
   slot.active  = true;
   slot.life    = 0;
-  slot.maxLife = 6 + Math.floor(Math.random() * 3); // 6–8 frames
+  slot.maxLife = 6 + Math.floor(Math.random() * 3);
 }
 
 function createCorona(scene) {
   const pool = Array.from({ length: POOL_SIZE }, () => makeSlot(scene));
-  let timer  = 3 + Math.random() * 5; // seconds until first bolt
+  let timer  = 3 + Math.random() * 5;
 
   return {
     update(delta) {
@@ -119,9 +163,9 @@ function createCorona(scene) {
 
 // ─── Public API ───────────────────────────────────────────────────────────────
 
-export async function initAtmosphere(ctx) {
+export function initAtmosphere(ctx) {
   const { scene } = ctx;
-  const fogUniforms = await createFog(scene);
+  const fogUniforms = createFog(scene);
   const corona      = createCorona(scene);
 
   onTick((delta, elapsed) => {
