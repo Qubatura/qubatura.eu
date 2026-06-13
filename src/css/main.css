@@ -48,12 +48,12 @@ html, body {
 #planet-bg {
   position: fixed;
   inset: 0;
-  background-image: url('../../assets/planet-bg.png');
+  background-image: url('/assets/planet-bg.png');
   background-size: cover;
   background-position: center center;
   background-repeat: no-repeat;
   opacity: 0.17;
-  z-index: -1;
+  z-index: 1;
   pointer-events: none;
 }
 
@@ -64,6 +64,7 @@ html, body {
   width: 100%;
   height: 100%;
   display: block;
+  z-index: 2;
 }
 
 /* ── Custom cursor ──────────────────────────────────────────────── */
@@ -86,11 +87,10 @@ html, body {
   position: fixed;
   inset: 0;
   background: var(--color-bg);
-  display: flex;
+  display: none; /* tymczasowe — Etap 9 przywróci z GSAP */
   align-items: center;
   justify-content: center;
   z-index: 900;
-  /* Etap 9: GSAP fade out after signet materialize */
 }
 
 #loading-signet {
