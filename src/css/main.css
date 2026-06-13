@@ -44,6 +44,19 @@ html, body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* ── Planet background ──────────────────────────────────────────── */
+#planet-bg {
+  position: fixed;
+  inset: 0;
+  background-image: url('../../assets/planet-bg.png');
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  opacity: 0.17;
+  z-index: -1;
+  pointer-events: none;
+}
+
 /* ── Three.js canvas ────────────────────────────────────────────── */
 #c {
   position: fixed;
@@ -201,14 +214,14 @@ html, body {
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.2em;
-  color: rgba(255, 255, 255, 0.28);
+  color: rgba(255, 255, 255, 0.62);
   text-transform: uppercase;
   white-space: nowrap;
   transition: color 0.4s ease, text-shadow 0.4s ease;
 }
 
 .nav-line {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.22);
   flex-shrink: 0;
   transition: background 0.4s ease, box-shadow 0.4s ease,
               width 0.35s ease, height 0.35s ease;
