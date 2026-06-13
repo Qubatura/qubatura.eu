@@ -19,7 +19,7 @@ import { initRouter }           from './router.js';
 async function boot() {
   const ctx = await initScene();
   initCreatures(ctx);
-  initAtmosphere(ctx);
+  await initAtmosphere(ctx);
   await initSignet(ctx);
   initNavigation(ctx);
   initRouter();
