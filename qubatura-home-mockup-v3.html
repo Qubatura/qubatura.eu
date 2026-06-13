@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Qubatura HOME — Proof of Feel v3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@300;400;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#0A0A0F; width:100vw; height:100vh; overflow:hidden; cursor:none; }
+canvas { position:absolute; top:0; left:0; width:100%; height:100%; }
+
+#cursor {
+  position:absolute; width:8px; height:8px; border-radius:50%;
+  background:#E0218A; pointer-events:none;
+  transform:translate(-50%,-50%); z-index:100;
+  box-shadow: 0 0 8px #E0218A88;
+  transition: width 0.2s, height 0.2s;
+}
+
+#nav { position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:10; }
+
+.nav-item {
+  position:absolute; display:flex; align-items:center; gap:12px;
+  pointer-events:all; cursor:none;
+}
+.nav-label {
+  font-family:'Chakra Petch',sans-serif; font-size:11px; font-weight:600;
+  letter-spacing:0.2em; color:rgba(255,255,255,0.35); text-transform:uppercase;
+  transition: color 0.4s, opacity 0.4s;
+}
+.nav-line {
+  background:rgba(255,255,255,0.12);
+  transition: all 0.4s ease;
+}
+.nav-tooltip {
+  position:absolute; font-family:'Space Mono',monospace; font-size:9px;
+  color:rgba(255,255,255,0.45); white-space:nowrap;
+  opacity:0; transition:opacity 0.35s;
+  border:1px solid rgba(255,255,255,0.08); padding:6px 12px;
+  background:rgba(10,10,15,0.75); letter-spacing:0.05em;
+}
+.nav-item:hover .nav-label { color:rgba(255,255,255,0.95); }
+.nav-item:hover .nav-tooltip { opacity:1; }
+
+/* Events — left */
+#nav-events { left:44px; top:50%; transform:translateY(-50%); flex-direction:row-reverse; }
+#nav-events .nav-line { height:1px; width:44px; }
+#nav-events .nav-tooltip { right:calc(100% + 18px); top:50%; transform:translateY(-50%); }
+#nav-events:hover .nav-label { color:#7C3AED; }
+#nav-events:hover .nav-line { width:72px; background:#7C3AED; }
+
+/* Studio — right */
+#nav-studio { right:44px; top:50%; transform:translateY(-50%); }
+#nav-studio .nav-line { height:1px; width:44px; }
+#nav-studio .nav-tooltip { left:calc(100% + 18px); top:50%; transform:translateY(-50%); }
+#nav-studio:hover .nav-label { color:#1E90FF; }
+#nav-studio:hover .nav-line { width:72px; background:#1E90FF; }
+
+/* Lab — bottom */
+#nav-lab { bottom:44px; left:50%; transform:translateX(-50%); flex-direction:column; }
+#nav-lab .nav-line { width:1px; height:44px; }
+#nav-lab .nav-tooltip { bottom:calc(100% + 18px); left:50%; transform:translateX(-50%); }
+#nav-lab:hover .nav-label { color:#00E5FF; }
+#nav-lab:hover .nav-line { height:72px; background:#00E5FF; }
+
+/* Top UI */
+#top-right {
+  position:absolute; top:28px; right:40px;
+  font-family:'Space Mono',monospace; font-size:10px;
+  letter-spacing:0.18em; color:rgba(255,255,255,0.2);
+  text-transform:uppercase; z-index:10;
+  transition: color 0.3s;
+}
+#top-right:hover { color:rgba(255,255,255,0.6); cursor:none; }
+
+/* Tagline */
+#tagline {
+  position:absolute; bottom:112px; left:50%; transform:translateX(-50%);
+  font-family:'Space Mono',monospace; font-size:10px;
+  letter-spacing:0.3em; color:rgba(255,255,255,0.18);
+  text-transform:uppercase; white-space:nowrap; z-index:10;
+}
+
+/* Sound toggle */
+#sound-toggle {
+  position:absolute; bottom:28px; right:40px;
+  display:flex; align-items:center; gap:8px; z-index:10; cursor:none;
+}
+.waveform { display:flex; align-items:center; gap:2px; height:16px; }
+.waveform span { display:block; width:2px; border-radius:1px; background:rgba(255,255,255,0.2); }
+
+/* PoF label */
+#pof {
+  position:absolute; top:28px; left:50%; transform:translateX(-50%);
+  font-family:'Space Mono',monospace; font-size:9px;
+  letter-spacing:0.18em; color:rgba(255,255,255,0.1);
+  text-transform:uppercase; z-index:10;
+  border:1px solid rgba(255,255,255,0.05); padding:4px 10px;
+}
+</style>
+</head>
+<body>
+
+<canvas id="c"></canvas>
+<div id="cursor"></div>
+
+<div id="nav">
+  <div class="nav-item" id="nav-events"
+       onmouseenter="setDiv('events')" onmouseleave="setDiv(null)">
+    <span class="nav-label">Events</span>
+    <div class="nav-line"></div>
+    <div class="nav-tooltip">Nagłośnienie · Oświetlenie · Streaming</div>
+  </div>
+  <div class="nav-item" id="nav-studio"
+       onmouseenter="setDiv('studio')" onmouseleave="setDiv(null)">
+    <div class="nav-line"></div>
+    <span class="nav-label">Studio</span>
+    <div class="nav-tooltip">Audiobooki · Sound design · Binaural</div>
+  </div>
+  <div class="nav-item" id="nav-lab"
+       onmouseenter="setDiv('lab')" onmouseleave="setDiv(null)">
+    <div class="nav-line"></div>
+    <span class="nav-label">Lab</span>
+    <div class="nav-tooltip">3D · Mapping · IoT · Web</div>
+  </div>
+</div>
+
+<div id="tagline">Przybywamy z sygnałem</div>
+<div id="top-right">Contact &nbsp;/&nbsp; PL</div>
+<div id="pof">Proof of Feel v3 — qubatura.eu</div>
+<div id="sound-toggle">
+  <div class="waveform">
+    <span style="height:4px"></span>
+    <span style="height:10px"></span>
+    <span style="height:14px"></span>
+    <span style="height:8px"></span>
+    <span style="height:12px"></span>
+    <span style="height:5px"></span>
+  </div>
+</div>
+
+<script>
+const canvas = document.getElementById('c');
+const ctx    = canvas.getContext('2d');
+const cursorEl = document.getElementById('cursor');
+
+// ── PALETTE ──────────────────────────────────────────────────────────────────
+const COL = {
+  bg:      [10,  10,  15 ],
+  primary: [91,  46,  255],
+  accent:  [224, 33,  138],
+  events:  [124, 58,  237],
+  studio:  [30,  144, 255],
+  lab:     [0,   229, 255]
+};
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let W = 0, H = 0;
+const mouse = { x:-1000, y:-1000 };
+let activeDiv   = null;
+let tint        = 0;   // 0-1 smooth
+let targetTint  = 0;
+
+function resize() {
+  W = canvas.width  = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+window.addEventListener('mousemove', e => {
+  mouse.x = e.clientX;
+  mouse.y = e.clientY;
+  cursorEl.style.left = e.clientX + 'px';
+  cursorEl.style.top  = e.clientY + 'px';
+});
+
+window.setDiv = (d) => {
+  activeDiv   = d;
+  targetTint  = d ? 1 : 0;
+};
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+const rgba = (rgb, a) => `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${a.toFixed(3)})`;
+
+function lerpRgb(a, b, t) {
+  return [
+    a[0] + (b[0]-a[0])*t | 0,
+    a[1] + (b[1]-a[1])*t | 0,
+    a[2] + (b[2]-a[2])*t | 0
+  ];
+}
+
+function getDivCol() {
+  if (!activeDiv) return COL.primary;
+  return COL[activeDiv];
+}
+
+// ── FOG BLOBS ────────────────────────────────────────────────────────────────
+class FogBlob {
+  constructor() {
+    this.x  = Math.random() * W;
+    this.y  = Math.random() * H;
+    this.r  = 180 + Math.random() * 220;
+    this.vx = (Math.random()-0.5) * 0.15;
+    this.vy = (Math.random()-0.5) * 0.15;
+    this.a  = 0.025 + Math.random() * 0.03;
+  }
+  update() {
+    this.x += this.vx;
+    this.y += this.vy;
+    if (this.x < -this.r) this.x = W + this.r;
+    if (this.x > W+this.r) this.x = -this.r;
+    if (this.y < -this.r) this.y = H + this.r;
+    if (this.y > H+this.r) this.y = -this.r;
+  }
+  draw() {
+    const col  = tint > 0.01 ? lerpRgb(COL.primary, getDivCol(), tint) : COL.primary;
+    const grad = ctx.createRadialGradient(this.x,this.y,0, this.x,this.y,this.r);
+    grad.addColorStop(0, rgba(col, this.a * (1 + tint*0.6)));
+    grad.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0,0,W,H);
+  }
+}
+
+// ── CORONA DISCHARGE ─────────────────────────────────────────────────────────
+class Corona {
+  constructor() {
+    this.timer   = Math.random() * 400 + 150;
+    this.active  = false;
+    this.life    = 0;
+    this.maxLife = 7;
+    this.pts     = [];
+  }
+  spawn() {
+    this.active = true;
+    this.life   = 0;
+    const x     = Math.random() * W;
+    const y     = Math.random() * H;
+    const len   = 14 + Math.random() * 32;
+    const ang   = Math.random() * Math.PI * 2;
+    const segs  = 3 + Math.floor(Math.random()*4);
+    this.pts = [];
+    for (let i=0; i<=segs; i++) {
+      const t  = i/segs;
+      const bx = x + Math.cos(ang)*len*t;
+      const by = y + Math.sin(ang)*len*t;
+      const j  = (i>0 && i<segs) ? (Math.random()-0.5)*9 : 0;
+      this.pts.push({ x: bx + Math.cos(ang+Math.PI/2)*j, y: by + Math.sin(ang+Math.PI/2)*j });
+    }
+  }
+  update() {
+    if (this.active) {
+      this.life++;
+      if (this.life >= this.maxLife) { this.active=false; this.timer=Math.random()*500+200; }
+    } else {
+      if (--this.timer <= 0) this.spawn();
+    }
+  }
+  draw() {
+    if (!this.active || this.pts.length < 2) return;
+    const a   = (1 - this.life/this.maxLife) * 0.22;
+    const col = tint > 0.5 ? getDivCol() : [200,185,255];
+    ctx.beginPath();
+    ctx.moveTo(this.pts[0].x, this.pts[0].y);
+    for (let i=1; i<this.pts.length; i++) ctx.lineTo(this.pts[i].x, this.pts[i].y);
+    ctx.strokeStyle = rgba(col, a);
+    ctx.lineWidth   = 0.5;
+    ctx.stroke();
+  }
+}
+
+// ── DNA CREATURE ──────────────────────────────────────────────────────────────
+class DNACreature {
+  constructor(init=true) { this.reset(init); }
+
+  reset(init=true) {
+    if (init) {
+      this.x = Math.random() * W;
+      this.y = Math.random() * H;
+    } else {
+      const e = Math.floor(Math.random()*4);
+      if (e===0) { this.x=Math.random()*W; this.y=-120; }
+      else if(e===1) { this.x=W+120; this.y=Math.random()*H; }
+      else if(e===2) { this.x=Math.random()*W; this.y=H+120; }
+      else { this.x=-120; this.y=Math.random()*H; }
+    }
+    this.vx = (Math.random()-0.5) * 0.55;
+    this.vy = (Math.random()-0.5) * 0.55;
+    if (Math.abs(this.vx) < 0.18) this.vx = 0.18 * (this.vx < 0 ? -1 : 1);
+    if (Math.abs(this.vy) < 0.18) this.vy = 0.18 * (this.vy < 0 ? -1 : 1);
+
+    this.len        = 95 + Math.random() * 85;
+    this.amp        = 6  + Math.random() * 5;
+    this.phase      = Math.random() * Math.PI * 2;
+    this.phaseSpd   = 0.013 + Math.random() * 0.014;
+    this.pulseT     = Math.random();
+    this.pulseSpd   = 0.0035 + Math.random() * 0.006;
+    this.baseAlpha  = 0.3  + Math.random() * 0.3;
+    this.prox       = 0;
+  }
+
+  update() {
+    this.phase  += this.phaseSpd;
+    this.pulseT += this.pulseSpd;
+    if (this.pulseT > 1.25) this.pulseT = -0.25;
+
+    const dx   = mouse.x - this.x;
+    const dy   = mouse.y - this.y;
+    const dist = Math.hypot(dx, dy);
+    this.prox  = Math.max(0, 1 - dist/260);
+
+    if (dist > 0 && dist < 260) {
+      const f = this.prox * 0.0018;
+      this.vx += dx/dist * f;
+      this.vy += dy/dist * f;
+    }
+
+    const spd    = Math.hypot(this.vx, this.vy);
+    const maxSpd = 1.1 + this.prox * 0.5;
+    if (spd > maxSpd) { this.vx = this.vx/spd*maxSpd; this.vy = this.vy/spd*maxSpd; }
+
+    this.x += this.vx;
+    this.y += this.vy;
+
+    const pad = 140;
+    if (this.x < -pad || this.x > W+pad || this.y < -pad || this.y > H+pad) this.reset(false);
+  }
+
+  draw() {
+    const angle = Math.atan2(this.vy, this.vx);
+    const cos   = Math.cos(angle);
+    const sin   = Math.sin(angle);
+    const segs  = 26;
+
+    const baseCol  = tint > 0.01 ? lerpRgb(COL.primary, getDivCol(), tint*0.65) : COL.primary;
+    const pulseCol = tint > 0.01 ? lerpRgb(COL.accent,  getDivCol(), tint*0.45) : COL.accent;
+
+    // Pre-compute electric jitter
+    const jt = [];
+    for (let i=0; i<=segs; i++) jt.push(Math.random() < 0.07 ? (Math.random()-0.5)*2.5 : 0);
+
+    // Two strands
+    for (let strand=-1; strand<=1; strand+=2) {
+      ctx.beginPath();
+      for (let i=0; i<=segs; i++) {
+        const t    = i/segs;
+        const pos  = (t-0.5) * this.len;
+        const px   = this.x + cos*pos;
+        const py   = this.y + sin*pos;
+        const sine = Math.sin(t * Math.PI*5 + this.phase) * this.amp;
+        const off  = sine + strand*4 + jt[i];
+        i===0 ? ctx.moveTo(px-sin*off, py+cos*off) : ctx.lineTo(px-sin*off, py+cos*off);
+      }
+      ctx.strokeStyle = rgba(baseCol, this.baseAlpha * (0.65 + this.prox*0.35));
+      ctx.lineWidth   = 0.75 + this.prox*0.5;
+      ctx.stroke();
+    }
+
+    // DNA bridges
+    const bCount = Math.floor(this.len/17);
+    for (let b=0; b<bCount; b++) {
+      const t    = (b+0.5)/bCount;
+      const pos  = (t-0.5) * this.len;
+      const px   = this.x + cos*pos;
+      const py   = this.y + sin*pos;
+      const sine = Math.sin(t * Math.PI*5 + this.phase) * this.amp;
+      const env  = Math.sin(t * Math.PI);
+
+      const s1x  = px - sin*(sine+4);
+      const s1y  = py + cos*(sine+4);
+      const s2x  = px - sin*(sine-4);
+      const s2y  = py + cos*(sine-4);
+
+      const pd    = Math.abs(t - this.pulseT);
+      const pGlow = Math.max(0, 1 - pd*13);
+
+      ctx.beginPath();
+      ctx.moveTo(s1x, s1y);
+      ctx.lineTo(s2x, s2y);
+      ctx.strokeStyle = rgba(pGlow > 0.25 ? pulseCol : baseCol,
+                             (0.2 + pGlow*0.8) * env * (this.baseAlpha+0.15));
+      ctx.lineWidth   = pGlow > 0.25 ? 1.4 : 0.5;
+      ctx.stroke();
+    }
+
+    // Pulse dot (on both strands)
+    if (this.pulseT >= 0 && this.pulseT <= 1) {
+      const t    = this.pulseT;
+      const pos  = (t-0.5) * this.len;
+      const px   = this.x + cos*pos;
+      const py   = this.y + sin*pos;
+      const sine = Math.sin(t * Math.PI*5 + this.phase) * this.amp;
+      for (let strand=-1; strand<=1; strand+=2) {
+        const off = sine + strand*4;
+        ctx.beginPath();
+        ctx.arc(px-sin*off, py+cos*off, 1.8, 0, Math.PI*2);
+        ctx.fillStyle = rgba(pulseCol, 0.92);
+        ctx.fill();
+      }
+    }
+  }
+}
+
+// ── SIGNET ────────────────────────────────────────────────────────────────────
+function drawSignet() {
+  const cx  = W/2;
+  const cy  = H/2;
+  const r   = 54;
+  const dx  = mouse.x - cx;
+  const dy  = mouse.y - cy;
+  const d   = Math.hypot(dx, dy);
+  const prx = Math.max(0, 1 - d/210);
+
+  const col   = lerpRgb(COL.primary, COL.accent, prx);
+  const sAlpha = 0.65 + prx*0.35;
+
+  // Glow halo
+  if (prx > 0.05) {
+    const g = ctx.createRadialGradient(cx,cy,r*0.6, cx,cy,r*2.2);
+    g.addColorStop(0, rgba(col, 0.06 + prx*0.18));
+    g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(cx,cy,r*2.2,0,Math.PI*2); ctx.fill();
+  }
+
+  ctx.strokeStyle = rgba(col, sAlpha);
+  ctx.lineWidth   = 2;
+  ctx.lineCap     = 'round';
+  ctx.lineJoin    = 'round';
+
+  // Outer circle (open gap for Q-tail)
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0.48, Math.PI*2 - 0.08);
+  ctx.stroke();
+
+  // Q tail
+  ctx.beginPath();
+  ctx.moveTo(cx + r*Math.cos(Math.PI*2-0.06), cy + r*Math.sin(Math.PI*2-0.06));
+  ctx.lineTo(cx + r*1.28, cy + r*0.42);
+  ctx.stroke();
+
+  // Inner waveform — 3 arches + stems
+  const wx = cx - r*0.52;
+  const wy = cy;
+  const s  = r * 0.215;
+  ctx.beginPath();
+  ctx.moveTo(wx - s*0.7, wy);
+  ctx.lineTo(wx, wy);
+  ctx.bezierCurveTo(wx+s*0.28, wy-r*0.26, wx+s*0.72, wy-r*0.26, wx+s,   wy);
+  ctx.bezierCurveTo(wx+s*1.28, wy-r*0.41, wx+s*1.72, wy-r*0.41, wx+s*2, wy);
+  ctx.bezierCurveTo(wx+s*2.28, wy-r*0.41, wx+s*2.72, wy-r*0.41, wx+s*3, wy);
+  ctx.lineTo(wx+s*3.75, wy);
+  ctx.stroke();
+}
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+const fogs     = Array.from({length:4},  () => new FogBlob());
+const coronas  = Array.from({length:6},  () => new Corona());
+const creatures= Array.from({length:9},  () => new DNACreature(true));
+
+// ── LOOP ─────────────────────────────────────────────────────────────────────
+function animate() {
+  tint += (targetTint - tint) * 0.038;
+
+  ctx.fillStyle = '#0A0A0F';
+  ctx.fillRect(0,0,W,H);
+
+  fogs.forEach(f    => { f.update(); f.draw(); });
+  coronas.forEach(c => { c.update(); c.draw(); });
+  creatures.forEach(c=>{ c.update(); c.draw(); });
+  drawSignet();
+
+  requestAnimationFrame(animate);
+}
+
+animate();
+</script>
+</body>
+</html>
