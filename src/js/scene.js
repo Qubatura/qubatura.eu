@@ -37,12 +37,10 @@ export function onTick(fn) {
 }
 
 export function startLoop() {
-  function tick() {
-    requestAnimationFrame(tick);
+  renderer.setAnimationLoop(() => {
     const delta   = clock.getDelta();
     const elapsed = clock.getElapsedTime();
     for (const fn of tickCallbacks) fn(delta, elapsed);
     renderer.render(scene, camera);
-  }
-  tick();
+  });
 }

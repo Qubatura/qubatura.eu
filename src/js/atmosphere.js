@@ -45,7 +45,12 @@ const FOG_FRAG = /* glsl */`
   }
 
   void main() {
-    vec2  p = vUv * 3.5 + vec2(time * 0.00012, time * 0.00008);
+    // Sinusoidal breathing — visible oscillation, period ~52s / ~79s per axis
+    vec2 drift = vec2(
+      sin(time * 0.12) * 0.35 + time * 0.006,
+      cos(time * 0.08) * 0.25 + time * 0.004
+    );
+    vec2  p = vUv * 3.5 + drift;
     float n = fbm(p);
     float a = max(0.0, n - 0.42) * fogAlpha;
     gl_FragColor = vec4(fogColor, a);
