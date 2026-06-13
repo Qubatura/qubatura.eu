@@ -8,6 +8,11 @@ const SEGS    = 160;
 const TRAIL   = 80;
 const COUNT   = 15;
 
+let camera;
+const mouse = { x: -9999, y: -9999 };
+const _wp   = new THREE.Vector3();
+window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+
 class Creature {
   constructor(scene) {
     this.RX = 12 + Math.random() * 10;  // 12–22
@@ -40,6 +45,9 @@ class Creature {
     this.e2spd = 0.020 + Math.random() * 0.012;
     this.e1h   = [];  // t-value history — positions recomputed in local space each frame
     this.e2h   = [];
+
+    this.baseTrailOpacity = 0.5;
+    this.currentOpacity   = this.baseTrailOpacity;
 
     this._buildTrack();
     this._buildElectrons();
@@ -104,14 +112,15 @@ class Creature {
       geo.setAttribute('color',    new THREE.BufferAttribute(col, 3));
       geo.attributes.position.usage = THREE.DynamicDrawUsage;
       geo.attributes.color.usage    = THREE.DynamicDrawUsage;
-      const line = new THREE.Line(geo, new THREE.LineBasicMaterial({
+      const mat = new THREE.LineBasicMaterial({
         vertexColors: true,
         blending:     THREE.AdditiveBlending,
         depthWrite:   false,
         transparent:  true,
-      }));
-      this.group.add(line);
-      return { pos, col, geo };
+        opacity:      this.baseTrailOpacity,
+      });
+      this.group.add(new THREE.Line(geo, mat));
+      return { pos, col, geo, mat };
     };
     this._t1 = make();
     this._t2 = make();
@@ -171,12 +180,24 @@ class Creature {
     this.e1h.unshift(this.e1t); if (this.e1h.length > TRAIL) this.e1h.pop();
     this.e2h.unshift(this.e2t); if (this.e2h.length > TRAIL) this.e2h.pop();
 
+    // Mouse proximity — lerp trail brightness toward 1.0 on hover
+    _wp.copy(this.group.position).project(camera);
+    const sx     = (_wp.x + 1) / 2 * window.innerWidth;
+    const sy     = (1 - _wp.y) / 2 * window.innerHeight;
+    const target = Math.hypot(mouse.x - sx, mouse.y - sy) < 200
+      ? 1.0
+      : this.baseTrailOpacity;
+    this.currentOpacity     += (target - this.currentOpacity) * 0.08;
+    this._t1.mat.opacity     = this.currentOpacity;
+    this._t2.mat.opacity     = this.currentOpacity;
+
     this._updateTrail(this._t1, this.e1h);
     this._updateTrail(this._t2, this.e2h);
   }
 }
 
 export function initCreatures(ctx) {
+  camera = ctx.camera;
   const { scene } = ctx;
   const creatures = Array.from({ length: COUNT }, () => new Creature(scene));
   onTick((_dt, elapsed) => { for (const c of creatures) c.update(elapsed); });

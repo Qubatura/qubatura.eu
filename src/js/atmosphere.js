@@ -5,15 +5,21 @@ import { onTick } from './scene.js';
 
 function makeGradientTexture() {
   const canvas = document.createElement('canvas');
-  canvas.width = canvas.height = 256;
+  canvas.width = canvas.height = 1024;
   const ctx  = canvas.getContext('2d');
-  const grad = ctx.createRadialGradient(128, 128, 0, 128, 128, 128);
-  grad.addColorStop(0,   'rgba(255, 255, 255, 1)');
-  grad.addColorStop(0.4, 'rgba(255, 255, 255, 0.5)');
-  grad.addColorStop(1,   'rgba(255, 255, 255, 0)');
+  // Outer radius 440 (not 512) — leaves ~72px fully-transparent border
+  // so mipmap sampling never bleeds the sprite quad edge
+  const grad = ctx.createRadialGradient(512, 512, 0, 512, 512, 440);
+  grad.addColorStop(0,    'rgba(255, 255, 255, 1)');
+  grad.addColorStop(0.35, 'rgba(255, 255, 255, 0.55)');
+  grad.addColorStop(0.75, 'rgba(255, 255, 255, 0.12)');
+  grad.addColorStop(1,    'rgba(255, 255, 255, 0)');
   ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, 256, 256);
-  return new THREE.CanvasTexture(canvas);
+  ctx.fillRect(0, 0, 1024, 1024);
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.generateMipmaps = false;
+  tex.minFilter = THREE.LinearFilter;
+  return tex;
 }
 
 // ─── Fog sprites ──────────────────────────────────────────────────────────────
@@ -23,7 +29,7 @@ function createFog(scene) {
   const blobs   = [];
 
   for (let i = 0; i < 10; i++) {
-    const baseOpacity = 0.15 + Math.random() * 0.10; // 0.15–0.25
+    const baseOpacity = 0.09 + Math.random() * 0.06; // 0.09–0.15 (−40% vs poprzedniego)
 
     const mat = new THREE.SpriteMaterial({
       map:         texture,
@@ -39,8 +45,8 @@ function createFog(scene) {
     const scale  = 300 + Math.random() * 200; // 300–500 world units
     sprite.scale.set(scale, scale, 1);
     sprite.position.set(
-      (Math.random() - 0.5) * 900,  // ±450 — pokrywa cały viewport + poza krawędziami
-      (Math.random() - 0.5) * 520,  // ±260
+      (Math.random() - 0.5) * 500,  // ±250 — within visible viewport (±308wu)
+      (Math.random() - 0.5) * 280,  // ±140 — within visible viewport (±173wu)
       (Math.random() - 0.5) * 60
     );
     scene.add(sprite);
@@ -51,7 +57,7 @@ function createFog(scene) {
       baseOpacity,
       vx:      (Math.random() - 0.5) * 0.14,
       vy:      (Math.random() - 0.5) * 0.08,
-      period:  5 + Math.random() * 3,            // 5–8s breathing period
+      period:  22 + Math.random() * 6,             // 22–28s breathing period (≈25s)
       phase:   Math.random() * Math.PI * 2,
     });
   }
@@ -60,7 +66,7 @@ function createFog(scene) {
 }
 
 function updateFog(blobs, elapsed) {
-  const BW = 500, BH = 290; // wrap po wyjściu poza ekran, nie przed
+  const BW = 290, BH = 165; // wrap na granicy viewport — nie pozwala sprite'om wychodzić daleko poza
   for (const b of blobs) {
     b.sprite.position.x += b.vx;
     b.sprite.position.y += b.vy;
@@ -78,8 +84,8 @@ function updateFog(blobs, elapsed) {
 
 // ─── Corona discharge ─────────────────────────────────────────────────────────
 
-const CORONA_CLR = new THREE.Color(200 / 255, 185 / 255, 1.0);
-const POOL_SIZE  = 6;
+const CORONA_CLR = new THREE.Color(0x9B7FFF);
+const POOL_SIZE  = 15;
 const MAX_PTS    = 8;
 
 function makeSlot(scene) {
@@ -109,8 +115,8 @@ function spawnBolt(slot) {
   const x      = (Math.random() - 0.5) * 500;
   const y      = (Math.random() - 0.5) * 280;
   const angle  = Math.random() * Math.PI * 2;
-  const length = 5 + Math.random() * 8;
-  const nSeg   = 4 + Math.floor(Math.random() * 4);
+  const length = 6 + Math.random() * 7;
+  const nSeg   = 4 + Math.floor(Math.random() * 3);
   const nPts   = nSeg + 1;
 
   for (let i = 0; i < nPts; i++) {
@@ -125,16 +131,16 @@ function spawnBolt(slot) {
 
   slot.geo.setDrawRange(0, nPts);
   slot.geo.attributes.position.needsUpdate = true;
-  slot.mat.opacity = 0.20 + Math.random() * 0.05;
+  slot.mat.opacity = 0.40;
   slot.line.visible = true;
   slot.active  = true;
   slot.life    = 0;
-  slot.maxLife = 6 + Math.floor(Math.random() * 3);
+  slot.maxLife = 5 + Math.floor(Math.random() * 4);
 }
 
 function createCorona(scene) {
   const pool = Array.from({ length: POOL_SIZE }, () => makeSlot(scene));
-  let   timer = 3 + Math.random() * 5;
+  let   timer = 0.3 + Math.random() * 0.7;
 
   return {
     update(delta) {
@@ -142,12 +148,12 @@ function createCorona(scene) {
       if (timer <= 0) {
         const free = pool.find(s => !s.active);
         if (free) spawnBolt(free);
-        timer = 3 + Math.random() * 5;
+        timer = 0.3 + Math.random() * 0.7;
       }
       for (const s of pool) {
         if (!s.active) continue;
         s.life++;
-        s.mat.opacity = 0.22 * (1 - s.life / s.maxLife);
+        s.mat.opacity = 0.40 * (1 - s.life / s.maxLife);
         if (s.life >= s.maxLife) {
           s.line.visible = false;
           s.active = false;

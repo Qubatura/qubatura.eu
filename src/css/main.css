@@ -50,11 +50,20 @@ html, body {
   inset: 0;
   background-image: url('/assets/planet-bg.png');
   background-size: cover;
-  background-position: center center;
+  background-position: top center;
   background-repeat: no-repeat;
   opacity: 0.17;
   z-index: 1;
   pointer-events: none;
+}
+
+/* ── Edge vignette — eliminates fog sprite bleed at viewport boundary ── */
+#vignette {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+  box-shadow: inset 0 0 220px 80px var(--color-bg);
 }
 
 /* ── Three.js canvas ────────────────────────────────────────────── */
@@ -249,7 +258,7 @@ html, body {
   right: calc(50% + var(--signet-r) + var(--nav-line-gap));
   top: 50%;
   transform: translateY(-50%);
-  flex-direction: row-reverse; /* DOM: [label][line] → visual: [line][label] reversed → [label]→[line→signet] */
+  flex-direction: row; /* DOM: [label][line] → visual: [label][line→signet] */
 }
 
 #nav-events .nav-line {
