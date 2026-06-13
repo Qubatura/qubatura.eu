@@ -22,8 +22,8 @@ function createFog(scene) {
   const texture = makeGradientTexture();
   const blobs   = [];
 
-  for (let i = 0; i < 6; i++) {
-    const baseOpacity = 0.06 + Math.random() * 0.04; // 0.06–0.10
+  for (let i = 0; i < 10; i++) {
+    const baseOpacity = 0.15 + Math.random() * 0.10; // 0.15–0.25
 
     const mat = new THREE.SpriteMaterial({
       map:         texture,
@@ -49,9 +49,9 @@ function createFog(scene) {
       sprite,
       mat,
       baseOpacity,
-      vx:      (Math.random() - 0.5) * 0.07,
-      vy:      (Math.random() - 0.5) * 0.04,
-      period:  8 + Math.random() * 7,           // 8–15s breathing period
+      vx:      (Math.random() - 0.5) * 0.14,
+      vy:      (Math.random() - 0.5) * 0.08,
+      period:  5 + Math.random() * 3,            // 5–8s breathing period
       phase:   Math.random() * Math.PI * 2,
     });
   }
