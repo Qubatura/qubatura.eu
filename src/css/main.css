@@ -1,0 +1,432 @@
+/* ═══════════════════════════════════════════════════════════════
+   qubatura.eu — main.css
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Design tokens ─────────────────────────────────────────────── */
+:root {
+  /* Colors */
+  --color-bg:        #0A0A0F;
+  --color-primary:   #5B2EFF;
+  --color-accent:    #E0218A;
+  --color-events:    #7C3AED;
+  --color-studio:    #1E90FF;
+  --color-lab:       #00E5FF;
+  --color-white:     #FFFFFF;
+  --color-white-dim: rgba(255, 255, 255, 0.35);
+
+  /* Typography */
+  --font-display: 'Chakra Petch', sans-serif;
+  --font-mono:    'Space Mono', monospace;
+
+  /* Layout — signet radius estimate for nav positioning (refined in Etap 6) */
+  --signet-r: 85px;
+  --nav-line-gap: 12px;   /* gap between signet edge and line start */
+  --nav-line-len: 90px;   /* resting line length */
+  --nav-line-hover: 112px; /* line length on hover */
+}
+
+/* ── Reset ──────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ── Base ───────────────────────────────────────────────────────── */
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--color-bg);
+  color: var(--color-white);
+  cursor: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Three.js canvas ────────────────────────────────────────────── */
+#c {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* ── Custom cursor ──────────────────────────────────────────────── */
+#cursor {
+  position: fixed;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+  box-shadow: 0 0 8px var(--color-accent);
+  transition: width 0.2s ease, height 0.2s ease, background 0.3s;
+  will-change: left, top;
+}
+
+/* ── Loading screen ─────────────────────────────────────────────── */
+#loading {
+  position: fixed;
+  inset: 0;
+  background: var(--color-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 900;
+  /* Etap 9: GSAP fade out after signet materialize */
+}
+
+#loading-signet {
+  width: 80px;
+  height: 80px;
+  /* Etap 9: placeholder for animated signet */
+}
+
+/* ── Topbar ─────────────────────────────────────────────────────── */
+#topbar {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 50;
+}
+
+#top-right {
+  position: absolute;
+  top: 28px;
+  right: 40px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  pointer-events: all;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+#top-right.visible {
+  opacity: 1;
+}
+
+#top-contact,
+#lang-toggle {
+  color: rgba(255, 255, 255, 0.25);
+  text-decoration: none;
+  background: none;
+  border: none;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  cursor: none;
+  transition: color 0.3s;
+}
+
+#top-contact:hover,
+#lang-toggle:hover {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.top-sep {
+  color: rgba(255, 255, 255, 0.12);
+}
+
+#sound-toggle {
+  background: none;
+  border: none;
+  cursor: none;
+  padding: 0;
+  display: flex;
+  align-items: center;
+}
+
+.waveform {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 16px;
+}
+
+.waveform span {
+  display: block;
+  width: 2px;
+  border-radius: 1px;
+  background: rgba(255, 255, 255, 0.2);
+  transition: background 0.3s, height 0.5s ease;
+}
+
+/* Animated waveform when sound is active (Etap 8) */
+#sound-toggle[data-active="true"] .waveform span {
+  background: var(--color-accent);
+  animation: wave 1.1s ease-in-out infinite alternate;
+}
+
+#sound-toggle[data-active="true"] .waveform span:nth-child(1) { animation-delay: 0.0s; }
+#sound-toggle[data-active="true"] .waveform span:nth-child(2) { animation-delay: 0.15s; }
+#sound-toggle[data-active="true"] .waveform span:nth-child(3) { animation-delay: 0.3s; }
+#sound-toggle[data-active="true"] .waveform span:nth-child(4) { animation-delay: 0.1s; }
+#sound-toggle[data-active="true"] .waveform span:nth-child(5) { animation-delay: 0.25s; }
+#sound-toggle[data-active="true"] .waveform span:nth-child(6) { animation-delay: 0.05s; }
+
+@keyframes wave {
+  from { transform: scaleY(0.4); }
+  to   { transform: scaleY(1.4); }
+}
+
+/* ── Directional Navigation ─────────────────────────────────────── */
+#nav {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 20;
+}
+
+.nav-item {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  pointer-events: all;
+  cursor: none;
+  text-decoration: none;
+}
+
+.nav-label {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  color: rgba(255, 255, 255, 0.28);
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: color 0.4s ease, text-shadow 0.4s ease;
+}
+
+.nav-line {
+  background: rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
+  transition: background 0.4s ease, box-shadow 0.4s ease,
+              width 0.35s ease, height 0.35s ease;
+}
+
+.nav-tooltip {
+  position: absolute;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.5);
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  padding: 6px 12px;
+  background: rgba(10, 10, 15, 0.85);
+  backdrop-filter: blur(4px);
+  pointer-events: none;
+}
+
+/* ── Events ← ──────────────────────────────────────────────────── */
+#nav-events {
+  /* Right edge of item sits near left edge of signet */
+  right: calc(50% + var(--signet-r) + var(--nav-line-gap));
+  top: 50%;
+  transform: translateY(-50%);
+  flex-direction: row-reverse; /* DOM: [label][line] → visual: [line][label] reversed → [label]→[line→signet] */
+}
+
+#nav-events .nav-line {
+  height: 1px;
+  width: var(--nav-line-len);
+}
+
+#nav-events .nav-tooltip {
+  right: calc(100% + 16px);
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+#nav-events:hover .nav-label {
+  color: var(--color-events);
+  text-shadow: 0 0 8px var(--color-events), 0 0 22px var(--color-events);
+}
+
+#nav-events:hover .nav-line {
+  width: var(--nav-line-hover);
+  background: var(--color-events);
+  box-shadow: 0 0 6px var(--color-events), 0 0 18px var(--color-events);
+}
+
+#nav-events:hover .nav-tooltip { opacity: 1; }
+
+/* ── Studio → ──────────────────────────────────────────────────── */
+#nav-studio {
+  left: calc(50% + var(--signet-r) + var(--nav-line-gap));
+  top: 50%;
+  transform: translateY(-50%);
+  /* DOM: [line][label] → visual: [signet→line]→[label] */
+}
+
+#nav-studio .nav-line {
+  height: 1px;
+  width: var(--nav-line-len);
+}
+
+#nav-studio .nav-tooltip {
+  left: calc(100% + 16px);
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+#nav-studio:hover .nav-label {
+  color: var(--color-studio);
+  text-shadow: 0 0 8px var(--color-studio), 0 0 22px var(--color-studio);
+}
+
+#nav-studio:hover .nav-line {
+  width: var(--nav-line-hover);
+  background: var(--color-studio);
+  box-shadow: 0 0 6px var(--color-studio), 0 0 18px var(--color-studio);
+}
+
+#nav-studio:hover .nav-tooltip { opacity: 1; }
+
+/* ── Lab ↓ ─────────────────────────────────────────────────────── */
+#nav-lab {
+  top: calc(50% + var(--signet-r) + var(--nav-line-gap));
+  left: 50%;
+  transform: translateX(-50%);
+  flex-direction: column;
+  /* DOM: [line][label] → visual: [signet↓line]→[label below] */
+}
+
+#nav-lab .nav-line {
+  width: 1px;
+  height: var(--nav-line-len);
+}
+
+#nav-lab .nav-tooltip {
+  top: calc(100% + 16px);
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+#nav-lab:hover .nav-label {
+  color: var(--color-lab);
+  text-shadow: 0 0 8px var(--color-lab), 0 0 22px var(--color-lab);
+}
+
+#nav-lab:hover .nav-line {
+  height: var(--nav-line-hover);
+  background: var(--color-lab);
+  box-shadow: 0 0 6px var(--color-lab), 0 0 18px var(--color-lab);
+}
+
+#nav-lab:hover .nav-tooltip { opacity: 1; }
+
+/* ── Tagline ─────────────────────────────────────────────────────── */
+#tagline {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.32em;
+  color: rgba(255, 255, 255, 0.14);
+  text-transform: uppercase;
+  white-space: nowrap;
+  z-index: 10;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ── Screen reader only ──────────────────────────────────────────── */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── Responsive ─────────────────────────────────────────────────── */
+
+/* Tablet */
+@media (max-width: 1024px) {
+  :root {
+    --signet-r: 70px;
+    --nav-line-len: 70px;
+  }
+}
+
+/* Mobile — three nav cards below signet */
+@media (max-width: 768px) {
+  html, body { cursor: auto; }
+  #cursor { display: none; }
+
+  /* Nav reflows to three horizontal cards at bottom */
+  #nav {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 0;
+    padding-bottom: 48px;
+  }
+
+  .nav-item {
+    position: static;
+    transform: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    max-width: 33%;
+    padding: 16px 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+  }
+
+  .nav-line { display: none; }
+
+  .nav-label {
+    font-size: 10px;
+    letter-spacing: 0.15em;
+  }
+
+  .nav-tooltip {
+    position: static;
+    transform: none;
+    opacity: 0.6;
+    font-size: 8px;
+    border: none;
+    background: none;
+    padding: 0;
+    text-align: center;
+    white-space: normal;
+    display: block;
+    margin-top: 4px;
+  }
+
+  #top-right {
+    opacity: 1;
+    top: 20px;
+    right: 16px;
+  }
+
+  #tagline {
+    bottom: auto;
+    top: 20px;
+    left: 16px;
+    transform: none;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+  }
+}

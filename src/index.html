@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Qubatura Group — Nagłośnienie, Studio, Lab</title>
+  <meta name="description" content="Qubatura Group — profesjonalne usługi AV, studio nagrań i projekty techniczne. Events, Studio Q, Qubatura Lab. Sosnowiec.">
+
+  <!-- Open Graph -->
+  <meta property="og:type"        content="website">
+  <meta property="og:url"         content="https://qubatura.eu/">
+  <meta property="og:title"       content="Qubatura Group">
+  <meta property="og:description" content="Profesjonalne usługi AV, studio nagrań i projekty techniczne.">
+  <meta property="og:image"       content="https://qubatura.eu/assets/og-image.png">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@300;400;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/main.css">
+
+  <!-- Schema.org JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Qubatura Group",
+    "url": "https://qubatura.eu",
+    "email": "biuro@qubatura.eu",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Sosnowiec",
+      "addressCountry": "PL"
+    },
+    "hasOfferCatalog": {
+      "@type": "OfferCatalog",
+      "name": "Usługi",
+      "itemListElement": [
+        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Nagłośnienie i oświetlenie eventów" } },
+        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Produkcja audio i audiobooki" } },
+        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Druk 3D i projekty IoT" } }
+      ]
+    }
+  }
+  </script>
+</head>
+<body>
+
+  <!-- Three.js render target -->
+  <canvas id="c" aria-hidden="true"></canvas>
+
+  <!-- Custom cursor dot -->
+  <div id="cursor" aria-hidden="true"></div>
+
+  <!-- Loading screen (Etap 9) -->
+  <div id="loading" aria-hidden="true">
+    <div id="loading-signet"></div>
+  </div>
+
+  <!-- SEO-accessible nav (hidden visually, readable by bots) -->
+  <nav class="sr-only" aria-label="Strony">
+    <a href="/events">Qubatura Events — nagłośnienie, oświetlenie, streaming</a>
+    <a href="/studio">Studio Q — audiobooki, sound design, binaural</a>
+    <a href="/lab">Qubatura Lab — druk 3D, mapping, IoT, web</a>
+    <a href="/contact">Kontakt</a>
+  </nav>
+
+  <!-- Top-right UI -->
+  <header id="topbar">
+    <div id="top-right">
+      <a href="/contact" id="top-contact">Contact</a>
+      <span class="top-sep" aria-hidden="true">/</span>
+      <button id="lang-toggle" aria-label="Zmień język" data-lang="pl">PL</button>
+      <button id="sound-toggle" aria-label="Włącz dźwięk ambient" data-active="false">
+        <div class="waveform" aria-hidden="true">
+          <span style="height:4px"></span>
+          <span style="height:10px"></span>
+          <span style="height:14px"></span>
+          <span style="height:8px"></span>
+          <span style="height:12px"></span>
+          <span style="height:5px"></span>
+        </div>
+      </button>
+    </div>
+  </header>
+
+  <!-- Directional navigation — emanating from central signet -->
+  <nav id="nav" aria-label="Nawigacja działów">
+
+    <!-- ← Events -->
+    <a class="nav-item" id="nav-events"
+       href="/events"
+       data-division="events"
+       aria-label="Qubatura Events">
+      <span class="nav-label">Events</span>
+      <div class="nav-line" aria-hidden="true"></div>
+      <div class="nav-tooltip" role="tooltip">Nagłośnienie · Oświetlenie · Streaming</div>
+    </a>
+
+    <!-- → Studio -->
+    <a class="nav-item" id="nav-studio"
+       href="/studio"
+       data-division="studio"
+       aria-label="Studio Q">
+      <div class="nav-line" aria-hidden="true"></div>
+      <span class="nav-label">Studio</span>
+      <div class="nav-tooltip" role="tooltip">Audiobooki · Sound design · Binaural</div>
+    </a>
+
+    <!-- ↓ Lab -->
+    <a class="nav-item" id="nav-lab"
+       href="/lab"
+       data-division="lab"
+       aria-label="Qubatura Lab">
+      <div class="nav-line" aria-hidden="true"></div>
+      <span class="nav-label">Lab</span>
+      <div class="nav-tooltip" role="tooltip">3D · Mapping · IoT · Web</div>
+    </a>
+
+  </nav>
+
+  <!-- Tagline -->
+  <p id="tagline">Przybywamy z sygnałem</p>
+
+  <!-- Cursor tracking (inline — no module needed yet) -->
+  <script>
+    const cursorEl = document.getElementById('cursor');
+    document.addEventListener('mousemove', e => {
+      cursorEl.style.left = e.clientX + 'px';
+      cursorEl.style.top  = e.clientY + 'px';
+    });
+
+    // Division hover — state picked up by Three.js in Etap 3
+    window.qbState = { activeDiv: null };
+    document.querySelectorAll('.nav-item').forEach(el => {
+      el.addEventListener('mouseenter', () => { window.qbState.activeDiv = el.dataset.division; });
+      el.addEventListener('mouseleave', () => { window.qbState.activeDiv = null; });
+    });
+
+    // Topbar auto-hide — show on move, hide after 3s idle (Etap 8 refines this)
+    const topRight = document.getElementById('top-right');
+    let hideTimer;
+    document.addEventListener('mousemove', () => {
+      topRight.classList.add('visible');
+      clearTimeout(hideTimer);
+      hideTimer = setTimeout(() => topRight.classList.remove('visible'), 3000);
+    });
+  </script>
+
+  <!-- Three.js + main module wired in Etap 3 -->
+  <!-- <script type="module" src="js/main.js"></script> -->
+
+</body>
+</html>
