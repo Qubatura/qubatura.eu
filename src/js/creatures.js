@@ -2,176 +2,150 @@ import * as THREE from 'three';
 import { onTick } from './scene.js';
 
 const ACCENT   = new THREE.Color(0xE0218A);
-const PRIMARY  = new THREE.Color(0x5B2EFF);
-const SEGMENTS = 180;   // per full loop; split in half for depth trick
-const HALF_PTS = SEGMENTS / 2 + 1; // points per half-loop (includes both endpoints)
-const TRAIL    = 55;    // electron trail length
-const COUNT    = 3;
-
-// ─── Lemniscate helpers ───────────────────────────────────────────────────────
-
-function lpos(cx, cy, RX, RY, t) {
-  return [
-    cx + RX * Math.sin(t),
-    cy + RY * Math.sin(2 * t) / 2,
-  ];
-}
-
-function lnormal(RX, RY, t) {
-  const dx =  RX * Math.cos(t);
-  const dy =  RY * Math.cos(2 * t);
-  const len = Math.sqrt(dx * dx + dy * dy) || 1;
-  return [-dy / len, dx / len];
-}
+const CORE_CLR = new THREE.Color(0x5B2EFF);
+const HALO_CLR = new THREE.Color(0x9B7FFF); // lighter for outer glow suggestion
+const TRAIL    = 50;
+const SEGS     = 200;
+const COUNT    = 8;
 
 // ─── Creature ─────────────────────────────────────────────────────────────────
 
 class Creature {
   constructor(scene) {
-    this.cx = (Math.random() - 0.5) * 480;
-    this.cy = (Math.random() - 0.5) * 240;
-    this.RX = 70  + Math.random() * 55;
-    this.RY = 35  + Math.random() * 25;
-    this.off = 9  + Math.random() * 4;   // strand offset along normal
+    // Size: 40% smaller (orig 70-125 / 35-60)
+    this.RX  = 42 + Math.random() * 33;  // 42–75
+    this.RY  = 21 + Math.random() * 15;  // 21–36
+    this.off = 6  + Math.random() * 3;
 
-    const angle = Math.random() * Math.PI * 2;
-    const spd   = 0.06 + Math.random() * 0.08;
-    this.vx = Math.cos(angle) * spd;
-    this.vy = Math.sin(angle) * spd * 0.6;
+    this.group = new THREE.Group();
+    this.group.position.set(
+      (Math.random() - 0.5) * 500,
+      (Math.random() - 0.5) * 260,
+      (Math.random() - 0.5) * 60
+    );
+    scene.add(this.group);
 
-    // Two electrons — opposite directions, slight speed difference
+    // 3D rotation — unique speed + phase + amplitude on all three axes
+    const rp = () => ({ spd: 0.25 + Math.random() * 0.6, ph: Math.random() * Math.PI * 2, amp: 0.65 + Math.random() * 0.7 });
+    this.rx = rp(); this.ry = rp(); this.rz = rp();
+
+    // Drift: angle random-walk for organic direction change
+    this.driftAngle = Math.random() * Math.PI * 2;
+    this.driftSpeed = 0.05 + Math.random() * 0.09;
+
+    // Electrons — opposite directions, slightly different speeds
     this.e1t   = Math.random() * Math.PI * 2;
     this.e2t   = this.e1t + Math.PI;
-    this.e1spd =  0.020 + Math.random() * 0.006;
-    this.e2spd =  0.017 + Math.random() * 0.006;
+    this.e1spd = 0.020 + Math.random() * 0.006;
+    this.e2spd = 0.017 + Math.random() * 0.006;
+    this.e1h   = []; // t-value history (not positions — recomputed each frame in local space)
+    this.e2h   = [];
 
-    this._initStrands(scene);
-    this._initTrails(scene);
-    this._updateStrands(); // populate on first frame
+    this._buildStrands();
+    this._buildTrails();
   }
 
-  // ── Strand geometry ─────────────────────────────────────────────────────────
-
-  _initStrands(scene) {
-    const makeHalf = () => {
-      const pos = new Float32Array(HALF_PTS * 3);
-      const geo = new THREE.BufferGeometry();
-      geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-      return { pos, geo };
-    };
-
-    const mat = new THREE.LineBasicMaterial({
-      color: PRIMARY,
-      transparent: true,
-      opacity: 0.40,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false,
-    });
-
-    // Strand A: right loop in FRONT (renderOrder 2), left loop behind (1)
-    // Strand B: left loop in FRONT (renderOrder 2), right loop behind (1)
-    this._aR = makeHalf(); this._aL = makeHalf();
-    this._bR = makeHalf(); this._bL = makeHalf();
-
-    const add = (half, order) => {
-      const line = new THREE.Line(half.geo, mat.clone());
-      line.renderOrder = order;
-      scene.add(line);
-    };
-    add(this._aR, 2); add(this._aL, 1);
-    add(this._bR, 1); add(this._bL, 2);
+  // Lemniscate in local space — group transform handles world position + rotation
+  _lpos(t) {
+    return [this.RX * Math.sin(t), this.RY * Math.sin(2 * t) / 2, 0];
   }
 
-  _updateStrands() {
-    const { cx, cy, RX, RY, off } = this;
-    const H = SEGMENTS / 2;
+  _lnormal(t) {
+    const dx =  this.RX * Math.cos(t);
+    const dy =  this.RY * Math.cos(2 * t);
+    const len = Math.sqrt(dx * dx + dy * dy) || 1;
+    return [-dy / len, dx / len];
+  }
 
-    for (let h = 0; h <= H; h++) {
-      const tR = (h / H) * Math.PI;           // 0 → π  (right loop)
-      const tL = Math.PI + (h / H) * Math.PI; // π → 2π (left loop)
+  _buildStrands() {
+    const N    = SEGS + 1;
+    const posA = new Float32Array(N * 3);
+    const posB = new Float32Array(N * 3);
 
-      for (const [t, aHalf, bHalf] of [[tR, this._aR, this._bR], [tL, this._aL, this._bL]]) {
-        const [px, py] = lpos(cx, cy, RX, RY, t);
-        const [nx, ny] = lnormal(RX, RY, t);
-
-        aHalf.pos[h*3]   = px + nx * off;
-        aHalf.pos[h*3+1] = py + ny * off;
-        aHalf.pos[h*3+2] = 0;
-
-        bHalf.pos[h*3]   = px - nx * off;
-        bHalf.pos[h*3+1] = py - ny * off;
-        bHalf.pos[h*3+2] = 0;
-      }
+    for (let i = 0; i < N; i++) {
+      const t        = (i / SEGS) * Math.PI * 2;
+      const [x, y]   = this._lpos(t);
+      const [nx, ny] = this._lnormal(t);
+      const o        = this.off;
+      posA[i*3] = x + nx*o;  posA[i*3+1] = y + ny*o;  posA[i*3+2] = 0;
+      posB[i*3] = x - nx*o;  posB[i*3+1] = y - ny*o;  posB[i*3+2] = 0;
     }
 
-    for (const h of [this._aR, this._aL, this._bR, this._bL])
-      h.geo.attributes.position.needsUpdate = true;
+    const addLine = (src, color, opacity) => {
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.BufferAttribute(src.slice(), 3));
+      this.group.add(new THREE.Line(geo, new THREE.LineBasicMaterial({
+        color, opacity, transparent: true,
+        blending: THREE.AdditiveBlending, depthWrite: false,
+      })));
+    };
+
+    // Halo pass (softer, lighter) + core pass (vivid) per strand
+    addLine(posA, HALO_CLR, 0.22); addLine(posA, CORE_CLR, 0.82);
+    addLine(posB, HALO_CLR, 0.22); addLine(posB, CORE_CLR, 0.82);
   }
 
-  // ── Electron trails ─────────────────────────────────────────────────────────
-
-  _initTrails(scene) {
-    const makeTrail = () => {
+  _buildTrails() {
+    const make = () => {
       const pos   = new Float32Array(TRAIL * 3);
       const color = new Float32Array(TRAIL * 3);
       const geo   = new THREE.BufferGeometry();
       geo.setAttribute('position', new THREE.BufferAttribute(pos,   3));
       geo.setAttribute('color',    new THREE.BufferAttribute(color, 3));
-      const line  = new THREE.Line(geo, new THREE.LineBasicMaterial({
+      const line = new THREE.Line(geo, new THREE.LineBasicMaterial({
         vertexColors: true,
-        blending: THREE.AdditiveBlending,
-        depthWrite: false,
-        transparent: true,
+        blending: THREE.AdditiveBlending, depthWrite: false, transparent: true,
       }));
-      line.renderOrder = 10;
-      scene.add(line);
-      return { pos, color, line };
+      line.renderOrder = 5;
+      this.group.add(line);
+      return { pos, color, geo };
     };
-
-    this._t1 = makeTrail();
-    this._t2 = makeTrail();
+    this._t1 = make();
+    this._t2 = make();
   }
 
-  _updateTrail(trail, et) {
-    // Shift existing positions back by one slot to make room for new head
-    trail.pos.copyWithin(3, 0, (TRAIL - 1) * 3);
-
-    const [x, y] = lpos(this.cx, this.cy, this.RX, this.RY, et);
-    trail.pos[0] = x;
-    trail.pos[1] = y;
-    trail.pos[2] = 2;
-
-    // Recompute brightness falloff (additive blending: brightness = perceived alpha)
+  _updateTrail(trail, hist) {
     for (let i = 0; i < TRAIL; i++) {
-      const fade = Math.pow(1 - i / (TRAIL - 1), 1.6);
+      if (i < hist.length) {
+        const [x, y]     = this._lpos(hist[i]);
+        trail.pos[i*3]   = x;
+        trail.pos[i*3+1] = y;
+        trail.pos[i*3+2] = 0;
+      }
+      const fade           = Math.pow(1 - i / (TRAIL - 1), 1.5);
       trail.color[i*3]   = ACCENT.r * fade;
       trail.color[i*3+1] = ACCENT.g * fade;
       trail.color[i*3+2] = ACCENT.b * fade;
     }
-
-    trail.line.geometry.attributes.position.needsUpdate = true;
-    trail.line.geometry.attributes.color.needsUpdate    = true;
+    trail.geo.attributes.position.needsUpdate = true;
+    trail.geo.attributes.color.needsUpdate    = true;
   }
 
-  // ── Per-frame update ─────────────────────────────────────────────────────────
+  update(elapsed) {
+    // Organic drift — angle slowly wanders
+    this.driftAngle += (Math.random() - 0.5) * 0.025;
+    this.group.position.x += Math.cos(this.driftAngle) * this.driftSpeed;
+    this.group.position.y += Math.sin(this.driftAngle) * this.driftSpeed * 0.5;
 
-  update() {
-    this.cx += this.vx;
-    this.cy += this.vy;
+    const BW = 370, BH = 220;
+    if (this.group.position.x >  BW) this.group.position.x = -BW;
+    if (this.group.position.x < -BW) this.group.position.x =  BW;
+    if (this.group.position.y >  BH) this.group.position.y = -BH;
+    if (this.group.position.y < -BH) this.group.position.y =  BH;
 
-    // Wrap — slightly wider than visible frustum so creatures slide in from off-screen
-    const BW = 380, BH = 220;
-    if (this.cx >  BW + this.RX) this.cx = -BW - this.RX;
-    if (this.cx < -BW - this.RX) this.cx =  BW + this.RX;
-    if (this.cy >  BH + this.RY) this.cy = -BH - this.RY;
-    if (this.cy < -BH - this.RY) this.cy =  BH + this.RY;
+    // 3D rotation — all three axes oscillate simultaneously at different frequencies
+    this.group.rotation.x = Math.sin(elapsed * this.rx.spd + this.rx.ph) * this.rx.amp;
+    this.group.rotation.y = Math.sin(elapsed * this.ry.spd + this.ry.ph) * this.ry.amp;
+    this.group.rotation.z = Math.sin(elapsed * this.rz.spd + this.rz.ph) * this.rz.amp;
 
+    // Advance electrons + push t-value to history
     this.e1t += this.e1spd;
     this.e2t -= this.e2spd;
+    this.e1h.unshift(this.e1t); if (this.e1h.length > TRAIL) this.e1h.pop();
+    this.e2h.unshift(this.e2t); if (this.e2h.length > TRAIL) this.e2h.pop();
 
-    this._updateStrands();
-    this._updateTrail(this._t1, this.e1t);
-    this._updateTrail(this._t2, this.e2t);
+    this._updateTrail(this._t1, this.e1h);
+    this._updateTrail(this._t2, this.e2h);
   }
 }
 
@@ -180,5 +154,5 @@ class Creature {
 export function initCreatures(ctx) {
   const { scene } = ctx;
   const creatures = Array.from({ length: COUNT }, () => new Creature(scene));
-  onTick(() => { for (const c of creatures) c.update(); });
+  onTick((_dt, elapsed) => { for (const c of creatures) c.update(elapsed); });
 }
