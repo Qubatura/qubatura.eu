@@ -39,8 +39,8 @@ function createFog(scene) {
     const scale  = 300 + Math.random() * 200; // 300–500 world units
     sprite.scale.set(scale, scale, 1);
     sprite.position.set(
-      (Math.random() - 0.5) * 600,
-      (Math.random() - 0.5) * 360,
+      (Math.random() - 0.5) * 900,  // ±450 — pokrywa cały viewport + poza krawędziami
+      (Math.random() - 0.5) * 520,  // ±260
       (Math.random() - 0.5) * 60
     );
     scene.add(sprite);
@@ -60,7 +60,7 @@ function createFog(scene) {
 }
 
 function updateFog(blobs, elapsed) {
-  const BW = 500, BH = 300;
+  const BW = 500, BH = 290; // wrap po wyjściu poza ekran, nie przed
   for (const b of blobs) {
     b.sprite.position.x += b.vx;
     b.sprite.position.y += b.vy;
