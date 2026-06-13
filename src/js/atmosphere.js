@@ -1,88 +1,79 @@
 import * as THREE from 'three';
 import { onTick } from './scene.js';
 
-// ─── Shaders inline — no fetch needed ────────────────────────────────────────
+// ─── Canvas gradient texture — shared across all fog sprites ──────────────────
 
-const FOG_VERT = /* glsl */`
-  varying vec2 vUv;
-  void main() {
-    vUv = uv;
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-  }
-`;
+function makeGradientTexture() {
+  const canvas = document.createElement('canvas');
+  canvas.width = canvas.height = 256;
+  const ctx  = canvas.getContext('2d');
+  const grad = ctx.createRadialGradient(128, 128, 0, 128, 128, 128);
+  grad.addColorStop(0,   'rgba(255, 255, 255, 1)');
+  grad.addColorStop(0.4, 'rgba(255, 255, 255, 0.5)');
+  grad.addColorStop(1,   'rgba(255, 255, 255, 0)');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 256, 256);
+  return new THREE.CanvasTexture(canvas);
+}
 
-const FOG_FRAG = /* glsl */`
-  uniform float time;
-  uniform vec3  fogColor;
-  uniform float fogAlpha;
-  varying vec2  vUv;
-
-  float hash(vec2 p) {
-    p = fract(p * vec2(127.1, 311.7));
-    p += dot(p, p + 43.21);
-    return fract(p.x * p.y);
-  }
-
-  float vnoise(vec2 p) {
-    vec2 i = floor(p);
-    vec2 f = fract(p);
-    f = f * f * (3.0 - 2.0 * f);
-    return mix(
-      mix(hash(i),                  hash(i + vec2(1.0, 0.0)), f.x),
-      mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), f.x),
-      f.y
-    );
-  }
-
-  float fbm(vec2 p) {
-    float v = 0.0, a = 0.5;
-    for (int i = 0; i < 5; i++) {
-      v += a * vnoise(p);
-      p  = p * 2.03 + vec2(0.31, 0.73);
-      a *= 0.5;
-    }
-    return v;
-  }
-
-  void main() {
-    // Sinusoidal breathing — visible oscillation, period ~52s / ~79s per axis
-    vec2 drift = vec2(
-      sin(time * 0.12) * 0.35 + time * 0.006,
-      cos(time * 0.08) * 0.25 + time * 0.004
-    );
-    vec2  p = vUv * 3.5 + drift;
-    float n = fbm(p);
-    float a = max(0.0, n - 0.42) * fogAlpha;
-    gl_FragColor = vec4(fogColor, a);
-  }
-`;
-
-// ─── Fog plane ────────────────────────────────────────────────────────────────
+// ─── Fog sprites ──────────────────────────────────────────────────────────────
 
 function createFog(scene) {
-  const uniforms = {
-    time:     { value: 0 },
-    fogColor: { value: new THREE.Color(0x5B2EFF) },
-    fogAlpha: { value: 0.20 },
-  };
+  const texture = makeGradientTexture();
+  const blobs   = [];
 
-  const mesh = new THREE.Mesh(
-    new THREE.PlaneGeometry(1600, 900),
-    new THREE.ShaderMaterial({
-      vertexShader:   FOG_VERT,
-      fragmentShader: FOG_FRAG,
-      uniforms,
-      transparent:    true,
-      blending:       THREE.AdditiveBlending,
-      depthWrite:     false,
-      depthTest:      false,
-    })
-  );
-  mesh.position.z = -80;
-  mesh.renderOrder = -1;
-  scene.add(mesh);
+  for (let i = 0; i < 6; i++) {
+    const baseOpacity = 0.06 + Math.random() * 0.04; // 0.06–0.10
 
-  return uniforms;
+    const mat = new THREE.SpriteMaterial({
+      map:         texture,
+      color:       new THREE.Color(0x5B2EFF),
+      blending:    THREE.AdditiveBlending,
+      transparent: true,
+      opacity:     baseOpacity,
+      depthWrite:  false,
+      depthTest:   false,
+    });
+
+    const sprite = new THREE.Sprite(mat);
+    const scale  = 300 + Math.random() * 200; // 300–500 world units
+    sprite.scale.set(scale, scale, 1);
+    sprite.position.set(
+      (Math.random() - 0.5) * 600,
+      (Math.random() - 0.5) * 360,
+      (Math.random() - 0.5) * 60
+    );
+    scene.add(sprite);
+
+    blobs.push({
+      sprite,
+      mat,
+      baseOpacity,
+      vx:      (Math.random() - 0.5) * 0.07,
+      vy:      (Math.random() - 0.5) * 0.04,
+      period:  8 + Math.random() * 7,           // 8–15s breathing period
+      phase:   Math.random() * Math.PI * 2,
+    });
+  }
+
+  return blobs;
+}
+
+function updateFog(blobs, elapsed) {
+  const BW = 500, BH = 300;
+  for (const b of blobs) {
+    b.sprite.position.x += b.vx;
+    b.sprite.position.y += b.vy;
+
+    if (b.sprite.position.x >  BW) b.sprite.position.x = -BW;
+    if (b.sprite.position.x < -BW) b.sprite.position.x =  BW;
+    if (b.sprite.position.y >  BH) b.sprite.position.y = -BH;
+    if (b.sprite.position.y < -BH) b.sprite.position.y =  BH;
+
+    // Sinusoidal breathing: oscillates between 0.2× and 1.0× of base opacity
+    const s = Math.sin(elapsed * (Math.PI * 2 / b.period) + b.phase);
+    b.mat.opacity = b.baseOpacity * (0.6 + s * 0.4);
+  }
 }
 
 // ─── Corona discharge ─────────────────────────────────────────────────────────
@@ -143,7 +134,7 @@ function spawnBolt(slot) {
 
 function createCorona(scene) {
   const pool = Array.from({ length: POOL_SIZE }, () => makeSlot(scene));
-  let timer  = 3 + Math.random() * 5;
+  let   timer = 3 + Math.random() * 5;
 
   return {
     update(delta) {
@@ -170,11 +161,11 @@ function createCorona(scene) {
 
 export function initAtmosphere(ctx) {
   const { scene } = ctx;
-  const fogUniforms = createFog(scene);
-  const corona      = createCorona(scene);
+  const blobs  = createFog(scene);
+  const corona = createCorona(scene);
 
   onTick((delta, elapsed) => {
-    fogUniforms.time.value = elapsed;
+    updateFog(blobs, elapsed);
     corona.update(delta);
   });
 }
