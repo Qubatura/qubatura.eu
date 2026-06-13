@@ -21,6 +21,16 @@
   <!-- CSS -->
   <link rel="stylesheet" href="css/main.css">
 
+  <!-- Three.js via CDN importmap -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/"
+    }
+  }
+  </script>
+
   <!-- Schema.org JSON-LD -->
   <script type="application/ld+json">
   {
@@ -152,8 +162,7 @@
     });
   </script>
 
-  <!-- Three.js + main module wired in Etap 3 -->
-  <!-- <script type="module" src="js/main.js"></script> -->
+  <script type="module" src="js/main.js"></script>
 
 </body>
 </html>

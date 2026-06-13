@@ -17,11 +17,11 @@ import { initNavigation }       from './navigation.js';
 import { initRouter }           from './router.js';
 
 async function boot() {
-  const scene = await initScene();
-  initCreatures(scene);
-  initAtmosphere(scene);
-  await initSignet(scene);
-  initNavigation(scene);
+  const ctx = await initScene();
+  initCreatures(ctx);
+  initAtmosphere(ctx);
+  await initSignet(ctx);
+  initNavigation(ctx);
   initRouter();
   startLoop();
 }
