@@ -1,33 +1,12 @@
 import * as THREE from 'three';
-import { SVGLoader }      from 'three/addons/loaders/SVGLoader.js';
-import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
-import { onTick } from './scene.js';
+import { SVGLoader } from 'three/addons/loaders/SVGLoader.js';
+import { onTick, registerRefraction } from './scene.js';
 
 const _mouse = { x: -9999, y: -9999 };
 window.addEventListener('mousemove', e => { _mouse.x = e.clientX; _mouse.y = e.clientY; });
 
 export async function initSignet(ctx) {
-  const { scene, renderer } = ctx;
-
-  // ─── Environment map — RoomEnvironment daje neutralne IBL dla szkła ────────
-  const pmrem = new THREE.PMREMGenerator(renderer);
-  pmrem.compileEquirectangularShader();
-  const envTexture = pmrem.fromScene(new RoomEnvironment()).texture;
-  scene.environment = envTexture;
-  pmrem.dispose();
-
-  // ─── Lights — 3 PointLight wokół sygnetu dla refleksów na szkle ───────────
-  const pinkLight   = new THREE.PointLight(0xE0218A, 2, 500);
-  pinkLight.position.set(-100, 20, 160);          // przód-lewo
-  scene.add(pinkLight);
-
-  const violetLight = new THREE.PointLight(0x5B2EFF, 2, 500);
-  violetLight.position.set( 100, 20, 160);         // przód-prawo
-  scene.add(violetLight);
-
-  const topLight    = new THREE.PointLight(0xffffff, 1, 400);
-  topLight.position.set(0, 120, 100);              // góra
-  scene.add(topLight);
+  const { scene } = ctx;
 
   // ─── Load SVG ──────────────────────────────────────────────────────────────
   const loader = new SVGLoader();
@@ -55,20 +34,56 @@ export async function initSignet(ctx) {
   const svgMax = Math.max(bb.max.x - bb.min.x, bb.max.y - bb.min.y);
   const S      = 51.4 / svgMax;
 
-  // ─── Material — czyste szkło ───────────────────────────────────────────────
-  const mat = new THREE.MeshPhysicalMaterial({
-    color:             new THREE.Color(0xffffff),
-    emissive:          new THREE.Color(0x5B2EFF),
-    emissiveIntensity: 0.03,
-    transmission:      0.99,
-    roughness:         0.0,
-    metalness:         0.0,
-    ior:               2.2,
-    thickness:         2,
-    envMapIntensity:   3.0,
-    envMap:            envTexture,
-    side:              THREE.DoubleSide,
-    transparent:       true,
+  // ─── Material — custom GLSL: refrakcja tła + chromatic aberration + fresnel ──
+  const uniforms = {
+    tBackground:        { value: null },   // wstrzykiwane co klatkę przez scene.js
+    refractionStrength: { value: 0.03 },   // do tuningu
+    time:               { value: 0 },
+  };
+
+  const mat = new THREE.ShaderMaterial({
+    uniforms,
+    transparent: true,
+    side:        THREE.DoubleSide,
+    depthWrite:  false,
+    vertexShader: /* glsl */`
+      varying vec3 vNormal;
+      varying vec4 vClip;
+      void main() {
+        vNormal = normalize(normalMatrix * normal);
+        vClip   = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        gl_Position = vClip;
+      }
+    `,
+    fragmentShader: /* glsl */`
+      uniform sampler2D tBackground;
+      uniform float refractionStrength;
+      uniform float time;
+
+      varying vec3 vNormal;
+      varying vec4 vClip;
+
+      void main() {
+        // Screen-space UV — dzielenie perspektywiczne per-fragment (poprawne)
+        vec2 vScreenPos = (vClip.xy / vClip.w) * 0.5 + 0.5;
+
+        // Zagięcie UV przez normalną (refrakcja)
+        vec2 refractedUV = vScreenPos + vNormal.xy * refractionStrength;
+
+        // Chromatic aberration — rozszczepianie RGB
+        float r = texture2D(tBackground, refractedUV + vec2(0.002, 0.0)).r;
+        float g = texture2D(tBackground, refractedUV).g;
+        float b = texture2D(tBackground, refractedUV - vec2(0.002, 0.0)).b;
+
+        // Fresnel — krawędzie bardziej widoczne
+        float fresnel = pow(1.0 - abs(dot(vNormal, vec3(0.0, 0.0, 1.0))), 3.0);
+
+        vec3 color = vec3(r, g, b);
+        color += vec3(0.35, 0.18, 1.0) * fresnel * 0.4; // fioletowy poblask na krawędziach
+
+        gl_FragColor = vec4(color, 0.85 + fresnel * 0.15);
+      }
+    `,
   });
 
   // ─── Geometry — bevel mały żeby nie pożerał cienkich fragmentów ogona Q ───
@@ -98,11 +113,15 @@ export async function initSignet(ctx) {
   pivot.add(group);
   scene.add(pivot);
 
+  // Pętla renderuje teraz w dwóch przebiegach: tło → renderTarget, potem sygnet
+  registerRefraction(pivot, mat);
+
   // ─── Tick ──────────────────────────────────────────────────────────────────
-  let hoverScale    = 1.0;
-  let hoverEmissive = 0.03;
+  let hoverScale = 1.0;
 
   onTick((_dt, elapsed) => {
+    uniforms.time.value = elapsed;
+
     pivot.rotation.y = Math.sin(elapsed * (Math.PI / 4)) * 0.44;
     pivot.rotation.x = Math.sin(elapsed * 0.19 + 0.8) * 0.09;
 
@@ -112,10 +131,7 @@ export async function initSignet(ctx) {
     );
     const near = dist < 140;
 
-    hoverScale    += ((near ? 1.08 : 1.0)  - hoverScale)    * 0.07;
-    hoverEmissive += ((near ? 0.35 : 0.05) - hoverEmissive) * 0.07;
-
+    hoverScale += ((near ? 1.08 : 1.0) - hoverScale) * 0.07;
     pivot.scale.setScalar(hoverScale);
-    mat.emissiveIntensity = hoverEmissive;
   });
 }

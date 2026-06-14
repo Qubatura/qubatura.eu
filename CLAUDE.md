@@ -326,4 +326,35 @@ Długość linii: ~80–120px (nie do krawędzi ekranu).
 
 ---
 
-*CLAUDE.md — qubatura.eu — 2026-06-13*
+## STAN SYGNETU — 2026-06-14
+
+### Co działa (zacommitowane)
+- **Creatures tymczasowo ukryte** — `creatures.js` ma flagę `HIDDEN = true`
+  (groups `visible=false`, tick nierejestrowany). Kod nietknięty — wrócimy do
+  przeprojektowania (fale z mockupu v3). Przywrócenie: flaga na `false`.
+- **Pipeline refrakcji sygnetu DZIAŁA** — porzucony `MeshPhysicalMaterial`
+  (transmission nie wystarcza na ciemnym tle). Zamiast tego custom shader:
+  - `scene.js` — dwuprzebiegowy render loop + `WebGLRenderTarget`:
+    Pass 1 renderuje scenę BEZ sygnetu → renderTarget; Pass 2 renderuje całość,
+    sygnet próbkuje renderTarget jako `tBackground`. Hook `registerRefraction()`.
+  - `signet.js` — `ShaderMaterial`: refrakcja UV przez normalną
+    (`refractionStrength 0.03`), chromatic aberration (±0.002 RGB), fresnel rim
+    fioletowy, alpha `0.85 + fresnel*0.15`. Krawędzie realnie się rozszczepiają.
+
+### PROBLEM (znany, do naprawy jutro)
+Planeta `planet-bg.png` jest **warstwą CSS pod canvasem**, nie w scenie Three.js.
+Canvas ma `alpha:true`, więc `renderTarget` (Pass 1) łapie tylko geometrię WebGL
+(atmosfera + przezroczysta czerń) — **planety tam nie ma**. Sygnet zagina więc
+głównie czerń → ciało wychodzi ciemne, widać tylko fioletowe krawędzie + tęczę
+na obrysie. To NIE jest „pryzmat zaginający planetę" jak na activetheory.
+
+### PRIORYTET 1 JUTRO — przenieść planetę do sceny
+1. Wczytać `planet-bg.png` jako teksturę → `PlaneGeometry` daleko za sygnetem
+   (duży plane, z=ujemne, wypełnia kadr kamery FOV 60 / z=300).
+2. Wyłączyć CSS background planety (`#planet-bg`) — żeby nie dublować.
+3. Wtedy Pass 1 złapie planetę do renderTarget → sygnet zacznie ją REALNIE
+   zaginać. Po tym tuning `refractionStrength` i siły chromatic aberration.
+
+---
+
+*CLAUDE.md — qubatura.eu — 2026-06-14*
