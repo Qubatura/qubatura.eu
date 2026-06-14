@@ -8,6 +8,10 @@ const SEGS    = 160;
 const TRAIL   = 80;
 const COUNT   = 15;
 
+// Tymczasowo schowane — wracamy do przeprojektowania (fale z mockupu v3).
+// NIE usuwać kodu, tylko ten flag przełączyć na false żeby przywrócić.
+const HIDDEN  = true;
+
 let camera;
 const mouse = { x: -9999, y: -9999 };
 const _wp   = new THREE.Vector3();
@@ -200,5 +204,6 @@ export function initCreatures(ctx) {
   camera = ctx.camera;
   const { scene } = ctx;
   const creatures = Array.from({ length: COUNT }, () => new Creature(scene));
+  if (HIDDEN) { for (const c of creatures) c.group.visible = false; return; }
   onTick((_dt, elapsed) => { for (const c of creatures) c.update(elapsed); });
 }
