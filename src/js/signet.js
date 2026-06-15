@@ -178,26 +178,27 @@ export async function initSignet(ctx) {
   onTick((_dt, elapsed) => {
     uniforms.time.value = elapsed;
 
-    // Organiczne drżenie — trzy niezależne wolne fale na każdej osi
-    pivot.rotation.y = Math.sin(elapsed * 0.18) * 0.35 + Math.sin(elapsed * 0.31) * 0.18;
-    pivot.rotation.x = Math.sin(elapsed * 0.23 + 1.2) * 0.15;
-    pivot.rotation.z = Math.sin(elapsed * 0.14 + 0.7) * 0.08;
+    // Kołysanie złożone z kilku fal — niemonotoniczne, nigdy pełny obrót (max ~46°)
+    pivot.rotation.y = Math.sin(elapsed * 0.15) * 0.6 + Math.sin(elapsed * 0.23) * 0.2;
+    pivot.rotation.x = Math.sin(elapsed * 0.19) * 0.15 + Math.sin(elapsed * 0.31) * 0.08;
+    pivot.rotation.z = Math.sin(elapsed * 0.11) * 0.05;
 
-    // Przejście primary → magenta — czułe na wychylenie, niski próg, szybki lerp
-    const tilt   = Math.abs(pivot.rotation.y) + Math.abs(pivot.rotation.x) * 0.6;
-    const THRESH = 0.06;   // niski próg — magenta już przy małym wychyleniu
-    const RANGE  = 0.20;   // pełna magenta przy ~0.26 rad
-    const target = Math.min(1, Math.max(0, (tilt - THRESH) / RANGE));
-    colorMix += (target - colorMix) * 0.10;   // szybszy, bardziej wrażliwy lerp
+    // Float góra-dół (amplitudy ×20 — przy rozmiarze sygnetu ~51u oryginalne 0.15/0.08u byłyby niewidoczne)
+    pivot.position.y = Math.sin(elapsed * 0.4) * 3.0 + Math.sin(elapsed * 0.27) * 1.6;
+
+    // Przejście primary → magenta — sterowane fazą obrotu (edge-on → magenta)
+    const target = Math.abs(Math.sin(pivot.rotation.y));
+    colorMix += (target - colorMix) * 0.05;
     uniforms.uColorMix.value = colorMix;
 
+    // Pulsowanie skali "oddychanie" × mouse-proximity hover
+    const pulse = 1 + Math.sin(elapsed * 0.8) * 0.03;   // amplituda 0.03
     const dist = Math.hypot(
       _mouse.x - window.innerWidth  * 0.5,
       _mouse.y - window.innerHeight * 0.5
     );
     const near = dist < 140;
-
     hoverScale += ((near ? 1.08 : 1.0) - hoverScale) * 0.07;
-    pivot.scale.setScalar(hoverScale);
+    pivot.scale.setScalar(pulse * hoverScale);
   });
 }
