@@ -39,6 +39,7 @@ export async function initSignet(ctx) {
     tBackground:        { value: null },   // wstrzykiwane co klatkę przez scene.js
     refractionStrength: { value: 0.03 },   // do tuningu
     time:               { value: 0 },
+    uColorMix:          { value: 0 },      // 0 = primary, 1 = magenta (sterowane kątem)
   };
 
   const mat = new THREE.ShaderMaterial({
@@ -49,9 +50,11 @@ export async function initSignet(ctx) {
     vertexShader: /* glsl */`
       varying vec3 vNormal;
       varying vec4 vClip;
+      varying vec3 vWorldPos;
       void main() {
-        vNormal = normalize(normalMatrix * normal);
-        vClip   = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        vNormal   = normalize(normalMatrix * normal);
+        vWorldPos = (modelMatrix * vec4(position, 1.0)).xyz;
+        vClip     = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
         gl_Position = vClip;
       }
     `,
@@ -59,9 +62,11 @@ export async function initSignet(ctx) {
       uniform sampler2D tBackground;
       uniform float refractionStrength;
       uniform float time;
+      uniform float uColorMix;
 
       varying vec3 vNormal;
       varying vec4 vClip;
+      varying vec3 vWorldPos;
 
       void main() {
         // Screen-space UV — dzielenie perspektywiczne per-fragment (poprawne)
@@ -79,7 +84,23 @@ export async function initSignet(ctx) {
         float fresnel = pow(1.0 - abs(dot(vNormal, vec3(0.0, 0.0, 1.0))), 3.0);
 
         vec3 color = vec3(r, g, b);
-        color += vec3(0.35, 0.18, 1.0) * fresnel * 0.4; // fioletowy poblask na krawędziach
+
+        // ── Blinn-Phong specular — fioletowy refleks (primary) od światła góra-przód ──
+        vec3 lightPos = vec3(200.0, 300.0, 400.0);
+        vec3 toLight  = normalize(lightPos - vWorldPos);
+        vec3 toCamera = normalize(cameraPosition - vWorldPos);
+        vec3 halfVec  = normalize(toLight + toCamera);
+        float spec    = pow(max(dot(vNormal, halfVec), 0.0), 64.0);
+        vec3 specColor = vec3(0.5, 0.3, 1.0) * spec * 2.0;   // fioletowy refleks (primary)
+
+        // Przejście primary → magenta sterowane kątem obrotu (uColorMix)
+        vec3 cPrimary = vec3(0.35, 0.18, 1.0);
+        vec3 cMagenta = vec3(0.95, 0.15, 0.60);
+        vec3 tint     = mix(cPrimary, cMagenta, uColorMix);
+
+        color.rgb += specColor;                              // refleks (bonus przy ruchu)
+        color.rgb += tint * 0.4;                             // emissive — sygnet jaśniejszy
+        color.rgb += tint * fresnel * 0.5;                   // krawędzie podążają za tintem
 
         gl_FragColor = vec4(color, 0.85 + fresnel * 0.15);
       }
@@ -106,6 +127,38 @@ export async function initSignet(ctx) {
     group.add(mesh);
   }
 
+  // ─── Świecący obrys — neon wzdłuż krawędzi sygnetu ──────────────────────────
+  // Te same ścieżki SVG co bryła, jako linie. Punkty wycentrowane (−svgCX,−svgCY),
+  // żeby skalowanie halo (1.008×) działało względem środka sygnetu, nie rogu SVG.
+  function buildOutline(scaleMul, hex, opacity, renderOrder) {
+    const og   = new THREE.Group();
+    const lmat = new THREE.LineBasicMaterial({
+      color: hex, transparent: true, opacity, depthWrite: false,
+    });
+    for (const path of data.paths) {
+      for (const sub of path.subPaths) {
+        const pts = sub.getPoints(128);
+        const arr = new Float32Array(pts.length * 3);
+        for (let i = 0; i < pts.length; i++) {
+          arr[i * 3]     = pts[i].x - svgCX;
+          arr[i * 3 + 1] = pts[i].y - svgCY;
+          arr[i * 3 + 2] = 0;
+        }
+        const geo = new THREE.BufferGeometry();
+        geo.setAttribute('position', new THREE.BufferAttribute(arr, 3));
+        const line = new THREE.Line(geo, lmat);
+        line.renderOrder = renderOrder;
+        og.add(line);
+      }
+    }
+    og.position.z = depth * 0.52;   // tuż przed czołem bryły (czoło @ depth/2)
+    og.scale.setScalar(scaleMul);
+    return og;
+  }
+
+  group.add(buildOutline(1.008, 0x9B6DFF, 0.3, 9));   // halo — szersze, słabsze
+  group.add(buildOutline(1.0,   0x5B2EFF, 0.7, 10));  // główny neon
+
   group.scale.set(S, -S, S);
 
   // ─── Pivot ─────────────────────────────────────────────────────────────────
@@ -116,14 +169,27 @@ export async function initSignet(ctx) {
   // Pętla renderuje teraz w dwóch przebiegach: tło → renderTarget, potem sygnet
   registerRefraction(pivot, mat);
 
+  // Światło: stałe białe (góra-przód) zaszyte w shaderze jako Blinn-Phong specular.
+
   // ─── Tick ──────────────────────────────────────────────────────────────────
   let hoverScale = 1.0;
+  let colorMix   = 0.0;
 
   onTick((_dt, elapsed) => {
     uniforms.time.value = elapsed;
 
-    pivot.rotation.y = Math.sin(elapsed * (Math.PI / 4)) * 0.44;
-    pivot.rotation.x = Math.sin(elapsed * 0.19 + 0.8) * 0.09;
+    // Organiczne drżenie — trzy niezależne wolne fale na każdej osi
+    pivot.rotation.y = Math.sin(elapsed * 0.18) * 0.35 + Math.sin(elapsed * 0.31) * 0.18;
+    pivot.rotation.x = Math.sin(elapsed * 0.23 + 1.2) * 0.15;
+    pivot.rotation.z = Math.sin(elapsed * 0.14 + 0.7) * 0.08;
+
+    // Przejście primary → magenta — czułe na wychylenie, niski próg, szybki lerp
+    const tilt   = Math.abs(pivot.rotation.y) + Math.abs(pivot.rotation.x) * 0.6;
+    const THRESH = 0.06;   // niski próg — magenta już przy małym wychyleniu
+    const RANGE  = 0.20;   // pełna magenta przy ~0.26 rad
+    const target = Math.min(1, Math.max(0, (tilt - THRESH) / RANGE));
+    colorMix += (target - colorMix) * 0.10;   // szybszy, bardziej wrażliwy lerp
+    uniforms.uColorMix.value = colorMix;
 
     const dist = Math.hypot(
       _mouse.x - window.innerWidth  * 0.5,
