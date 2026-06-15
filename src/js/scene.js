@@ -31,6 +31,17 @@ export async function initScene() {
     magFilter: THREE.LinearFilter,
   });
 
+  // Planeta — tekstura w scenie (była warstwą CSS). Daleko za sygnetem, więc Pass 1
+  // refrakcji łapie ją do renderTarget → sygnet realnie ją zagina.
+  const planetTexture = new THREE.TextureLoader().load('/assets/planet-bg.png');
+  planetTexture.colorSpace = THREE.SRGBColorSpace;
+  const planetMesh = new THREE.Mesh(
+    new THREE.PlaneGeometry(2000, 1200),
+    new THREE.MeshBasicMaterial({ map: planetTexture, transparent: true, opacity: 0.17 })
+  );
+  planetMesh.position.z = -500;
+  scene.add(planetMesh);
+
   // Dim violet ambient — creatures use additive blending, so they self-illuminate
   scene.add(new THREE.AmbientLight(0x5B2EFF, 0.15));
 

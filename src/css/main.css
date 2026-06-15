@@ -45,16 +45,10 @@ html, body {
 }
 
 /* ── Planet background ──────────────────────────────────────────── */
+/* Planeta przeniesiona do sceny Three.js (scene.js) — warstwa CSS wyłączona,
+   żeby nie dublować i żeby sygnet mógł ją realnie zaginać (refrakcja). */
 #planet-bg {
-  position: fixed;
-  inset: 0;
-  background-image: url('/assets/planet-bg.png');
-  background-size: cover;
-  background-position: top center;
-  background-repeat: no-repeat;
-  opacity: 0.17;
-  z-index: 1;
-  pointer-events: none;
+  display: none;
 }
 
 /* ── Edge vignette — eliminates fog sprite bleed at viewport boundary ── */
