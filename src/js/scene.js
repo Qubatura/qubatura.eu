@@ -8,6 +8,12 @@ const tickCallbacks = [];
 let refraction = null;
 const _dbs = new THREE.Vector2();
 
+// Planeta — jaśniejsza w renderTargecie (Pass 1, próbkowanym przez sygnet),
+// subtelna gołym okiem (Pass 2).
+let planetMat = null;
+const PLANET_OPACITY_VISIBLE = 0.17;   // co widać na ekranie
+const PLANET_OPACITY_REFRACT = 1.0;    // co zagina sygnet (jaśniejsza soczewka)
+
 export async function initScene() {
   const canvas = document.getElementById('c');
 
@@ -35,10 +41,10 @@ export async function initScene() {
   // refrakcji łapie ją do renderTarget → sygnet realnie ją zagina.
   const planetTexture = new THREE.TextureLoader().load('/assets/planet-bg.png');
   planetTexture.colorSpace = THREE.SRGBColorSpace;
-  const planetMesh = new THREE.Mesh(
-    new THREE.PlaneGeometry(2000, 1200),
-    new THREE.MeshBasicMaterial({ map: planetTexture, transparent: true, opacity: 0.17 })
-  );
+  planetMat = new THREE.MeshBasicMaterial({
+    map: planetTexture, transparent: true, opacity: PLANET_OPACITY_VISIBLE,
+  });
+  const planetMesh = new THREE.Mesh(new THREE.PlaneGeometry(2000, 1200), planetMat);
   planetMesh.position.z = -500;
   scene.add(planetMesh);
 
@@ -74,14 +80,18 @@ export function startLoop() {
     for (const fn of tickCallbacks) fn(delta, elapsed);
 
     if (refraction) {
-      // Pass 1 — scena BEZ sygnetu → renderTarget (to staje się tłem do zagięcia)
+      // Pass 1 — scena BEZ sygnetu → renderTarget (to staje się tłem do zagięcia).
+      // Planeta podbita do pełni, żeby sygnet zaginał jasne tło, nie przyciemnione.
       refraction.object.visible = false;
+      if (planetMat) planetMat.opacity = PLANET_OPACITY_REFRACT;
       renderer.setRenderTarget(renderTarget);
       renderer.clear();
       renderer.render(scene, camera);
       renderer.setRenderTarget(null);
 
-      // Pass 2 — pełna scena z sygnetem próbkującym tBackground
+      // Pass 2 — pełna scena z sygnetem próbkującym tBackground.
+      // Planeta wraca do subtelnego 0.17 (to, co widać gołym okiem).
+      if (planetMat) planetMat.opacity = PLANET_OPACITY_VISIBLE;
       refraction.object.visible = true;
       refraction.material.uniforms.tBackground.value = renderTarget.texture;
       renderer.render(scene, camera);

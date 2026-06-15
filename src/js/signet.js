@@ -37,7 +37,7 @@ export async function initSignet(ctx) {
   // ─── Material — custom GLSL: refrakcja tła + chromatic aberration + fresnel ──
   const uniforms = {
     tBackground:        { value: null },   // wstrzykiwane co klatkę przez scene.js
-    refractionStrength: { value: 0.03 },   // do tuningu
+    refractionStrength: { value: 0.06 },   // siła zagięcia planety (do tuningu)
     time:               { value: 0 },
     uColorMix:          { value: 0 },      // 0 = primary, 1 = magenta (sterowane kątem)
   };
