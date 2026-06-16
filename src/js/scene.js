@@ -44,8 +44,12 @@ export async function initScene() {
   planetMat = new THREE.MeshBasicMaterial({
     map: planetTexture, transparent: true, opacity: PLANET_OPACITY_VISIBLE,
   });
-  const planetMesh = new THREE.Mesh(new THREE.PlaneGeometry(2000, 1200), planetMat);
-  planetMesh.position.z = -500;
+  const PLANET_H = 1200, PLANET_Z = -500;
+  const planetMesh = new THREE.Mesh(new THREE.PlaneGeometry(2000, PLANET_H), planetMat);
+  // Górna krawędź obrazka przyklejona do góry viewportu:
+  // góra kadru na głębokości planety = dystans·tan(FOV/2); odejmujemy pół wysokości plane.
+  const viewTop = (camera.position.z - PLANET_Z) * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+  planetMesh.position.set(0, viewTop - PLANET_H / 2, PLANET_Z);   // ≈ -138
   scene.add(planetMesh);
 
   // Dim violet ambient — creatures use additive blending, so they self-illuminate

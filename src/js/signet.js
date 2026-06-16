@@ -32,7 +32,7 @@ export async function initSignet(ctx) {
   const svgCX  = (bb.min.x + bb.max.x) / 2;
   const svgCY  = (bb.min.y + bb.max.y) / 2;
   const svgMax = Math.max(bb.max.x - bb.min.x, bb.max.y - bb.min.y);
-  const S      = 51.4 / svgMax;
+  const S      = (51.4 * 1.1) / svgMax;   // +10% rozmiaru bazowego
 
   // ─── Material — custom GLSL: refrakcja tła + chromatic aberration + fresnel ──
   const uniforms = {
@@ -178,13 +178,28 @@ export async function initSignet(ctx) {
   onTick((_dt, elapsed) => {
     uniforms.time.value = elapsed;
 
-    // Kołysanie złożone z kilku fal — niemonotoniczne, nigdy pełny obrót (max ~46°)
-    pivot.rotation.y = Math.sin(elapsed * 0.15) * 0.6 + Math.sin(elapsed * 0.23) * 0.2;
-    pivot.rotation.x = Math.sin(elapsed * 0.19) * 0.15 + Math.sin(elapsed * 0.31) * 0.08;
-    pivot.rotation.z = Math.sin(elapsed * 0.11) * 0.05;
+    // +25% prędkości — skalowany czas mnoży częstotliwości, zachowuje amplitudy i fazy
+    const t = elapsed * 1.25;
 
-    // Float góra-dół (amplitudy ×20 — przy rozmiarze sygnetu ~51u oryginalne 0.15/0.08u byłyby niewidoczne)
-    pivot.position.y = Math.sin(elapsed * 0.4) * 3.0 + Math.sin(elapsed * 0.27) * 1.6;
+    // Dryf jak obiekt w wodzie — sumy sinusoid o niewspółmiernych częstotliwościach
+    // i przesuniętych fazach → ruch nieprzewidywalny, nie wahadłowy.
+    // Kołysanie lewo-prawo: dominująca fala (~połowa dawnego zakresu, widać bryłę 3D)
+    // + dwie mniejsze niewspółmierne fale na losowość.
+    pivot.rotation.y = Math.sin(t * 0.15)        * 0.35
+                     + Math.sin(t * 0.211 + 1.7) * 0.10
+                     + Math.sin(t * 0.087 + 4.1) * 0.06;
+    // Przechył góra-dół (~0.22)
+    pivot.rotation.x = Math.sin(t * 0.17 + 0.6)  * 0.10
+                     + Math.sin(t * 0.283 + 2.9) * 0.07
+                     + Math.sin(t * 0.119 + 5.2) * 0.05;
+    // Subtelny roll (~0.057)
+    pivot.rotation.z = Math.sin(t * 0.093 + 3.3) * 0.035
+                     + Math.sin(t * 0.157 + 0.9) * 0.022;
+
+    // Float góra-dół: amplituda −30% (5.0 → ~3.5), też rozbity na kilka fal
+    pivot.position.y = Math.sin(t * 0.6)         * 2.2
+                     + Math.sin(t * 0.41 + 2.2)  * 0.9
+                     + Math.sin(t * 0.83 + 5.0)  * 0.4;
 
     // Przejście primary → magenta — sterowane fazą obrotu (edge-on → magenta)
     const target = Math.abs(Math.sin(pivot.rotation.y));
@@ -192,7 +207,7 @@ export async function initSignet(ctx) {
     uniforms.uColorMix.value = colorMix;
 
     // Pulsowanie skali "oddychanie" × mouse-proximity hover
-    const pulse = 1 + Math.sin(elapsed * 0.8) * 0.03;   // amplituda 0.03
+    const pulse = 1 + Math.sin(t * 0.8) * 0.03;   // amplituda 0.03 (też +25% prędkości)
     const dist = Math.hypot(
       _mouse.x - window.innerWidth  * 0.5,
       _mouse.y - window.innerHeight * 0.5
