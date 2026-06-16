@@ -55,12 +55,18 @@ function createFog(scene) {
       sprite,
       mat,
       baseOpacity,
-      vx:      (Math.random() - 0.5) * 0.14,
-      vy:      (Math.random() - 0.5) * 0.08,
+      baseScale: scale,
+      // Dryf ~3,5× szybszy — TO daje dynamikę (mgła płynie), bez zmiany sumy jasności
+      vx:      (Math.random() - 0.5) * 0.50,
+      vy:      (Math.random() - 0.5) * 0.28,
       // Opacity: wspólny okres + fazy RÓWNOMIERNE → kulminacje rozstawione, suma ≈ stała
       // → brak skoków jasności sceny (okres MUSI być jednakowy, inaczej dudnienie wraca).
       period:  10,
       phase:   (i / 10) * Math.PI * 2,
+      // „Oddychanie" rozmiarem — zmienne okresy/fazy (zmiana kształtu nie powoduje
+      // synchronicznych skoków jasności, więc tu różnorodność jest OK i dodaje życia).
+      scalePeriod: 9 + Math.random() * 7,   // 9–16s
+      scalePhase:  Math.random() * Math.PI * 2,
     });
   }
 
@@ -82,6 +88,11 @@ function updateFog(blobs, elapsed) {
     // mniej gwałtowne zmiany jasności przy szybszym okresie.
     const s = Math.sin(elapsed * (Math.PI * 2 / b.period) + b.phase);
     b.mat.opacity = b.baseOpacity * (0.7 + s * 0.3);
+
+    // Oddychanie rozmiarem (±12%) — zmiana kształtu daje życie bez skoków jasności
+    const ss = Math.sin(elapsed * (Math.PI * 2 / b.scalePeriod) + b.scalePhase);
+    const sc = b.baseScale * (1 + ss * 0.12);
+    b.sprite.scale.set(sc, sc, 1);
   }
 }
 
