@@ -341,20 +341,29 @@ Długość linii: ~80–120px (nie do krawędzi ekranu).
     (`refractionStrength 0.03`), chromatic aberration (±0.002 RGB), fresnel rim
     fioletowy, alpha `0.85 + fresnel*0.15`. Krawędzie realnie się rozszczepiają.
 
-### PROBLEM (znany, do naprawy jutro)
-Planeta `planet-bg.png` jest **warstwą CSS pod canvasem**, nie w scenie Three.js.
-Canvas ma `alpha:true`, więc `renderTarget` (Pass 1) łapie tylko geometrię WebGL
-(atmosfera + przezroczysta czerń) — **planety tam nie ma**. Sygnet zagina więc
-głównie czerń → ciało wychodzi ciemne, widać tylko fioletowe krawędzie + tęczę
-na obrysie. To NIE jest „pryzmat zaginający planetę" jak na activetheory.
+### Zrobione w sesji 2026-06-15
+- **Planeta przeniesiona do sceny Three.js** (`scene.js`) — `PlaneGeometry(2000×1200)`,
+  `MeshBasicMaterial` opacity 0.17, z=-500; top obrazka przyklejony do góry kadru
+  (liczone z FOV/pozycji kamery: `viewTop − wys/2`). CSS `#planet-bg` → `display:none`.
+  → Pass 1 łapie planetę do renderTarget, sygnet ją REALNIE zagina (PRIORYTET 1 ✅).
+- **Refrakcja podbita** — `refractionStrength` 0.03→0.06; planeta w renderTargecie
+  (Pass 1) renderowana z opacity 1.0, na ekranie (Pass 2) zostaje 0.17 → jaśniejsza
+  „soczewka", a tło dalej subtelne. Przełączanie opacity w `startLoop`.
+- **Neon outline sygnetu** (`signet.js`) — linie z subPaths SVG: główny #5B2EFF op.0.7
+  + halo ×1.008 #9B6DFF op.0.3. Przejście primary→magenta sterowane kątem (`uColorMix`).
+- **Ruch sygnetu** — dryf wielofalowy (niewspółmierne sinusoidy + fazy), kołysanie Y
+  ~±20°, float góra-dół, puls skali; +10% rozmiaru bazowego, +25% prędkości.
+- **Mgła** (`atmosphere.js`) — staggered breathing: wspólny okres 10s + fazy
+  równomierne (`i/10·2π`) → suma jasności ≈ stała, zero skoków kolorytu sceny.
+  Dynamika z RUCHU: dryf ~3,5× szybszy + oddychanie rozmiarem ±12%. +10% widoczności.
 
-### PRIORYTET 1 JUTRO — przenieść planetę do sceny
-1. Wczytać `planet-bg.png` jako teksturę → `PlaneGeometry` daleko za sygnetem
-   (duży plane, z=ujemne, wypełnia kadr kamery FOV 60 / z=300).
-2. Wyłączyć CSS background planety (`#planet-bg`) — żeby nie dublować.
-3. Wtedy Pass 1 złapie planetę do renderTarget → sygnet zacznie ją REALNIE
-   zaginać. Po tym tuning `refractionStrength` i siły chromatic aberration.
+### BACKLOG — przyszłe etapy
+- **Etap: fog noise shader (dym)** — zamienić sprite'y mgły na shader przepływowego
+  szumu (fbm/simplex noise) na płaszczyźnie; wolumetryczny dym, który kłębi się
+  i przepływa (zamiast nakładanych radialnych blobów). Zalążki: `src/shaders/fog.frag`,
+  `src/shaders/fog.vert`. Powód: additive sprite'y to tani trik — szum daje premium feel
+  i prawdziwą dynamikę bez modulacji jasności.
 
 ---
 
-*CLAUDE.md — qubatura.eu — 2026-06-14*
+*CLAUDE.md — qubatura.eu — 2026-06-15*
