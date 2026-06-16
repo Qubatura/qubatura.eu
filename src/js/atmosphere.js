@@ -29,7 +29,7 @@ function createFog(scene) {
   const blobs   = [];
 
   for (let i = 0; i < 10; i++) {
-    const baseOpacity = 0.09 + Math.random() * 0.06; // 0.09–0.15 (−40% vs poprzedniego)
+    const baseOpacity = (0.09 + Math.random() * 0.06) * 1.1; // +10% widoczności (≈0.10–0.165)
 
     const mat = new THREE.SpriteMaterial({
       map:         texture,
@@ -57,8 +57,10 @@ function createFog(scene) {
       baseOpacity,
       vx:      (Math.random() - 0.5) * 0.14,
       vy:      (Math.random() - 0.5) * 0.08,
-      period:  22 + Math.random() * 6,             // 22–28s breathing period (≈25s)
-      phase:   Math.random() * Math.PI * 2,
+      // Opacity: wspólny okres + fazy RÓWNOMIERNE → kulminacje rozstawione, suma ≈ stała
+      // → brak skoków jasności sceny (okres MUSI być jednakowy, inaczej dudnienie wraca).
+      period:  10,
+      phase:   (i / 10) * Math.PI * 2,
     });
   }
 
@@ -76,9 +78,10 @@ function updateFog(blobs, elapsed) {
     if (b.sprite.position.y >  BH) b.sprite.position.y = -BH;
     if (b.sprite.position.y < -BH) b.sprite.position.y =  BH;
 
-    // Sinusoidal breathing: oscillates between 0.2× and 1.0× of base opacity
+    // Sinusoidal breathing — łagodniejsza głębokość (0.4×–1.0× bazy) → płynniej,
+    // mniej gwałtowne zmiany jasności przy szybszym okresie.
     const s = Math.sin(elapsed * (Math.PI * 2 / b.period) + b.phase);
-    b.mat.opacity = b.baseOpacity * (0.6 + s * 0.4);
+    b.mat.opacity = b.baseOpacity * (0.7 + s * 0.3);
   }
 }
 
