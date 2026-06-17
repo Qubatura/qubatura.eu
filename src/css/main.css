@@ -8,7 +8,7 @@
   --color-bg:        #0A0A0F;
   --color-primary:   #5B2EFF;
   --color-accent:    #E0218A;
-  --color-events:    #7C3AED;
+  --color-events:    #9D4EDD;
   --color-studio:    #1E90FF;
   --color-lab:       #00E5FF;
   --color-white:     #FFFFFF;
@@ -230,21 +230,71 @@ html, body {
               width 0.35s ease, height 0.35s ease;
 }
 
-.nav-tooltip {
+/* ── Nav HUD — sci-fi celownik (4 narożniki + dwie linie tekstu) ── */
+.nav-hud {
   position: absolute;
-  font-family: var(--font-mono);
-  font-size: 9px;
-  letter-spacing: 0.06em;
-  color: rgba(255, 255, 255, 0.5);
-  white-space: nowrap;
-  opacity: 0;
-  transition: opacity 0.35s ease;
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  padding: 6px 12px;
-  background: rgba(10, 10, 15, 0.85);
-  backdrop-filter: blur(4px);
   pointer-events: none;
+  padding: 13px 18px;
+  white-space: nowrap;
 }
+.hud-corner {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border: 1.5px solid var(--div-color, var(--color-primary));
+  filter: drop-shadow(0 0 4px var(--div-color, var(--color-primary)));
+  opacity: 0;                       /* narożniki rysuje GSAP */
+}
+.hud-corner.tl { top: 0;    left: 0;  border-right: 0; border-bottom: 0; }
+.hud-corner.tr { top: 0;    right: 0; border-left: 0;  border-bottom: 0; }
+.hud-corner.bl { bottom: 0; left: 0;  border-right: 0; border-top: 0; }
+.hud-corner.br { bottom: 0; right: 0; border-left: 0;  border-top: 0; }
+.hud-title {
+  margin: 0 0 6px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--div-color, var(--color-primary));
+  text-shadow: 0 0 8px var(--div-color, var(--color-primary));
+  opacity: 0;                       /* tekst fade-in robi GSAP */
+}
+.hud-services {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  opacity: 0;                       /* fade-in robi GSAP */
+}
+.hud-services li {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: 0.04em;
+  line-height: 1.75;
+  color: rgba(255, 255, 255, 0.6);
+  margin-left: 8px;                 /* lewy margines listy */
+  white-space: nowrap;
+}
+
+/* Events — usługi w dwóch liniach (· jako separator), nie lista pionowa */
+.hud-services--rows {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.hud-row {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: 0.04em;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.6);
+  white-space: nowrap;
+}
+
+/* Kolor HUD per dział */
+#nav-events { --div-color: var(--color-events); }
+#nav-studio { --div-color: var(--color-studio); }
+#nav-lab    { --div-color: var(--color-lab); }
 
 /* ── Events ← ──────────────────────────────────────────────────── */
 #nav-events {
@@ -260,10 +310,9 @@ html, body {
   width: var(--nav-line-len);
 }
 
-#nav-events .nav-tooltip {
-  right: calc(100% + 16px);
-  top: 50%;
-  transform: translateY(-50%);
+#nav-events .nav-hud {
+  top: calc(100% + 18px);
+  right: 0;                    /* zakotwiczony przy sygnecie, rośnie w LEWO (od sygnetu) */
 }
 
 #nav-events:hover .nav-label {
@@ -277,7 +326,7 @@ html, body {
   box-shadow: 0 0 6px var(--color-events), 0 0 18px var(--color-events);
 }
 
-#nav-events:hover .nav-tooltip { opacity: 1; }
+/* HUD pokazywany/animowany przez GSAP (navigation.js), nie przez :hover */
 
 /* ── Studio → ──────────────────────────────────────────────────── */
 #nav-studio {
@@ -292,10 +341,9 @@ html, body {
   width: var(--nav-line-len);
 }
 
-#nav-studio .nav-tooltip {
-  left: calc(100% + 16px);
-  top: 50%;
-  transform: translateY(-50%);
+#nav-studio .nav-hud {
+  top: calc(100% + 18px);
+  left: 0;                     /* zakotwiczony przy sygnecie, rośnie w PRAWO (od sygnetu) */
 }
 
 #nav-studio:hover .nav-label {
@@ -309,7 +357,7 @@ html, body {
   box-shadow: 0 0 6px var(--color-studio), 0 0 18px var(--color-studio);
 }
 
-#nav-studio:hover .nav-tooltip { opacity: 1; }
+/* HUD: GSAP */
 
 /* ── Lab ↓ ─────────────────────────────────────────────────────── */
 #nav-lab {
@@ -325,10 +373,18 @@ html, body {
   height: var(--nav-line-len);
 }
 
-#nav-lab .nav-tooltip {
-  top: calc(100% + 16px);
+#nav-lab .nav-hud {
+  top: calc(100% + 18px);
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-50%);   /* wycentrowany pod napisem LAB */
+}
+
+/* Lab — pionowa lista z oddechem (padding 16px) */
+#nav-lab .hud-services {
+  padding: 16px;
+}
+#nav-lab .hud-services li {
+  margin-left: 0;                /* padding daje oddech, lewy margines zbędny */
 }
 
 #nav-lab:hover .nav-label {
@@ -342,7 +398,7 @@ html, body {
   box-shadow: 0 0 6px var(--color-lab), 0 0 18px var(--color-lab);
 }
 
-#nav-lab:hover .nav-tooltip { opacity: 1; }
+/* HUD: GSAP */
 
 /* ── Tagline ─────────────────────────────────────────────────────── */
 #tagline {
@@ -417,19 +473,18 @@ html, body {
     letter-spacing: 0.15em;
   }
 
-  .nav-tooltip {
+  .nav-hud {
     position: static;
     transform: none;
-    opacity: 0.6;
-    font-size: 8px;
-    border: none;
-    background: none;
     padding: 0;
+    margin-top: 4px;
     text-align: center;
     white-space: normal;
-    display: block;
-    margin-top: 4px;
   }
+  .hud-corner { display: none; }                 /* na mobile bez celownika */
+  .hud-title       { opacity: 1; font-size: 9px; margin: 0 0 2px; }
+  .hud-services    { opacity: 1; }               /* GSAP nie odpala na mobile (guard) */
+  .hud-services li { margin-left: 0; }           /* wycentrowane, bez lewego marginesu */
 
   #top-right {
     opacity: 1;
