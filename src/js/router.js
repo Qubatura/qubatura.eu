@@ -6,6 +6,7 @@
 import * as THREE from 'three';
 import * as GSAPmod from 'gsap';
 import { DIVISION_COLORS, DIVISION_DIR, BASE_TINT, navFX } from './tint.js';
+import { resetNavState } from './navigation.js';
 
 const gsap = GSAPmod.gsap || GSAPmod.default || GSAPmod;
 
@@ -70,6 +71,7 @@ export function initRouter() {
   }
 
   function closePage() {
+    resetNavState();   // czysty stan nav: zgaś wszystkie HUD-y „zamrożone" przez guard
     page.classList.remove('is-open');
     back.classList.remove('is-open');
     document.body.classList.remove('page-active');

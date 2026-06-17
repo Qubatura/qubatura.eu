@@ -15,6 +15,18 @@ const gsap = GSAPmod.gsap || GSAPmod.default || GSAPmod;
 const EASE = 'power2.out';
 const TUG  = 9;   // przeskok w stronę działu w jedn. świata (~28px @1080p)
 
+// Timeline'y HUD wszystkich dywizji — zbierane przy init, resetowane przy powrocie na HOME
+const hudTimelines = [];
+
+// Wymuszenie czystego stanu nawigacji — wołane przez router.js przy renderze HOME.
+// Naprawia „zamrożone" HUD-y: guard trybu strony blokuje mouseleave, więc timeline
+// klikniętej dywizji nie cofa się sam. Tu cofamy WSZYSTKIE do czasu 0 (stan ukryty).
+export function resetNavState() {
+  hudTimelines.forEach(tl => tl.pause(0));   // seek do 0 = stan „from" (opacity 0, ukryte)
+  navFX.activeDiv = null;                     // zgaś chmury tintu przy napisach
+  // Tint sceny i sygnet resetuje closePage() w router.js (tweenem) — nie dublujemy tu.
+}
+
 export function initNavigation() {
   let beat = null;   // aktywny timeline „uderzenia serca"
   // HUD animujemy GSAP-em tylko na desktopie; na mobile jest statyczny (CSS)
@@ -39,6 +51,7 @@ export function initNavigation() {
       hud.fromTo(texts,
         { opacity: 0, y: 8 },
         { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out', stagger: 0.08 }, 0.18);
+      hudTimelines.push(hud);   // do resetNavState() przy powrocie na HOME
     }
 
     el.addEventListener('mouseenter', () => {
