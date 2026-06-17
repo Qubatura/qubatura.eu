@@ -643,6 +643,7 @@ body.page-active #tagline {
   position: absolute;
   bottom: 2.5%;
   left: 2.5%;
+  z-index: 10;                  /* nad .contact-inner — inaczej zasłania klik/hover */
   font-family: var(--font-mono);
   font-size: 11px;
   letter-spacing: 0.18em;
@@ -650,8 +651,9 @@ body.page-active #tagline {
   color: rgba(255, 255, 255, 0.45);
   background: none;
   border: none;
-  /* hover koloru robi GSAP w contact.js (spójnie z resztą animacji) */
+  transition: color 0.3s ease;
 }
+#contact-close:hover { color: rgba(255, 255, 255, 1); }   /* biały, jak #page-back */
 
 .contact-inner {
   position: relative;

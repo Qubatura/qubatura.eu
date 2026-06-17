@@ -57,13 +57,9 @@ export function initContact() {
     openOverlay();
   });
 
-  // „← Powrót" — ta sama funkcja zamknięcia co Escape i klik w tło
+  // „← Powrót" — ta sama funkcja zamknięcia co Escape i klik w tło.
+  // Hover (biały) robi CSS, identycznie jak #page-back na podstronach.
   closeBtn.addEventListener('click', closeOverlay);
-  // hover koloru — GSAP, 0.2s ease (spójnie z animacjami strony)
-  closeBtn.addEventListener('mouseenter', () =>
-    gsap.to(closeBtn, { color: '#E0218A', duration: 0.2, ease: 'power2.out' }));
-  closeBtn.addEventListener('mouseleave', () =>
-    gsap.to(closeBtn, { color: 'rgba(255,255,255,0.45)', duration: 0.2, ease: 'power2.out' }));
 
   // klik w tło (sam overlay, nie content) zamyka
   overlay.addEventListener('click', e => { if (e.target === overlay) closeOverlay(); });
