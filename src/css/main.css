@@ -297,7 +297,14 @@ html, body {
 
 #nav-events .nav-hud {
   top: calc(100% + 18px);
-  right: 18px;                 /* odsunięty od sygnetu w lewo, rośnie dalej w LEWO */
+  right: 18px;                 /* odsunięty od sygnetu w lewo */
+  /* nie wychodzi poza lewą krawędź: max = miejsce od środka do sygnetu minus margines */
+  max-width: calc(50vw - var(--signet-r) - 48px);
+}
+
+/* Events ma najdłuższą linię — pozwól zawinąć gdy nie mieści się w jednej */
+#nav-events .hud-row {
+  white-space: normal;
 }
 
 #nav-events:hover .nav-label {
@@ -361,7 +368,8 @@ html, body {
 #nav-lab .nav-hud {
   top: calc(100% + 18px);
   left: 50%;
-  transform: translateX(-50%);   /* wycentrowany pod napisem LAB */
+  transform: translateX(-50%);   /* box wycentrowany pod napisem LAB */
+  text-align: center;            /* nagłówek + usługi symetrycznie w boxie */
 }
 
 #nav-lab:hover .nav-label {
