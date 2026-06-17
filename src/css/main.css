@@ -116,7 +116,7 @@ html, body {
   right: 40px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 26px;
   font-family: var(--font-mono);
   font-size: 10px;
   letter-spacing: 0.18em;
@@ -127,7 +127,7 @@ html, body {
 
 #top-contact,
 #lang-toggle {
-  color: rgba(255, 255, 255, 0.25);
+  color: rgba(255, 255, 255, 0.45);
   text-decoration: none;
   background: none;
   border: none;
@@ -140,7 +140,7 @@ html, body {
 
 #top-contact:hover,
 #lang-toggle:hover {
-  color: rgba(255, 255, 255, 0.75);
+  color: rgba(255, 255, 255, 1);
 }
 
 #sound-toggle {
@@ -163,8 +163,13 @@ html, body {
   display: block;
   width: 2px;
   border-radius: 1px;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.45);
   transition: background 0.3s, height 0.5s ease;
+}
+
+/* Hover na waveform — jak CONTACT/EN (active state niżej nadpisuje kolejnością) */
+#sound-toggle:hover .waveform span {
+  background: rgba(255, 255, 255, 1);
 }
 
 /* Animated waveform when sound is active (Etap 8) */
@@ -377,7 +382,7 @@ html, body {
   font-family: var(--font-mono);
   font-size: 10px;
   letter-spacing: 0.32em;
-  color: rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.45);
   text-transform: uppercase;
   white-space: nowrap;
   z-index: 10;
