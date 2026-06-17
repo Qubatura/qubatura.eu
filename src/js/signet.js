@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { SVGLoader } from 'three/addons/loaders/SVGLoader.js';
 import { onTick, registerRefraction } from './scene.js';
+import { navFX } from './tint.js';
 
 const _mouse = { x: -9999, y: -9999 };
 window.addEventListener('mousemove', e => { _mouse.x = e.clientX; _mouse.y = e.clientY; });
@@ -130,11 +131,13 @@ export async function initSignet(ctx) {
   // ─── Świecący obrys — neon wzdłuż krawędzi sygnetu ──────────────────────────
   // Te same ścieżki SVG co bryła, jako linie. Punkty wycentrowane (−svgCX,−svgCY),
   // żeby skalowanie halo (1.008×) działało względem środka sygnetu, nie rogu SVG.
+  const outlineParts = [];   // { mat, base } — do tintu na hover dywizji
   function buildOutline(scaleMul, hex, opacity, renderOrder) {
     const og   = new THREE.Group();
     const lmat = new THREE.LineBasicMaterial({
       color: hex, transparent: true, opacity, depthWrite: false,
     });
+    outlineParts.push({ mat: lmat, base: new THREE.Color(hex) });
     for (const path of data.paths) {
       for (const sub of path.subPaths) {
         const pts = sub.getPoints(128);
@@ -185,13 +188,16 @@ export async function initSignet(ctx) {
     // i przesuniętych fazach → ruch nieprzewidywalny, nie wahadłowy.
     // Kołysanie lewo-prawo: dominująca fala (~połowa dawnego zakresu, widać bryłę 3D)
     // + dwie mniejsze niewspółmierne fale na losowość.
+    // (+ navFX.leanY/X = pochylenie „w stronę" najechanej dywizji, tweenowane GSAP-em)
     pivot.rotation.y = Math.sin(t * 0.15)        * 0.35
                      + Math.sin(t * 0.211 + 1.7) * 0.10
-                     + Math.sin(t * 0.087 + 4.1) * 0.06;
+                     + Math.sin(t * 0.087 + 4.1) * 0.06
+                     + navFX.leanY;
     // Przechył góra-dół (~0.22)
     pivot.rotation.x = Math.sin(t * 0.17 + 0.6)  * 0.10
                      + Math.sin(t * 0.283 + 2.9) * 0.07
-                     + Math.sin(t * 0.119 + 5.2) * 0.05;
+                     + Math.sin(t * 0.119 + 5.2) * 0.05
+                     + navFX.leanX;
     // Subtelny roll (~0.057)
     pivot.rotation.z = Math.sin(t * 0.093 + 3.3) * 0.035
                      + Math.sin(t * 0.157 + 0.9) * 0.022;
@@ -205,6 +211,9 @@ export async function initSignet(ctx) {
     const target = Math.abs(Math.sin(pivot.rotation.y));
     colorMix += (target - colorMix) * 0.05;
     uniforms.uColorMix.value = colorMix;
+
+    // Hover dywizji → outline (główny + halo) przyjmuje kolor działu (navFX, GSAP)
+    for (const p of outlineParts) p.mat.color.copy(p.base).lerp(navFX.target, navFX.intensity);
 
     // Pulsowanie skali "oddychanie" × mouse-proximity hover
     const pulse = 1 + Math.sin(t * 0.8) * 0.03;   // amplituda 0.03 (też +25% prędkości)

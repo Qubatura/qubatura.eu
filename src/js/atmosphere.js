@@ -1,5 +1,8 @@
 import * as THREE from 'three';
 import { onTick } from './scene.js';
+import { navFX, BASE_TINT } from './tint.js';
+
+const _white = new THREE.Color(0xffffff);
 
 // ─── Canvas gradient texture — shared across all fog sprites ──────────────────
 
@@ -89,6 +92,14 @@ function updateFog(blobs, elapsed) {
     const s = Math.sin(elapsed * (Math.PI * 2 / b.period) + b.phase);
     b.mat.opacity = b.baseOpacity * (0.7 + s * 0.3);
 
+    // Tint sceny — SKONCENTROWANY po stronie najechanej dywizji: sprite'y leżące
+    // w kierunku działu dostają pełny kolor, po przeciwnej stronie zostają bazowe.
+    const px = b.sprite.position.x, py = b.sprite.position.y;
+    const plen  = Math.hypot(px, py) || 1;
+    const align = (px / plen) * navFX.dirX + (py / plen) * navFX.dirY;   // -1..1
+    const w = navFX.intensity * Math.max(0, 0.2 + 0.8 * align) * 1.35;   // 1.35 = mocniej
+    b.mat.color.copy(BASE_TINT).lerp(navFX.target, Math.min(1, w));
+
     // Oddychanie rozmiarem (±12%) — zmiana kształtu daje życie bez skoków jasności
     const ss = Math.sin(elapsed * (Math.PI * 2 / b.scalePeriod) + b.scalePhase);
     const sc = b.baseScale * (1 + ss * 0.12);
@@ -145,6 +156,8 @@ function spawnBolt(slot) {
 
   slot.geo.setDrawRange(0, nPts);
   slot.geo.attributes.position.needsUpdate = true;
+  // Corona przyjmuje tint działu, rozjaśniony ku bieli (wyładowanie jest jaśniejsze niż mgła)
+  slot.mat.color.copy(BASE_TINT).lerp(navFX.target, navFX.intensity).lerp(_white, 0.35);
   slot.mat.opacity = 0.40;
   slot.line.visible = true;
   slot.active  = true;
