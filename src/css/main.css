@@ -107,7 +107,7 @@ html, body {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: 50;
+  z-index: 100;                 /* zawsze nad nawigacją (20) i sygnetem */
 }
 
 #top-right {
@@ -122,12 +122,7 @@ html, body {
   letter-spacing: 0.18em;
   text-transform: uppercase;
   pointer-events: all;
-  opacity: 0;
-  transition: opacity 0.5s ease;
-}
-
-#top-right.visible {
-  opacity: 1;
+  opacity: 1;                   /* zawsze widoczny — bez auto-hide */
 }
 
 #top-contact,
@@ -146,10 +141,6 @@ html, body {
 #top-contact:hover,
 #lang-toggle:hover {
   color: rgba(255, 255, 255, 0.75);
-}
-
-.top-sep {
-  color: rgba(255, 255, 255, 0.12);
 }
 
 #sound-toggle {

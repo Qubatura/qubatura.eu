@@ -87,9 +87,8 @@
   <!-- Top-right UI -->
   <header id="topbar">
     <div id="top-right">
-      <a href="/contact" id="top-contact">Contact</a>
-      <span class="top-sep" aria-hidden="true">/</span>
-      <button id="lang-toggle" aria-label="Zmień język" data-lang="pl">PL</button>
+      <a href="/contact" id="top-contact">Kontakt</a>
+      <button id="lang-toggle" aria-label="Przełącz na English" data-lang="pl">EN</button>
       <button id="sound-toggle" aria-label="Włącz dźwięk ambient" data-active="false">
         <div class="waveform" aria-hidden="true">
           <span style="height:4px"></span>
@@ -183,13 +182,23 @@
       el.addEventListener('mouseleave', () => { window.qbState.activeDiv = null; });
     });
 
-    // Topbar auto-hide — show on move, hide after 3s idle (Etap 8 refines this)
-    const topRight = document.getElementById('top-right');
-    let hideTimer;
-    document.addEventListener('mousemove', () => {
-      topRight.classList.add('visible');
-      clearTimeout(hideTimer);
-      hideTimer = setTimeout(() => topRight.classList.remove('visible'), 3000);
+    // Przełącznik języka — przycisk POKAZUJE język docelowy (ten, na który przełączy).
+    // Strona domyślnie PL → przycisk pokazuje EN. Po przełączeniu na EN → pokazuje PL.
+    const langToggle = document.getElementById('lang-toggle');
+    const LANG = {
+      pl: { other: 'en', label: 'EN', aria: 'Przełącz na English' },
+      en: { other: 'pl', label: 'PL', aria: 'Switch to Polish' },
+    };
+    function applyLang(cur) {
+      document.documentElement.lang = cur;
+      langToggle.dataset.lang = cur;
+      langToggle.textContent  = LANG[cur].label;   // etykieta = język docelowy
+      langToggle.setAttribute('aria-label', LANG[cur].aria);
+    }
+    applyLang('pl');   // domyślny stan: polski
+    langToggle.addEventListener('click', () => {
+      applyLang(LANG[langToggle.dataset.lang].other);
+      // (właściwe tłumaczenie treści — osobny etap i18n)
     });
   </script>
 
