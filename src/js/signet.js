@@ -14,7 +14,7 @@ export async function initSignet(ctx) {
   let data;
   try {
     data = await new Promise((resolve, reject) =>
-      loader.load('/assets/signet.svg', resolve, undefined, reject)
+      loader.load('../assets/signet.svg', resolve, undefined, reject)
     );
   } catch (e) {
     console.warn('signet.svg failed to load', e);

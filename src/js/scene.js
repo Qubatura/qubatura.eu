@@ -39,7 +39,7 @@ export async function initScene() {
 
   // Planeta — tekstura w scenie (była warstwą CSS). Daleko za sygnetem, więc Pass 1
   // refrakcji łapie ją do renderTarget → sygnet realnie ją zagina.
-  const planetTexture = new THREE.TextureLoader().load('/assets/planet-bg.png');
+  const planetTexture = new THREE.TextureLoader().load('../assets/planet-bg.png');
   planetTexture.colorSpace = THREE.SRGBColorSpace;
   planetMat = new THREE.MeshBasicMaterial({
     map: planetTexture, transparent: true, opacity: PLANET_OPACITY_VISIBLE,
