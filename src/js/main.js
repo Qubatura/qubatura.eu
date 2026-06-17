@@ -15,8 +15,10 @@ import { initAtmosphere }       from './atmosphere.js';
 import { initSignet }           from './signet.js';
 import { initNavigation }       from './navigation.js';
 import { initRouter }           from './router.js';
+import { initCursor }           from './cursor.js';
 
 async function boot() {
+  initCursor();                 // własna kulka kursora — od razu aktywna
   const ctx = await initScene();
   initCreatures(ctx);
   initAtmosphere(ctx);

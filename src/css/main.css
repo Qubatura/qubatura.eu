@@ -32,6 +32,9 @@
   box-sizing: border-box;
 }
 
+/* Systemowy kursor zgaszony wszędzie — używamy własnej kulki (#cursor) */
+*, html, body { cursor: none !important; }
+
 /* ── Base ───────────────────────────────────────────────────────── */
 html, body {
   width: 100%;
@@ -71,18 +74,18 @@ html, body {
 }
 
 /* ── Custom cursor ──────────────────────────────────────────────── */
+/* Stany (rozmiar/kolor/glow/pulse) steruje GSAP w cursor.js — zero CSS transition.
+   Centrowanie i pulse robi GSAP transformem (xPercent/yPercent/scale). */
 #cursor {
   position: fixed;
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  background: var(--color-accent);
+  background: #E0218A;
   pointer-events: none;
-  transform: translate(-50%, -50%);
   z-index: 1000;
-  box-shadow: 0 0 8px var(--color-accent);
-  transition: width 0.2s ease, height 0.2s ease, background 0.3s;
-  will-change: left, top;
+  box-shadow: 0 0 11px #E0218A;
+  will-change: left, top, transform;
 }
 
 /* ── Loading screen ─────────────────────────────────────────────── */
@@ -388,7 +391,7 @@ html, body {
   z-index: 10;
   pointer-events: all;
   user-select: none;
-  cursor: default;
+  cursor: none;                 /* nie klikalny — nie sugeruj łapki */
   transition: color 0.3s ease;
 }
 
@@ -551,7 +554,7 @@ html, body {
   background: rgba(124, 58, 237, 0.04);
   align-items: center;
   justify-content: center;
-  pointer-events: none;
+  pointer-events: auto;        /* kulka ma wykryć hover nad galerią */
 }
 
 #page[data-division="events"] .page-gallery {

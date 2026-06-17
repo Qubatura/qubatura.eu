@@ -241,14 +241,8 @@
   <!-- Tagline -->
   <p id="tagline">Przybywamy z sygnałem</p>
 
-  <!-- Cursor tracking (inline — no module needed yet) -->
+  <!-- Cursor: własna kulka ze stanami GSAP — patrz js/cursor.js -->
   <script>
-    const cursorEl = document.getElementById('cursor');
-    document.addEventListener('mousemove', e => {
-      cursorEl.style.left = e.clientX + 'px';
-      cursorEl.style.top  = e.clientY + 'px';
-    });
-
     // Division hover — state picked up by Three.js in Etap 3
     window.qbState = { activeDiv: null };
     document.querySelectorAll('.nav-item').forEach(el => {
