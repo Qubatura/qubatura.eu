@@ -262,25 +262,10 @@ html, body {
 .hud-services {
   margin: 0;
   padding: 0;
-  list-style: none;
   opacity: 0;                       /* fade-in robi GSAP */
 }
-.hud-services li {
-  font-family: var(--font-mono);
-  font-size: 8px;
-  letter-spacing: 0.04em;
-  line-height: 1.75;
-  color: rgba(255, 255, 255, 0.6);
-  margin-left: 8px;                 /* lewy margines listy */
-  white-space: nowrap;
-}
 
-/* Events — usługi w dwóch liniach (· jako separator), nie lista pionowa */
-.hud-services--rows {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
+/* Usługi — jedna linia pozioma, separator · (wszystkie trzy działy) */
 .hud-row {
   margin: 0;
   font-family: var(--font-mono);
@@ -377,14 +362,6 @@ html, body {
   top: calc(100% + 18px);
   left: 50%;
   transform: translateX(-50%);   /* wycentrowany pod napisem LAB */
-}
-
-/* Lab — pionowa lista z oddechem (padding 16px) */
-#nav-lab .hud-services {
-  padding: 16px;
-}
-#nav-lab .hud-services li {
-  margin-left: 0;                /* padding daje oddech, lewy margines zbędny */
 }
 
 #nav-lab:hover .nav-label {
