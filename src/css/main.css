@@ -252,7 +252,7 @@ html, body {
 .hud-title {
   margin: 0 0 6px;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 9px;
   letter-spacing: 0.15em;
   text-transform: uppercase;
   color: var(--div-color, var(--color-primary));
@@ -269,10 +269,10 @@ html, body {
 .hud-row {
   margin: 0;
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: 12px;
   letter-spacing: 0.04em;
   line-height: 1.6;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.85);
   white-space: nowrap;
 }
 
@@ -297,7 +297,7 @@ html, body {
 
 #nav-events .nav-hud {
   top: calc(100% + 18px);
-  right: 0;                    /* zakotwiczony przy sygnecie, rośnie w LEWO (od sygnetu) */
+  right: 18px;                 /* odsunięty od sygnetu w lewo, rośnie dalej w LEWO */
 }
 
 #nav-events:hover .nav-label {
@@ -380,9 +380,8 @@ html, body {
 /* ── Tagline ─────────────────────────────────────────────────────── */
 #tagline {
   position: fixed;
-  bottom: 80px;
-  left: 50%;
-  transform: translateX(-50%);
+  bottom: 2.5%;
+  left: 2.5%;
   font-family: var(--font-mono);
   font-size: 10px;
   letter-spacing: 0.32em;
@@ -461,7 +460,7 @@ html, body {
   .hud-corner { display: none; }                 /* na mobile bez celownika */
   .hud-title       { opacity: 1; font-size: 9px; margin: 0 0 2px; }
   .hud-services    { opacity: 1; }               /* GSAP nie odpala na mobile (guard) */
-  .hud-services li { margin-left: 0; }           /* wycentrowane, bez lewego marginesu */
+  .hud-row         { white-space: normal; font-size: 10px; } /* na kartach linia się zawija */
 
   #top-right {
     opacity: 1;
