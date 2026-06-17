@@ -164,6 +164,80 @@
 
   </nav>
 
+  <!-- ── Podstrony (Etap 10) — overlay nad żywą sceną, przełączane przez router.js ── -->
+  <main id="page" aria-hidden="true">
+    <button id="page-back" type="button" aria-label="Powrót">← Powrót</button>
+
+    <!-- Events -->
+    <article class="page-view" id="page-events" data-division="events" hidden>
+      <p class="page-kicker">Qubatura Events</p>
+      <h1 class="page-title">Produkcja eventów<br>od A do Z</h1>
+      <p class="page-lead">Nagłośnienie, światło, multimedia i streaming — jeden zespół od koncepcji,
+        przez scenariusz, po realizację na żywo. Konferencje, hotele, koncerty.</p>
+      <ul class="page-services">
+        <li>Artyści &amp; konferansjerzy</li>
+        <li>Reżyseria i scenariusz</li>
+        <li>Nagłośnienie estradowe</li>
+        <li>Oświetlenie sceniczne (DMX)</li>
+        <li>Multimedia &amp; mapping</li>
+        <li>Streaming i transmisje</li>
+      </ul>
+      <a class="page-cta" href="/contact" data-route>Porozmawiajmy o evencie →</a>
+    </article>
+
+    <!-- Studio -->
+    <article class="page-view" id="page-studio" data-division="studio" hidden>
+      <p class="page-kicker">Studio Q</p>
+      <h1 class="page-title">Produkcja<br>i post-produkcja audio</h1>
+      <p class="page-lead">16 lat za konsoletą — od realizacji na żywo po dźwięk, który niesie historię.
+        Audiobooki, słuchowiska, sound design i mastering w jednym miejscu.</p>
+      <ul class="page-services">
+        <li>Miks &amp; mastering</li>
+        <li>Audiobooki</li>
+        <li>Sound design</li>
+        <li>Nagrania binauralne</li>
+        <li>Formy dramatyczne</li>
+      </ul>
+      <a class="page-cta" href="/contact" data-route>Zacznijmy nagranie →</a>
+    </article>
+
+    <!-- Lab -->
+    <article class="page-view" id="page-lab" data-division="lab" hidden>
+      <p class="page-kicker">Qlab</p>
+      <h1 class="page-title">Technologia,<br>design i development</h1>
+      <p class="page-lead">Druk 3D, IoT i software — od prototypu na biurku po wdrożony produkt.
+        Projektujemy, programujemy i drukujemy rzeczy, których jeszcze nie ma.</p>
+      <ul class="page-services">
+        <li>UX/UI</li>
+        <li>Aplikacje &amp; software</li>
+        <li>Web design</li>
+        <li>Druk 3D</li>
+        <li>Mapping</li>
+        <li>IoT</li>
+      </ul>
+      <a class="page-cta" href="/contact" data-route>Opisz projekt →</a>
+    </article>
+
+    <!-- Kontakt -->
+    <article class="page-view" id="page-contact" data-division="contact" hidden>
+      <p class="page-kicker">Kontakt</p>
+      <h1 class="page-title">Przybywamy<br>z sygnałem</h1>
+      <p class="page-lead">Qubatura Group — Sosnowiec. Napisz, co chcesz zrobić, a my powiemy jak.</p>
+      <a class="page-mail" href="mailto:biuro@qubatura.eu">biuro@qubatura.eu</a>
+    </article>
+
+    <!-- Galeria realizacji (Events) — placeholder, sama ramka HUD bez zdjęć.
+         Dziecko #page (nie artykułu) — GSAP transform na artykule nie psuje pozycji. -->
+    <div class="page-gallery" aria-hidden="true">
+      <span class="gal-corner tl"></span><span class="gal-corner tr"></span>
+      <span class="gal-corner bl"></span><span class="gal-corner br"></span>
+      <div class="gal-inner">
+        <p class="gal-title">Realizacje</p>
+        <p class="gal-sub">[ Zdjęcia ]</p>
+      </div>
+    </div>
+  </main>
+
   <!-- Tagline -->
   <p id="tagline">Przybywamy z sygnałem</p>
 

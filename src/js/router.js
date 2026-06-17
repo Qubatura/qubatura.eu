@@ -1,2 +1,126 @@
 // router.js — SPA History API + GSAP page transitions (Etap 10)
-export function initRouter() {}
+// Scena Three.js zostaje żywa w tle; podstrony to overlay (#page) z fade.
+// Przy wejściu na dywizję: scena tinted w kolor działu (navFX) + sygnet zjeżdża
+// do lewego górnego rogu jako logo (navFX.pageX/pageY/pageScale, czyta signet.js).
+
+import * as THREE from 'three';
+import * as GSAPmod from 'gsap';
+import { DIVISION_COLORS, DIVISION_DIR, BASE_TINT, navFX } from './tint.js';
+
+const gsap = GSAPmod.gsap || GSAPmod.default || GSAPmod;
+
+const EASE = 'power3.out';
+
+// Sygnet w trybie podstrony — pozycja/skala w jedn. świata (tunable)
+const SIGNET_PAGE = { x: -235, y: 120, scale: 0.42 };
+
+// Kontakt nie jest dywizją — używa koloru primary
+const CONTACT_COLOR = new THREE.Color(0x6B2FD9);
+
+const ROUTES = {
+  '/events':  { view: 'page-events',  div: 'events'  },
+  '/studio':  { view: 'page-studio',  div: 'studio'  },
+  '/lab':     { view: 'page-lab',     div: 'lab'     },
+  '/contact': { view: 'page-contact', div: 'contact' },
+};
+
+export function initRouter() {
+  const page    = document.getElementById('page');
+  const back    = document.getElementById('page-back');
+  const views   = [...document.querySelectorAll('.page-view')];
+  if (!page) return;
+
+  let current = null;   // aktualna ścieżka ('/'=hero)
+
+  // ── Renderowanie stanu dla ścieżki ─────────────────────────────────────────
+  function render(path) {
+    const route = ROUTES[path] || null;
+
+    if (!route) {            // ── HERO ──
+      closePage();
+      current = '/';
+      return;
+    }
+
+    // ── PODSTRONA ──
+    views.forEach(v => { v.hidden = (v.id !== route.view); });
+
+    document.body.classList.add('page-active');
+    page.classList.add('is-open');
+    page.dataset.division = route.div;   // → tło podstrony w CSS (#page[data-division=...])
+    back.classList.add('is-open');
+    page.setAttribute('aria-hidden', 'false');
+
+    // subtelny wjazd treści
+    const active = document.getElementById(route.view);
+    gsap.fromTo(active, { y: 24, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.55, ease: EASE, delay: 0.1 });
+
+    // scena: tint w kolor działu + sygnet do rogu
+    const c   = DIVISION_COLORS[route.div] || CONTACT_COLOR;
+    const dir = DIVISION_DIR[route.div] || { x: 0, y: 0 };
+    gsap.to(navFX.target, { r: c.r, g: c.g, b: c.b, duration: 0.6, ease: EASE, overwrite: 'auto' });
+    gsap.to(navFX, { intensity: 1, dirX: dir.x, dirY: dir.y, duration: 0.6, ease: EASE, overwrite: 'auto' });
+    gsap.to(navFX, {
+      pageX: SIGNET_PAGE.x, pageY: SIGNET_PAGE.y, pageScale: SIGNET_PAGE.scale,
+      duration: 0.9, ease: EASE, overwrite: 'auto',
+    });
+
+    current = path;
+  }
+
+  function closePage() {
+    page.classList.remove('is-open');
+    back.classList.remove('is-open');
+    document.body.classList.remove('page-active');
+    page.setAttribute('aria-hidden', 'true');
+
+    // scena wraca: tint neutralny + sygnet na środek/pełna skala
+    gsap.to(navFX.target, {
+      r: BASE_TINT.r, g: BASE_TINT.g, b: BASE_TINT.b,
+      duration: 0.6, ease: EASE, overwrite: 'auto',
+    });
+    gsap.to(navFX, { intensity: 0, tugX: 0, tugY: 0, duration: 0.6, ease: EASE, overwrite: 'auto' });
+    gsap.to(navFX, {
+      pageX: 0, pageY: 0, pageScale: 1,
+      duration: 0.9, ease: EASE, overwrite: 'auto',
+      onComplete: () => {
+        views.forEach(v => { v.hidden = true; });
+        delete page.dataset.division;
+      },
+    });
+  }
+
+  // ── Nawigacja ───────────────────────────────────────────────────────────────
+  function navigate(path) {
+    if (path === current) return;
+    history.pushState({ path }, '', path);
+    render(path);
+  }
+
+  // Przejęcie kliknięć w linki dywizji (.nav-item) i CTA ([data-route])
+  document.addEventListener('click', e => {
+    const link = e.target.closest('a[href^="/"]');
+    if (!link) return;
+    const path = new URL(link.href).pathname;
+    if (!ROUTES[path]) return;          // nie nasza trasa → puść dalej
+    e.preventDefault();
+    navigate(path);
+  });
+
+  back.addEventListener('click', () => {
+    if (history.state && history.state.path) history.back();
+    else navigate('/');
+  });
+
+  window.addEventListener('popstate', e => {
+    render((e.state && e.state.path) || pathFromLocation());
+  });
+
+  // ── Start ─────────────────────────────────────────────────────────────────
+  function pathFromLocation() {
+    const p = location.pathname;
+    return ROUTES[p] ? p : '/';
+  }
+  render(pathFromLocation());
+}

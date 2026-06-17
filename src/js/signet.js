@@ -128,16 +128,17 @@ export async function initSignet(ctx) {
     group.add(mesh);
   }
 
-  // ─── Świecący obrys — neon wzdłuż krawędzi sygnetu ──────────────────────────
-  // Te same ścieżki SVG co bryła, jako linie. Punkty wycentrowane (−svgCX,−svgCY),
-  // żeby skalowanie halo (1.008×) działało względem środka sygnetu, nie rogu SVG.
-  const outlineParts = [];   // { mat, base } — do tintu na hover dywizji
-  function buildOutline(scaleMul, hex, opacity, renderOrder) {
+  // ─── Świecący obrys — neon wzdłuż krawędzi (LineBasicMaterial, niezawodny) ──
+  // Grubość udajemy STOSEM współśrodkowych warstw (różne skale); glow = additive.
+  // Punkty wycentrowane (−svgCX,−svgCY) → skala/rotacja względem środka sygnetu.
+  const outlineParts = [];   // { mat, base, baseOpacity, glow }
+  function buildOutline(scaleMul, hex, opacity, renderOrder, glow) {
     const og   = new THREE.Group();
     const lmat = new THREE.LineBasicMaterial({
       color: hex, transparent: true, opacity, depthWrite: false,
+      blending: glow ? THREE.AdditiveBlending : THREE.NormalBlending,
     });
-    outlineParts.push({ mat: lmat, base: new THREE.Color(hex) });
+    outlineParts.push({ mat: lmat, base: new THREE.Color(hex), baseOpacity: opacity, glow: !!glow });
     for (const path of data.paths) {
       for (const sub of path.subPaths) {
         const pts = sub.getPoints(128);
@@ -159,8 +160,11 @@ export async function initSignet(ctx) {
     return og;
   }
 
-  group.add(buildOutline(1.008, 0x9B6DFF, 0.3, 9));   // halo — szersze, słabsze
-  group.add(buildOutline(1.0,   0x5B2EFF, 0.7, 10));  // główny neon
+  // Stos glow (additive, coraz szersze pierścienie) + jasny rdzeń na wierzchu
+  group.add(buildOutline(1.030, 0x5B2EFF, 0.10, 8,  true));
+  group.add(buildOutline(1.018, 0x6B3FEF, 0.16, 9,  true));
+  group.add(buildOutline(1.008, 0x8B6CFF, 0.24, 10, true));
+  group.add(buildOutline(1.0,   0x9B8CFF, 0.90, 11, false));   // jasny rdzeń
 
   group.scale.set(S, -S, S);
 
@@ -188,32 +192,38 @@ export async function initSignet(ctx) {
     // i przesuniętych fazach → ruch nieprzewidywalny, nie wahadłowy.
     // Kołysanie lewo-prawo: dominująca fala (~połowa dawnego zakresu, widać bryłę 3D)
     // + dwie mniejsze niewspółmierne fale na losowość.
-    // (+ navFX.leanY/X = pochylenie „w stronę" najechanej dywizji, tweenowane GSAP-em)
     pivot.rotation.y = Math.sin(t * 0.15)        * 0.35
                      + Math.sin(t * 0.211 + 1.7) * 0.10
-                     + Math.sin(t * 0.087 + 4.1) * 0.06
-                     + navFX.leanY;
+                     + Math.sin(t * 0.087 + 4.1) * 0.06;
     // Przechył góra-dół (~0.22)
     pivot.rotation.x = Math.sin(t * 0.17 + 0.6)  * 0.10
                      + Math.sin(t * 0.283 + 2.9) * 0.07
-                     + Math.sin(t * 0.119 + 5.2) * 0.05
-                     + navFX.leanX;
+                     + Math.sin(t * 0.119 + 5.2) * 0.05;
     // Subtelny roll (~0.057)
     pivot.rotation.z = Math.sin(t * 0.093 + 3.3) * 0.035
                      + Math.sin(t * 0.157 + 0.9) * 0.022;
 
     // Float góra-dół: amplituda −30% (5.0 → ~3.5), też rozbity na kilka fal
+    // + navFX.tug = przeskok „jakby go pociągnęło" w stronę działu (heartbeat)
+    pivot.position.x = navFX.tugX + navFX.pageX;
     pivot.position.y = Math.sin(t * 0.6)         * 2.2
                      + Math.sin(t * 0.41 + 2.2)  * 0.9
-                     + Math.sin(t * 0.83 + 5.0)  * 0.4;
+                     + Math.sin(t * 0.83 + 5.0)  * 0.4
+                     + navFX.tugY + navFX.pageY;
 
     // Przejście primary → magenta — sterowane fazą obrotu (edge-on → magenta)
     const target = Math.abs(Math.sin(pivot.rotation.y));
     colorMix += (target - colorMix) * 0.05;
     uniforms.uColorMix.value = colorMix;
 
-    // Hover dywizji → outline (główny + halo) przyjmuje kolor działu (navFX, GSAP)
-    for (const p of outlineParts) p.mat.color.copy(p.base).lerp(navFX.target, navFX.intensity);
+    // Hover dywizji → obrys przyjmuje kolor działu; warstwy glow (additive) eksplodują
+    for (const p of outlineParts) {
+      p.mat.color.copy(p.base).lerp(navFX.target, navFX.intensity);
+      if (p.glow) {
+        p.mat.color.multiplyScalar(1 + navFX.glow * 3);
+        p.mat.opacity = Math.min(1, p.baseOpacity * (1 + navFX.glow * 4));
+      }
+    }
 
     // Pulsowanie skali "oddychanie" × mouse-proximity hover
     const pulse = 1 + Math.sin(t * 0.8) * 0.03;   // amplituda 0.03 (też +25% prędkości)
@@ -223,6 +233,8 @@ export async function initSignet(ctx) {
     );
     const near = dist < 140;
     hoverScale += ((near ? 1.08 : 1.0) - hoverScale) * 0.07;
-    pivot.scale.setScalar(pulse * hoverScale);
+    // „Uderzenie serca" przy hover (navFX.pulse: 0→0.15→0) na wierzchu oddychania i hovera
+    // × pageScale — tryb podstrony zmniejsza sygnet do logo w rogu
+    pivot.scale.setScalar(pulse * hoverScale * (1 + navFX.pulse) * navFX.pageScale);
   });
 }

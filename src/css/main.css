@@ -388,12 +388,245 @@ html, body {
   z-index: 10;
   pointer-events: all;
   user-select: none;
-  cursor: pointer;
+  cursor: default;
   transition: color 0.3s ease;
 }
 
 #tagline:hover {
   color: rgba(255, 255, 255, 1);
+}
+
+/* ── Podstrony (Etap 10) ─────────────────────────────────────────── */
+#page {
+  position: fixed;
+  inset: 0;
+  z-index: 40;                 /* nad nawigacją (20), pod topbarem (100) */
+  display: flex;
+  align-items: center;
+  pointer-events: none;        /* hero: overlay przezroczysty dla kliknięć */
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  /* domyślnie (np. Kontakt): półprzezroczysta zasłona — żywa scena prześwituje */
+  background:
+    radial-gradient(120% 90% at 18% 50%, rgba(6, 5, 15, 0.82), rgba(6, 5, 15, 0.45) 70%, rgba(6, 5, 15, 0.2));
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* Tła dywizji — grafika + scrim po lewej (strona z tekstem) dla czytelności.
+   Pliki: assets/qubatura.eu-tlo-dep-<dział>.png */
+#page[data-division="events"] {
+  background-image:
+    linear-gradient(90deg, rgba(6,5,15,0.88) 0%, rgba(6,5,15,0.55) 45%, rgba(6,5,15,0.15) 100%),
+    url('/assets/qubatura.eu-tlo-dep-events.png');
+}
+#page[data-division="studio"] {
+  background-image:
+    linear-gradient(90deg, rgba(6,5,15,0.88) 0%, rgba(6,5,15,0.55) 45%, rgba(6,5,15,0.15) 100%),
+    url('/assets/qubatura.eu-tlo-dep-studio.png');
+}
+#page[data-division="lab"] {
+  background-image:
+    linear-gradient(90deg, rgba(6,5,15,0.88) 0%, rgba(6,5,15,0.55) 45%, rgba(6,5,15,0.15) 100%),
+    url('/assets/qubatura.eu-tlo-dep-lab.png');
+}
+
+#page.is-open {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.page-view {
+  max-width: 620px;
+  padding: 0 8vw;
+}
+
+.page-view[hidden] { display: none; }
+
+/* Akcent per dywizja */
+#page-events  { --pg-color: var(--color-events); }
+#page-studio  { --pg-color: var(--color-studio); }
+#page-lab     { --pg-color: var(--color-lab); }
+#page-contact { --pg-color: var(--color-primary); }
+
+.page-kicker {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--pg-color, var(--color-primary));
+  text-shadow: 0 0 12px var(--pg-color, var(--color-primary));
+  margin: 0 0 18px;
+}
+
+.page-title {
+  font-family: var(--font-display);   /* Chakra Petch */
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: clamp(34px, 5.5vw, 64px);
+  line-height: 1.05;
+  letter-spacing: 0.02em;
+  color: var(--color-white);
+  margin: 0 0 24px;
+}
+
+.page-lead {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.85;
+  color: rgba(255, 255, 255, 0.6);
+  max-width: 48ch;
+  margin: 0 0 32px;
+}
+
+.page-services {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 28px;
+  margin: 0 0 40px;
+  padding: 0;
+}
+
+.page-services li {
+  position: relative;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.78);
+  padding-left: 16px;
+}
+
+.page-services li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.5em;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--pg-color, var(--color-primary));
+  box-shadow: 0 0 8px var(--pg-color, var(--color-primary));
+}
+
+.page-cta,
+.page-mail {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--pg-color, var(--color-primary));
+  border: 1px solid color-mix(in srgb, var(--pg-color) 45%, transparent);
+  padding: 14px 22px;
+  cursor: none;
+  transition: background 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.page-cta:hover,
+.page-mail:hover {
+  color: var(--color-white);
+  background: color-mix(in srgb, var(--pg-color) 16%, transparent);
+  box-shadow: 0 0 24px color-mix(in srgb, var(--pg-color) 40%, transparent);
+}
+
+.page-mail {
+  font-size: 16px;
+  letter-spacing: 0.08em;
+  text-transform: none;
+}
+
+/* ── Galeria realizacji (placeholder, Events) ──────────────────────── */
+.page-gallery {
+  --gal: #7C3AED;              /* kolor narożników wg specyfikacji */
+  display: none;              /* widoczna tylko dla Events */
+  position: absolute;
+  top: 16%;
+  right: 6vw;
+  width: 33vw;
+  aspect-ratio: 16 / 9;
+  border: 1px solid color-mix(in srgb, var(--gal) 22%, transparent);
+  background: rgba(124, 58, 237, 0.04);
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+#page[data-division="events"] .page-gallery {
+  display: flex;
+}
+
+.gal-corner {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border: 2px solid var(--gal);
+  filter: drop-shadow(0 0 6px var(--gal));
+}
+.gal-corner.tl { top: -1px; left: -1px;  border-right: 0; border-bottom: 0; }
+.gal-corner.tr { top: -1px; right: -1px; border-left: 0;  border-bottom: 0; }
+.gal-corner.bl { bottom: -1px; left: -1px;  border-right: 0; border-top: 0; }
+.gal-corner.br { bottom: -1px; right: -1px; border-left: 0;  border-top: 0; }
+
+.gal-inner { text-align: center; }
+
+.gal-title {
+  font-family: var(--font-display);   /* Chakra Petch */
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: clamp(16px, 1.6vw, 22px);
+  letter-spacing: 0.22em;
+  color: rgba(255, 255, 255, 0.92);
+  margin: 0 0 8px;
+}
+
+.gal-sub {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--gal) 70%, white 10%);
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .page-gallery { display: none !important; }   /* mobile: layout podstron osobny etap */
+}
+
+/* Powrót — lewy dolny róg (tagline chowany w trybie strony) */
+#page-back {
+  position: fixed;
+  bottom: 2.5%;
+  left: 2.5%;
+  z-index: 101;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+  background: none;
+  border: none;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition: color 0.3s ease, opacity 0.4s ease;
+}
+
+#page-back.is-open {
+  opacity: 1;
+  pointer-events: all;
+}
+
+#page-back:hover {
+  color: rgba(255, 255, 255, 1);
+}
+
+/* W trybie strony chowamy tagline (kolizja z Powrotem) */
+body.page-active #tagline {
+  opacity: 0;
+  pointer-events: none;
 }
 
 /* ── Screen reader only ──────────────────────────────────────────── */
