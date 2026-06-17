@@ -386,8 +386,14 @@ html, body {
   text-transform: uppercase;
   white-space: nowrap;
   z-index: 10;
-  pointer-events: none;
+  pointer-events: all;
   user-select: none;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+#tagline:hover {
+  color: rgba(255, 255, 255, 1);
 }
 
 /* ── Screen reader only ──────────────────────────────────────────── */
