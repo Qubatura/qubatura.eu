@@ -18,6 +18,13 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@300;400;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 
+  <!-- Favicon — sygnet Q (violet) -->
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+
+  <!-- Font Awesome (ikony social) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        referrerpolicy="no-referrer">
+
   <!-- CSS -->
   <link rel="stylesheet" href="css/main.css">
 
@@ -87,7 +94,7 @@
   <!-- Top-right UI -->
   <header id="topbar">
     <div id="top-right">
-      <a href="/contact" id="top-contact">Kontakt</a>
+      <button id="top-contact" data-contact>Kontakt</button>
       <button id="lang-toggle" aria-label="Przełącz na English" data-lang="pl">EN</button>
       <button id="sound-toggle" aria-label="Włącz dźwięk ambient" data-active="false">
         <div class="waveform" aria-hidden="true">
@@ -182,7 +189,7 @@
         <li>Multimedia &amp; mapping</li>
         <li>Streaming i transmisje</li>
       </ul>
-      <a class="page-cta" href="/contact" data-route>Porozmawiajmy o evencie →</a>
+      <a class="page-cta" data-contact role="button" tabindex="0">Porozmawiajmy o evencie →</a>
     </article>
 
     <!-- Studio -->
@@ -198,7 +205,7 @@
         <li>Nagrania binauralne</li>
         <li>Formy dramatyczne</li>
       </ul>
-      <a class="page-cta" href="/contact" data-route>Zacznijmy nagranie →</a>
+      <a class="page-cta" data-contact role="button" tabindex="0">Zacznijmy nagranie →</a>
     </article>
 
     <!-- Lab -->
@@ -215,16 +222,10 @@
         <li>Mapping</li>
         <li>IoT</li>
       </ul>
-      <a class="page-cta" href="/contact" data-route>Opisz projekt →</a>
+      <a class="page-cta" data-contact role="button" tabindex="0">Opisz projekt →</a>
     </article>
 
-    <!-- Kontakt -->
-    <article class="page-view" id="page-contact" data-division="contact" hidden>
-      <p class="page-kicker">Kontakt</p>
-      <h1 class="page-title">Przybywamy<br>z sygnałem</h1>
-      <p class="page-lead">Qubatura Group — Sosnowiec. Napisz, co chcesz zrobić, a my powiemy jak.</p>
-      <a class="page-mail" href="mailto:biuro@qubatura.eu">biuro@qubatura.eu</a>
-    </article>
+    <!-- Kontakt = overlay (#contact-overlay), nie podstrona -->
 
     <!-- Galeria realizacji (Events) — placeholder, sama ramka HUD bez zdjęć.
          Dziecko #page (nie artykułu) — GSAP transform na artykule nie psuje pozycji. -->
@@ -240,6 +241,39 @@
 
   <!-- Tagline -->
   <p id="tagline">Przybywamy z sygnałem</p>
+
+  <!-- ── Contact overlay — fullscreen nakładka nad żywą sceną (NIE podstrona) ── -->
+  <div id="contact-overlay" role="dialog" aria-modal="true" aria-label="Kontakt" aria-hidden="true">
+    <button id="contact-close" type="button" aria-label="Zamknij kontakt">← Powrót</button>
+
+    <div class="contact-inner">
+      <div class="contact-coords">
+        <h2 class="coords-line">50°17'N · 19°08'E</h2>
+        <p class="coords-city">Śląsk · Polska</p>
+      </div>
+
+      <div class="contact-cols">
+        <div class="contact-data">
+          <a href="mailto:biuro@qubatura.eu">biuro@qubatura.eu</a>
+          <a href="tel:+48505512305">505 512 305</a>
+        </div>
+        <div class="contact-qr" aria-hidden="true">
+          <span class="qr-corner tl"></span><span class="qr-corner tr"></span>
+          <span class="qr-corner bl"></span><span class="qr-corner br"></span>
+          <span class="qr-label">[ QR ]</span>
+        </div>
+      </div>
+
+      <div class="contact-social">
+        <a href="https://facebook.com/qubatura" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+          <i class="fa-brands fa-facebook-f"></i></a>
+        <a href="https://linkedin.com/in/kuba-hyrja" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+          <i class="fa-brands fa-linkedin-in"></i></a>
+        <span class="social-soon" aria-label="TikTok — wkrótce"><i class="fa-brands fa-tiktok"></i></span>
+        <span class="social-soon" aria-label="Instagram — wkrótce"><i class="fa-brands fa-instagram"></i></span>
+      </div>
+    </div>
+  </div>
 
   <!-- Cursor: własna kulka ze stanami GSAP — patrz js/cursor.js -->
   <script>

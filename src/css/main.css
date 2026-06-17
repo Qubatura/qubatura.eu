@@ -83,7 +83,7 @@ html, body {
   border-radius: 50%;
   background: #E0218A;
   pointer-events: none;
-  z-index: 1000;
+  z-index: 2000;                /* nad contact-overlay (1000) */
   box-shadow: 0 0 11px #E0218A;
   will-change: left, top, transform;
 }
@@ -451,7 +451,6 @@ html, body {
 #page-events  { --pg-color: var(--color-events); }
 #page-studio  { --pg-color: var(--color-studio); }
 #page-lab     { --pg-color: var(--color-lab); }
-#page-contact { --pg-color: var(--color-primary); }
 
 .page-kicker {
   font-family: var(--font-mono);
@@ -513,8 +512,7 @@ html, body {
   box-shadow: 0 0 8px var(--pg-color, var(--color-primary));
 }
 
-.page-cta,
-.page-mail {
+.page-cta {
   display: inline-block;
   font-family: var(--font-mono);
   font-size: 12px;
@@ -528,17 +526,10 @@ html, body {
   transition: background 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
 }
 
-.page-cta:hover,
-.page-mail:hover {
+.page-cta:hover {
   color: var(--color-white);
   background: color-mix(in srgb, var(--pg-color) 16%, transparent);
   box-shadow: 0 0 24px color-mix(in srgb, var(--pg-color) 40%, transparent);
-}
-
-.page-mail {
-  font-size: 16px;
-  letter-spacing: 0.08em;
-  text-transform: none;
 }
 
 /* ── Galeria realizacji (placeholder, Events) ──────────────────────── */
@@ -630,6 +621,142 @@ html, body {
 body.page-active #tagline {
   opacity: 0;
   pointer-events: none;
+}
+
+/* ── Contact overlay ─────────────────────────────────────────────── */
+#contact-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(10, 10, 15, 0.40) !important;   /* scena Three.js prześwituje */
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  /* domyślnie ukryty — wejście/wyjście robi GSAP (contact.js) */
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Zamknięcie = ten sam komponent co „← Powrót" na podstronach (#page-back) */
+#contact-close {
+  position: absolute;
+  bottom: 2.5%;
+  left: 2.5%;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+  background: none;
+  border: none;
+  /* hover koloru robi GSAP w contact.js (spójnie z resztą animacji) */
+}
+
+.contact-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 7vh 8vw;
+}
+
+/* Centrum — koordynaty + miasto */
+.contact-coords { text-align: center; }
+.coords-line {
+  font-family: var(--font-display);   /* Chakra Petch */
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: clamp(48px, 8vw, 110px);
+  line-height: 1;
+  letter-spacing: 0.01em;
+  color: var(--color-white);
+  margin: 0;
+}
+.coords-city {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.4);
+  margin: 18px 0 0;
+}
+
+/* Dolna część — dwie kolumny */
+.contact-cols {
+  position: absolute;
+  bottom: 16%;
+  left: 8vw;
+  right: 8vw;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 32px;
+}
+
+.contact-data {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.contact-data a {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  letter-spacing: 0.05em;
+  color: var(--color-white);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+.contact-data a:hover { color: #E0218A; }
+
+/* QR placeholder — ramka HUD z narożnikami */
+.contact-qr {
+  position: relative;
+  width: 110px;
+  height: 110px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.qr-corner {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid rgba(255, 255, 255, 0.5);
+}
+.qr-corner.tl { top: 0; left: 0;  border-right: 0; border-bottom: 0; }
+.qr-corner.tr { top: 0; right: 0; border-left: 0;  border-bottom: 0; }
+.qr-corner.bl { bottom: 0; left: 0;  border-right: 0; border-top: 0; }
+.qr-corner.br { bottom: 0; right: 0; border-left: 0;  border-top: 0; }
+.qr-label {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.15em;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+/* Social — dół, wycentrowane */
+.contact-social {
+  position: absolute;
+  bottom: 6%;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  font-size: 20px;
+}
+.contact-social a {
+  color: rgba(255, 255, 255, 0.85);
+  transition: color 0.3s ease;
+}
+.contact-social a:hover { color: #E0218A; }
+.contact-social .social-soon {
+  color: rgba(255, 255, 255, 0.25);   /* placeholder, nieaktywne */
 }
 
 /* ── Screen reader only ──────────────────────────────────────────── */

@@ -18,11 +18,11 @@ const SIGNET_PAGE = { x: -235, y: 120, scale: 0.42 };
 // Kontakt nie jest dywizją — używa koloru primary
 const CONTACT_COLOR = new THREE.Color(0x6B2FD9);
 
+// Kontakt NIE jest podstroną — to overlay (contact.js). Tu tylko dywizje.
 const ROUTES = {
   '/events':  { view: 'page-events',  div: 'events'  },
   '/studio':  { view: 'page-studio',  div: 'studio'  },
   '/lab':     { view: 'page-lab',     div: 'lab'     },
-  '/contact': { view: 'page-contact', div: 'contact' },
 };
 
 export function initRouter() {

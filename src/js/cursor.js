@@ -79,9 +79,11 @@ export function initCursor() {
     const t = e.target;
     const hit = sel => (t && t.closest ? t.closest(sel) : null);
 
-    if (hit('#top-right, #tagline')) {
+    if (hit('.contact-coords')) {
+      setState('signet');                                   // koordynaty w overlayu → 18px biały (sygnet-like)
+    } else if (hit('#top-right, #tagline')) {
       setState('topbar');                                   // KONTAKT / EN / waveform / tagline (10px magenta)
-    } else if (pageActive() && hit('.page-cta, .page-mail, .page-gallery, #page-back, #page a')) {
+    } else if (pageActive() && hit('.page-cta, .page-gallery, #page-back, #page a')) {
       setState('page-accent', page && page.dataset.division);  // akcent dywizji aktualnej podstrony
     } else if (!pageActive() && hit('.nav-item')) {
       setState(hit('.nav-item').dataset.division);          // events / studio / lab

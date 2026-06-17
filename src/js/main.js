@@ -16,9 +16,11 @@ import { initSignet }           from './signet.js';
 import { initNavigation }       from './navigation.js';
 import { initRouter }           from './router.js';
 import { initCursor }           from './cursor.js';
+import { initContact }          from './contact.js';
 
 async function boot() {
   initCursor();                 // własna kulka kursora — od razu aktywna
+  initContact();                // contact overlay (trigger: [data-contact])
   const ctx = await initScene();
   initCreatures(ctx);
   initAtmosphere(ctx);
