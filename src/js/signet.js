@@ -6,6 +6,34 @@ import { navFX } from './tint.js';
 const _mouse = { x: -9999, y: -9999 };
 window.addEventListener('mousemove', e => { _mouse.x = e.clientX; _mouse.y = e.clientY; });
 
+// Balans percepcyjny glow per dział — kompensuje różną jasność barw działów
+// (cyan Lab świeci „glary", fioletowy Events ciemniejszy). NIE zmienia HEX-ów nigdzie
+// indziej (nav/tint/HUD) — to wyłącznie mnożnik JASNOŚCI koloru poświaty sygnetu.
+// (Mnożnik na opacity nie działał: klipuje się do 1; jasność daje czysty zakres.)
+// Cel: wszystkie ~równe, lekko poniżej Studio (środek między Events a Studio).
+const GLOW_GAIN = { events: 1.15, studio: 0.88, lab: 0.6 };
+
+// Glow = rozmyta tekstura-sylwetka na planie (zamiast stosu linii). Premultiplied
+// additive + dithering (IGN) — gładki blask bez banding/ziarna i bez „technicznych" obrysów.
+const GLOW_VERT = /* glsl */`
+  varying vec2 vUv;
+  void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }
+`;
+const GLOW_FRAG = /* glsl */`
+  precision highp float;
+  uniform sampler2D uMap;
+  uniform vec3  uColor;
+  uniform float uOpacity;
+  varying vec2 vUv;
+  void main() {
+    float m   = texture2D(uMap, vUv).a;                  // rozmyta sylwetka (alpha)
+    float n   = fract(52.9829189 * fract(dot(gl_FragCoord.xy, vec2(0.06711056, 0.00583715))));
+    vec3  col = uColor * (m * uOpacity) + (n - 0.5) / 255.0;   // ±0.5 LSB dither
+    float a   = clamp(max(col.r, max(col.g, col.b)), 0.0, 1.0);
+    gl_FragColor = vec4(col, a);
+  }
+`;
+
 export async function initSignet(ctx) {
   const { scene } = ctx;
 
@@ -128,17 +156,16 @@ export async function initSignet(ctx) {
     group.add(mesh);
   }
 
-  // ─── Świecący obrys — neon wzdłuż krawędzi (LineBasicMaterial, niezawodny) ──
-  // Grubość udajemy STOSEM współśrodkowych warstw (różne skale); glow = additive.
-  // Punkty wycentrowane (−svgCX,−svgCY) → skala/rotacja względem środka sygnetu.
-  const outlineParts = [];   // { mat, base, baseOpacity, glow }
-  function buildOutline(scaleMul, hex, opacity, renderOrder, glow) {
-    const og   = new THREE.Group();
+  // ─── Ostry kontur — neon wzdłuż krawędzi (LineBasicMaterial) ──────────────
+  // Daje czytelność kształtu w idle; rozlany blask robi osobny sprite (niżej).
+  const outlineParts = [];   // { glow, base, baseOpacity, apply(color, opacity) }
+  function buildOutline(scaleMul, hex, opacity, renderOrder) {
+    const og  = new THREE.Group();
     const lmat = new THREE.LineBasicMaterial({
-      color: hex, transparent: true, opacity, depthWrite: false,
-      blending: glow ? THREE.AdditiveBlending : THREE.NormalBlending,
+      color: hex, transparent: true, opacity, depthWrite: false, blending: THREE.NormalBlending,
     });
-    outlineParts.push({ mat: lmat, base: new THREE.Color(hex), baseOpacity: opacity, glow: !!glow });
+    outlineParts.push({ glow: false, base: new THREE.Color(hex), baseOpacity: opacity,
+      apply: (c, o) => { lmat.color.copy(c); lmat.opacity = o; } });
     for (const path of data.paths) {
       for (const sub of path.subPaths) {
         const pts = sub.getPoints(128);
@@ -160,11 +187,66 @@ export async function initSignet(ctx) {
     return og;
   }
 
-  // Stos glow (additive, coraz szersze pierścienie) + jasny rdzeń na wierzchu
-  group.add(buildOutline(1.030, 0x5B2EFF, 0.10, 8,  true));
-  group.add(buildOutline(1.018, 0x6B3FEF, 0.16, 9,  true));
-  group.add(buildOutline(1.008, 0x8B6CFF, 0.24, 10, true));
-  group.add(buildOutline(1.0,   0x9B8CFF, 0.90, 11, false));   // jasny rdzeń
+  // ─── Glow = rozmyta sylwetka sygnetu na planie (zamiast stosu linii) ───────
+  // Sylwetkę (z dziurami SVG) renderujemy na canvas, rozmywamy ctx.filter blur,
+  // → CanvasTexture na kwadratowym planie. Materiał tinту i ditheringu jest w GLOW_FRAG.
+  const CANVAS = 512;
+  // FILL = ułamek canvasu zajęty przez SYGNET (reszta = margines na blur). UWAGA: działa
+  // odwrotnie do „ile blasku" — niższy FILL = większy margines = SZERSZY rozlew w świecie
+  // (rozlew ∝ blur/FILL). 0.48 daje oddech bez obcinania przy krawędzi planu.
+  const FILL   = 0.48;
+  const sc     = (CANVAS * FILL) / svgMax;  // skala SVG → canvas px
+  const spanSVG = svgMax / FILL;            // bok planu w jedn. SVG (= cały canvas)
+
+  // Path2D sylwetki (outer + holes, even-odd) we współrzędnych canvasu
+  const toCx = p => ({ x: CANVAS / 2 + sc * (p.x - svgCX), y: CANVAS / 2 + sc * (p.y - svgCY) });
+  const path2d = new Path2D();
+  const addContour = (pts) => {
+    pts.forEach((p, i) => { const c = toCx(p); i ? path2d.lineTo(c.x, c.y) : path2d.moveTo(c.x, c.y); });
+    path2d.closePath();
+  };
+  for (const s of shapes) {
+    addContour(s.getPoints(200));
+    for (const h of (s.holes || [])) addContour(h.getPoints(200));
+  }
+
+  function makeGlowTexture(blurPx) {
+    const c1 = document.createElement('canvas'); c1.width = c1.height = CANVAS;
+    const x1 = c1.getContext('2d');
+    x1.fillStyle = '#fff';
+    x1.fill(path2d, 'evenodd');                 // biała sylwetka (alpha = kształt)
+    const c2 = document.createElement('canvas'); c2.width = c2.height = CANVAS;
+    const x2 = c2.getContext('2d');
+    x2.filter = `blur(${blurPx}px)`;
+    x2.drawImage(c1, 0, 0);                      // rozmycie
+    const tex = new THREE.CanvasTexture(c2);
+    tex.flipY = false;                          // plan jest dzieckiem group (scale.y = -S) → bez flipY
+    tex.minFilter = THREE.LinearFilter;
+    tex.generateMipmaps = false;
+    return tex;
+  }
+
+  function addGlowSprite(tex, hex, opacity, renderOrder) {
+    const gmat = new THREE.ShaderMaterial({
+      uniforms: { uMap: { value: tex }, uColor: { value: new THREE.Color(hex) }, uOpacity: { value: opacity } },
+      vertexShader: GLOW_VERT, fragmentShader: GLOW_FRAG,
+      transparent: true, depthWrite: false,
+      blending: THREE.CustomBlending, blendEquation: THREE.AddEquation,
+      blendSrc: THREE.OneFactor, blendDst: THREE.OneFactor,
+      blendEquationAlpha: THREE.AddEquation, blendSrcAlpha: THREE.OneFactor, blendDstAlpha: THREE.OneFactor,
+    });
+    const plane = new THREE.Mesh(new THREE.PlaneGeometry(spanSVG, spanSVG), gmat);
+    plane.position.z = depth * 0.52;
+    plane.renderOrder = renderOrder;
+    group.add(plane);
+    outlineParts.push({ glow: true, base: new THREE.Color(hex), baseOpacity: opacity,
+      apply: (c, o) => { gmat.uniforms.uColor.value.copy(c); gmat.uniforms.uOpacity.value = o; } });
+  }
+
+  // szeroki, miękki bloom + ciaśniejszy jaśniejszy rdzeń poświaty + ostry kontur
+  addGlowSprite(makeGlowTexture(48), 0x5B2EFF, 0.55, 6);   // szersza warstwa — więcej oddechu
+  addGlowSprite(makeGlowTexture(14), 0x9B8CFF, 0.95, 7);
+  group.add(buildOutline(1.0, 0x9B8CFF, 0.90, 8));   // ostry rdzeń (czytelność idle)
 
   group.scale.set(S, -S, S);
 
@@ -181,6 +263,7 @@ export async function initSignet(ctx) {
   // ─── Tick ──────────────────────────────────────────────────────────────────
   let hoverScale = 1.0;
   let colorMix   = 0.0;
+  const _c = new THREE.Color();   // scratch do liczenia koloru obrysu per klatkę
 
   onTick((_dt, elapsed) => {
     uniforms.time.value = elapsed;
@@ -216,12 +299,18 @@ export async function initSignet(ctx) {
     colorMix += (target - colorMix) * 0.05;
     uniforms.uColorMix.value = colorMix;
 
-    // Hover dywizji → obrys przyjmuje kolor działu; warstwy glow (additive) eksplodują
+    // Hover dywizji → obrys/glow przyjmują kolor działu; sprite glow „eksploduje".
+    // Balans per dział (gain) na JASNOŚCI koloru, wmieszany przez intensity (idle neutralny).
+    // Opacity prowadzi tylko heartbeat — gain na opacity klipuje się do 1 i nie różnicuje.
+    const gain = GLOW_GAIN[navFX.activeDiv] || 1;
+    const eff  = 1 + (gain - 1) * navFX.intensity;
     for (const p of outlineParts) {
-      p.mat.color.copy(p.base).lerp(navFX.target, navFX.intensity);
+      _c.copy(p.base).lerp(navFX.target, navFX.intensity);
       if (p.glow) {
-        p.mat.color.multiplyScalar(1 + navFX.glow * 3);
-        p.mat.opacity = Math.min(1, p.baseOpacity * (1 + navFX.glow * 4));
+        _c.multiplyScalar(eff);                                       // balans per dział = jasność
+        p.apply(_c, Math.min(1, p.baseOpacity * (1 + navFX.glow * 1.8)));
+      } else {
+        p.apply(_c, p.baseOpacity);
       }
     }
 

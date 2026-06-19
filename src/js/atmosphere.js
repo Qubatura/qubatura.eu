@@ -1,117 +1,188 @@
+// atmosphere.js — mgła wolumetryczna (fragment shader) + chmury tintu działów + corona.
+//
+// Etap 7 kontrakt: czytamy współdzielony stan navFX (tint.js) i odwzorowujemy:
+//   • globalny tint mgły      ← mix(BASE_TINT, navFX.target, intensity * 0.4)
+//   • chmurę koloru działu    ← navFX.activeDiv (per-dział, fade 0.08/klatkę do 0.55)
+//   • corona discharge        ← mix(BASE_TINT, navFX.target, intensity) → ku bieli
+// navFX.dirX/dirY/tug/pulse/glow konsumuje wyłącznie signet.js — tu nieużywane.
+//
+// Mgła + chmury żyją w JEDNYM shaderze na pełnoekranowym planie (z=0). Plan jest
+// w `scene`, więc Pass 1 refrakcji łapie go do renderTarget → sygnet zagina mgłę.
+// Blending: pure-add RGB (OneFactor), alpha = luminancja → canvas zostaje przezroczysty
+// w ciemnych miejscach, dzięki czemu CSS #planet-bg dalej prześwituje.
+
 import * as THREE from 'three';
 import { onTick } from './scene.js';
-import { navFX, BASE_TINT } from './tint.js';
+import { navFX, BASE_TINT, DIVISION_COLORS } from './tint.js';
 
-const _white = new THREE.Color(0xffffff);
+// ─── Konfiguracja ───────────────────────────────────────────────────────────
+const CLOUD_DEFS = [
+  { div: 'events', sel: '#nav-events .nav-label' },
+  { div: 'studio', sel: '#nav-studio .nav-label' },
+  { div: 'lab',    sel: '#nav-lab .nav-label' },
+];
+const CLOUD_OPACITY = 0.55;   // docelowa siła chmury działu (jak w wersji sprite'owej)
+const CLOUD_EASE_RATE = 5;    // tempo fade in/out chmur (na sekundę; skalowane delta → stałe przy zmiennym FPS)
+const CLOUD_RADIUS  = 150;    // promień chmury w jedn. świata (= pół sprite'a 300)
+const FOG_STRENGTH  = 0.45;   // TEST (docelowo ~0.18) — sprawdzamy czy plan w ogóle widać
+const FOG_Z         = 0;      // głębokość planu mgły (jak poprzednie sprite'y)
 
-// ─── Canvas gradient texture — shared across all fog sprites ──────────────────
+// ─── Shader ─────────────────────────────────────────────────────────────────
+const VERT = /* glsl */`
+  varying vec2 vUv;
+  void main() {
+    vUv = uv;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }
+`;
 
-function makeGradientTexture() {
-  const canvas = document.createElement('canvas');
-  canvas.width = canvas.height = 1024;
-  const ctx  = canvas.getContext('2d');
-  // Outer radius 440 (not 512) — leaves ~72px fully-transparent border
-  // so mipmap sampling never bleeds the sprite quad edge
-  const grad = ctx.createRadialGradient(512, 512, 0, 512, 512, 440);
-  grad.addColorStop(0,    'rgba(255, 255, 255, 1)');
-  grad.addColorStop(0.35, 'rgba(255, 255, 255, 0.55)');
-  grad.addColorStop(0.75, 'rgba(255, 255, 255, 0.12)');
-  grad.addColorStop(1,    'rgba(255, 255, 255, 0)');
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, 1024, 1024);
-  const tex = new THREE.CanvasTexture(canvas);
-  tex.generateMipmaps = false;
-  tex.minFilter = THREE.LinearFilter;
-  return tex;
-}
+const FRAG = /* glsl */`
+  precision highp float;
+  varying vec2 vUv;
 
-// ─── Fog sprites ──────────────────────────────────────────────────────────────
+  uniform float uTime;
+  uniform float uAspect;
+  uniform vec3  uBaseColor;        // BASE_TINT (mgła w spoczynku)
+  uniform vec3  uTintColor;        // navFX.target (już stweenowany kolor działu)
+  uniform float uTintIntensity;    // navFX.intensity 0..1
+  uniform float uFogStrength;
 
-function createFog(scene) {
-  const texture = makeGradientTexture();
-  const blobs   = [];
+  uniform vec2  uCloudCenter[3];   // środki napisów działów w przestrzeni „height units"
+  uniform vec3  uCloudColor[3];    // STAŁE kolory działów (nie target!)
+  uniform float uCloudStrength[3]; // eased 0..0.55
+  uniform float uCloudRadius;      // promień chmury w „height units"
 
-  for (let i = 0; i < 10; i++) {
-    const baseOpacity = (0.09 + Math.random() * 0.06) * 1.1; // +10% widoczności (≈0.10–0.165)
-
-    const mat = new THREE.SpriteMaterial({
-      map:         texture,
-      color:       new THREE.Color(0x5B2EFF),
-      blending:    THREE.AdditiveBlending,
-      transparent: true,
-      opacity:     baseOpacity,
-      depthWrite:  false,
-      depthTest:   false,
-    });
-
-    const sprite = new THREE.Sprite(mat);
-    const scale  = 300 + Math.random() * 200; // 300–500 world units
-    sprite.scale.set(scale, scale, 1);
-    sprite.position.set(
-      (Math.random() - 0.5) * 500,  // ±250 — within visible viewport (±308wu)
-      (Math.random() - 0.5) * 280,  // ±140 — within visible viewport (±173wu)
-      (Math.random() - 0.5) * 60
-    );
-    scene.add(sprite);
-
-    blobs.push({
-      sprite,
-      mat,
-      baseOpacity,
-      baseScale: scale,
-      // Dryf ~3,5× szybszy — TO daje dynamikę (mgła płynie), bez zmiany sumy jasności
-      vx:      (Math.random() - 0.5) * 0.50,
-      vy:      (Math.random() - 0.5) * 0.28,
-      // Opacity: wspólny okres + fazy RÓWNOMIERNE → kulminacje rozstawione, suma ≈ stała
-      // → brak skoków jasności sceny (okres MUSI być jednakowy, inaczej dudnienie wraca).
-      period:  10,
-      phase:   (i / 10) * Math.PI * 2,
-      // „Oddychanie" rozmiarem — zmienne okresy/fazy (zmiana kształtu nie powoduje
-      // synchronicznych skoków jasności, więc tu różnorodność jest OK i dodaje życia).
-      scalePeriod: 9 + Math.random() * 7,   // 9–16s
-      scalePhase:  Math.random() * Math.PI * 2,
-    });
+  // value noise + fbm
+  float hash(vec2 p) {
+    p = fract(p * vec2(123.34, 345.45));
+    p += dot(p, p + 34.345);
+    return fract(p.x * p.y);
+  }
+  float noise(vec2 p) {
+    vec2 i = floor(p), f = fract(p);
+    f = f * f * (3.0 - 2.0 * f);
+    float a = hash(i),            b = hash(i + vec2(1.0, 0.0));
+    float c = hash(i + vec2(0.0, 1.0)), d = hash(i + vec2(1.0, 1.0));
+    return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
+  }
+  float fbm(vec2 p) {
+    float v = 0.0, a = 0.5;
+    mat2 m = mat2(1.6, 1.2, -1.2, 1.6);
+    for (int i = 0; i < 3; i++) { v += a * noise(p); p = m * p; a *= 0.5; }  // 3 oktawy — koszt/płynność
+    return v;
   }
 
-  return blobs;
-}
-
-function updateFog(blobs, elapsed) {
-  const BW = 290, BH = 165; // wrap na granicy viewport — nie pozwala sprite'om wychodzić daleko poza
-  for (const b of blobs) {
-    b.sprite.position.x += b.vx;
-    b.sprite.position.y += b.vy;
-
-    if (b.sprite.position.x >  BW) b.sprite.position.x = -BW;
-    if (b.sprite.position.x < -BW) b.sprite.position.x =  BW;
-    if (b.sprite.position.y >  BH) b.sprite.position.y = -BH;
-    if (b.sprite.position.y < -BH) b.sprite.position.y =  BH;
-
-    // Sinusoidal breathing — łagodniejsza głębokość (0.4×–1.0× bazy) → płynniej,
-    // mniej gwałtowne zmiany jasności przy szybszym okresie.
-    const s = Math.sin(elapsed * (Math.PI * 2 / b.period) + b.phase);
-    b.mat.opacity = b.baseOpacity * (0.7 + s * 0.3);
-
-    // Tint sceny — SKONCENTROWANY po stronie najechanej dywizji: sprite'y leżące
-    // w kierunku działu dostają pełny kolor, po przeciwnej stronie zostają bazowe.
-    const px = b.sprite.position.x, py = b.sprite.position.y;
-    const plen  = Math.hypot(px, py) || 1;
-    const align = (px / plen) * navFX.dirX + (py / plen) * navFX.dirY;   // -1..1
-    const w = navFX.intensity * Math.max(0, 0.2 + 0.8 * align) * 1.35;   // 1.35 = mocniej
-    b.mat.color.copy(BASE_TINT).lerp(navFX.target, Math.min(1, w));
-
-    // Oddychanie rozmiarem (±12%) — zmiana kształtu daje życie bez skoków jasności
-    const ss = Math.sin(elapsed * (Math.PI * 2 / b.scalePeriod) + b.scalePhase);
-    const sc = b.baseScale * (1 + ss * 0.12);
-    b.sprite.scale.set(sc, sc, 1);
+  // Profil radialny chmury — odwzorowuje gradient sprite'a (stops 0→1, .35→.55, .75→.12, 1→0)
+  float cloudFalloff(float r) {
+    if (r >= 1.0)  return 0.0;
+    if (r < 0.35)  return mix(1.0,  0.55, r / 0.35);
+    if (r < 0.75)  return mix(0.55, 0.12, (r - 0.35) / 0.40);
+    return                mix(0.12, 0.0,  (r - 0.75) / 0.25);
   }
+
+  void main() {
+    // przestrzeń „height units": y∈[-0.5,0.5], x skalowany aspektem — koła pozostają kołami
+    vec2 ph = vec2((vUv.x - 0.5) * uAspect, vUv.y - 0.5);
+
+    // Dominujący ukośny dryf — mgła „leje się" przez ekran (nie miga w miejscu).
+    vec2 flow = vec2(0.50, -0.34);
+    // Tani domain-warp (1 oktawa) — zawirowanie, charakter płynącej cieczy.
+    vec2 warp = vec2(
+      noise(ph * 1.6 + vec2(0.0,        uTime * 0.28)),
+      noise(ph * 1.6 + vec2(uTime * 0.28, 5.2))
+    ) - 0.5;
+    // Dwie warstwy z parallaxem: różny scale i prędkość, ten sam kierunek przepływu.
+    vec2 p1 = ph * 2.2 + flow * uTime       + warp * 0.7;
+    vec2 p2 = ph * 3.8 + flow * uTime * 1.6 + warp * 0.4;
+    float n1 = fbm(p1);
+    float n2 = fbm(p2);
+    // 3-oktawowy fbm daje średnio ~0.44 — okno smoothstep dostrojone pod ten zakres.
+    float density = smoothstep(0.20, 0.70, n1 * 0.6 + n2 * 0.4);
+
+    // globalny tint (cap 0.4 — jak w starym b.mat.color.lerp(target, intensity*0.4))
+    vec3 fogColor = mix(uBaseColor, uTintColor, uTintIntensity * 0.4);
+    vec3 col = fogColor * density * uFogStrength;
+
+    // chmury działów — additive, kolor STAŁY działu, siła eased
+    for (int i = 0; i < 3; i++) {
+      float r = length(ph - uCloudCenter[i]) / uCloudRadius;
+      col += uCloudColor[i] * cloudFalloff(r) * uCloudStrength[i];
+    }
+
+    // alpha = luminancja → przezroczysto w ciemności (CSS planet-bg prześwituje)
+    float a = clamp(max(col.r, max(col.g, col.b)), 0.0, 1.0);
+    gl_FragColor = vec4(col, a);
+  }
+`;
+
+// ─── Fog plane ──────────────────────────────────────────────────────────────
+function createFog(scene, camera) {
+  const uniforms = {
+    uTime:           { value: 0 },
+    uAspect:         { value: 1 },
+    uBaseColor:      { value: new THREE.Vector3(BASE_TINT.r, BASE_TINT.g, BASE_TINT.b) },
+    uTintColor:      { value: new THREE.Vector3(BASE_TINT.r, BASE_TINT.g, BASE_TINT.b) },
+    uTintIntensity:  { value: 0 },
+    uFogStrength:    { value: FOG_STRENGTH },
+    uCloudCenter:    { value: [new THREE.Vector2(), new THREE.Vector2(), new THREE.Vector2()] },
+    uCloudColor:     { value: CLOUD_DEFS.map(d => {
+                        const c = DIVISION_COLORS[d.div]; return new THREE.Vector3(c.r, c.g, c.b);
+                      }) },
+    uCloudStrength:  { value: [0, 0, 0] },
+    uCloudRadius:    { value: 0.43 },
+  };
+
+  const mat = new THREE.ShaderMaterial({
+    vertexShader: VERT, fragmentShader: FRAG, uniforms,
+    transparent: true, depthTest: false, depthWrite: false,
+    blending:          THREE.CustomBlending,   // pure-add RGB, alpha kontrolowana fragmentem
+    blendEquation:     THREE.AddEquation,
+    blendSrc:          THREE.OneFactor,
+    blendDst:          THREE.OneFactor,
+    blendEquationAlpha:THREE.AddEquation,
+    blendSrcAlpha:     THREE.OneFactor,
+    blendDstAlpha:     THREE.OneFactor,
+  });
+
+  const mesh = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), mat);
+  mesh.position.set(0, 0, FOG_Z);
+  mesh.renderOrder = -10;          // mgła rysuje się jako pierwsza (i tak depthTest:false)
+  mesh.frustumCulled = false;
+  scene.add(mesh);
+
+  // Dopasowanie planu do viewportu + przeliczenie pozycji chmur i promienia (px → świat → height units)
+  const resize = () => {
+    const dist = camera.position.z - FOG_Z;
+    const hWorld = 2 * dist * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+    const aspect = window.innerWidth / window.innerHeight;
+    mesh.scale.set(hWorld * aspect, hWorld, 1);
+    uniforms.uAspect.value = aspect;
+    uniforms.uCloudRadius.value = CLOUD_RADIUS / hWorld;   // 1 height-unit = hWorld jedn. świata
+    placeClouds(aspect, uniforms);
+  };
+  resize();
+  window.addEventListener('resize', resize);
+
+  return { uniforms };
 }
 
-// ─── Corona discharge ─────────────────────────────────────────────────────────
+// Środek napisu działu (DOM) → przestrzeń „height units" shadera (top ekranu = +0.5)
+function placeClouds(aspect, uniforms) {
+  CLOUD_DEFS.forEach((d, i) => {
+    const el = document.querySelector(d.sel);
+    if (!el) return;
+    const r  = el.getBoundingClientRect();
+    const ux = (r.left + r.width  / 2) / window.innerWidth;
+    const uy = (r.top  + r.height / 2) / window.innerHeight;
+    uniforms.uCloudCenter.value[i].set((ux - 0.5) * aspect, 0.5 - uy);
+  });
+}
 
+// ─── Corona discharge (bez zmian — osobny system linii, karmiony navFX) ────────
 const CORONA_CLR = new THREE.Color(0x9B7FFF);
 const POOL_SIZE  = 15;
 const MAX_PTS    = 8;
+const _white     = new THREE.Color(0xffffff);
 
 function makeSlot(scene) {
   const pos = new Float32Array(MAX_PTS * 3);
@@ -121,11 +192,8 @@ function makeSlot(scene) {
   geo.setDrawRange(0, 0);
 
   const mat = new THREE.LineBasicMaterial({
-    color:       CORONA_CLR,
-    transparent: true,
-    opacity:     0,
-    blending:    THREE.AdditiveBlending,
-    depthWrite:  false,
+    color: CORONA_CLR, transparent: true, opacity: 0,
+    blending: THREE.AdditiveBlending, depthWrite: false,
   });
 
   const line = new THREE.Line(geo, mat);
@@ -156,7 +224,7 @@ function spawnBolt(slot) {
 
   slot.geo.setDrawRange(0, nPts);
   slot.geo.attributes.position.needsUpdate = true;
-  // Corona przyjmuje tint działu, rozjaśniony ku bieli (wyładowanie jest jaśniejsze niż mgła)
+  // Corona przyjmuje tint działu, rozjaśniony ku bieli (jaśniejsza niż mgła)
   slot.mat.color.copy(BASE_TINT).lerp(navFX.target, navFX.intensity).lerp(_white, 0.35);
   slot.mat.opacity = 0.40;
   slot.line.visible = true;
@@ -181,24 +249,34 @@ function createCorona(scene) {
         if (!s.active) continue;
         s.life++;
         s.mat.opacity = 0.40 * (1 - s.life / s.maxLife);
-        if (s.life >= s.maxLife) {
-          s.line.visible = false;
-          s.active = false;
-        }
+        if (s.life >= s.maxLife) { s.line.visible = false; s.active = false; }
       }
     },
   };
 }
 
 // ─── Public API ───────────────────────────────────────────────────────────────
-
 export function initAtmosphere(ctx) {
-  const { scene } = ctx;
-  const blobs  = createFog(scene);
+  const { scene, camera } = ctx;
+  const fog    = createFog(scene, camera);
   const corona = createCorona(scene);
+  const u      = fog.uniforms;
+  const str    = u.uCloudStrength.value;   // referencja do tablicy float[3]
 
   onTick((delta, elapsed) => {
-    updateFog(blobs, elapsed);
+    u.uTime.value = elapsed;
+
+    // globalny tint mgły — navFX.target (Color) → vec3
+    u.uTintColor.value.set(navFX.target.r, navFX.target.g, navFX.target.b);
+    u.uTintIntensity.value = navFX.intensity;
+
+    // chmury działów — fade do 0.55 gdy aktywny, inaczej do 0 (niezależnie od FPS)
+    const ease = Math.min(1, delta * CLOUD_EASE_RATE);
+    for (let i = 0; i < CLOUD_DEFS.length; i++) {
+      const target = (navFX.activeDiv === CLOUD_DEFS[i].div) ? CLOUD_OPACITY : 0;
+      str[i] += (target - str[i]) * ease;
+    }
+
     corona.update(delta);
   });
 }

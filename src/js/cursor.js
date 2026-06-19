@@ -1,4 +1,5 @@
-// cursor.js — własna kulka kursora ze stanami sterowanymi GSAP (zero CSS transition).
+// cursor.js — własny kursor HUD (dwa narożniki po przekątnej) ze stanami sterowanymi GSAP.
+// Geometrię (rozmiar = odległość narożników) animuje zmienna CSS --size; zero CSS transition.
 // Stany na HOME: idle / hover dywizji / hover sygnetu (pulse) / hover topbaru.
 // Na podstronach: idle magenta, a nad elementami interaktywnymi kolor akcentu DYWIZJI,
 //   na której aktualnie jesteśmy (#page[data-division]).
@@ -22,37 +23,37 @@ export function initCursor() {
   if (!cur) return;
   const page = document.getElementById('page');
 
-  // GSAP przejmuje transform: centrowanie (xPercent/yPercent) + pulse (scale)
-  gsap.set(cur, { xPercent: -50, yPercent: -50 });
-
   let pulseTl = null;
-  let key     = null;   // nazwa aktualnego stanu — apply tylko przy zmianie
+  let key     = null;          // nazwa aktualnego stanu — apply tylko przy zmianie
+  const sizeP = { v: 18 };     // proxy dla animacji zmiennej CSS --size (px)
+
+  const setSize = () => cur.style.setProperty('--size', sizeP.v + 'px');
 
   function applyVisual({ size, color, pulse }) {
     if (pulseTl) { pulseTl.kill(); pulseTl = null; }
-    // rozmiar / kolor / glow — powrót do idle zawsze 0.3s ease
-    gsap.to(cur, {
-      width: size, height: size,
-      backgroundColor: color,
-      boxShadow: `0 0 ${Math.round(size * 1.8)}px ${color}`,
-      duration: 0.3, ease: 'power2.out', overwrite: 'auto',
+
+    // rozmiar (odległość narożników) — powrót do bazy zawsze 0.3s ease
+    gsap.to(sizeP, {
+      v: size, duration: 0.3, ease: 'power2.out', overwrite: 'auto', onUpdate: setSize,
     });
+    // wspólny kolor (currentColor dziedziczą oba narożniki + glow)
+    gsap.to(cur, { color, duration: 0.3, ease: 'power2.out', overwrite: 'auto' });
+
+    // pulse „lock-on" — oddech rozmiaru size↔size+3, cykl 1.2s (startuje po wejściu)
     if (pulse) {
-      gsap.set(cur, { scale: 1 });
-      pulseTl = gsap.timeline({ repeat: -1, yoyo: true });
-      pulseTl.to(cur, { scale: 1.15, duration: 0.6, ease: 'sine.inOut' });  // cykl 1.2s
-    } else {
-      gsap.to(cur, { scale: 1, duration: 0.3, ease: 'power2.out', overwrite: 'auto' });
+      pulseTl = gsap.timeline({ repeat: -1, yoyo: true, delay: 0.3 });
+      pulseTl.to(sizeP, { v: size + 3, duration: 0.6, ease: 'sine.inOut', onUpdate: setSize });
     }
   }
 
   const STATES = {
-    idle:   { size: 6,  color: C.idle },
-    events: { size: 14, color: C.events },
-    studio: { size: 14, color: C.studio },
-    lab:    { size: 14, color: C.lab },
-    signet: { size: 18, color: C.signet, pulse: true },
-    topbar: { size: 10, color: C.idle },
+    idle:   { size: 18, color: C.idle },
+    events: { size: 12, color: C.events },
+    studio: { size: 12, color: C.studio },
+    lab:    { size: 12, color: C.lab },
+    signet: { size: 16, color: C.signet, pulse: true },
+    coords: { size: 16, color: C.signet },
+    topbar: { size: 14, color: C.idle },
   };
 
   function setState(name, accentDiv) {
@@ -60,7 +61,7 @@ export function initCursor() {
     if (name === 'page-accent') {
       const div = accentDiv || 'idle';
       k = 'page-' + div;
-      state = { size: 14, color: C[div] || C.idle };
+      state = { size: 12, color: C[div] || C.idle };
     } else {
       k = name;
       state = STATES[name] || STATES.idle;
@@ -80,7 +81,7 @@ export function initCursor() {
     const hit = sel => (t && t.closest ? t.closest(sel) : null);
 
     if (hit('.contact-coords')) {
-      setState('signet');                                   // koordynaty w overlayu → 18px biały (sygnet-like)
+      setState('coords');                                   // koordynaty w overlayu → 16px biały (bez pulse)
     } else if (hit('#top-right, #tagline')) {
       setState('topbar');                                   // KONTAKT / EN / waveform / tagline (10px magenta)
     } else if (pageActive() && hit('.page-cta, .page-gallery, #page-back, #page a')) {

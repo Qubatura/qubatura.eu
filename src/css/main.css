@@ -74,18 +74,41 @@ html, body {
 }
 
 /* ── Custom cursor ──────────────────────────────────────────────── */
-/* Stany (rozmiar/kolor/glow/pulse) steruje GSAP w cursor.js — zero CSS transition.
-   Centrowanie i pulse robi GSAP transformem (xPercent/yPercent/scale). */
+/* HUD cursor — dwa narożniki (lewy-górny + prawy-dolny) jak otwarty kwadrat.
+   --size = odległość między narożnikami (bok kwadratu); animuje ją GSAP (cursor.js).
+   currentColor steruje kolorem obu narożników; --size + kolor zmienia GSAP.
+   Pozycja: left/top = punkt kursora, narożniki przesunięte transformem o ±half. */
 #cursor {
   position: fixed;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #E0218A;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  color: #E0218A;                  /* currentColor — wspólny kolor narożników */
+  --size: 18px;                    /* bok kwadratu / odległość narożników (animowany) */
+  --corner: 7px;                   /* długość ramion narożnika */
+  --half: calc(var(--size) / 2);
   pointer-events: none;
-  z-index: 2000;                /* nad contact-overlay (1000) */
-  box-shadow: 0 0 11px #E0218A;
-  will-change: left, top, transform;
+  z-index: 2000;                   /* nad contact-overlay (1000) */
+  filter: drop-shadow(0 0 3px currentColor);   /* subtelny glow po kształcie ramion */
+  will-change: left, top;
+}
+.cur-corner {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: var(--corner);
+  height: var(--corner);
+}
+.cur-tl {
+  border-top: 1px solid currentColor;
+  border-left: 1px solid currentColor;
+  transform: translate(calc(-1 * var(--half)), calc(-1 * var(--half)));
+}
+.cur-br {
+  border-bottom: 1px solid currentColor;
+  border-right: 1px solid currentColor;
+  transform: translate(calc(var(--half) - var(--corner)), calc(var(--half) - var(--corner)));
 }
 
 /* ── Loading screen ─────────────────────────────────────────────── */
@@ -219,6 +242,8 @@ html, body {
   color: rgba(255, 255, 255, 0.62);
   text-transform: uppercase;
   white-space: nowrap;
+  /* ciemne halo — czytelność nad jasną, additywną chmurą glow z shadera */
+  text-shadow: 0 0 4px rgba(6, 5, 15, 0.85), 0 0 8px rgba(6, 5, 15, 0.6);
   transition: color 0.4s ease, text-shadow 0.4s ease;
 }
 
@@ -272,6 +297,7 @@ html, body {
   letter-spacing: 0.02em;
   line-height: 1.6;
   color: rgba(255, 255, 255, 0.85);
+  text-transform: uppercase;    /* spójność z nagłówkiem HUD (np. „PRODUKCJA EVENTÓW…") */
   white-space: nowrap;          /* jedna pozioma linia — spójnie we wszystkich trzech */
 }
 
@@ -301,7 +327,7 @@ html, body {
 
 #nav-events:hover .nav-label {
   color: var(--color-events);
-  text-shadow: 0 0 8px var(--color-events), 0 0 22px var(--color-events);
+  text-shadow: 0 0 4px rgba(6, 5, 15, 0.95), 0 0 8px var(--color-events), 0 0 22px var(--color-events);
 }
 
 #nav-events:hover .nav-line {
@@ -332,7 +358,7 @@ html, body {
 
 #nav-studio:hover .nav-label {
   color: var(--color-studio);
-  text-shadow: 0 0 8px var(--color-studio), 0 0 22px var(--color-studio);
+  text-shadow: 0 0 4px rgba(6, 5, 15, 0.95), 0 0 8px var(--color-studio), 0 0 22px var(--color-studio);
 }
 
 #nav-studio:hover .nav-line {
@@ -366,7 +392,7 @@ html, body {
 
 #nav-lab:hover .nav-label {
   color: var(--color-lab);
-  text-shadow: 0 0 8px var(--color-lab), 0 0 22px var(--color-lab);
+  text-shadow: 0 0 4px rgba(6, 5, 15, 0.95), 0 0 8px var(--color-lab), 0 0 22px var(--color-lab);
 }
 
 #nav-lab:hover .nav-line {
