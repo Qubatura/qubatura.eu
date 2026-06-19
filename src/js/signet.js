@@ -11,7 +11,7 @@ window.addEventListener('mousemove', e => { _mouse.x = e.clientX; _mouse.y = e.c
 // indziej (nav/tint/HUD) — to wyłącznie mnożnik JASNOŚCI koloru poświaty sygnetu.
 // (Mnożnik na opacity nie działał: klipuje się do 1; jasność daje czysty zakres.)
 // Cel: wszystkie ~równe, lekko poniżej Studio (środek między Events a Studio).
-const GLOW_GAIN = { events: 1.15, studio: 0.88, lab: 0.6 };
+const GLOW_GAIN = { events: 1.15, studio: 1.15, lab: 0.45 };
 
 // Glow = rozmyta tekstura-sylwetka na planie (zamiast stosu linii). Premultiplied
 // additive + dithering (IGN) — gładki blask bez banding/ziarna i bez „technicznych" obrysów.

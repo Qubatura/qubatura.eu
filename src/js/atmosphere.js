@@ -61,8 +61,14 @@ const FRAG = /* glsl */`
   float noise(vec2 p) {
     vec2 i = floor(p), f = fract(p);
     f = f * f * (3.0 - 2.0 * f);
-    float a = hash(i),            b = hash(i + vec2(1.0, 0.0));
-    float c = hash(i + vec2(0.0, 1.0)), d = hash(i + vec2(1.0, 1.0));
+    // mod 256 → indeksy komórek zawsze w [0,256): hash dostaje małe liczby niezależnie
+    // od uTime → koniec degradacji precyzji (blokowe „uszkodzone" artefakty po czasie).
+    // Szum jest okresowy (period 256), ale okno widoczne małe → repeat niewidoczny,
+    // a przejście przez granicę bezszwowe (szum ciągły).
+    float a = hash(mod(i,                  256.0));
+    float b = hash(mod(i + vec2(1.0, 0.0), 256.0));
+    float c = hash(mod(i + vec2(0.0, 1.0), 256.0));
+    float d = hash(mod(i + vec2(1.0, 1.0), 256.0));
     return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
   }
   float fbm(vec2 p) {
@@ -84,22 +90,23 @@ const FRAG = /* glsl */`
     // przestrzeń „height units": y∈[-0.5,0.5], x skalowany aspektem — koła pozostają kołami
     vec2 ph = vec2((vUv.x - 0.5) * uAspect, vUv.y - 0.5);
 
-    // Dominujący ukośny dryf — mgła „leje się" przez ekran (nie miga w miejscu).
-    vec2 flow = vec2(0.50, -0.34);
+    // Dominujący ukośny dryf — mgła „leje się" (tempo blisko starego, wyraźnie widoczne).
+    vec2 flow = vec2(0.46, -0.31);
     // Tani domain-warp (1 oktawa) — zawirowanie, charakter płynącej cieczy.
     vec2 warp = vec2(
-      noise(ph * 1.6 + vec2(0.0,        uTime * 0.28)),
-      noise(ph * 1.6 + vec2(uTime * 0.28, 5.2))
+      noise(ph * 1.6 + vec2(0.0,        uTime * 0.26)),
+      noise(ph * 1.6 + vec2(uTime * 0.26, 5.2))
     ) - 0.5;
     // Dwie warstwy z parallaxem: różny scale i prędkość, ten sam kierunek przepływu.
     vec2 p1 = ph * 2.2 + flow * uTime       + warp * 0.7;
     vec2 p2 = ph * 3.8 + flow * uTime * 1.6 + warp * 0.4;
     float n1 = fbm(p1);
     float n2 = fbm(p2);
-    // 3-oktawowy fbm daje średnio ~0.44 — okno smoothstep dostrojone pod ten zakres.
-    float density = smoothstep(0.20, 0.70, n1 * 0.6 + n2 * 0.4);
+    // Pulsowanie 55–100% — większa dynamika intensywności, ale mgła nie znika całkowicie.
+    float density = 0.55 + 0.45 * smoothstep(0.20, 0.70, n1 * 0.6 + n2 * 0.4);
 
-    // globalny tint (cap 0.4 — jak w starym b.mat.color.lerp(target, intensity*0.4))
+    // Cykl barwy mgły WYŁĄCZONY — wolna jednolita zmiana barwy kwantowała się 8-bitowo
+    // w czasie → globalne „przeskoki" jasności na całym ekranie. Barwa bazowa stała.
     vec3 fogColor = mix(uBaseColor, uTintColor, uTintIntensity * 0.4);
     vec3 col = fogColor * density * uFogStrength;
 
@@ -108,6 +115,11 @@ const FRAG = /* glsl */`
       float r = length(ph - uCloudCenter[i]) / uCloudRadius;
       col += uCloudColor[i] * cloudFalloff(r) * uCloudStrength[i];
     }
+
+    // Dithering IGN (±0.5 LSB) — łamie banding 8-bit gładkiego, wypełnionego gradientu
+    // (inaczej wolny dryf/cykl barwy przesuwa schodki konturowe = widoczne „skoki").
+    float dth = fract(52.9829189 * fract(dot(gl_FragCoord.xy, vec2(0.06711056, 0.00583715))));
+    col += (dth - 0.5) / 255.0;
 
     // alpha = luminancja → przezroczysto w ciemności (CSS planet-bg prześwituje)
     float a = clamp(max(col.r, max(col.g, col.b)), 0.0, 1.0);
