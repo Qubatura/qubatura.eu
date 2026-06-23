@@ -57,11 +57,15 @@ export function initRouter() {
     gsap.fromTo(active, { y: 24, opacity: 0 },
       { y: 0, opacity: 1, duration: 0.55, ease: EASE, delay: 0.1 });
 
+    // Czysty stan nav: ubij pulsujące przyciąganie/heartbeat i HUD-y, żeby tug nie został
+    // „zamrożony" i nie kołysał logiem w rogu podstrony (mouseleave nie odpali — page-active).
+    resetNavState();
+
     // scena: tint w kolor działu + sygnet do rogu
     const c   = DIVISION_COLORS[route.div] || CONTACT_COLOR;
     const dir = DIVISION_DIR[route.div] || { x: 0, y: 0 };
     gsap.to(navFX.target, { r: c.r, g: c.g, b: c.b, duration: 0.6, ease: EASE, overwrite: 'auto' });
-    gsap.to(navFX, { intensity: 1, dirX: dir.x, dirY: dir.y, duration: 0.6, ease: EASE, overwrite: 'auto' });
+    gsap.to(navFX, { intensity: 1, dirX: dir.x, dirY: dir.y, tugX: 0, tugY: 0, duration: 0.6, ease: EASE, overwrite: 'auto' });
     gsap.to(navFX, {
       pageX: SIGNET_PAGE.x, pageY: SIGNET_PAGE.y, pageScale: SIGNET_PAGE.scale,
       duration: 0.9, ease: EASE, overwrite: 'auto',

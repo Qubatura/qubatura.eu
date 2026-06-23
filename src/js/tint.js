@@ -33,3 +33,20 @@ export const navFX = {
   pageX: 0, pageY: 0,                             // offset pozycji sygnetu w jedn. świata
   pageScale: 1,                                   // mnożnik skali sygnetu (1 = hero, <1 = logo)
 };
+
+// ─── Etap 9 — loading screen ──────────────────────────────────────────────────
+// Sterowane przez loader.js, czytane przez signet.js (loadFX) oraz scene.js +
+// atmosphere.js (sceneFX). Loading i scena to ten sam canvas — sygnet jest wskaźnikiem
+// progresu, a po 100% bez cięcia staje się żywym sygnetem HOME.
+export const loadFX = {
+  active:   false,   // true przez całą sekwencję — signet pinuje kolor primary
+  ramping:  false,   // true tylko w Fazie 1 — loader.js wygładza progress→target
+  progress: 0,       // 0..1 — wygładzony progres (steruje falą i licznikiem %)
+  target:   0,       // 0..1 — realny ułamek wczytanych zasobów (Promise tracking)
+  fill:     0,       // 0..1 — czoło fali wypełnienia primary (= progress); uniform uFill (wipe)
+  load:     0,       // 0..1 — siła trybu loading w shaderze (uLoad): 1 w sekwencji, →0 przy handoffie
+};
+
+export const sceneFX = {
+  reveal: 1,         // 0 = scena niewidoczna (czerń), 1 = pełna. Bramkuje planetę/mgłę/coronę.
+};

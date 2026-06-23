@@ -111,21 +111,39 @@ html, body {
   transform: translate(calc(var(--half) - var(--corner)), calc(var(--half) - var(--corner)));
 }
 
-/* ── Loading screen ─────────────────────────────────────────────── */
+/* ── Loading screen (Etap 9) ────────────────────────────────────── */
+/* Sygnet-wskaźnik renderuje się na canvasie (#c). Czerń daje body.is-loading + sceneFX.reveal=0
+   (planeta/mgła wygaszone), więc #loading jest tylko przezroczystym kontenerem na licznik % —
+   NIE może zasłaniać canvasu (stąd brak tła i pointer-events). */
 #loading {
   position: fixed;
   inset: 0;
-  background: var(--color-bg);
-  display: none; /* tymczasowe — Etap 9 przywróci z GSAP */
-  align-items: center;
-  justify-content: center;
-  z-index: 900;
+  pointer-events: none;
+  z-index: 950;              /* nad canvas/nawigacją — licznik zawsze widoczny */
 }
 
-#loading-signet {
-  width: 80px;
-  height: 80px;
-  /* Etap 9: placeholder for animated signet */
+/* Licznik bezpośrednio POD sygnetem (sygnet jest w centrum ekranu). Magenta = akcent marki. */
+#loading-pct {
+  position: absolute;
+  top: 61%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  text-indent: 0.25em;       /* kompensata trailing letter-spacing → realne wyśrodkowanie */
+  color: #E0218A;
+  text-shadow: 0 0 10px rgba(224, 33, 138, 0.55);
+}
+
+/* Loading: czarny ekran, na canvasie tylko sygnet. Reszta UI ukryta — loader.js (GSAP)
+   wfadeuje ją w Fazie 2 i zdejmuje klasę. Klasa jest w <body> od pierwszej klatki (brak FOUC). */
+body.is-loading { background: #000; }
+body.is-loading #topbar,
+body.is-loading #nav,
+body.is-loading #tagline {
+  opacity: 0;
 }
 
 /* ── Topbar ─────────────────────────────────────────────────────── */
@@ -236,10 +254,10 @@ html, body {
 
 .nav-label {
   font-family: var(--font-display);
-  font-size: 11px;
+  font-size: 13px;   /* +2px — czytelność (było 11px) */
   font-weight: 600;
   letter-spacing: 0.2em;
-  color: rgba(255, 255, 255, 0.62);
+  color: rgba(255, 255, 255, 0.92);   /* główna akcja → niemal biały (było 0.62) */
   text-transform: uppercase;
   white-space: nowrap;
   /* ciemne halo — czytelność nad jasną, additywną chmurą glow z shadera */
@@ -276,11 +294,12 @@ html, body {
 .hud-title {
   margin: 0 0 6px;
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 11px;   /* +2px — czytelność (było 9px) */
   letter-spacing: 0.15em;
   text-transform: uppercase;
   color: var(--div-color, var(--color-primary));
-  text-shadow: 0 0 8px var(--div-color, var(--color-primary));
+  /* słabszy glow niż ramka/narożniki HUD → litery ostre i czytelne (było 8px) */
+  text-shadow: 0 0 3px var(--div-color, var(--color-primary));
   opacity: 0;                       /* tekst fade-in robi GSAP */
 }
 .hud-services {
@@ -293,7 +312,7 @@ html, body {
 .hud-row {
   margin: 0;
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 12px;   /* +2px — czytelność (było 10px) */
   letter-spacing: 0.02em;
   line-height: 1.6;
   color: rgba(255, 255, 255, 0.85);

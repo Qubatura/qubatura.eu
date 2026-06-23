@@ -18,17 +18,23 @@ const TUG  = 9;   // przeskok w stronę działu w jedn. świata (~28px @1080p)
 // Timeline'y HUD wszystkich dywizji — zbierane przy init, resetowane przy powrocie na HOME
 const hudTimelines = [];
 
+// Aktywne tweeny reakcji sygnetu — w scope modułu, żeby resetNavState()/router mogły je
+// ubić przy zmianie stanu (powrót HOME / wejście na podstronę).
+let beat = null;   // „heartbeat" przy wejściu: puls skali + eksplozja glow
+let pull = null;   // pulsujące przyciąganie tug w stronę działu (yoyo, nieskończone)
+
 // Wymuszenie czystego stanu nawigacji — wołane przez router.js przy renderze HOME.
 // Naprawia „zamrożone" HUD-y: guard trybu strony blokuje mouseleave, więc timeline
 // klikniętej dywizji nie cofa się sam. Tu cofamy WSZYSTKIE do czasu 0 (stan ukryty).
 export function resetNavState() {
   hudTimelines.forEach(tl => tl.pause(0));   // seek do 0 = stan „from" (opacity 0, ukryte)
   navFX.activeDiv = null;                     // zgaś chmury tintu przy napisach
+  if (beat) { beat.kill(); beat = null; }     // ubij heartbeat, jeśli leciał
+  if (pull) { pull.kill(); pull = null; }     // zatrzymaj pulsujące przyciąganie tug
   // Tint sceny i sygnet resetuje closePage() w router.js (tweenem) — nie dublujemy tu.
 }
 
 export function initNavigation() {
-  let beat = null;   // aktywny timeline „uderzenia serca"
   // HUD animujemy GSAP-em tylko na desktopie; na mobile jest statyczny (CSS)
   const isDesktop = window.matchMedia('(hover: hover) and (min-width: 769px)').matches;
 
@@ -67,11 +73,15 @@ export function initNavigation() {
         duration: 0.5, ease: EASE, overwrite: 'auto',
       });
 
-      // Dostojny dryf w stronę działu — wolny glide (slow-motion), ZOSTAJE póki hover
-      gsap.to(navFX, {
-        tugX: dir.x * TUG, tugY: dir.y * TUG,
-        duration: 1.35, ease: 'power2.out', overwrite: 'auto',
-      });
+      // Pulsujące przyciąganie — sygnet „oddycha" w stronę działu: pozycja bazowa → bliżej
+      // działu → baza, w nieskończonej, miękkiej pętli (sine.inOut). Zamiast statycznego
+      // przechylenia, które tu było wcześniej. fromTo {0,0} → cel z yoyo gwarantuje powrót
+      // do bazy w każdym cyklu (nie utyka przy dziale).
+      if (pull) pull.kill();
+      pull = gsap.timeline({ repeat: -1, yoyo: true });
+      pull.fromTo(navFX,
+        { tugX: 0, tugY: 0 },
+        { tugX: dir.x * TUG, tugY: dir.y * TUG, duration: 1.6, ease: 'sine.inOut' });
 
       // Heartbeat — szybki „sygnał": puls skali + eksplozja glow → opadanie (bez ruchu kierunkowego)
       if (beat) beat.kill();
@@ -87,11 +97,12 @@ export function initNavigation() {
       navFX.activeDiv = null;
       if (hud) hud.reverse();
       if (beat) { beat.kill(); beat = null; }
+      if (pull) { pull.kill(); pull = null; }   // zatrzymaj pulsujące przyciąganie
       gsap.to(navFX, {
         intensity: 0, glow: 0, pulse: 0,
         duration: 0.5, ease: EASE, overwrite: 'auto',
       });
-      // Dryf powrotny — równie dostojny, wolny
+      // Dryf powrotny do bazy — równie dostojny, wolny (z punktu, w którym zastał go puls)
       gsap.to(navFX, {
         tugX: 0, tugY: 0,
         duration: 1.35, ease: 'power2.out', overwrite: 'auto',

@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { sceneFX } from './tint.js';
 
 let renderer, scene, camera, clock, renderTarget;
 const tickCallbacks = [];
@@ -39,7 +40,16 @@ export async function initScene() {
 
   // Planeta — tekstura w scenie (była warstwą CSS). Daleko za sygnetem, więc Pass 1
   // refrakcji łapie ją do renderTarget → sygnet realnie ją zagina.
-  const planetTexture = new THREE.TextureLoader().load('../assets/planet-bg.png');
+  // planetReady — śledzona Promise dla loading screen (Etap 9); rozwiązuje się też przy
+  // błędzie, żeby nie blokować progresu.
+  let _resolvePlanet;
+  const planetReady = new Promise(res => { _resolvePlanet = res; });
+  const planetTexture = new THREE.TextureLoader().load(
+    '../assets/planet-bg.png',
+    () => _resolvePlanet(),
+    undefined,
+    () => _resolvePlanet(),
+  );
   planetTexture.colorSpace = THREE.SRGBColorSpace;
   planetMat = new THREE.MeshBasicMaterial({
     map: planetTexture, transparent: true, opacity: PLANET_OPACITY_VISIBLE,
@@ -64,7 +74,7 @@ export async function initScene() {
     renderTarget.setSize(_dbs.x, _dbs.y);
   });
 
-  return { scene, camera, renderer, clock };
+  return { scene, camera, renderer, clock, planetReady };
 }
 
 // Modules register their per-frame callbacks here
@@ -86,16 +96,18 @@ export function startLoop() {
     if (refraction) {
       // Pass 1 — scena BEZ sygnetu → renderTarget (to staje się tłem do zagięcia).
       // Planeta podbita do pełni, żeby sygnet zaginał jasne tło, nie przyciemnione.
+      // ×reveal — podczas loadingu (reveal≈0) tło jest czarne, więc szklany sygnet
+      // próbkuje czerń (czyste szkło na czarnym, bez planety).
       refraction.object.visible = false;
-      if (planetMat) planetMat.opacity = PLANET_OPACITY_REFRACT;
+      if (planetMat) planetMat.opacity = PLANET_OPACITY_REFRACT * sceneFX.reveal;
       renderer.setRenderTarget(renderTarget);
       renderer.clear();
       renderer.render(scene, camera);
       renderer.setRenderTarget(null);
 
       // Pass 2 — pełna scena z sygnetem próbkującym tBackground.
-      // Planeta wraca do subtelnego 0.17 (to, co widać gołym okiem).
-      if (planetMat) planetMat.opacity = PLANET_OPACITY_VISIBLE;
+      // Planeta wraca do subtelnego 0.17 (to, co widać gołym okiem) × reveal (fade z czerni).
+      if (planetMat) planetMat.opacity = PLANET_OPACITY_VISIBLE * sceneFX.reveal;
       refraction.object.visible = true;
       refraction.material.uniforms.tBackground.value = renderTarget.texture;
       renderer.render(scene, camera);

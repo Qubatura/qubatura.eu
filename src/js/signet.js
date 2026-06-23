@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { SVGLoader } from 'three/addons/loaders/SVGLoader.js';
 import { onTick, registerRefraction } from './scene.js';
-import { navFX } from './tint.js';
+import { navFX, loadFX } from './tint.js';
 
 const _mouse = { x: -9999, y: -9999 };
 window.addEventListener('mousemove', e => { _mouse.x = e.clientX; _mouse.y = e.clientY; });
@@ -12,6 +12,13 @@ window.addEventListener('mousemove', e => { _mouse.x = e.clientX; _mouse.y = e.c
 // (Mnożnik na opacity nie działał: klipuje się do 1; jasność daje czysty zakres.)
 // Cel: wszystkie ~równe, lekko poniżej Studio (środek między Events a Studio).
 const GLOW_GAIN = { events: 1.15, studio: 1.15, lab: 0.45 };
+
+// Siła „łapania barwy" działu przez sygnet — DOPASOWANA do mgły. atmosphere.js miesza
+// barwę mgły ku kolorowi działu z siłą intensity * 0.4 (uTintIntensity * 0.4 we frag).
+// Sygnet łapał ją z pełną siłą (intensity = 1.0) → świecił mocniej i bardziej kolorowo
+// niż mgła („każdy efekt na swoją rękę"). Tu zbliżamy oba glow do siebie: ten sam kolor,
+// podobna siła — mgła i sygnet „świecą" razem.
+const TINT_MATCH = 0.4;
 
 // Glow = rozmyta tekstura-sylwetka na planie (zamiast stosu linii). Premultiplied
 // additive + dithering (IGN) — gładki blask bez banding/ziarna i bez „technicznych" obrysów.
@@ -69,6 +76,11 @@ export async function initSignet(ctx) {
     refractionStrength: { value: 0.06 },   // siła zagięcia planety (do tuningu)
     time:               { value: 0 },
     uColorMix:          { value: 0 },      // 0 = primary, 1 = magenta (sterowane kątem)
+    uGlass:             { value: 0 },      // 0 = normalny tint, 1 = czyste szkło (hover sygnetu, brak działu)
+    uLoad:              { value: 0 },      // 0..1 — siła trybu loading (fala wypełnienia) vs normalny
+    uFill:              { value: 0 },      // 0..1 — czoło fali primary (wipe lewo→prawo)
+    uWipeMinX:          { value: bb.min.x },              // lewa krawędź sygnetu (SVG space)
+    uWipeSpanX:         { value: (bb.max.x - bb.min.x) || 1 },  // szerokość → normalizacja vWipe 0..1
   };
 
   const mat = new THREE.ShaderMaterial({
@@ -77,13 +89,17 @@ export async function initSignet(ctx) {
     side:        THREE.DoubleSide,
     depthWrite:  false,
     vertexShader: /* glsl */`
+      uniform float uWipeMinX;
+      uniform float uWipeSpanX;
       varying vec3 vNormal;
       varying vec4 vClip;
       varying vec3 vWorldPos;
+      varying float vWipe;     // 0..1 wzdłuż szerokości sygnetu (lewo→prawo) — niezależne od obrotu
       void main() {
         vNormal   = normalize(normalMatrix * normal);
         vWorldPos = (modelMatrix * vec4(position, 1.0)).xyz;
         vClip     = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        vWipe     = clamp((position.x - uWipeMinX) / uWipeSpanX, 0.0, 1.0);
         gl_Position = vClip;
       }
     `,
@@ -92,10 +108,27 @@ export async function initSignet(ctx) {
       uniform float refractionStrength;
       uniform float time;
       uniform float uColorMix;
+      uniform float uGlass;
+      uniform float uLoad;
+      uniform float uFill;
 
       varying vec3 vNormal;
       varying vec4 vClip;
       varying vec3 vWorldPos;
+      varying float vWipe;
+
+      // Proceduralne „środowisko" wypełnienia (Etap 9) — sterowane NORMALNĄ (matcap-like).
+      // To ono jest refraktowane/rozszczepiane przez szkło: gradient idzie za formą bryły
+      // (głębia), a próbkowanie per-kanał na rozsuniętej normalnej daje dyspersję w objętości.
+      vec3 envFill(vec3 n) {
+        float facing = n.z * 0.5 + 0.5;                              // 0 krawędź .. 1 na wprost
+        float vert   = n.y * 0.5 + 0.5;                              // dół .. góra bryły
+        vec3 deep = vec3(0.07, 0.03, 0.30);                          // ciemny primary — głębia
+        vec3 lit  = vec3(0.42, 0.20, 1.00);                          // jasny primary — światło
+        vec3 c = mix(deep, lit, facing * facing);                    // cieniowanie po formie = 3D
+        c = mix(c, vec3(0.78, 0.14, 0.48), smoothstep(0.6, 1.0, vert) * 0.30);  // magenta górą
+        return c;
+      }
 
       void main() {
         // Screen-space UV — dzielenie perspektywiczne per-fragment (poprawne)
@@ -104,15 +137,17 @@ export async function initSignet(ctx) {
         // Zagięcie UV przez normalną (refrakcja)
         vec2 refractedUV = vScreenPos + vNormal.xy * refractionStrength;
 
-        // Chromatic aberration — rozszczepianie RGB
-        float r = texture2D(tBackground, refractedUV + vec2(0.002, 0.0)).r;
-        float g = texture2D(tBackground, refractedUV).g;
-        float b = texture2D(tBackground, refractedUV - vec2(0.002, 0.0)).b;
-
-        // Fresnel — krawędzie bardziej widoczne
+        // Fresnel — krawędzie bardziej widoczne (liczone przed CA: steruje siłą
+        // pryzmatycznego rozszczepienia na krawędziach)
         float fresnel = pow(1.0 - abs(dot(vNormal, vec3(0.0, 0.0, 1.0))), 3.0);
 
-        vec3 color = vec3(r, g, b);
+        // Chromatic aberration — rozszczepianie RGB. Rośnie ku krawędziom w trybie szkła
+        // (uGlass) → pryzmatyczny, tęczowy rozkład światła na krawędziach.
+        float ca = 0.002 + uGlass * fresnel * 0.010;
+        float r = texture2D(tBackground, refractedUV + vec2(ca, 0.0)).r;
+        float g = texture2D(tBackground, refractedUV).g;
+        float b = texture2D(tBackground, refractedUV - vec2(ca, 0.0)).b;
+        vec3 refr = vec3(r, g, b);   // zagięte tło (czerń podczas loadingu)
 
         // ── Blinn-Phong specular — fioletowy refleks (primary) od światła góra-przód ──
         vec3 lightPos = vec3(200.0, 300.0, 400.0);
@@ -127,11 +162,46 @@ export async function initSignet(ctx) {
         vec3 cMagenta = vec3(0.95, 0.15, 0.60);
         vec3 tint     = mix(cPrimary, cMagenta, uColorMix);
 
-        color.rgb += specColor;                              // refleks (bonus przy ruchu)
-        color.rgb += tint * 0.4;                             // emissive — sygnet jaśniejszy
-        color.rgb += tint * fresnel * 0.5;                   // krawędzie podążają za tintem
+        // ── TRYB NORMALNY (HOME / hover-glass) ──────────────────────────────────────
+        // Tryb szkła (uGlass): wygaszamy barwny tint, zostawiając refrakcję + białe
+        // pryzmatyczne krawędzie. Poza szkłem: pełny barwny tint + refleks.
+        float colorAmt  = 1.0 - uGlass;
+        vec3  normalCol = refr;
+        normalCol += specColor * colorAmt;
+        normalCol += tint * 0.4 * colorAmt;
+        normalCol += tint * fresnel * 0.5 * colorAmt;
+        normalCol += vec3(1.0) * fresnel * 0.6 * uGlass;
+        float normalA = 0.85 + fresnel * 0.15;
 
-        gl_FragColor = vec4(color, 0.85 + fresnel * 0.15);
+        // ── TRYB LOADING (Etap 9) — primary ZALEWA sygnet FALĄ (wipe lewo→prawo) ─────
+        // vWipe ∈ 0..1 wzdłuż szerokości; uFill = czoło fali (= % postępu). Miękka krawędź.
+        float fillAmt = 1.0 - smoothstep(uFill - 0.10, uFill + 0.10, vWipe);
+        // jasny grzbiet fali na samym czole (znika przy 0% i 100%)
+        float front   = smoothstep(0.10, 0.0, abs(vWipe - uFill))
+                        * step(0.001, uFill) * step(uFill, 0.999);
+
+        // GŁĘBIA 3D: zamiast płaskiego koloru — REFRAKCJA proceduralnego środowiska (envFill)
+        // z DYSPERSJĄ. Próbkujemy je na trzech rozsuniętych normalnych (per-kanał R/G/B) →
+        // kolor jest zaginany i rozszczepiany przez bryłę jak w realnym szkle. Forma + ruchomy
+        // refleks (specColor) + magenta rim dają wrażenie pełnej, obrotowej objętości.
+        float disp     = 0.05 + fresnel * 0.10;
+        vec3  eR       = envFill(normalize(vNormal + vec3( disp, 0.0, 0.0)));
+        vec3  eG       = envFill(vNormal);
+        vec3  eB       = envFill(normalize(vNormal + vec3(-disp, 0.0, 0.0)));
+        vec3  body     = vec3(eR.r, eG.g, eB.b);              // rozszczepione środowisko (głębia)
+        body += specColor * 1.3;                              // wędrujący glint — mocny cue 3D
+        body += vec3(1.0, 0.35, 0.65) * pow(fresnel, 2.0) * 0.5;   // jasny magenta rim (dyspersja)
+
+        // Niewypełnione: ledwo widoczny szklany kontur (sama refrakcja czerni + cień fresnela).
+        vec3  glassCol = refr + vec3(1.0) * fresnel * 0.09;
+        vec3  loadCol  = mix(glassCol, body, fillAmt) + vec3(0.7, 0.55, 1.0) * front * 0.45;
+        float loadA    = mix(0.05 + fresnel * 0.20, 0.92 + fresnel * 0.08, fillAmt);
+
+        // Wybór trybu: loading (fala) ↔ normalny HOME — krzyżowo przez uLoad (handoff bez cięcia)
+        vec3  color = mix(normalCol, loadCol, uLoad);
+        float alpha = mix(normalA,  loadA,  uLoad);
+
+        gl_FragColor = vec4(color, clamp(alpha, 0.0, 1.0));
       }
     `,
   });
@@ -263,6 +333,7 @@ export async function initSignet(ctx) {
   // ─── Tick ──────────────────────────────────────────────────────────────────
   let hoverScale = 1.0;
   let colorMix   = 0.0;
+  let glassMix   = 0.0;   // 0..1 — przejście w stan „czyste szkło" (hover sygnetu, brak działu)
   const _c = new THREE.Color();   // scratch do liczenia koloru obrysu per klatkę
 
   onTick((_dt, elapsed) => {
@@ -294,10 +365,29 @@ export async function initSignet(ctx) {
                      + Math.sin(t * 0.83 + 5.0)  * 0.4
                      + navFX.tugY + navFX.pageY;
 
-    // Przejście primary → magenta — sterowane fazą obrotu (edge-on → magenta)
-    const target = Math.abs(Math.sin(pivot.rotation.y));
-    colorMix += (target - colorMix) * 0.05;
+    // Przejście primary → magenta — sterowane fazą obrotu (edge-on → magenta).
+    // Podczas loadingu (Etap 9) pinujemy do 0 (czysty primary #5B2EFF — to barwa, którą
+    // sygnet nabiera w miarę progresu; magenta przychodzi dopiero w żywym stanie HOME).
+    const target = loadFX.active ? 0 : Math.abs(Math.sin(pivot.rotation.y));
+    colorMix += (target - colorMix) * (loadFX.active ? 0.1 : 0.05);
     uniforms.uColorMix.value = colorMix;
+
+    // Hover SAMEGO sygnetu (proxy: kursor blisko środka ekranu) przy BRAKU aktywnego działu
+    // → stan „czyste szkło": gaśnie magenta idle i neonowy obrys (pętla niżej), zostaje sama
+    // refrakcja + białe pryzmatyczne krawędzie. Osobny stan: idle ≠ szkło ≠ hover działu.
+    const distC = Math.hypot(
+      _mouse.x - window.innerWidth  * 0.5,
+      _mouse.y - window.innerHeight * 0.5
+    );
+    // Proximity-glass wyłączony podczas loadingu — wtedy wyglądem rządzi tryb loading (uLoad).
+    const wantGlass = (distC < 140 && !navFX.activeDiv && !loadFX.active) ? 1 : 0;
+    glassMix += (wantGlass - glassMix) * 0.1;   // miękkie wejście/wyjście ze szkła
+    uniforms.uGlass.value = glassMix;           // szkło tylko z proximity (hover sygnetu)
+    uniforms.uLoad.value  = loadFX.load;        // 1 = tryb loading (fala), →0 handoff
+    uniforms.uFill.value  = loadFX.fill;        // czoło fali primary (= % postępu)
+    // Neon obrys/blask gaśnie przy hover-szkle (glassMix) ORAZ podczas loadingu (load),
+    // fade-in przy handoffie gdy load→0.
+    const glowHide = Math.max(glassMix, loadFX.load);
 
     // Hover dywizji → obrys/glow przyjmują kolor działu; sprite glow „eksploduje".
     // Balans per dział (gain) na JASNOŚCI koloru, wmieszany przez intensity (idle neutralny).
@@ -305,25 +395,24 @@ export async function initSignet(ctx) {
     const gain = GLOW_GAIN[navFX.activeDiv] || 1;
     const eff  = 1 + (gain - 1) * navFX.intensity;
     for (const p of outlineParts) {
-      _c.copy(p.base).lerp(navFX.target, navFX.intensity);
+      _c.copy(p.base).lerp(navFX.target, navFX.intensity * TINT_MATCH);
       if (p.glow) {
         _c.multiplyScalar(eff);                                       // balans per dział = jasność
-        p.apply(_c, Math.min(1, p.baseOpacity * (1 + navFX.glow * 1.8)));
+        // (1 - glowHide) → w trybie szkła / podczas loadingu neonowy obrys i blask gasną
+        p.apply(_c, Math.min(1, p.baseOpacity * (1 + navFX.glow * 1.8)) * (1 - glowHide));
       } else {
-        p.apply(_c, p.baseOpacity);
+        p.apply(_c, p.baseOpacity * (1 - glowHide));
       }
     }
 
     // Pulsowanie skali "oddychanie" × mouse-proximity hover
     const pulse = 1 + Math.sin(t * 0.8) * 0.03;   // amplituda 0.03 (też +25% prędkości)
-    const dist = Math.hypot(
-      _mouse.x - window.innerWidth  * 0.5,
-      _mouse.y - window.innerHeight * 0.5
-    );
-    const near = dist < 140;
+    const near = distC < 140;   // ta sama odległość co przy glassMix (liczona wyżej)
     hoverScale += ((near ? 1.08 : 1.0) - hoverScale) * 0.07;
     // „Uderzenie serca" przy hover (navFX.pulse: 0→0.15→0) na wierzchu oddychania i hovera
-    // × pageScale — tryb podstrony zmniejsza sygnet do logo w rogu
+    // × pageScale — tryb podstrony zmniejsza sygnet do logo w rogu.
+    // Loading (Etap 9): BEZ zmian skali — sygnet stoi w skali HOME przez cały czas → handoff
+    // jest zerowy (żadnego przeskoku). Ruch „przybliżania" świadomie usunięty.
     pivot.scale.setScalar(pulse * hoverScale * (1 + navFX.pulse) * navFX.pageScale);
   });
 }

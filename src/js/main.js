@@ -17,6 +17,7 @@ import { initNavigation }       from './navigation.js';
 import { initRouter }           from './router.js';
 import { initCursor }           from './cursor.js';
 import { initContact }          from './contact.js';
+import { initLoader }           from './loader.js';   // Etap 9: loading screen
 
 async function boot() {
   initCursor();                 // własna kulka kursora — od razu aktywna
@@ -24,10 +25,19 @@ async function boot() {
   const ctx = await initScene();
   initCreatures(ctx);
   initAtmosphere(ctx);
-  await initSignet(ctx);
+
+  // Sygnet musi istnieć, by być wskaźnikiem loadingu — budujemy go (ładuje SVG).
+  const signetReady = initSignet(ctx);
+  await signetReady;
+
   initNavigation(ctx);
   initRouter();
-  startLoop();
+
+  // Etap 9 — loading screen: realny tracking zasobów (Promise.all, nie fake timer).
+  // fonty + tekstura planety + sygnet (już gotowy) → progres sterujący kolorem sygnetu.
+  initLoader([document.fonts.ready, ctx.planetReady, signetReady]);
+
+  startLoop();                  // pętla rusza → sygnet renderuje się jako wskaźnik loadingu
 }
 
 boot();

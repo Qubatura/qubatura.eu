@@ -64,7 +64,7 @@
   }
   </script>
 </head>
-<body>
+<body class="is-loading">
 
   <!-- Planet background — CSS layer, stays behind Three.js canvas -->
   <div id="planet-bg" aria-hidden="true"></div>
@@ -81,9 +81,9 @@
     <span class="cur-corner cur-br"></span>
   </div>
 
-  <!-- Loading screen (Etap 9) -->
+  <!-- Loading screen (Etap 9) — sygnet renderuje się na canvasie (#c); tu tylko licznik % -->
   <div id="loading" aria-hidden="true">
-    <div id="loading-signet"></div>
+    <span id="loading-pct">0%</span>
   </div>
 
   <!-- SEO-accessible nav (hidden visually, readable by bots) -->
@@ -128,7 +128,7 @@
         <div class="hud-body">
           <p class="hud-title">PRODUKCJA EVENTÓW OD A DO Z</p>
           <div class="hud-services">
-            <p class="hud-row">Artyści · Konferansjerzy · Reżyseria · Nagłośnienie · Oświetlenie · Streaming</p>
+            <p class="hud-row">Artyści · Konferansjerzy · Reżyseria · Oprawa · Infrastruktura sprzętowa</p>
           </div>
         </div>
       </div>
