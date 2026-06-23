@@ -1,14 +1,14 @@
 // loader.js — loading screen (Etap 9).
 //
-// Sygnet jest JEDYNYM wskaźnikiem progresu i renderuje się na TYM SAMYM canvasie co scena
-// (nie nakładka DOM) — dzięki temu po 100% bez cięcia staje się żywym sygnetem HOME.
+// Bohaterem jest SYGNET 3D na canvasie (ten sam co HOME, w tym samym miejscu) — nie nakładka 2D.
+// 0→100% = jeden pełny obrót sygnetu (loadFX.spin). Świat składa się wokół niego wraz z
+// progresem: NAJPIERW mgła, PÓŹNIEJ miasto/planeta (sceneFX.fog/planet). Dzięki temu szklany
+// sygnet refraktuje świat, który dopiero powstaje — „nabiera życia", nie wisi w pustce.
 //
-// FAZA 1 (0–100%): scena czarna (sceneFX.reveal=0), sygnet w skali HOME, ledwo widoczny szklany
-//   kontur. W miarę realnego ładowania (Promise tracking) primary ZALEWA sygnet falą lewo→prawo
-//   (loadFX.fill = % postępu), z głębią 3D (refrakcja środowiska w signet.js). Min. 3s.
-// FAZA 2 (przy 100%): BEZ ruchu sygnetu (stoi w miejscu w skali HOME). Scena (planeta/mgła)
-//   ujawnia się z czerni, tryb shaderowy schodzi (load→0) — handoff bez cięcia. UI
-//   (nav/linie/topbar/tagline) wjeżdża DOPIERO na końcu, jako osobny beat.
+// FAZA 1 (0–100%): realny Promise tracking → loadFX.target; wygładzony progress steruje
+//   obrotem, etapowym ujawnianiem świata i licznikiem %. MIN_DURATION = dolna granica czasu.
+// FAZA 2 (100%): sygnet OSIADA z obrotu w idle (spinWeight→0), licznik znika, a UI
+//   (nav/topbar/tagline) wjeżdża DOPIERO TERAZ (po fontach) staggerem.
 
 import * as GSAPmod from 'gsap';
 import { onTick } from './scene.js';
@@ -16,27 +16,31 @@ import { loadFX, sceneFX } from './tint.js';
 
 const gsap = GSAPmod.gsap || GSAPmod.default || GSAPmod;
 
-const MIN_DURATION = 3.0;  // dolna granica czasu trwania Fazy 1 (s) — żeby sekwencja była
-                           // zawsze widoczna, nawet gdy zasoby załadują się natychmiast.
-                           // To minimum, NIE limit: dłuższe realne ładowanie czeka na zasoby.
+const MIN_DURATION = 3.0;          // dolna granica czasu Fazy 1 (s) — minimum, nie limit
+const TWO_PI       = Math.PI * 2;  // jeden pełny obrót na 0→100%
 
-// Inicjalizacja Fazy 1. `promises` — realne zasoby do śledzenia (fonty, tekstury, sygnet).
+// smoothstep — łagodne ujawnianie warstw świata w zadanym oknie progresu
+const smoothstep = (a, b, x) => {
+  const t = Math.min(1, Math.max(0, (x - a) / (b - a)));
+  return t * t * (3 - 2 * t);
+};
+
 export function initLoader(promises) {
   const loading = document.getElementById('loading');
   const pct     = document.getElementById('loading-pct');
 
-  // Stan startowy: czerń + ledwo widoczny szklany sygnet w skali HOME. Chrome ukryty
-  // (body.is-loading jest w HTML od pierwszej klatki — brak FOUC nawigacji/tagline).
   loadFX.active = true;
   loadFX.ramping = true;
   loadFX.progress = 0;
   loadFX.target = 0;
-  loadFX.fill = 0;            // czoło fali na lewej krawędzi → cały sygnet ledwo widoczny
-  loadFX.load = 1;            // pełny tryb loading w shaderze
-  sceneFX.reveal = 0;
+  loadFX.spin = 0;
+  loadFX.spinWeight = 1;            // pełny obrót rządzi rotacją; idle dochodzi na finale
+  loadFX.scale = 1;
+  loadFX.charge = 0;               // sygnet startuje jako czyste szkło → gęstnieje w primary
+  sceneFX.fog = 0;
+  sceneFX.planet = 0;
 
-  // Realny tracking — każdy rozwiązany (lub odrzucony) zasób podbija target. Bez fake timera:
-  // endpointy są prawdziwe, a płynność daje interpolacja progress→target w ticku poniżej.
+  // Realny tracking — każdy rozwiązany (lub odrzucony) zasób podbija target. Bez fake timera.
   const total = Math.max(1, promises.length);
   let done = 0;
   promises.forEach(p => Promise.resolve(p).finally(() => {
@@ -49,51 +53,69 @@ export function initLoader(promises) {
   onTick((dt) => {
     if (!loadFX.ramping) return;
     elapsed += dt;
-    // Limit czasowy — progres nie może wyprzedzić liniowego narastania do 1 w MIN_DURATION.
-    // Gdy zasoby szybkie: progres = timeCap (płynne, rozciągnięte do ~3s). Gdy wolne: timeCap
-    // dawno = 1 i nie ogranicza → realny target rządzi (loading czeka na zasoby).
-    const timeCap = Math.min(1, elapsed / MIN_DURATION);
-    // Wygładzony progres dąży do realnego targetu (interpolacja — „płynnie nabiera koloru")…
+    const timeCap = Math.min(1, elapsed / MIN_DURATION);             // dolna granica ~3s
     loadFX.progress += (loadFX.target - loadFX.progress) * Math.min(1, dt * 3.5);
-    loadFX.progress = Math.min(loadFX.progress, timeCap);     // …ale nie szybciej niż minimum 3s
-    loadFX.fill = loadFX.progress;                            // fala primary podąża za % postępu
-    if (pct) pct.textContent = Math.round(loadFX.progress * 100) + '%';
+    loadFX.progress = Math.min(loadFX.progress, timeCap);
+
+    const p = loadFX.progress;
+    loadFX.spin    = p * TWO_PI;                                     // jeden pełny obrót 0→100%
+    loadFX.charge  = Math.pow(p, 1.8) * 0.8;                         // ease-in: prawie czyste szkło na starcie → mocniej później (≈80% przy stówie)
+    sceneFX.fog    = smoothstep(0.00, 0.45, p);                      // mgła NAJPIERW
+    sceneFX.planet = smoothstep(0.35, 0.85, p);                      // miasto/planeta PÓŹNIEJ
+    loadFX.scale   = 1.0 + smoothstep(0.95, 0.99, p) * 0.28;        // puchnięcie ku nam przy 95–99%
+    if (pct) pct.textContent = Math.round(p * 100);
 
     if (!finishing && loadFX.target >= 1 && loadFX.progress > 0.992) {
       finishing = true;
-      loadFX.ramping = false;                                 // zatrzymaj ramp; GSAP przejmuje
+      loadFX.ramping = false;
       loadFX.progress = 1;
-      loadFX.fill = 1;                                        // sygnet w pełni zalany primary
-      if (pct) pct.textContent = '100%';
-      finish(loading, pct);
+      loadFX.spin = 0;                          // na wprost (≡ 2π), ale 0 → osiadanie NIE odkręca obrotu
+      loadFX.scale = 1.28;                      // upewniamy się że jest na max gdy GSAP przejmuje powrót
+      loadFX.charge = 0.8;                      // dobity do pełni dopiero pulsem w finish()
+      if (pct) pct.textContent = 100;
+      finish(loading);
     }
   });
 }
 
-// Faza 2 — sygnet stoi w miejscu. Scena z czerni → handoff trybu shaderowego → UI na końcu.
-function finish(loading, pct) {
+// Faza 2 — sygnet osiada z obrotu w idle, świat dopełniony; UI wjeżdża na końcu.
+function finish(loading) {
   const chrome = ['#topbar', '#nav', '#tagline'];
+
+  // Pewnik: świat na pełni od razu (gdyby cokolwiek przerwało timeline poniżej).
+  sceneFX.fog = 1;
+  sceneFX.planet = 1;
 
   const tl = gsap.timeline({
     onComplete: () => {
-      // Handoff — sygnet w normalnym ticku (lewitacja, mysz, hover działów). Skala bez zmian.
       loadFX.active = false;
-      loadFX.load = 0;
-      sceneFX.reveal = 1;
+      loadFX.spinWeight = 0;
+      loadFX.scale = 1;
+      loadFX.charge = 1;
+      sceneFX.fog = 1;
+      sceneFX.planet = 1;
       document.body.classList.remove('is-loading');
-      gsap.set(chrome, { clearProps: 'opacity' });   // oddaj kontrolę CSS-owi
+      gsap.set(chrome, { clearProps: 'opacity' });     // oddaj kontrolę CSS-owi
       if (loading) loading.style.display = 'none';
     },
   });
 
-  // SCENA z czerni (planeta/mgła) — pierwszy beat
-  tl.to(sceneFX, { reveal: 1, duration: 0.8, ease: 'power2.inOut' }, 0)
+  // POWRÓT — sygnet był na max (1.28) przy 99%; teraz osiada z powrotem w pozycję HOME.
+  // Lepki, trudny, jakby przestrzeń nie chciała go puścić. Brak forward pulse — już go widzieliśmy.
+  tl.to(loadFX, { scale: 1.0,  duration: 2.80, ease: 'sine.inOut' }, 0)
 
-  // Handoff trybu shaderowego: fala → normalny sygnet (oba primary → bez przeskoku)
-    .to(loadFX, { load: 0, duration: 0.6, ease: 'power2.inOut' }, 0.1)
+  // FULL KOLOR — substancja dobija z 80% do pełni na pulsie (moment „ożywienia")
+    .to(loadFX, { charge: 1, duration: 0.32, ease: 'power2.out' }, 0)
 
-  // UI (nav/linie/topbar/tagline) — osobny beat NA KOŃCU, po ujawnieniu sceny
-    .to(chrome, { opacity: 1, duration: 0.6, ease: 'power2.out' }, 0.55);
+  // Świat do pełni (zwykle już ~1)
+    .to(sceneFX, { fog: 1, planet: 1, duration: 0.5, ease: 'power1.out' }, 0)
 
-  if (pct) tl.to(pct, { opacity: 0, duration: 0.3, ease: 'power1.out' }, 0);
+  // Powolny obrót osiada w idle drift — BEZ kręcenia (spin=0 → brak odkręcania)
+    .to(loadFX, { spinWeight: 0, duration: 0.8, ease: 'power2.out' }, 0.1)
+
+  // Licznik + etykieta znikają
+    .to(loading, { opacity: 0, duration: 0.5, ease: 'power2.inOut' }, 0.35)
+
+  // UI (nav/linie/topbar/tagline) — DOPIERO TERAZ (po fontach), staggerem
+    .to(chrome, { opacity: 1, duration: 0.6, ease: 'power2.out', stagger: 0.1 }, 0.6);
 }

@@ -38,15 +38,22 @@ export const navFX = {
 // Sterowane przez loader.js, czytane przez signet.js (loadFX) oraz scene.js +
 // atmosphere.js (sceneFX). Loading i scena to ten sam canvas — sygnet jest wskaźnikiem
 // progresu, a po 100% bez cięcia staje się żywym sygnetem HOME.
+// Etap 9 loading — bohaterem jest SYGNET 3D na canvasie (ten sam co HOME, to samo miejsce).
+// 0→100% = jeden pełny obrót (loadFX.spin), a świat składa się wokół niego wraz z progresem:
+// najpierw mgła, potem miasto/planeta (sceneFX.fog/planet). UI wjeżdża dopiero na finał.
 export const loadFX = {
-  active:   false,   // true przez całą sekwencję — signet pinuje kolor primary
-  ramping:  false,   // true tylko w Fazie 1 — loader.js wygładza progress→target
-  progress: 0,       // 0..1 — wygładzony progres (steruje falą i licznikiem %)
-  target:   0,       // 0..1 — realny ułamek wczytanych zasobów (Promise tracking)
-  fill:     0,       // 0..1 — czoło fali wypełnienia primary (= progress); uniform uFill (wipe)
-  load:     0,       // 0..1 — siła trybu loading w shaderze (uLoad): 1 w sekwencji, →0 przy handoffie
+  active:     false, // true przez całą sekwencję loadingu
+  ramping:    false, // true tylko w Fazie 1 — loader.js wygładza progress→target
+  progress:   0,     // 0..1 — wygładzony progres (steruje obrotem, światem i licznikiem %)
+  target:     0,     // 0..1 — realny ułamek wczytanych zasobów (Promise tracking)
+  spin:       0,     // radiany — obrót Y sygnetu (progress * 2π = jeden pełny obrót)
+  spinWeight: 0,     // 0..1 — ile obrotu vs idle (1 w loadingu, →0 przy osiadaniu w HOME)
+  scale:      1,     // mnożnik skali — krok ku kamerze przy whipie finałowym
+  charge:     1,     // 0..1 — „wlewanie koloru": 0 = czyste szkło, 1 = pełny primary (= progress)
 };
 
+// Bramki ujawniania sceny — etapowe (pkt 4). W normalnej pracy oba = 1.
 export const sceneFX = {
-  reveal: 1,         // 0 = scena niewidoczna (czerń), 1 = pełna. Bramkuje planetę/mgłę/coronę.
+  fog:    1,         // 0..1 — mgła + corona (atmosphere.js). Ujawnia się PIERWSZA.
+  planet: 1,         // 0..1 — planeta/miasto (scene.js). Ujawnia się PÓŹNIEJ.
 };

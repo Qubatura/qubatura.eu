@@ -260,7 +260,7 @@ function createCorona(scene) {
       for (const s of pool) {
         if (!s.active) continue;
         s.life++;
-        s.mat.opacity = 0.40 * (1 - s.life / s.maxLife) * sceneFX.reveal;   // ×reveal: fade z czerni
+        s.mat.opacity = 0.40 * (1 - s.life / s.maxLife) * sceneFX.fog;   // ×fog: razem z mgłą
         if (s.life >= s.maxLife) { s.line.visible = false; s.active = false; }
       }
     },
@@ -278,8 +278,8 @@ export function initAtmosphere(ctx) {
   onTick((delta, elapsed) => {
     u.uTime.value = elapsed;
 
-    // Reveal (Etap 9) — mgła fade'uje z czerni przy starcie. reveal=1 w normalnej pracy.
-    u.uFogStrength.value = FOG_STRENGTH * sceneFX.reveal;
+    // Reveal (Etap 9) — mgła ujawnia się PIERWSZA wraz z progresem. fog=1 w normalnej pracy.
+    u.uFogStrength.value = FOG_STRENGTH * sceneFX.fog;
 
     // globalny tint mgły — navFX.target (Color) → vec3
     u.uTintColor.value.set(navFX.target.r, navFX.target.g, navFX.target.b);

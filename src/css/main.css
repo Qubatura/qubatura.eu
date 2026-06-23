@@ -112,33 +112,62 @@ html, body {
 }
 
 /* ── Loading screen (Etap 9) ────────────────────────────────────── */
-/* Sygnet-wskaźnik renderuje się na canvasie (#c). Czerń daje body.is-loading + sceneFX.reveal=0
-   (planeta/mgła wygaszone), więc #loading jest tylko przezroczystym kontenerem na licznik % —
-   NIE może zasłaniać canvasu (stąd brak tła i pointer-events). */
+/* Bohaterem jest SYGNET 3D na canvasie (#c) — ten sam co HOME, to samo miejsce, obraca się
+   360° z progresem; świat (mgła→miasto) składa się wokół niego. #loading to PRZEZROCZYSTA
+   nakładka tylko na licznik + etykietę pod sygnetem (nie zasłania canvasu). */
 #loading {
   position: fixed;
   inset: 0;
+  z-index: 5;                 /* nad canvas (2), pod nawigacją/topbarem */
   pointer-events: none;
-  z-index: 950;              /* nad canvas/nawigacją — licznik zawsze widoczny */
 }
 
-/* Licznik bezpośrednio POD sygnetem (sygnet jest w centrum ekranu). Magenta = akcent marki. */
-#loading-pct {
+/* Stopka loadingu — licznik + etykieta tuż POD sygnetem (sygnet jest w centrum ekranu) */
+.ld-foot {
   position: absolute;
-  top: 61%;
-  left: 50%;
-  transform: translateX(-50%);
-  font-family: var(--font-mono);
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.25em;
-  text-indent: 0.25em;       /* kompensata trailing letter-spacing → realne wyśrodkowanie */
-  color: #E0218A;
-  text-shadow: 0 0 10px rgba(224, 33, 138, 0.55);
+  top: 66%;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-/* Loading: czarny ekran, na canvasie tylko sygnet. Reszta UI ukryta — loader.js (GSAP)
-   wfadeuje ją w Fazie 2 i zdejmuje klasę. Klasa jest w <body> od pierwszej klatki (brak FOUC). */
+/* Licznik — w kolorze sygnetu (primary), o połowę mniejszy niż poprzednio */
+.ld-readout {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: #5B2EFF;
+  line-height: 1;
+  text-shadow: 0 0 14px rgba(91, 46, 255, 0.7);
+  display: flex;
+  align-items: baseline;
+}
+#loading-pct {
+  font-size: clamp(15px, 2.0vw, 24px);
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;   /* cyfry nie skaczą przy zmianie */
+}
+.ld-unit {
+  font-size: clamp(9px, 1.0vw, 12px);
+  margin-left: 0.18em;
+  opacity: 0.7;
+}
+
+/* Etykieta — kotwica */
+.ld-label {
+  margin: 1.1vh 0 0;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 400;
+  letter-spacing: 0.4em;
+  text-indent: 0.4em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.28);
+}
+
+/* Loading: reszta UI ukryta — loader.js (GSAP) wfadeuje ją na finał i zdejmuje klasę.
+   Klasa jest w <body> od pierwszej klatki (brak FOUC nav/tagline). */
 body.is-loading { background: #000; }
 body.is-loading #topbar,
 body.is-loading #nav,

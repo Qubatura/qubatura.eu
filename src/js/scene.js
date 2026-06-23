@@ -96,18 +96,18 @@ export function startLoop() {
     if (refraction) {
       // Pass 1 — scena BEZ sygnetu → renderTarget (to staje się tłem do zagięcia).
       // Planeta podbita do pełni, żeby sygnet zaginał jasne tło, nie przyciemnione.
-      // ×reveal — podczas loadingu (reveal≈0) tło jest czarne, więc szklany sygnet
-      // próbkuje czerń (czyste szkło na czarnym, bez planety).
+      // ×planet — podczas loadingu miasto/planeta ujawnia się stopniowo z progresem,
+      // więc szklany sygnet refraktuje świat, który dopiero się składa.
       refraction.object.visible = false;
-      if (planetMat) planetMat.opacity = PLANET_OPACITY_REFRACT * sceneFX.reveal;
+      if (planetMat) planetMat.opacity = PLANET_OPACITY_REFRACT * sceneFX.planet;
       renderer.setRenderTarget(renderTarget);
       renderer.clear();
       renderer.render(scene, camera);
       renderer.setRenderTarget(null);
 
       // Pass 2 — pełna scena z sygnetem próbkującym tBackground.
-      // Planeta wraca do subtelnego 0.17 (to, co widać gołym okiem) × reveal (fade z czerni).
-      if (planetMat) planetMat.opacity = PLANET_OPACITY_VISIBLE * sceneFX.reveal;
+      // Planeta wraca do subtelnego 0.17 (to, co widać gołym okiem) × planet (fade z czerni).
+      if (planetMat) planetMat.opacity = PLANET_OPACITY_VISIBLE * sceneFX.planet;
       refraction.object.visible = true;
       refraction.material.uniforms.tBackground.value = renderTarget.texture;
       renderer.render(scene, camera);

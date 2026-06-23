@@ -81,9 +81,12 @@
     <span class="cur-corner cur-br"></span>
   </div>
 
-  <!-- Loading screen (Etap 9) — sygnet renderuje się na canvasie (#c); tu tylko licznik % -->
+  <!-- Loading screen (Etap 9) — bohaterem jest sygnet 3D na canvasie; tu tylko licznik pod nim -->
   <div id="loading" aria-hidden="true">
-    <span id="loading-pct">0%</span>
+    <div class="ld-foot">
+      <div class="ld-readout"><span id="loading-pct">0</span><span class="ld-unit">%</span></div>
+      <p class="ld-label">Ładowanie</p>
+    </div>
   </div>
 
   <!-- SEO-accessible nav (hidden visually, readable by bots) -->

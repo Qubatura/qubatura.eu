@@ -77,10 +77,6 @@ export async function initSignet(ctx) {
     time:               { value: 0 },
     uColorMix:          { value: 0 },      // 0 = primary, 1 = magenta (sterowane kątem)
     uGlass:             { value: 0 },      // 0 = normalny tint, 1 = czyste szkło (hover sygnetu, brak działu)
-    uLoad:              { value: 0 },      // 0..1 — siła trybu loading (fala wypełnienia) vs normalny
-    uFill:              { value: 0 },      // 0..1 — czoło fali primary (wipe lewo→prawo)
-    uWipeMinX:          { value: bb.min.x },              // lewa krawędź sygnetu (SVG space)
-    uWipeSpanX:         { value: (bb.max.x - bb.min.x) || 1 },  // szerokość → normalizacja vWipe 0..1
   };
 
   const mat = new THREE.ShaderMaterial({
@@ -89,17 +85,13 @@ export async function initSignet(ctx) {
     side:        THREE.DoubleSide,
     depthWrite:  false,
     vertexShader: /* glsl */`
-      uniform float uWipeMinX;
-      uniform float uWipeSpanX;
       varying vec3 vNormal;
       varying vec4 vClip;
       varying vec3 vWorldPos;
-      varying float vWipe;     // 0..1 wzdłuż szerokości sygnetu (lewo→prawo) — niezależne od obrotu
       void main() {
         vNormal   = normalize(normalMatrix * normal);
         vWorldPos = (modelMatrix * vec4(position, 1.0)).xyz;
         vClip     = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-        vWipe     = clamp((position.x - uWipeMinX) / uWipeSpanX, 0.0, 1.0);
         gl_Position = vClip;
       }
     `,
@@ -109,26 +101,10 @@ export async function initSignet(ctx) {
       uniform float time;
       uniform float uColorMix;
       uniform float uGlass;
-      uniform float uLoad;
-      uniform float uFill;
 
       varying vec3 vNormal;
       varying vec4 vClip;
       varying vec3 vWorldPos;
-      varying float vWipe;
-
-      // Proceduralne „środowisko" wypełnienia (Etap 9) — sterowane NORMALNĄ (matcap-like).
-      // To ono jest refraktowane/rozszczepiane przez szkło: gradient idzie za formą bryły
-      // (głębia), a próbkowanie per-kanał na rozsuniętej normalnej daje dyspersję w objętości.
-      vec3 envFill(vec3 n) {
-        float facing = n.z * 0.5 + 0.5;                              // 0 krawędź .. 1 na wprost
-        float vert   = n.y * 0.5 + 0.5;                              // dół .. góra bryły
-        vec3 deep = vec3(0.07, 0.03, 0.30);                          // ciemny primary — głębia
-        vec3 lit  = vec3(0.42, 0.20, 1.00);                          // jasny primary — światło
-        vec3 c = mix(deep, lit, facing * facing);                    // cieniowanie po formie = 3D
-        c = mix(c, vec3(0.78, 0.14, 0.48), smoothstep(0.6, 1.0, vert) * 0.30);  // magenta górą
-        return c;
-      }
 
       void main() {
         // Screen-space UV — dzielenie perspektywiczne per-fragment (poprawne)
@@ -162,53 +138,23 @@ export async function initSignet(ctx) {
         vec3 cMagenta = vec3(0.95, 0.15, 0.60);
         vec3 tint     = mix(cPrimary, cMagenta, uColorMix);
 
-        // ── TRYB NORMALNY (HOME / hover-glass) ──────────────────────────────────────
         // Tryb szkła (uGlass): wygaszamy barwny tint, zostawiając refrakcję + białe
         // pryzmatyczne krawędzie. Poza szkłem: pełny barwny tint + refleks.
-        float colorAmt  = 1.0 - uGlass;
-        vec3  normalCol = refr;
-        normalCol += specColor * colorAmt;
-        normalCol += tint * 0.4 * colorAmt;
-        normalCol += tint * fresnel * 0.5 * colorAmt;
-        normalCol += vec3(1.0) * fresnel * 0.6 * uGlass;
-        float normalA = 0.85 + fresnel * 0.15;
+        float colorAmt = 1.0 - uGlass;
+        vec3  color = refr;
+        color += specColor * colorAmt;
+        color += tint * 0.4 * colorAmt;
+        color += tint * fresnel * 0.5 * colorAmt;
+        color += vec3(1.0) * fresnel * 0.6 * uGlass;
 
-        // ── TRYB LOADING (Etap 9) — primary ZALEWA sygnet FALĄ (wipe lewo→prawo) ─────
-        // vWipe ∈ 0..1 wzdłuż szerokości; uFill = czoło fali (= % postępu). Miękka krawędź.
-        float fillAmt = 1.0 - smoothstep(uFill - 0.10, uFill + 0.10, vWipe);
-        // jasny grzbiet fali na samym czole (znika przy 0% i 100%)
-        float front   = smoothstep(0.10, 0.0, abs(vWipe - uFill))
-                        * step(0.001, uFill) * step(uFill, 0.999);
-
-        // GŁĘBIA 3D: zamiast płaskiego koloru — REFRAKCJA proceduralnego środowiska (envFill)
-        // z DYSPERSJĄ. Próbkujemy je na trzech rozsuniętych normalnych (per-kanał R/G/B) →
-        // kolor jest zaginany i rozszczepiany przez bryłę jak w realnym szkle. Forma + ruchomy
-        // refleks (specColor) + magenta rim dają wrażenie pełnej, obrotowej objętości.
-        float disp     = 0.05 + fresnel * 0.10;
-        vec3  eR       = envFill(normalize(vNormal + vec3( disp, 0.0, 0.0)));
-        vec3  eG       = envFill(vNormal);
-        vec3  eB       = envFill(normalize(vNormal + vec3(-disp, 0.0, 0.0)));
-        vec3  body     = vec3(eR.r, eG.g, eB.b);              // rozszczepione środowisko (głębia)
-        body += specColor * 1.3;                              // wędrujący glint — mocny cue 3D
-        body += vec3(1.0, 0.35, 0.65) * pow(fresnel, 2.0) * 0.5;   // jasny magenta rim (dyspersja)
-
-        // Niewypełnione: ledwo widoczny szklany kontur (sama refrakcja czerni + cień fresnela).
-        vec3  glassCol = refr + vec3(1.0) * fresnel * 0.09;
-        vec3  loadCol  = mix(glassCol, body, fillAmt) + vec3(0.7, 0.55, 1.0) * front * 0.45;
-        float loadA    = mix(0.05 + fresnel * 0.20, 0.92 + fresnel * 0.08, fillAmt);
-
-        // Wybór trybu: loading (fala) ↔ normalny HOME — krzyżowo przez uLoad (handoff bez cięcia)
-        vec3  color = mix(normalCol, loadCol, uLoad);
-        float alpha = mix(normalA,  loadA,  uLoad);
-
-        gl_FragColor = vec4(color, clamp(alpha, 0.0, 1.0));
+        gl_FragColor = vec4(color, 0.85 + fresnel * 0.15);
       }
     `,
   });
 
   // ─── Geometry — bevel mały żeby nie pożerał cienkich fragmentów ogona Q ───
   const group  = new THREE.Group();
-  const depth  = 3 / S;
+  const depth  = 4.5 / S;   // grubsza bryła — wyraźniej widać 3D przy obrocie (było 3)
   // bevelSize 0.25wu w przestrzeni świata → ~6 jedn. SVG → nie niszczy detali
   const bevel  = 0.25 / S;
 
@@ -346,9 +292,14 @@ export async function initSignet(ctx) {
     // i przesuniętych fazach → ruch nieprzewidywalny, nie wahadłowy.
     // Kołysanie lewo-prawo: dominująca fala (~połowa dawnego zakresu, widać bryłę 3D)
     // + dwie mniejsze niewspółmierne fale na losowość.
-    pivot.rotation.y = Math.sin(t * 0.15)        * 0.35
-                     + Math.sin(t * 0.211 + 1.7) * 0.10
-                     + Math.sin(t * 0.087 + 4.1) * 0.06;
+    const idleRotY = Math.sin(t * 0.15)        * 0.35
+                   + Math.sin(t * 0.211 + 1.7) * 0.10
+                   + Math.sin(t * 0.087 + 4.1) * 0.06;
+    // Loading (Etap 9): jeden pełny obrót 360° sterowany progresem (loadFX.spin), mieszany
+    // z idle przez spinWeight (1 w loadingu → 0 przy osiadaniu w HOME = bezszwowo).
+    pivot.rotation.y = loadFX.active
+      ? idleRotY * (1 - loadFX.spinWeight) + loadFX.spin * loadFX.spinWeight
+      : idleRotY;
     // Przechył góra-dół (~0.22)
     pivot.rotation.x = Math.sin(t * 0.17 + 0.6)  * 0.10
                      + Math.sin(t * 0.283 + 2.9) * 0.07
@@ -366,8 +317,7 @@ export async function initSignet(ctx) {
                      + navFX.tugY + navFX.pageY;
 
     // Przejście primary → magenta — sterowane fazą obrotu (edge-on → magenta).
-    // Podczas loadingu (Etap 9) pinujemy do 0 (czysty primary #5B2EFF — to barwa, którą
-    // sygnet nabiera w miarę progresu; magenta przychodzi dopiero w żywym stanie HOME).
+    // Podczas loadingu pinujemy do 0 (czysty primary — to barwa „wlewanej materii").
     const target = loadFX.active ? 0 : Math.abs(Math.sin(pivot.rotation.y));
     colorMix += (target - colorMix) * (loadFX.active ? 0.1 : 0.05);
     uniforms.uColorMix.value = colorMix;
@@ -379,15 +329,14 @@ export async function initSignet(ctx) {
       _mouse.x - window.innerWidth  * 0.5,
       _mouse.y - window.innerHeight * 0.5
     );
-    // Proximity-glass wyłączony podczas loadingu — wtedy wyglądem rządzi tryb loading (uLoad).
     const wantGlass = (distC < 140 && !navFX.activeDiv && !loadFX.active) ? 1 : 0;
     glassMix += (wantGlass - glassMix) * 0.1;   // miękkie wejście/wyjście ze szkła
-    uniforms.uGlass.value = glassMix;           // szkło tylko z proximity (hover sygnetu)
-    uniforms.uLoad.value  = loadFX.load;        // 1 = tryb loading (fala), →0 handoff
-    uniforms.uFill.value  = loadFX.fill;        // czoło fali primary (= % postępu)
-    // Neon obrys/blask gaśnie przy hover-szkle (glassMix) ORAZ podczas loadingu (load),
-    // fade-in przy handoffie gdy load→0.
-    const glowHide = Math.max(glassMix, loadFX.load);
+    // Loading: „materia w kolorze" wlewa się w sygnet — szkło (1−charge) gęstnieje w primary.
+    const loadGlass = loadFX.active ? (1 - loadFX.charge) : 0;
+    const gEff = Math.max(glassMix, loadGlass);
+    uniforms.uGlass.value = gEff;
+    // Neon obrys/blask gaśnie w szkle (hover) ORAZ na starcie loadingu, narasta z charge.
+    const glowHide = gEff;
 
     // Hover dywizji → obrys/glow przyjmują kolor działu; sprite glow „eksploduje".
     // Balans per dział (gain) na JASNOŚCI koloru, wmieszany przez intensity (idle neutralny).
@@ -411,8 +360,7 @@ export async function initSignet(ctx) {
     hoverScale += ((near ? 1.08 : 1.0) - hoverScale) * 0.07;
     // „Uderzenie serca" przy hover (navFX.pulse: 0→0.15→0) na wierzchu oddychania i hovera
     // × pageScale — tryb podstrony zmniejsza sygnet do logo w rogu.
-    // Loading (Etap 9): BEZ zmian skali — sygnet stoi w skali HOME przez cały czas → handoff
-    // jest zerowy (żadnego przeskoku). Ruch „przybliżania" świadomie usunięty.
-    pivot.scale.setScalar(pulse * hoverScale * (1 + navFX.pulse) * navFX.pageScale);
+    // × loadFX.scale — krok ku kamerze przy finałowym whipie (poza tym = 1).
+    pivot.scale.setScalar(pulse * hoverScale * (1 + navFX.pulse) * navFX.pageScale * loadFX.scale);
   });
 }
