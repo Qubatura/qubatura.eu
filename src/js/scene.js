@@ -56,10 +56,9 @@ export async function initScene() {
   });
   const PLANET_H = 1200, PLANET_Z = -500;
   const planetMesh = new THREE.Mesh(new THREE.PlaneGeometry(2000, PLANET_H), planetMat);
-  // Górna krawędź obrazka przyklejona do góry viewportu:
-  // góra kadru na głębokości planety = dystans·tan(FOV/2); odejmujemy pół wysokości plane.
   const viewTop = (camera.position.z - PLANET_Z) * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
-  planetMesh.position.set(0, viewTop - PLANET_H / 2, PLANET_Z);   // ≈ -138
+  const basePlanetY = viewTop - PLANET_H / 2;   // ≈ -138; parallax.js używa tego jako Y bazowego
+  planetMesh.position.set(0, basePlanetY, PLANET_Z);
   scene.add(planetMesh);
 
   // Dim violet ambient — creatures use additive blending, so they self-illuminate
@@ -74,7 +73,7 @@ export async function initScene() {
     renderTarget.setSize(_dbs.x, _dbs.y);
   });
 
-  return { scene, camera, renderer, clock, planetReady };
+  return { scene, camera, renderer, clock, planetReady, planetMesh, basePlanetY };
 }
 
 // Modules register their per-frame callbacks here

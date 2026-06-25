@@ -14,6 +14,7 @@
 import * as THREE from 'three';
 import { onTick } from './scene.js';
 import { navFX, BASE_TINT, DIVISION_COLORS, sceneFX } from './tint.js';
+import { px } from './parallax.js';
 
 // ─── Konfiguracja ───────────────────────────────────────────────────────────
 const CLOUD_DEFS = [
@@ -42,15 +43,16 @@ const FRAG = /* glsl */`
 
   uniform float uTime;
   uniform float uAspect;
-  uniform vec3  uBaseColor;        // BASE_TINT (mgła w spoczynku)
-  uniform vec3  uTintColor;        // navFX.target (już stweenowany kolor działu)
-  uniform float uTintIntensity;    // navFX.intensity 0..1
+  uniform vec3  uBaseColor;
+  uniform vec3  uTintColor;
+  uniform float uTintIntensity;
   uniform float uFogStrength;
+  uniform vec2  uFogOffset;        // parallax offset w "height units" (parallax.js)
 
-  uniform vec2  uCloudCenter[3];   // środki napisów działów w przestrzeni „height units"
-  uniform vec3  uCloudColor[3];    // STAŁE kolory działów (nie target!)
-  uniform float uCloudStrength[3]; // eased 0..0.55
-  uniform float uCloudRadius;      // promień chmury w „height units"
+  uniform vec2  uCloudCenter[3];
+  uniform vec3  uCloudColor[3];
+  uniform float uCloudStrength[3];
+  uniform float uCloudRadius;
 
   // value noise + fbm
   float hash(vec2 p) {
@@ -87,19 +89,19 @@ const FRAG = /* glsl */`
   }
 
   void main() {
-    // przestrzeń „height units": y∈[-0.5,0.5], x skalowany aspektem — koła pozostają kołami
-    vec2 ph = vec2((vUv.x - 0.5) * uAspect, vUv.y - 0.5);
+    // ph — przestrzeń "height units" dla screen-space (chmury działów, klikane na UI)
+    // ph_fog — ph przesunięte paralaksem (mgła dryfuje głębiej niż UI)
+    vec2 ph     = vec2((vUv.x - 0.5) * uAspect, vUv.y - 0.5);
+    vec2 ph_fog = ph - uFogOffset;
 
     // Dominujący ukośny dryf — mgła „leje się" (tempo blisko starego, wyraźnie widoczne).
     vec2 flow = vec2(0.46, -0.31);
-    // Tani domain-warp (1 oktawa) — zawirowanie, charakter płynącej cieczy.
     vec2 warp = vec2(
-      noise(ph * 1.6 + vec2(0.0,        uTime * 0.26)),
-      noise(ph * 1.6 + vec2(uTime * 0.26, 5.2))
+      noise(ph_fog * 1.6 + vec2(0.0,          uTime * 0.26)),
+      noise(ph_fog * 1.6 + vec2(uTime * 0.26, 5.2))
     ) - 0.5;
-    // Dwie warstwy z parallaxem: różny scale i prędkość, ten sam kierunek przepływu.
-    vec2 p1 = ph * 2.2 + flow * uTime       + warp * 0.7;
-    vec2 p2 = ph * 3.8 + flow * uTime * 1.6 + warp * 0.4;
+    vec2 p1 = ph_fog * 2.2 + flow * uTime       + warp * 0.7;
+    vec2 p2 = ph_fog * 3.8 + flow * uTime * 1.6 + warp * 0.4;
     float n1 = fbm(p1);
     float n2 = fbm(p2);
     // Pulsowanie 55–100% — większa dynamika intensywności, ale mgła nie znika całkowicie.
@@ -136,6 +138,7 @@ function createFog(scene, camera) {
     uTintColor:      { value: new THREE.Vector3(BASE_TINT.r, BASE_TINT.g, BASE_TINT.b) },
     uTintIntensity:  { value: 0 },
     uFogStrength:    { value: FOG_STRENGTH },
+    uFogOffset:      { value: new THREE.Vector2(0, 0) },
     uCloudCenter:    { value: [new THREE.Vector2(), new THREE.Vector2(), new THREE.Vector2()] },
     uCloudColor:     { value: CLOUD_DEFS.map(d => {
                         const c = DIVISION_COLORS[d.div]; return new THREE.Vector3(c.r, c.g, c.b);
@@ -280,6 +283,8 @@ export function initAtmosphere(ctx) {
 
     // Reveal (Etap 9) — mgła ujawnia się PIERWSZA wraz z progresem. fog=1 w normalnej pracy.
     u.uFogStrength.value = FOG_STRENGTH * sceneFX.fog;
+
+    u.uFogOffset.value.set(px.fog.x, px.fog.y);
 
     // globalny tint mgły — navFX.target (Color) → vec3
     u.uTintColor.value.set(navFX.target.r, navFX.target.g, navFX.target.b);

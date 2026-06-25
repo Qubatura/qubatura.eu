@@ -10,8 +10,9 @@
 //   Etap 10: router.js      — SPA History API + GSAP transitions
 
 import { initScene, startLoop } from './scene.js';
-import { initCreatures }        from './creatures.js';
+import { initParallax }         from './parallax.js';
 import { initAtmosphere }       from './atmosphere.js';
+import { initFireflies }        from './fireflies.js';
 import { initSignet }           from './signet.js';
 import { initNavigation }       from './navigation.js';
 import { initRouter }           from './router.js';
@@ -24,8 +25,9 @@ async function boot() {
   initCursor();                 // własna kulka kursora — od razu aktywna
   initContact();                // contact overlay (trigger: [data-contact])
   const ctx = await initScene();
-  initCreatures(ctx);
+  initParallax(ctx);
   initAtmosphere(ctx);
+  initFireflies(ctx);
 
   // Sygnet musi istnieć, by być wskaźnikiem loadingu — budujemy go (ładuje SVG).
   const signetReady = initSignet(ctx);
