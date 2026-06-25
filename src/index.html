@@ -260,11 +260,13 @@
       </div>
     </div>
     <div id="pong-footer">Mysz lub strzałki ↑↓ · Gra do 3 bramek</div>
-    <!-- Przyciski prędkości — po prawej stronie pola, pozycjonowane przez JS -->
-    <div id="pong-speed" aria-label="Prędkość piłki">
+    <!-- Opcje gry — po prawej stronie pola, pozycjonowane przez JS -->
+    <div id="pong-speed" aria-label="Opcje gry">
       <button class="speed-btn" data-mult="0.7" type="button">SLOW</button>
       <button class="speed-btn active" data-mult="1.0" type="button">MED</button>
       <button class="speed-btn" data-mult="1.4" type="button">FAST</button>
+      <div class="speed-sep"></div>
+      <button class="speed-btn" id="pong-pause" type="button">PAUSE</button>
     </div>
   </div>
 

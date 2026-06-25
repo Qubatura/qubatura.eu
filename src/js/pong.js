@@ -140,26 +140,12 @@ function startGame() {
   card.style.width  = GW + 'px';
   card.style.height = GH + 'px';
 
-  // Przyciski prędkości — pionowy stack po prawej stronie pola
-  let speedMult = 1.0;
-  const speedPanel = document.getElementById('pong-speed');
-  if (speedPanel) {
-    speedPanel.style.top  = GT + 'px';
-    speedPanel.style.left = (GL + GW + 18) + 'px';
-    gsap.set(speedPanel, { opacity: 1 });
-    speedPanel.querySelectorAll('.speed-btn').forEach(btn => {
-      btn.classList.toggle('active', btn.dataset.mult === '1.0');
-      btn.addEventListener('click', () => {
-        speedMult = parseFloat(btn.dataset.mult);
-        speedPanel.querySelectorAll('.speed-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-      }, { once: false });
-    });
-  }
-
   const ctx    = canvas.getContext('2d');
   const player = { y: GH / 2 };
   const ai     = { y: GH / 2 };
+  let   speedMult = 1.0;
+  let   paused    = false;
+
   const state  = {
     score:      { player: 0, bot: 0 },
     ball:       makeBall(GW, GH, speedMult),
@@ -168,15 +154,48 @@ function startGame() {
     resetDelay: 0,
   };
 
-  let mouseY      = GH / 2;
-  let mouseActive = false;   // true po pierwszym ruchu myszy
-  let lastKeyTime = 0;       // timestamp ostatniego naciśnięcia klawisza
-  const KEY_PRIO  = 400;     // ms pierwszeństwa klawiatury po puszczeniu klawisza
-  const keys      = {};
-  const onMove = e => { mouseY = e.clientY - GT; mouseActive = true; };
-  const onKey  = e => {
+  // Speed panel — po state, żeby handler miał dostęp do state.ball
+  const speedPanel = document.getElementById('pong-speed');
+  if (speedPanel) {
+    speedPanel.style.top  = GT + 'px';
+    speedPanel.style.left = (GL + GW + 18) + 'px';
+    gsap.set(speedPanel, { opacity: 1 });
+    speedPanel.querySelectorAll('.speed-btn[data-mult]').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.mult === '1.0');
+      btn.addEventListener('click', () => {
+        speedMult = parseFloat(btn.dataset.mult);
+        speedPanel.querySelectorAll('.speed-btn[data-mult]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        // Natychmiastowe zastosowanie na bieżącą piłkę
+        const cur    = Math.hypot(state.ball.vx, state.ball.vy);
+        const target = BALL_SPD * speedMult;
+        if (cur > 0) { const r = target / cur; state.ball.vx *= r; state.ball.vy *= r; }
+      });
+    });
+    const pauseBtn = document.getElementById('pong-pause');
+    if (pauseBtn) {
+      pauseBtn.addEventListener('click', () => {
+        paused = !paused;
+        pauseBtn.textContent = paused ? 'PLAY' : 'PAUSE';
+        pauseBtn.classList.toggle('active', paused);
+      });
+    }
+  }
+
+  // Input — eksplicytne tryby: 'idle' | 'mouse' | 'key'
+  // Paletka nigdy nie ciągnie się samoistnie do centrum.
+  let mouseY    = GH / 2;
+  let inputMode = 'idle';
+  let lastKeyMs = 0;
+  const KEY_PRIO = 600;
+  const keys     = {};
+  const onMove = e => {
+    mouseY = e.clientY - GT;
+    if (Date.now() - lastKeyMs >= KEY_PRIO) inputMode = 'mouse';
+  };
+  const onKey = e => {
     keys[e.key] = e.type === 'keydown';
-    if (e.type === 'keydown') lastKeyTime = Date.now();
+    if (e.type === 'keydown') { lastKeyMs = Date.now(); inputMode = 'key'; }
   };
   window.addEventListener('mousemove', onMove);
   window.addEventListener('keydown',   onKey);
@@ -194,19 +213,13 @@ function startGame() {
   }
 
   function movePlayer() {
-    const keyDown   = keys['ArrowUp'] || keys['w'] || keys['W'] ||
-                      keys['ArrowDown'] || keys['s'] || keys['S'];
-    const keyRecent = (Date.now() - lastKeyTime) < KEY_PRIO;
-
-    if (keyDown) {
-      // Klawiatura aktywna — ruszamy paletkę
+    if (inputMode === 'key') {
       if (keys['ArrowUp']   || keys['w'] || keys['W']) player.y -= K_SPD;
       if (keys['ArrowDown'] || keys['s'] || keys['S']) player.y += K_SPD;
-    } else if (!keyRecent && mouseActive) {
-      // Mysz przejmuje — tylko gdy klawiatura nie była używana w ostatnich KEY_PRIO ms
+    } else if (inputMode === 'mouse') {
       player.y += (mouseY - player.y) * 0.15;
     }
-    // keyRecent && !keyDown → paletka stoi w miejscu (nie ciągnięta przez mysz)
+    // idle → paletka stoi w miejscu, nie ciągnie się do żadnej pozycji
     player.y = Math.max(PAD_H / 2, Math.min(GH - PAD_H / 2, player.y));
   }
 
@@ -231,6 +244,7 @@ function startGame() {
   function loop() {
     if (done) return;
     raf = requestAnimationFrame(loop);
+    if (paused) return;   // zamrożona scena — canvas nie rysowany, wygląd zachowany
 
     // Pauza po golu: gracz może przestawiać paletkę, piłka stoi w centrum
     if (state.resetDelay > 0) {
@@ -378,11 +392,13 @@ function showCard(overlay, canvas, card, header, footer) {
       gsap.set([overlay, card, ...fadeEls], { opacity: 0 });
       gsap.set([quoteEl, identEl], { clearProps: 'opacity' });
       canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
-      // Reset przycisków prędkości do MEDIUM
+      // Reset przycisków do stanu domyślnego
       if (speedPanel) {
-        speedPanel.querySelectorAll('.speed-btn').forEach(b => {
+        speedPanel.querySelectorAll('.speed-btn[data-mult]').forEach(b => {
           b.classList.toggle('active', b.dataset.mult === '1.0');
         });
+        const pb = document.getElementById('pong-pause');
+        if (pb) { pb.textContent = 'PAUSE'; pb.classList.remove('active'); }
       }
     },
   });

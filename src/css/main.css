@@ -488,34 +488,34 @@ body.pong-active #pong-overlay {
   position: absolute;
   display: flex;
   flex-direction: column;
+  align-items: center;
   justify-content: space-between;
-  padding: 24px 28px 22px;
+  padding: 28px 28px 24px;
   box-sizing: border-box;
+  text-align: center;
   opacity: 0;
   pointer-events: none;
 }
 .pong-quote {
   font-family: var(--font-display);
-  font-size: clamp(10px, 1.1vw, 13px);
+  font-size: clamp(12px, 1.3vw, 16px);
   font-weight: 300;
-  color: rgba(255, 255, 255, 0.62);
-  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.65);
+  line-height: 1.65;
   letter-spacing: 0.01em;
   margin: 0;
-  text-align: center;
-  align-self: center;
 }
 .pong-identity {
-  align-self: flex-start;
+  text-align: center;
 }
 .pong-name {
   font-family: var(--font-display);
-  font-size: clamp(20px, 2.6vw, 32px);
+  font-size: clamp(17px, 2.1vw, 26px);
   font-weight: 600;
   color: var(--color-white);
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  text-shadow: 0 0 24px rgba(91, 46, 255, 0.9);
+  text-shadow: 0 0 22px rgba(91, 46, 255, 0.85);
   margin: 0;
 }
 .pong-years {
@@ -524,6 +524,7 @@ body.pong-active #pong-overlay {
   color: rgba(255, 255, 255, 0.38);
   letter-spacing: 0.24em;
   margin: 5px 0 0;
+  text-align: center;
 }
 /* Speed panel — przyciski SLOW/MED/FAST po prawej stronie pola */
 #pong-speed {
@@ -558,6 +559,11 @@ body.pong-active #pong-speed {
 .speed-btn.active {
   color: rgba(255, 255, 255, 0.92);
   border-color: rgba(255, 255, 255, 0.55);
+}
+.speed-sep {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.12);
+  margin: 4px 0;
 }
 #pong-footer {
   position: absolute;
