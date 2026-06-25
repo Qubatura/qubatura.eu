@@ -18,7 +18,7 @@ const BOUND_Y   = 155;   // half-height strefy lotu
 const Z_MIN     = -30;   // najdalej od kamery
 const Z_MAX     = 65;    // najbliżej kamery
 const Z_NORM    = 15;    // głębokość neutralna (brightness = 1.0)
-const FF_SIZE   = 9;     // wu — rozmiar glow sprite (sizeAttenuation skaluje perspektywicznie)
+const FF_SIZE   = 7;     // wu — rozmiar glow sprite (sizeAttenuation skaluje perspektywicznie)
 
 // Selektory: tożsame z atmosphere.js CLOUD_DEFS (te same punkty co centra chmur)
 const DEPT_SEL = {
@@ -52,8 +52,9 @@ function makeGlowTex() {
   const cx = c.getContext('2d');
   const g  = cx.createRadialGradient(r, r, 0, r, r, r);
   g.addColorStop(0.00, 'rgba(255,255,255,1.00)');
-  g.addColorStop(0.18, 'rgba(255,255,255,0.92)');
-  g.addColorStop(0.55, 'rgba(255,255,255,0.20)');
+  g.addColorStop(0.14, 'rgba(255,255,255,0.82)');
+  g.addColorStop(0.28, 'rgba(255,255,255,0.14)');  // było 0.55=0.20 → ciasne jądro, brak dalekiego halo
+  g.addColorStop(0.46, 'rgba(255,255,255,0.02)');
   g.addColorStop(1.00, 'rgba(255,255,255,0.00)');
   cx.fillStyle = g;
   cx.fillRect(0, 0, sz, sz);
