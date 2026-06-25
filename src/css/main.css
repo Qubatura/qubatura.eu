@@ -32,9 +32,6 @@
   box-sizing: border-box;
 }
 
-/* Systemowy kursor zgaszony wszędzie — używamy własnej kulki (#cursor) */
-*, html, body { cursor: none !important; }
-
 /* ── Base ───────────────────────────────────────────────────────── */
 html, body {
   width: 100%;
@@ -42,7 +39,6 @@ html, body {
   overflow: hidden;
   background: var(--color-bg);
   color: var(--color-white);
-  cursor: none;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -73,42 +69,20 @@ html, body {
   z-index: 2;
 }
 
-/* ── Custom cursor ──────────────────────────────────────────────── */
-/* HUD cursor — dwa narożniki (lewy-górny + prawy-dolny) jak otwarty kwadrat.
-   --size = odległość między narożnikami (bok kwadratu); animuje ją GSAP (cursor.js).
-   currentColor steruje kolorem obu narożników; --size + kolor zmienia GSAP.
-   Pozycja: left/top = punkt kursora, narożniki przesunięte transformem o ±half. */
-#cursor {
+/* ── Cursor glow ────────────────────────────────────────────────── */
+/* Poświata pod natywnym kursorem — pojawia się przy ruchu, zanika po 500ms bezruchu.
+   Kolor: primary violet na HOME, kolor działu przy hover nawigacji i na podstronach.
+   box-shadow animowany przez GSAP (rgb proxy) w cursor.js. */
+#cursor-glow {
   position: fixed;
-  left: 0;
-  top: 0;
-  width: 0;
-  height: 0;
-  color: #E0218A;                  /* currentColor — wspólny kolor narożników */
-  --size: 18px;                    /* bok kwadratu / odległość narożników (animowany) */
-  --corner: 7px;                   /* długość ramion narożnika */
-  --half: calc(var(--size) / 2);
+  width: 1px;
+  height: 1px;
+  border-radius: 50%;
   pointer-events: none;
-  z-index: 2000;                   /* nad contact-overlay (1000) */
-  filter: drop-shadow(0 0 3px currentColor);   /* subtelny glow po kształcie ramion */
-  will-change: left, top;
-}
-.cur-corner {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: var(--corner);
-  height: var(--corner);
-}
-.cur-tl {
-  border-top: 1px solid currentColor;
-  border-left: 1px solid currentColor;
-  transform: translate(calc(-1 * var(--half)), calc(-1 * var(--half)));
-}
-.cur-br {
-  border-bottom: 1px solid currentColor;
-  border-right: 1px solid currentColor;
-  transform: translate(calc(var(--half) - var(--corner)), calc(var(--half) - var(--corner)));
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  will-change: left, top, opacity;
+  z-index: 2000;
 }
 
 /* ── Loading screen (Etap 9) ────────────────────────────────────── */
@@ -207,7 +181,7 @@ body.is-loading #tagline {
   font: inherit;
   letter-spacing: inherit;
   text-transform: inherit;
-  cursor: none;
+  cursor: pointer;
   transition: color 0.3s;
 }
 
@@ -219,7 +193,7 @@ body.is-loading #tagline {
 #sound-toggle {
   background: none;
   border: none;
-  cursor: none;
+  cursor: pointer;
   padding: 0;
   display: flex;
   align-items: center;
@@ -277,7 +251,7 @@ body.is-loading #tagline {
   align-items: center;
   gap: 12px;
   pointer-events: all;
-  cursor: none;
+  cursor: pointer;
   text-decoration: none;
 }
 
@@ -375,7 +349,7 @@ body.is-loading #tagline {
 
 #nav-events:hover .nav-label {
   color: var(--color-events);
-  text-shadow: 0 0 4px rgba(6, 5, 15, 0.95), 0 0 8px var(--color-events), 0 0 22px var(--color-events);
+  text-shadow: 0 0 4px rgba(6, 5, 15, 0.95), 0 0 6px var(--color-events);
 }
 
 #nav-events:hover .nav-line {
@@ -406,7 +380,7 @@ body.is-loading #tagline {
 
 #nav-studio:hover .nav-label {
   color: var(--color-studio);
-  text-shadow: 0 0 4px rgba(6, 5, 15, 0.95), 0 0 8px var(--color-studio), 0 0 22px var(--color-studio);
+  text-shadow: 0 0 4px rgba(6, 5, 15, 0.95), 0 0 6px var(--color-studio);
 }
 
 #nav-studio:hover .nav-line {
@@ -440,13 +414,119 @@ body.is-loading #tagline {
 
 #nav-lab:hover .nav-label {
   color: var(--color-lab);
-  text-shadow: 0 0 4px rgba(6, 5, 15, 0.95), 0 0 8px var(--color-lab), 0 0 22px var(--color-lab);
+  text-shadow: 0 0 4px rgba(6, 5, 15, 0.95), 0 0 6px var(--color-lab);
 }
 
 #nav-lab:hover .nav-line {
   height: var(--nav-line-hover);
   background: var(--color-lab);
   box-shadow: 0 0 6px var(--color-lab), 0 0 18px var(--color-lab);
+}
+
+/* ── Pong ↑ — easter egg, widoczny tylko przy hover sygnetu ─────── */
+#nav-pong {
+  bottom: calc(50% + var(--signet-r) + var(--nav-line-gap));
+  left: 50%;
+  transform: translateX(-50%);
+  flex-direction: column-reverse;  /* DOM: [label][line] → wizualnie: [linia→sygnet][label górą] */
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  /* Ukryty domyślnie — pojawia się tylko gdy kursor blisko sygnetu */
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+body.signet-hover:not(.pong-active):not(.page-active) #nav-pong {
+  opacity: 1;
+  pointer-events: all;
+}
+#nav-pong .nav-label {
+  color: rgba(255, 255, 255, 0.40);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+}
+#nav-pong .nav-line {
+  width: 1px;
+  height: 65px;
+  background: rgba(255, 255, 255, 0.16);
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+#nav-pong:hover .nav-label {
+  color: rgba(255, 255, 255, 0.85);
+  text-shadow: 0 0 4px rgba(6, 5, 15, 0.95), 0 0 8px rgba(255, 255, 255, 0.25);
+}
+#nav-pong:hover .nav-line {
+  background: rgba(255, 255, 255, 0.48);
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.22);
+}
+
+/* ── Pong game overlay ───────────────────────────────────────────── */
+#pong-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+  opacity: 0;
+}
+body.pong-active #pong-overlay {
+  pointer-events: all;
+}
+#pong-header {
+  position: absolute;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.38em;
+  color: rgba(255, 255, 255, 0.38);
+  text-transform: uppercase;
+  opacity: 0;
+  pointer-events: none;
+}
+#pong-canvas {
+  position: absolute;
+  display: block;
+}
+#pong-card {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+}
+.pong-name {
+  font-family: var(--font-mono);
+  font-size: clamp(18px, 2.4vw, 30px);
+  font-weight: 700;
+  color: var(--color-white);
+  letter-spacing: 0.06em;
+  text-shadow: 0 0 22px rgba(107, 47, 217, 0.9);
+  margin: 0;
+  text-align: center;
+}
+.pong-years {
+  font-family: var(--font-mono);
+  font-size: clamp(11px, 1.2vw, 16px);
+  color: rgba(255, 255, 255, 0.42);
+  letter-spacing: 0.22em;
+  margin: 8px 0 0;
+  text-align: center;
+}
+#pong-footer {
+  position: absolute;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 8px;
+  font-weight: 400;
+  letter-spacing: 0.28em;
+  color: rgba(255, 255, 255, 0.18);
+  text-transform: uppercase;
+  opacity: 0;
+  pointer-events: none;
 }
 
 /* HUD: GSAP */
@@ -465,7 +545,7 @@ body.is-loading #tagline {
   z-index: 10;
   pointer-events: all;
   user-select: none;
-  cursor: none;                 /* nie klikalny — nie sugeruj łapki */
+  cursor: default;              /* nie klikalny — nie sugeruj łapki */
   transition: color 0.3s ease;
 }
 
@@ -596,7 +676,7 @@ body.is-loading #tagline {
   color: var(--pg-color, var(--color-primary));
   border: 1px solid color-mix(in srgb, var(--pg-color) 45%, transparent);
   padding: 14px 22px;
-  cursor: none;
+  cursor: pointer;
   transition: background 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -860,8 +940,7 @@ body.page-active #tagline {
 
 /* Mobile — three nav cards below signet */
 @media (max-width: 768px) {
-  html, body { cursor: auto; }
-  #cursor { display: none; }
+  #cursor-glow { display: none; }
 
   /* Nav reflows to three horizontal cards at bottom */
   #nav {

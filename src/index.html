@@ -75,11 +75,8 @@
   <!-- Vignette — CSS inset box-shadow masks fog sprite edge bleed -->
   <div id="vignette" aria-hidden="true"></div>
 
-  <!-- Custom HUD cursor — dwa narożniki po przekątnej -->
-  <div id="cursor" aria-hidden="true">
-    <span class="cur-corner cur-tl"></span>
-    <span class="cur-corner cur-br"></span>
-  </div>
+  <!-- Cursor glow — poświata pod natywnym kursorem (cursor.js) -->
+  <div id="cursor-glow" aria-hidden="true"></div>
 
   <!-- Loading screen (Etap 9) — bohaterem jest sygnet 3D na canvasie; tu tylko licznik pod nim -->
   <div id="loading" aria-hidden="true">
@@ -155,6 +152,12 @@
         </div>
       </div>
     </a>
+
+    <!-- ↑ Pong — easter egg, widoczny tylko przy hover sygnetu -->
+    <button class="nav-item" id="nav-pong" type="button" aria-label="Chwila relaksu">
+      <div class="nav-line" aria-hidden="true"></div>
+      <span class="nav-label">Chwila relaksu :)</span>
+    </button>
 
     <!-- ↓ Lab -->
     <a class="nav-item" id="nav-lab"
@@ -244,6 +247,17 @@
       </div>
     </div>
   </main>
+
+  <!-- Pong easter egg overlay — canvas 2D nad sceną Three.js -->
+  <div id="pong-overlay" aria-hidden="true">
+    <div id="pong-header">Q-PONG</div>
+    <canvas id="pong-canvas"></canvas>
+    <div id="pong-card">
+      <p class="pong-name"></p>
+      <p class="pong-years"></p>
+    </div>
+    <div id="pong-footer">Unikaj chybienia — dla wysokiego wyniku</div>
+  </div>
 
   <!-- Tagline -->
   <p id="tagline">Przybywamy z sygnałem</p>

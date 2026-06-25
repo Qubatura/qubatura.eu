@@ -1,99 +1,86 @@
-// cursor.js — własny kursor HUD (dwa narożniki po przekątnej) ze stanami sterowanymi GSAP.
-// Geometrię (rozmiar = odległość narożników) animuje zmienna CSS --size; zero CSS transition.
-// Stany na HOME: idle / hover dywizji / hover sygnetu (pulse) / hover topbaru.
-// Na podstronach: idle magenta, a nad elementami interaktywnymi kolor akcentu DYWIZJI,
-//   na której aktualnie jesteśmy (#page[data-division]).
+// cursor.js — natywny kursor systemowy + poświata (glow) pod nim.
+// Glow pojawia się przy ruchu, zanika po 500ms bezruchu.
+// Kolor: primary (violet) na HOME, kolor działu na hover nawijacji i podstronach.
 
 import * as GSAPmod from 'gsap';
 
 const gsap = GSAPmod.gsap || GSAPmod.default || GSAPmod;
 
-const C = {
-  idle:   '#E0218A',   // magenta — stan bazowy
-  events: '#7C3AED',
+const COLORS = {
+  base:   '#5B2EFF',
+  events: '#9D4EDD',
   studio: '#1E90FF',
   lab:    '#00E5FF',
-  signet: '#ffffff',
 };
 
-const SIGNET_R = 95;   // promień strefy „hover sygnetu" wokół środka ekranu (px)
+function hexToRgb(hex) {
+  return {
+    r: parseInt(hex.slice(1, 3), 16),
+    g: parseInt(hex.slice(3, 5), 16),
+    b: parseInt(hex.slice(5, 7), 16),
+  };
+}
 
 export function initCursor() {
-  const cur  = document.getElementById('cursor');
-  if (!cur) return;
+  const glow = document.getElementById('cursor-glow');
+  if (!glow) return;
   const page = document.getElementById('page');
 
-  let pulseTl = null;
-  let key     = null;          // nazwa aktualnego stanu — apply tylko przy zmianie
-  const sizeP = { v: 18 };     // proxy dla animacji zmiennej CSS --size (px)
+  let idleTimer  = null;
+  let currentKey = 'base';
+  const rgb = { ...hexToRgb(COLORS.base) };
 
-  const setSize = () => cur.style.setProperty('--size', sizeP.v + 'px');
-
-  function applyVisual({ size, color, pulse }) {
-    if (pulseTl) { pulseTl.kill(); pulseTl = null; }
-
-    // rozmiar (odległość narożników) — powrót do bazy zawsze 0.3s ease
-    gsap.to(sizeP, {
-      v: size, duration: 0.3, ease: 'power2.out', overwrite: 'auto', onUpdate: setSize,
-    });
-    // wspólny kolor (currentColor dziedziczą oba narożniki + glow)
-    gsap.to(cur, { color, duration: 0.3, ease: 'power2.out', overwrite: 'auto' });
-
-    // pulse „lock-on" — oddech rozmiaru size↔size+3, cykl 1.2s (startuje po wejściu)
-    if (pulse) {
-      pulseTl = gsap.timeline({ repeat: -1, yoyo: true, delay: 0.3 });
-      pulseTl.to(sizeP, { v: size + 3, duration: 0.6, ease: 'sine.inOut', onUpdate: setSize });
-    }
-  }
-
-  const STATES = {
-    idle:   { size: 18, color: C.idle },
-    events: { size: 12, color: C.events },
-    studio: { size: 12, color: C.studio },
-    lab:    { size: 12, color: C.lab },
-    signet: { size: 16, color: C.signet, pulse: true },
-    coords: { size: 16, color: C.signet },
-    topbar: { size: 14, color: C.idle },
+  const applyRgb = () => {
+    glow.style.boxShadow =
+      `0 0 55px 28px rgb(${Math.round(rgb.r)},${Math.round(rgb.g)},${Math.round(rgb.b)})`;
   };
+  applyRgb();
 
-  function setState(name, accentDiv) {
-    let k, state;
-    if (name === 'page-accent') {
-      const div = accentDiv || 'idle';
-      k = 'page-' + div;
-      state = { size: 12, color: C[div] || C.idle };
-    } else {
-      k = name;
-      state = STATES[name] || STATES.idle;
-    }
-    if (k === key) return;
-    key = k;
-    applyVisual(state);
+  function updateColor(key) {
+    const k = COLORS[key] ? key : 'base';
+    if (k === currentKey) return;
+    currentKey = k;
+    const target = hexToRgb(COLORS[k]);
+    gsap.to(rgb, {
+      ...target, duration: 0.35, ease: 'power2.out', overwrite: 'auto', onUpdate: applyRgb,
+    });
   }
 
   const pageActive = () => document.body.classList.contains('page-active');
 
   window.addEventListener('mousemove', e => {
-    cur.style.left = e.clientX + 'px';
-    cur.style.top  = e.clientY + 'px';
+    glow.style.left = e.clientX + 'px';
+    glow.style.top  = e.clientY + 'px';
 
-    const t = e.target;
-    const hit = sel => (t && t.closest ? t.closest(sel) : null);
+    gsap.to(glow, { opacity: 1, duration: 0.12, overwrite: 'auto' });
 
-    if (hit('.contact-coords')) {
-      setState('coords');                                   // koordynaty w overlayu → 16px biały (bez pulse)
-    } else if (hit('#top-right, #tagline')) {
-      setState('topbar');                                   // KONTAKT / EN / waveform / tagline (10px magenta)
-    } else if (pageActive() && hit('.page-cta, .page-gallery, #page-back, #page a')) {
-      setState('page-accent', page && page.dataset.division);  // akcent dywizji aktualnej podstrony
-    } else if (!pageActive() && hit('.nav-item')) {
-      setState(hit('.nav-item').dataset.division);          // events / studio / lab
-    } else if (!pageActive() &&
-               Math.hypot(e.clientX - window.innerWidth * 0.5,
-                          e.clientY - window.innerHeight * 0.5) < SIGNET_R) {
-      setState('signet');                                   // strefa sygnetu (środek)
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(() => {
+      gsap.to(glow, { opacity: 0, duration: 0.5, ease: 'power2.out', overwrite: 'auto' });
+    }, 500);
+
+    const t   = e.target;
+    const hit = sel => t?.closest?.(sel);
+
+    // signet-hover: kursor blisko centrum LUB w "korytarzu" ku przyciskowi Ponga (gap ~25px)
+    const W2    = window.innerWidth  * 0.5;
+    const H2    = window.innerHeight * 0.5;
+    const distC = Math.hypot(e.clientX - W2, e.clientY - H2);
+    const onPong   = !!hit('#nav-pong');
+    // Korytarz w górę — wypełnia lukę między strefą 72px a dolną krawędzią przycisku Ponga
+    const inLeg    = e.clientY < H2 - 70 && e.clientY > H2 - 190 && Math.abs(e.clientX - W2) < 70;
+    const loading  = document.body.classList.contains('is-loading');
+    const pongOn   = document.body.classList.contains('pong-active');
+    document.body.classList.toggle('signet-hover',
+      (distC < 72 || inLeg || onPong) && !pageActive() && !loading && !pongOn,
+    );
+
+    if (pageActive()) {
+      updateColor(page?.dataset?.division || 'base');
+    } else if (hit('.nav-item')) {
+      updateColor(hit('.nav-item').dataset.division);
     } else {
-      setState('idle');
+      updateColor('base');
     }
   });
 }

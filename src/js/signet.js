@@ -329,7 +329,7 @@ export async function initSignet(ctx) {
       _mouse.x - window.innerWidth  * 0.5,
       _mouse.y - window.innerHeight * 0.5
     );
-    const wantGlass = (distC < 140 && !navFX.activeDiv && !loadFX.active) ? 1 : 0;
+    const wantGlass = (distC < 72 && !navFX.activeDiv && !loadFX.active) ? 1 : 0;
     glassMix += (wantGlass - glassMix) * 0.1;   // miękkie wejście/wyjście ze szkła
     // Loading: „materia w kolorze" wlewa się w sygnet — szkło (1−charge) gęstnieje w primary.
     const loadGlass = loadFX.active ? (1 - loadFX.charge) : 0;
@@ -356,7 +356,7 @@ export async function initSignet(ctx) {
 
     // Pulsowanie skali "oddychanie" × mouse-proximity hover
     const pulse = 1 + Math.sin(t * 0.8) * 0.03;   // amplituda 0.03 (też +25% prędkości)
-    const near = distC < 140;   // ta sama odległość co przy glassMix (liczona wyżej)
+    const near = distC < 72;   // ta sama odległość co przy glassMix (liczona wyżej)
     hoverScale += ((near ? 1.08 : 1.0) - hoverScale) * 0.07;
     // „Uderzenie serca" przy hover (navFX.pulse: 0→0.15→0) na wierzchu oddychania i hovera
     // × pageScale — tryb podstrony zmniejsza sygnet do logo w rogu.

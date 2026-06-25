@@ -18,6 +18,7 @@ import { initRouter }           from './router.js';
 import { initCursor }           from './cursor.js';
 import { initContact }          from './contact.js';
 import { initLoader }           from './loader.js';   // Etap 9: loading screen
+import { initPong }             from './pong.js';     // Easter egg: Chwila relaksu
 
 async function boot() {
   initCursor();                 // własna kulka kursora — od razu aktywna
@@ -32,6 +33,7 @@ async function boot() {
 
   initNavigation(ctx);
   initRouter();
+  initPong();
 
   // Etap 9 — loading screen: realny tracking zasobów (Promise.all, nie fake timer).
   // fonty + tekstura planety + sygnet (już gotowy) → progres sterujący kolorem sygnetu.
