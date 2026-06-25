@@ -151,10 +151,16 @@ function startGame() {
     resetDelay: 0,
   };
 
-  let mouseY = GH / 2;
-  const keys  = {};
-  const onMove = e => { mouseY = e.clientY - GT; };
-  const onKey  = e => { keys[e.key] = e.type === 'keydown'; };
+  let mouseY      = GH / 2;
+  let mouseActive = false;   // true po pierwszym ruchu myszy
+  let lastKeyTime = 0;       // timestamp ostatniego naciśnięcia klawisza
+  const KEY_PRIO  = 400;     // ms pierwszeństwa klawiatury po puszczeniu klawisza
+  const keys      = {};
+  const onMove = e => { mouseY = e.clientY - GT; mouseActive = true; };
+  const onKey  = e => {
+    keys[e.key] = e.type === 'keydown';
+    if (e.type === 'keydown') lastKeyTime = Date.now();
+  };
   window.addEventListener('mousemove', onMove);
   window.addEventListener('keydown',   onKey);
   window.addEventListener('keyup',     onKey);
@@ -171,9 +177,19 @@ function startGame() {
   }
 
   function movePlayer() {
-    if      (keys['ArrowUp']   || keys['w'] || keys['W']) player.y -= K_SPD;
-    else if (keys['ArrowDown'] || keys['s'] || keys['S']) player.y += K_SPD;
-    else player.y += (mouseY - player.y) * 0.15;
+    const keyDown   = keys['ArrowUp'] || keys['w'] || keys['W'] ||
+                      keys['ArrowDown'] || keys['s'] || keys['S'];
+    const keyRecent = (Date.now() - lastKeyTime) < KEY_PRIO;
+
+    if (keyDown) {
+      // Klawiatura aktywna — ruszamy paletkę
+      if (keys['ArrowUp']   || keys['w'] || keys['W']) player.y -= K_SPD;
+      if (keys['ArrowDown'] || keys['s'] || keys['S']) player.y += K_SPD;
+    } else if (!keyRecent && mouseActive) {
+      // Mysz przejmuje — tylko gdy klawiatura nie była używana w ostatnich KEY_PRIO ms
+      player.y += (mouseY - player.y) * 0.15;
+    }
+    // keyRecent && !keyDown → paletka stoi w miejscu (nie ciągnięta przez mysz)
     player.y = Math.max(PAD_H / 2, Math.min(GH - PAD_H / 2, player.y));
   }
 
@@ -267,13 +283,13 @@ function reflect(ball, padY, dir, PAD_H) {
 function draw(ctx, GW, GH, player, ai, state, PAD_H, BALL_R) {
   ctx.clearRect(0, 0, GW, GH);
 
-  // EST. 1972 watermark — subtelny, szary, lewy-dolny
+  // EST. 1972 watermark — dyskretny, lewy-dolny (pixel font jak reszta gry)
   ctx.save();
-  ctx.font          = `400 10px "Space Mono", monospace`;
-  ctx.textAlign     = 'left';
-  ctx.textBaseline  = 'bottom';
-  ctx.fillStyle     = 'rgba(255,255,255,0.11)';
-  ctx.fillText('EST. 1972', 10, GH - 6);
+  ctx.font         = '8px "Press Start 2P", monospace';
+  ctx.textAlign    = 'left';
+  ctx.textBaseline = 'bottom';
+  ctx.fillStyle    = 'rgba(255,255,255,0.22)';
+  ctx.fillText('EST. 1972', 10, GH - 7);
   ctx.restore();
 
   // Ściany (góra/dół) — monochromatyczne białe
@@ -290,11 +306,11 @@ function draw(ctx, GW, GH, player, ai, state, PAD_H, BALL_R) {
   ctx.stroke();
   ctx.restore();
 
-  // Tablica wyników — retro Space Mono, obie strony linii środkowej
-  const fontSize  = Math.round(GH * 0.10);
+  // Tablica wyników — Press Start 2P, twardy pixel, obie strony linii środkowej
+  const fontSize  = Math.max(16, Math.round(GH * 0.075));
   const flashPct  = Math.max(0, 1 - (Date.now() - state.flashTime) / FLASH_MS);
-  const scoreOff  = GW * 0.11;
-  ctx.font        = `700 ${fontSize}px "Space Mono", monospace`;
+  const scoreOff  = GW * 0.13;
+  ctx.font        = `${fontSize}px "Press Start 2P", monospace`;
   ctx.textAlign   = 'center';
   ctx.textBaseline = 'top';
 

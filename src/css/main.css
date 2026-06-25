@@ -472,11 +472,10 @@ body.pong-active #pong-overlay {
 #pong-header {
   position: absolute;
   text-align: center;
-  font-family: var(--font-mono);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.38em;
-  color: rgba(255, 255, 255, 0.38);
+  font-family: 'Press Start 2P', monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: rgba(255, 255, 255, 0.55);
   text-transform: uppercase;
   opacity: 0;
   pointer-events: none;
@@ -529,11 +528,10 @@ body.pong-active #pong-overlay {
 #pong-footer {
   position: absolute;
   text-align: center;
-  font-family: var(--font-mono);
-  font-size: 9px;
-  font-weight: 400;
-  letter-spacing: 0.24em;
-  color: rgba(255, 255, 255, 0.28);
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.55);
   text-transform: uppercase;
   opacity: 0;
   pointer-events: none;
