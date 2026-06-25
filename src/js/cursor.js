@@ -48,6 +48,21 @@ export function initCursor() {
 
   const pageActive = () => document.body.classList.contains('page-active');
 
+  // Sygnet + linia + etykieta = jedna zona kliknięcia
+  // Kliknięcie w centrum sygnetu (gdy nav-pong widoczny) = to samo co klik przycisku
+  window.addEventListener('click', e => {
+    if (e.target?.closest('#nav-pong')) return; // przycisk sam się obsługuje
+    const pongOn  = document.body.classList.contains('pong-active');
+    const pageOn  = document.body.classList.contains('page-active');
+    const loading = document.body.classList.contains('is-loading');
+    if (pongOn || pageOn || loading) return;
+    const W2    = window.innerWidth  * 0.5;
+    const H2    = window.innerHeight * 0.5;
+    const distC = Math.hypot(e.clientX - W2, e.clientY - H2);
+    const inLeg = e.clientY < H2 - 70 && e.clientY > H2 - 190 && Math.abs(e.clientX - W2) < 70;
+    if (distC < 72 || inLeg) document.getElementById('nav-pong')?.click();
+  });
+
   window.addEventListener('mousemove', e => {
     glow.style.left = e.clientX + 'px';
     glow.style.top  = e.clientY + 'px';

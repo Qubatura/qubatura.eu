@@ -1,6 +1,6 @@
 // pong.js — easter egg "Chwila relaksu". Klasyczny Pong, styl Atari 1972.
 // Gra do 3 punktów. Gracz (lewa/mysz lub W·S·↑↓) vs Bot (prawa/AI).
-// Po 3. pkt: fade-out, karta z postacią historyczną nad polem, powrót do HOME.
+// Po zwycięstwie: cytat losowej postaci historycznej nad polem → powrót HOME.
 
 import * as GSAPmod from 'gsap';
 import { navFX } from './tint.js';
@@ -8,26 +8,80 @@ import { navFX } from './tint.js';
 const gsap = GSAPmod.gsap || GSAPmod.default || GSAPmod;
 
 const PEOPLE = [
-  { name: 'Nikola Tesla',       years: '1856–1943' },
-  { name: 'Albert Einstein',    years: '1879–1955' },
-  { name: 'Alan Turing',        years: '1912–1954' },
-  { name: 'Steve Jobs',         years: '1955–2011' },
-  { name: 'Marie Curie',        years: '1867–1934' },
-  { name: 'David Bowie',        years: '1947–2016' },
-  { name: 'John Coltrane',      years: '1926–1967' },
-  { name: 'Richard Feynman',    years: '1918–1988' },
-  { name: 'Ada Lovelace',       years: '1815–1852' },
-  { name: 'Leonardo da Vinci',  years: '1452–1519' },
-  { name: 'Carl Sagan',         years: '1934–1996' },
-  { name: 'Grace Hopper',       years: '1906–1992' },
+  {
+    name: 'Nikola Tesla', years: '1856–1943',
+    quote: 'Udowodniłem już, że mój system sygnalizacji umożliwia przesyłanie sygnału do każdego punktu globu, niezależnie od odległości.',
+  },
+  {
+    name: 'Albert Einstein', years: '1879–1955',
+    quote: 'Wyobraźnia jest ważniejsza niż wiedza.',
+  },
+  {
+    name: 'Carl Sagan', years: '1934–1996',
+    quote: 'Jesteśmy zbudowani z gwiezdnej materii.',
+  },
+  {
+    name: 'Alan Turing', years: '1912–1954',
+    quote: 'Czasem to ludzie, po których nikt niczego się nie spodziewa, robią to, czego nikt sobie nie wyobraża.',
+  },
+  {
+    name: 'Richard Feynman', years: '1918–1988',
+    quote: 'Wszystko składa się z atomów.',
+  },
+  {
+    name: 'Marie Curie', years: '1867–1934',
+    quote: 'Nic w życiu nie jest tak straszne, jak się wydaje, gdy się je zrozumie.',
+  },
+  {
+    name: 'Ada Lovelace', years: '1815–1852',
+    quote: 'Maszyna analityczna nie ma pretensji do tworzenia czegokolwiek samodzielnie.',
+  },
+  {
+    name: 'David Bowie', years: '1947–2016',
+    quote: 'Sztuka to pomost między tym, co widzisz, a tym, czego nie widzisz.',
+  },
+  {
+    name: 'John Coltrane', years: '1926–1967',
+    quote: 'Muzyka jest moim duchowym wyrazem.',
+  },
+  {
+    name: 'Stephen Hawking', years: '1942–2018',
+    quote: 'Patrz w gwiazdy, nie pod nogi.',
+  },
+  {
+    name: 'Heinrich Hertz', years: '1857–1894',
+    quote: 'Fale, które wykryłem, nie znajdą żadnego praktycznego zastosowania.',
+  },
+  {
+    name: 'Guglielmo Marconi', years: '1874–1937',
+    quote: 'Bezprzewodowa telegrafia nie jest trudna do wytłumaczenia. Zwyczajny kabel po prostu nie jest potrzebny.',
+  },
+  {
+    name: 'Thomas Edison', years: '1847–1931',
+    quote: 'Geniusz to jeden procent inspiracji i dziewięćdziesiąt dziewięć procent transpiracji.',
+  },
+  {
+    name: 'Leonardo da Vinci', years: '1452–1519',
+    quote: 'Prostota jest szczytem wyrafinowania.',
+  },
+  {
+    name: 'Rosalind Franklin', years: '1920–1958',
+    quote: 'Nauka i życie codzienne nie mogą i nie powinny być rozdzielane.',
+  },
 ];
 
 const WIN_SCORE = 3;
-const PAD_W     = 6;
-const AI_SPD    = 2.8;
-const K_SPD     = 5;
-const BALL_SPD  = 4.5;
-const FLASH_MS  = 650;
+const PAD_W    = 8;
+const AI_SPD   = 2.8;
+const K_SPD    = 5;
+const BALL_SPD = 4.5;
+const FLASH_MS = 700;
+
+// Kolor monochrom — cała gra w jednym: biały na czarnym, jak oryginał z 1972.
+const C_MAIN  = 'rgba(255,255,255,1.00)';
+const C_DIM   = 'rgba(255,255,255,0.55)';
+const C_GHOST = 'rgba(255,255,255,0.20)';
+const C_MARK  = '#E0218A';   // magenta: tylko flash wyniku
 
 export function initPong() {
   const btn = document.getElementById('nav-pong');
@@ -35,12 +89,13 @@ export function initPong() {
   btn.addEventListener('click', e => { e.preventDefault(); startGame(); });
 }
 
+// getArea zwraca wymiary boiska — szersze o ~15% bo sygnet skurczony do 0.62
 function getArea() {
   const W  = window.innerWidth;
   const H  = window.innerHeight;
-  const gt = 58;
-  const gb = H * 0.5 - 90 - 68;
-  const GH = Math.max(100, gb - gt);
+  const gt = 52;
+  const gb = H * 0.5 - 115;   // tighter: signet @ 0.62 → mniej miejsca zajmuje
+  const GH = Math.max(120, gb - gt);
   const GW = Math.round(GH * 4 / 3);
   const GL = Math.round((W - GW) / 2);
   return { GW, GH, GT: gt, GL };
@@ -60,30 +115,26 @@ function startGame() {
   const PAD_H  = Math.round(GH / 5);
   const BALL_R = Math.max(4, Math.round(GW * 0.016));
 
-  // Canvas = pole gry
   canvas.width  = GW;
   canvas.height = GH;
   canvas.style.top  = GT + 'px';
   canvas.style.left = GL + 'px';
   gsap.set(canvas, { opacity: 1 });
 
-  // Nagłówek Q-PONG powyżej pola
   if (header) {
     header.style.top   = (GT - 30) + 'px';
     header.style.left  = GL + 'px';
     header.style.width = GW + 'px';
     gsap.set(header, { opacity: 1 });
   }
-
-  // Stopka z retro instrukcją poniżej pola
   if (footer) {
-    footer.style.top   = (GT + GH + 8) + 'px';
+    footer.style.top   = (GT + GH + 9) + 'px';
     footer.style.left  = GL + 'px';
     footer.style.width = GW + 'px';
     gsap.set(footer, { opacity: 1 });
   }
 
-  // Karta pojawia się NAD polem gry (nie na środku ekranu)
+  // Karta nad polem gry (nie centrum ekranu)
   card.style.top    = GT + 'px';
   card.style.left   = GL + 'px';
   card.style.width  = GW + 'px';
@@ -97,7 +148,7 @@ function startGame() {
     ball:       makeBall(GW, GH),
     flashTime:  0,
     lastScorer: null,
-    resetDelay: 0,   // klatki pauzy po golu zanim piłka ruszy
+    resetDelay: 0,
   };
 
   let mouseY = GH / 2;
@@ -119,6 +170,13 @@ function startGame() {
     window.removeEventListener('keyup',     onKey);
   }
 
+  function movePlayer() {
+    if      (keys['ArrowUp']   || keys['w'] || keys['W']) player.y -= K_SPD;
+    else if (keys['ArrowDown'] || keys['s'] || keys['S']) player.y += K_SPD;
+    else player.y += (mouseY - player.y) * 0.15;
+    player.y = Math.max(PAD_H / 2, Math.min(GH - PAD_H / 2, player.y));
+  }
+
   function scoreGoal(scorer) {
     state.score[scorer]++;
     state.lastScorer = scorer;
@@ -129,10 +187,9 @@ function startGame() {
       cancelAnimationFrame(raf);
       cleanup();
       draw(ctx, GW, GH, player, ai, state, PAD_H, BALL_R);
-      // Chwila z końcowym wynikiem przed kartą
       setTimeout(() => showCard(overlay, canvas, card, header, footer), 900);
     } else {
-      // Reset piłki na środek, pauza ~1s
+      // Tylko piłka resetuje się — paletki zostają gdzie je gracz zostawił
       state.ball = makeBall(GW, GH);
       state.resetDelay = 55;
     }
@@ -142,20 +199,17 @@ function startGame() {
     if (done) return;
     raf = requestAnimationFrame(loop);
 
-    // Pauza po golu — piłka widoczna w centrum, paletki aktywne
+    // Pauza po golu: gracz może przestawiać paletkę, piłka stoi w centrum
     if (state.resetDelay > 0) {
       state.resetDelay--;
+      movePlayer();
       draw(ctx, GW, GH, player, ai, state, PAD_H, BALL_R);
       return;
     }
 
-    // Gracz — klawiatura ma priorytet nad myszą
-    if      (keys['ArrowUp']   || keys['w'] || keys['W']) player.y -= K_SPD;
-    else if (keys['ArrowDown'] || keys['s'] || keys['S']) player.y += K_SPD;
-    else player.y += (mouseY - player.y) * 0.15;
-    player.y = Math.max(PAD_H / 2, Math.min(GH - PAD_H / 2, player.y));
+    movePlayer();
 
-    // Bot — śledzi piłkę z małym opóźnieniem (można pokonać)
+    // Bot śledzi piłkę z opóźnieniem — można go pokonać
     const d = state.ball.y - ai.y;
     ai.y += Math.sign(d) * Math.min(Math.abs(d) * 0.06, AI_SPD);
     ai.y  = Math.max(PAD_H / 2, Math.min(GH - PAD_H / 2, ai.y));
@@ -164,7 +218,7 @@ function startGame() {
     b.x += b.vx;
     b.y += b.vy;
 
-    // Odbicia od ścian magenta (góra/dół)
+    // Ściany górna/dolna
     if (b.y - BALL_R < 2)      { b.y = 2 + BALL_R;      b.vy =  Math.abs(b.vy); }
     if (b.y + BALL_R > GH - 2) { b.y = GH - 2 - BALL_R; b.vy = -Math.abs(b.vy); }
 
@@ -185,8 +239,8 @@ function startGame() {
     }
 
     // Gole
-    if      (b.x < -BALL_R * 2)       scoreGoal('bot');
-    else if (b.x > GW + BALL_R * 2)   scoreGoal('player');
+    if      (b.x < -BALL_R * 2)     scoreGoal('bot');
+    else if (b.x > GW + BALL_R * 2) scoreGoal('player');
 
     if (!done) draw(ctx, GW, GH, player, ai, state, PAD_H, BALL_R);
   }
@@ -213,87 +267,87 @@ function reflect(ball, padY, dir, PAD_H) {
 function draw(ctx, GW, GH, player, ai, state, PAD_H, BALL_R) {
   ctx.clearRect(0, 0, GW, GH);
 
-  // Krawędzie boiska — magenta (hierarchia: najważniejszy kolor pola)
-  ctx.fillStyle = '#E0218A';
+  // EST. 1972 watermark — subtelny, szary, lewy-dolny
+  ctx.save();
+  ctx.font          = `400 10px "Space Mono", monospace`;
+  ctx.textAlign     = 'left';
+  ctx.textBaseline  = 'bottom';
+  ctx.fillStyle     = 'rgba(255,255,255,0.11)';
+  ctx.fillText('EST. 1972', 10, GH - 6);
+  ctx.restore();
+
+  // Ściany (góra/dół) — monochromatyczne białe
+  ctx.fillStyle = C_MAIN;
   ctx.fillRect(0, 0,      GW, 2);
   ctx.fillRect(0, GH - 2, GW, 2);
 
-  // Linia środkowa — szara, niska intensywność
+  // Linia środkowa — przerywana, niska intensywność
   ctx.save();
   ctx.setLineDash([6, 10]);
-  ctx.strokeStyle = 'rgba(255,255,255,0.27)';
+  ctx.strokeStyle = C_GHOST;
   ctx.lineWidth   = 1;
   ctx.beginPath(); ctx.moveTo(GW / 2, 2); ctx.lineTo(GW / 2, GH - 2);
   ctx.stroke();
   ctx.restore();
 
   // Tablica wyników — retro Space Mono, obie strony linii środkowej
-  const fontSize   = Math.round(GH * 0.10);
-  const flashPct   = Math.max(0, 1 - (Date.now() - state.flashTime) / FLASH_MS);
-  const scoreOff   = GW * 0.11;
-  ctx.font         = `700 ${fontSize}px "Space Mono", monospace`;
-  ctx.textAlign    = 'center';
+  const fontSize  = Math.round(GH * 0.10);
+  const flashPct  = Math.max(0, 1 - (Date.now() - state.flashTime) / FLASH_MS);
+  const scoreOff  = GW * 0.11;
+  ctx.font        = `700 ${fontSize}px "Space Mono", monospace`;
+  ctx.textAlign   = 'center';
   ctx.textBaseline = 'top';
 
   const p1Flash = state.lastScorer === 'player' && flashPct > 0;
   const p2Flash = state.lastScorer === 'bot'    && flashPct > 0;
-  ctx.fillStyle = p1Flash
-    ? `rgba(224,33,138,${0.65 + flashPct * 0.35})`
-    : 'rgba(255,255,255,0.58)';
+  ctx.fillStyle = p1Flash ? C_MARK : C_DIM;
   ctx.fillText(state.score.player, GW / 2 - scoreOff, 10);
-  ctx.fillStyle = p2Flash
-    ? `rgba(224,33,138,${0.65 + flashPct * 0.35})`
-    : 'rgba(255,255,255,0.58)';
+  ctx.fillStyle = p2Flash ? C_MARK : C_DIM;
   ctx.fillText(state.score.bot, GW / 2 + scoreOff, 10);
 
-  // Paletki — białe, szklane (wąski stroke + subtelny fill)
-  drawPad(ctx, 28,               player.y, PAD_H);
-  drawPad(ctx, GW - 28 - PAD_W, ai.y,     PAD_H);
+  // Paletki — solid white, płaskie (zero efektów)
+  ctx.fillStyle = C_MAIN;
+  ctx.fillRect(28,               player.y - PAD_H / 2, PAD_W, PAD_H);
+  ctx.fillRect(GW - 28 - PAD_W, ai.y     - PAD_H / 2, PAD_W, PAD_H);
 
-  // Piłka — solid white, najbardziej widoczny element
-  ctx.save();
-  ctx.shadowBlur  = 18;
-  ctx.shadowColor = 'rgba(255,255,255,0.9)';
-  ctx.fillStyle   = '#FFFFFF';
-  ctx.beginPath();
-  ctx.arc(state.ball.x, state.ball.y, BALL_R, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.restore();
-}
-
-function drawPad(ctx, x, cy, PAD_H) {
-  const y = cy - PAD_H / 2;
-  ctx.save();
-  ctx.shadowBlur  = 10;
-  ctx.shadowColor = 'rgba(255,255,255,0.35)';
-  ctx.fillStyle   = 'rgba(255,255,255,0.11)';
-  ctx.strokeStyle = 'rgba(255,255,255,0.55)';
-  ctx.lineWidth   = 1;
-  ctx.fillRect(x, y, PAD_W, PAD_H);
-  ctx.strokeRect(x, y, PAD_W, PAD_H);
-  ctx.restore();
+  // Piłka — solid white kwadrat, jak w oryginale
+  ctx.fillStyle = C_MAIN;
+  ctx.fillRect(state.ball.x - BALL_R, state.ball.y - BALL_R, BALL_R * 2, BALL_R * 2);
 }
 
 function showCard(overlay, canvas, card, header, footer) {
-  const person = PEOPLE[Math.floor(Math.random() * PEOPLE.length)];
-  card.querySelector('.pong-name').textContent  = person.name;
-  card.querySelector('.pong-years').textContent = person.years;
+  const person     = PEOPLE[Math.floor(Math.random() * PEOPLE.length)];
+  const quoteEl    = card.querySelector('.pong-quote');
+  const identEl    = card.querySelector('.pong-identity');
+  const nameEl     = card.querySelector('.pong-name');
+  const yearsEl    = card.querySelector('.pong-years');
+
+  if (quoteEl)  quoteEl.textContent = '“' + person.quote + '”';
+  if (nameEl)   nameEl.textContent  = person.name;
+  if (yearsEl)  yearsEl.textContent = person.years;
 
   const fadeEls = [canvas];
   if (header) fadeEls.push(header);
   if (footer) fadeEls.push(footer);
+
+  // Karta widoczna od razu — elementy wewnętrzne animowane osobno
+  gsap.set(card,    { opacity: 1 });
+  gsap.set(quoteEl, { opacity: 0 });
+  gsap.set(identEl, { opacity: 0 });
 
   const tl = gsap.timeline({
     onComplete() {
       document.body.classList.remove('pong-active');
       gsap.to(navFX, { pageScale: 1, duration: 0.5, ease: 'power2.out' });
       gsap.set([overlay, card, ...fadeEls], { opacity: 0 });
+      gsap.set([quoteEl, identEl], { clearProps: 'opacity' });
       canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
     },
   });
 
-  tl.to(fadeEls,  { opacity: 0, duration: 0.6, ease: 'power2.in'  }, 0)
-    .to(card,     { opacity: 1, duration: 0.8, ease: 'power2.out' }, 0.5)
-    .to(card,     { opacity: 0, duration: 0.7, ease: 'power2.in'  }, 4.8)
-    .to(overlay,  { opacity: 0, duration: 0.5, ease: 'power2.out' }, 5.3);
+  tl.to(fadeEls, { opacity: 0, duration: 0.6, ease: 'power2.in'  }, 0)
+    .to(quoteEl, { opacity: 1, duration: 0.8, ease: 'power2.out' }, 0.55)
+    .to(identEl, { opacity: 1, duration: 0.6, ease: 'power2.out' }, 1.1)
+    .to(card,    { opacity: 0, duration: 0.7, ease: 'power2.in'  }, 4.8)
+    .to(overlay, { opacity: 0, duration: 0.5, ease: 'power2.out' }, 5.3);
 }

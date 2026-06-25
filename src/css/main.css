@@ -442,24 +442,20 @@ body.signet-hover:not(.pong-active):not(.page-active) #nav-pong {
   opacity: 1;
   pointer-events: all;
 }
-#nav-pong .nav-label {
-  color: rgba(255, 255, 255, 0.40);
-  font-size: 10px;
-  letter-spacing: 0.22em;
-}
+/* .nav-label base applies — ta sama waga/rozmiar co EVENTS/STUDIO/LAB */
 #nav-pong .nav-line {
   width: 1px;
   height: 65px;
-  background: rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.18);
   transition: background 0.3s ease, box-shadow 0.3s ease;
 }
 #nav-pong:hover .nav-label {
   color: rgba(255, 255, 255, 0.85);
-  text-shadow: 0 0 4px rgba(6, 5, 15, 0.95), 0 0 8px rgba(255, 255, 255, 0.25);
+  text-shadow: 0 0 4px rgba(6, 5, 15, 0.95), 0 0 8px rgba(255, 255, 255, 0.28);
 }
 #nav-pong:hover .nav-line {
-  background: rgba(255, 255, 255, 0.48);
-  box-shadow: 0 0 6px rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.24);
 }
 
 /* ── Pong game overlay ───────────────────────────────────────────── */
@@ -493,37 +489,51 @@ body.pong-active #pong-overlay {
   position: absolute;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  justify-content: space-between;
+  padding: 24px 28px 22px;
+  box-sizing: border-box;
   opacity: 0;
   pointer-events: none;
 }
-.pong-name {
-  font-family: var(--font-mono);
-  font-size: clamp(18px, 2.4vw, 30px);
-  font-weight: 700;
-  color: var(--color-white);
-  letter-spacing: 0.06em;
-  text-shadow: 0 0 22px rgba(107, 47, 217, 0.9);
+.pong-quote {
+  font-family: var(--font-display);
+  font-size: clamp(12px, 1.5vw, 17px);
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.80);
+  line-height: 1.6;
+  letter-spacing: 0.01em;
   margin: 0;
   text-align: center;
+  align-self: center;
+}
+.pong-identity {
+  align-self: flex-start;
+}
+.pong-name {
+  font-family: var(--font-display);
+  font-size: clamp(13px, 1.5vw, 18px);
+  font-weight: 600;
+  color: var(--color-white);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-shadow: 0 0 18px rgba(107, 47, 217, 0.85);
+  margin: 0;
 }
 .pong-years {
   font-family: var(--font-mono);
-  font-size: clamp(11px, 1.2vw, 16px);
-  color: rgba(255, 255, 255, 0.42);
-  letter-spacing: 0.22em;
-  margin: 8px 0 0;
-  text-align: center;
+  font-size: clamp(10px, 1.0vw, 13px);
+  color: rgba(255, 255, 255, 0.40);
+  letter-spacing: 0.24em;
+  margin: 4px 0 0;
 }
 #pong-footer {
   position: absolute;
   text-align: center;
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: 9px;
   font-weight: 400;
-  letter-spacing: 0.28em;
-  color: rgba(255, 255, 255, 0.18);
+  letter-spacing: 0.24em;
+  color: rgba(255, 255, 255, 0.28);
   text-transform: uppercase;
   opacity: 0;
   pointer-events: none;
