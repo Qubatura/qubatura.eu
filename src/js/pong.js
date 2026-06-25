@@ -81,7 +81,7 @@ const FLASH_MS = 700;
 const C_MAIN  = 'rgba(255,255,255,1.00)';
 const C_DIM   = 'rgba(255,255,255,0.55)';
 const C_GHOST = 'rgba(255,255,255,0.20)';
-const C_MARK  = '#E0218A';   // magenta: tylko flash wyniku
+const C_MARK  = '#5B2EFF';   // primary violet: tylko flash wyniku
 
 export function initPong() {
   const btn = document.getElementById('nav-pong');
@@ -140,12 +140,29 @@ function startGame() {
   card.style.width  = GW + 'px';
   card.style.height = GH + 'px';
 
+  // Przyciski prędkości — pionowy stack po prawej stronie pola
+  let speedMult = 1.0;
+  const speedPanel = document.getElementById('pong-speed');
+  if (speedPanel) {
+    speedPanel.style.top  = GT + 'px';
+    speedPanel.style.left = (GL + GW + 18) + 'px';
+    gsap.set(speedPanel, { opacity: 1 });
+    speedPanel.querySelectorAll('.speed-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.mult === '1.0');
+      btn.addEventListener('click', () => {
+        speedMult = parseFloat(btn.dataset.mult);
+        speedPanel.querySelectorAll('.speed-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      }, { once: false });
+    });
+  }
+
   const ctx    = canvas.getContext('2d');
   const player = { y: GH / 2 };
   const ai     = { y: GH / 2 };
   const state  = {
     score:      { player: 0, bot: 0 },
-    ball:       makeBall(GW, GH),
+    ball:       makeBall(GW, GH, speedMult),
     flashTime:  0,
     lastScorer: null,
     resetDelay: 0,
@@ -206,7 +223,7 @@ function startGame() {
       setTimeout(() => showCard(overlay, canvas, card, header, footer), 900);
     } else {
       // Tylko piłka resetuje się — paletki zostają gdzie je gracz zostawił
-      state.ball = makeBall(GW, GH);
+      state.ball = makeBall(GW, GH, speedMult);
       state.resetDelay = 55;
     }
   }
@@ -264,12 +281,13 @@ function startGame() {
   loop();
 }
 
-function makeBall(GW, GH) {
+function makeBall(GW, GH, mult = 1.0) {
+  const spd   = BALL_SPD * mult;
   const angle = (Math.random() * 0.5 - 0.25) * Math.PI;
   const dir   = Math.random() > 0.5 ? 1 : -1;
   return { x: GW / 2, y: GH / 2,
-           vx: Math.cos(angle) * BALL_SPD * dir,
-           vy: Math.sin(angle) * BALL_SPD };
+           vx: Math.cos(angle) * spd * dir,
+           vy: Math.sin(angle) * spd };
 }
 
 function reflect(ball, padY, dir, PAD_H) {
@@ -332,19 +350,21 @@ function draw(ctx, GW, GH, player, ai, state, PAD_H, BALL_R) {
 }
 
 function showCard(overlay, canvas, card, header, footer) {
-  const person     = PEOPLE[Math.floor(Math.random() * PEOPLE.length)];
-  const quoteEl    = card.querySelector('.pong-quote');
-  const identEl    = card.querySelector('.pong-identity');
-  const nameEl     = card.querySelector('.pong-name');
-  const yearsEl    = card.querySelector('.pong-years');
+  const person      = PEOPLE[Math.floor(Math.random() * PEOPLE.length)];
+  const quoteEl     = card.querySelector('.pong-quote');
+  const identEl     = card.querySelector('.pong-identity');
+  const nameEl      = card.querySelector('.pong-name');
+  const yearsEl     = card.querySelector('.pong-years');
+  const speedPanel  = document.getElementById('pong-speed');
 
-  if (quoteEl)  quoteEl.textContent = '“' + person.quote + '”';
+  if (quoteEl)  quoteEl.textContent = '”' + person.quote + '”';
   if (nameEl)   nameEl.textContent  = person.name;
   if (yearsEl)  yearsEl.textContent = person.years;
 
   const fadeEls = [canvas];
-  if (header) fadeEls.push(header);
-  if (footer) fadeEls.push(footer);
+  if (header)     fadeEls.push(header);
+  if (footer)     fadeEls.push(footer);
+  if (speedPanel) fadeEls.push(speedPanel);
 
   // Karta widoczna od razu — elementy wewnętrzne animowane osobno
   gsap.set(card,    { opacity: 1 });
@@ -358,6 +378,12 @@ function showCard(overlay, canvas, card, header, footer) {
       gsap.set([overlay, card, ...fadeEls], { opacity: 0 });
       gsap.set([quoteEl, identEl], { clearProps: 'opacity' });
       canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+      // Reset przycisków prędkości do MEDIUM
+      if (speedPanel) {
+        speedPanel.querySelectorAll('.speed-btn').forEach(b => {
+          b.classList.toggle('active', b.dataset.mult === '1.0');
+        });
+      }
     },
   });
 
