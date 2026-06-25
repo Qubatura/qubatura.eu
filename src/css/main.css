@@ -532,6 +532,7 @@ body.pong-active #pong-overlay {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  width: 64px;
   opacity: 0;
   pointer-events: none;
 }
