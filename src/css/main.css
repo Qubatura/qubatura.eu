@@ -987,63 +987,163 @@ body.page-active #tagline {
   }
 }
 
-/* Mobile — three nav cards below signet */
+/* ═══════════════════════════════════════════════════════════════
+   MOBILE (≤ 768px) — sygnet centralnie, karty dywizji na dole
+   ═══════════════════════════════════════════════════════════════ */
 @media (max-width: 768px) {
+  /* ─── Elementy desktop-only ─── */
   #cursor-glow { display: none; }
+  #nav-pong    { display: none !important; }
+  .nav-line    { display: none; }
+  .hud-corner  { display: none; }
+  .hud-services { display: none; }         /* usługi — za dużo tekstu na kartę */
 
-  /* Nav reflows to three horizontal cards at bottom */
-  #nav {
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-    gap: 0;
-    padding-bottom: 48px;
+  /* ─── Signet: zmniejszony na mobile (płótno z nim jest nadal full-screen) ─── */
+  :root {
+    --signet-r: 64px;
+    --nav-line-len: 0px;
   }
 
-  .nav-item {
-    position: static;
-    transform: none;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    flex: 1;
-    max-width: 33%;
-    padding: 16px 8px;
-    border-top: 1px solid rgba(255, 255, 255, 0.07);
-  }
-
-  .nav-line { display: none; }
-
-  .nav-label {
-    font-size: 10px;
-    letter-spacing: 0.15em;
-  }
-
-  .nav-hud {
-    position: static;
-    transform: none;
-    padding: 0;
-    margin-top: 4px;
-    text-align: center;
-    white-space: normal;
-  }
-  .hud-corner { display: none; }                 /* na mobile bez celownika */
-  .hud-title       { opacity: 1; font-size: 9px; margin: 0 0 2px; }
-  .hud-services    { opacity: 1; }               /* GSAP nie odpala na mobile (guard) */
-  .hud-row         { white-space: normal; font-size: 10px; } /* na kartach linia się zawija */
-
+  /* ─── Topbar ─── */
   #top-right {
     opacity: 1;
-    top: 20px;
+    top: 16px;
+    top: calc(env(safe-area-inset-top, 0px) + 16px);  /* notch-safe */
     right: 16px;
   }
 
   #tagline {
-    bottom: auto;
-    top: 20px;
-    left: 16px;
+    display: none;                          /* za mało miejsca na mobile */
+  }
+
+  /* ─── Nav: pionowa taca kart u dołu ─── */
+  #nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    top: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding: 0;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    background: rgba(6, 5, 15, 0.82);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+    z-index: 20;
+  }
+
+  /* ─── Karty — wspólne ─── */
+  .nav-item {
+    position: static;
     transform: none;
-    font-size: 9px;
-    letter-spacing: 0.2em;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0;
+    flex: none;
+    width: 100%;
+    max-width: none;
+    min-height: 64px;                       /* > 48px touch target */
+    padding: 0 20px 0 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border-left: 2px solid var(--div-color, var(--color-primary));
+    text-decoration: none;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.12s ease;
+  }
+
+  .nav-item:last-of-type {
+    border-bottom: none;
+  }
+
+  .nav-item:active {
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  /* ─── Lewa kolumna: nazwa działu ─── */
+  .nav-label {
+    flex: 0 0 96px;
+    padding: 0 0 0 18px;
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    white-space: nowrap;
+    color: rgba(255, 255, 255, 0.92);
+    text-shadow: none;
+  }
+
+  /* ─── Środek: podtytuł (hud-title) ─── */
+  .nav-hud {
+    position: static;
+    transform: none;
+    flex: 1;
+    padding: 0;
+    white-space: normal;
+  }
+
+  .hud-title {
+    opacity: 1;
+    font-size: 8px;
+    letter-spacing: 0.1em;
+    color: rgba(255, 255, 255, 0.32);
+    text-shadow: none;
+    margin: 0;
+    text-transform: uppercase;
+    line-height: 1.4;
+    white-space: normal;
+  }
+
+  /* ─── Prawa strzałka ─── */
+  .nav-item > .nav-hud::after {
+    display: none;
+  }
+
+  #nav-events::after,
+  #nav-studio::after,
+  #nav-lab::after {
+    content: '›';
+    font-size: 22px;
+    font-weight: 300;
+    color: rgba(255, 255, 255, 0.18);
+    flex-shrink: 0;
+    line-height: 1;
+  }
+
+  /* ─── Kolor akcentu karty per dział ─── */
+  /* --div-color jest ustawiony desktop na #nav-events/#nav-studio/#nav-lab,
+     więc border-left dziedziczone automatycznie */
+
+  /* ─── Loading: nav nie wypełnia dołu podczas loadera ─── */
+  body.is-loading #nav {
+    opacity: 0;                             /* dziedziczy z desktop rule; CSS guard */
+  }
+
+  /* ─── Podstrony: mobilne layout adjustments ─── */
+  .page-view {
+    padding: 0 6vw;
+    max-width: 100%;
+  }
+
+  .page-title {
+    font-size: clamp(28px, 8vw, 40px);
+  }
+
+  .page-lead {
+    font-size: 12px;
+  }
+
+  .page-services {
+    grid-template-columns: 1fr;
+  }
+
+  .page-gallery {
+    display: none !important;
+  }
+
+  #page-back {
+    top: calc(env(safe-area-inset-top, 0px) + 16px);
   }
 }
