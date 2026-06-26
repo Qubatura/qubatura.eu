@@ -57,7 +57,9 @@ export async function initScene() {
   const PLANET_H = 1200, PLANET_Z = -500;
   const planetMesh = new THREE.Mesh(new THREE.PlaneGeometry(2000, PLANET_H), planetMat);
   const viewTop = (camera.position.z - PLANET_Z) * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
-  const basePlanetY = viewTop - PLANET_H / 2;   // ≈ -138; parallax.js używa tego jako Y bazowego
+  // Na mobile przesunięcie w dół o 200wu — budynek w centrum kadru startowo
+  const planetShift  = window.innerWidth <= 768 ? -200 : 0;
+  const basePlanetY  = viewTop - PLANET_H / 2 + planetShift;
   planetMesh.position.set(0, basePlanetY, PLANET_Z);
   scene.add(planetMesh);
 
