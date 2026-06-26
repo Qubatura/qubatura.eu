@@ -72,9 +72,7 @@ const PEOPLE = [
 
 const WIN_SCORE = 3;
 const PAD_W    = 8;
-const AI_SPD   = 2.8;
 const K_SPD    = 5;
-const BALL_SPD = 4.5;
 const FLASH_MS = 700;
 
 // Kolor monochrom — cała gra w jednym: biały na czarnym, jak oryginał z 1972.
@@ -118,8 +116,13 @@ function startGame() {
   if (isMobile()) gsap.to(navFX, { pageZ: -70, duration: 0.65, ease: 'power2.inOut' });
 
   const { GW, GH, GT, GL } = getArea();
-  const PAD_H  = Math.round(GH / 5);
-  const BALL_R = Math.max(4, Math.round(GW * 0.016));
+  const PAD_H      = Math.round(GH / 5);
+  const BALL_R     = Math.max(4, Math.round(GW * 0.016));
+  // Prędkość proporcjonalna do szerokości boiska → identyczne tempo przekraczania pola
+  // niezależnie od rozmiaru ekranu (mobile vs desktop).
+  const BASE_SPEED = GW * 0.0090;
+  const MAX_SPEED  = BASE_SPEED * 2.4;
+  const BASE_AI    = GW * 0.0055;
 
   canvas.width  = GW;
   canvas.height = GH;
@@ -154,10 +157,10 @@ function startGame() {
 
   const state  = {
     score:      { player: 0, bot: 0 },
-    ball:       makeBall(GW, GH, speedMult),
+    ball:       makeBall(GW, GH, BASE_SPEED, speedMult),
     flashTime:  0,
     lastScorer: null,
-    resetDelay: 0,
+    resetDelay: 55,   // ~1s opóźnienia przed pierwszą piłką — gracz ma czas się zorientować
   };
 
   // Speed panel — po state, żeby handler miał dostęp do state.ball
@@ -174,7 +177,7 @@ function startGame() {
         btn.classList.add('active');
         // Natychmiastowe zastosowanie na bieżącą piłkę
         const cur    = Math.hypot(state.ball.vx, state.ball.vy);
-        const target = BALL_SPD * speedMult;
+        const target = BASE_SPEED * speedMult;
         if (cur > 0) { const r = target / cur; state.ball.vx *= r; state.ball.vy *= r; }
       });
     });
@@ -203,19 +206,28 @@ function startGame() {
     keys[e.key] = e.type === 'keydown';
     if (e.type === 'keydown') { lastKeyMs = Date.now(); inputMode = 'key'; }
   };
-  // Touch — drag palcem przesuwa paletkę; e.preventDefault() blokuje scroll strony
+  // Touch: delta ruchu palca przesuwa paletkę — dotknięcie GDZIEKOLWIEK + przeciągnięcie.
+  // Paletka nie skacze do miejsca dotyku, podąża za gestem (jak touchpad).
+  let touchPrevY = null;
   const onTouch = e => {
     e.preventDefault();
     const t = e.touches[0];
     if (!t) return;
-    mouseY    = t.clientY - GT;
-    inputMode = 'mouse';   // reuse mouse tracking logic
+    if (touchPrevY !== null) {
+      mouseY += t.clientY - touchPrevY;
+      mouseY  = Math.max(0, Math.min(GH, mouseY));
+    }
+    touchPrevY = t.clientY;
+    inputMode = 'mouse';
   };
+  const onTouchEnd = () => { touchPrevY = null; };
   window.addEventListener('mousemove', onMove);
   window.addEventListener('keydown',   onKey);
   window.addEventListener('keyup',     onKey);
-  canvas.addEventListener('touchstart', onTouch, { passive: false });
-  canvas.addEventListener('touchmove',  onTouch, { passive: false });
+  canvas.addEventListener('touchstart',  onTouch,    { passive: false });
+  canvas.addEventListener('touchmove',   onTouch,    { passive: false });
+  canvas.addEventListener('touchend',    onTouchEnd, { passive: false });
+  canvas.addEventListener('touchcancel', onTouchEnd, { passive: false });
 
   document.body.classList.add('pong-active');
   gsap.to(overlay, { opacity: 1, duration: 0.4, ease: 'power2.out' });
@@ -226,8 +238,10 @@ function startGame() {
     window.removeEventListener('mousemove', onMove);
     window.removeEventListener('keydown',   onKey);
     window.removeEventListener('keyup',     onKey);
-    canvas.removeEventListener('touchstart', onTouch);
-    canvas.removeEventListener('touchmove',  onTouch);
+    canvas.removeEventListener('touchstart',  onTouch);
+    canvas.removeEventListener('touchmove',   onTouch);
+    canvas.removeEventListener('touchend',    onTouchEnd);
+    canvas.removeEventListener('touchcancel', onTouchEnd);
   }
 
   function movePlayer() {
@@ -254,7 +268,7 @@ function startGame() {
       setTimeout(() => showCard(overlay, canvas, card, header, footer), 900);
     } else {
       // Tylko piłka resetuje się — paletki zostają gdzie je gracz zostawił
-      state.ball = makeBall(GW, GH, speedMult);
+      state.ball = makeBall(GW, GH, BASE_SPEED, speedMult);
       state.resetDelay = 55;
     }
   }
@@ -264,7 +278,7 @@ function startGame() {
     raf = requestAnimationFrame(loop);
     if (paused) return;   // zamrożona scena — canvas nie rysowany, wygląd zachowany
 
-    // Pauza po golu: gracz może przestawiać paletkę, piłka stoi w centrum
+    // Pauza po golu / przy starcie: gracz może przestawiać paletkę, piłka stoi w centrum
     if (state.resetDelay > 0) {
       state.resetDelay--;
       movePlayer();
@@ -276,7 +290,7 @@ function startGame() {
 
     // Bot śledzi piłkę z opóźnieniem — można go pokonać
     const d = state.ball.y - ai.y;
-    ai.y += Math.sign(d) * Math.min(Math.abs(d) * 0.06, AI_SPD);
+    ai.y += Math.sign(d) * Math.min(Math.abs(d) * 0.06, BASE_AI);
     ai.y  = Math.max(PAD_H / 2, Math.min(GH - PAD_H / 2, ai.y));
 
     const b = state.ball;
@@ -292,7 +306,7 @@ function startGame() {
     if (b.vx < 0 && b.x - BALL_R <= lpR && b.x > 28 &&
         b.y > player.y - PAD_H / 2 && b.y < player.y + PAD_H / 2) {
       b.x = lpR + BALL_R;
-      reflect(b, player.y, 1, PAD_H);
+      reflect(b, player.y, 1, PAD_H, MAX_SPEED);
     }
 
     // Prawa paletka (bot)
@@ -300,7 +314,7 @@ function startGame() {
     if (b.vx > 0 && b.x + BALL_R >= rpL && b.x < GW - 28 &&
         b.y > ai.y - PAD_H / 2 && b.y < ai.y + PAD_H / 2) {
       b.x = rpL - BALL_R;
-      reflect(b, ai.y, -1, PAD_H);
+      reflect(b, ai.y, -1, PAD_H, MAX_SPEED);
     }
 
     // Gole
@@ -313,8 +327,8 @@ function startGame() {
   loop();
 }
 
-function makeBall(GW, GH, mult = 1.0) {
-  const spd   = BALL_SPD * mult;
+function makeBall(GW, GH, baseSpeed, mult = 1.0) {
+  const spd   = baseSpeed * mult;
   const angle = (Math.random() * 0.5 - 0.25) * Math.PI;
   const dir   = Math.random() > 0.5 ? 1 : -1;
   return { x: GW / 2, y: GH / 2,
@@ -322,10 +336,10 @@ function makeBall(GW, GH, mult = 1.0) {
            vy: Math.sin(angle) * spd };
 }
 
-function reflect(ball, padY, dir, PAD_H) {
+function reflect(ball, padY, dir, PAD_H, maxSpd) {
   const rel = (ball.y - padY) / (PAD_H / 2);
   const ang = rel * (Math.PI * 0.32);
-  const spd = Math.min(Math.hypot(ball.vx, ball.vy) * 1.04, 11);
+  const spd = Math.min(Math.hypot(ball.vx, ball.vy) * 1.04, maxSpd ?? 11);
   ball.vx   = dir * Math.cos(ang) * spd;
   ball.vy   = Math.sin(ang) * spd;
 }
@@ -376,9 +390,11 @@ function draw(ctx, GW, GH, player, ai, state, PAD_H, BALL_R) {
   ctx.fillRect(28,               player.y - PAD_H / 2, PAD_W, PAD_H);
   ctx.fillRect(GW - 28 - PAD_W, ai.y     - PAD_H / 2, PAD_W, PAD_H);
 
-  // Piłka — solid white kwadrat, jak w oryginale
-  ctx.fillStyle = C_MAIN;
-  ctx.fillRect(state.ball.x - BALL_R, state.ball.y - BALL_R, BALL_R * 2, BALL_R * 2);
+  // Piłka — miga podczas resetDelay (wizualny sygnał "zaraz start"), solid po starcie
+  if (state.resetDelay <= 0 || Math.floor(Date.now() / 100) % 2 === 0) {
+    ctx.fillStyle = C_MAIN;
+    ctx.fillRect(state.ball.x - BALL_R, state.ball.y - BALL_R, BALL_R * 2, BALL_R * 2);
+  }
 }
 
 function showCard(overlay, canvas, card, header, footer) {
@@ -389,7 +405,7 @@ function showCard(overlay, canvas, card, header, footer) {
   const yearsEl     = card.querySelector('.pong-years');
   const speedPanel  = document.getElementById('pong-speed');
 
-  if (quoteEl)  quoteEl.textContent = '”' + person.quote + '”';
+  if (quoteEl)  quoteEl.textContent = '"' + person.quote + '"';
   if (nameEl)   nameEl.textContent  = person.name;
   if (yearsEl)  yearsEl.textContent = person.years;
 

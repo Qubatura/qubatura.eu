@@ -123,8 +123,13 @@ export async function initSignet(ctx) {
         // gl_FragCoord.y=0 u dołu; renderTarget z flipY=false też ma Y=0 u dołu → brak flipu.
         vec2 vScreenPos = gl_FragCoord.xy / uResolution;
 
-        // Zagięcie UV przez normalną (refrakcja)
-        vec2 refractedUV = vScreenPos + vNormal.xy * refractionStrength;
+        // Wewnętrzna animacja szkła — falowanie UV tworzy ruch w centrum nawet na ciemnym tle.
+        // Amplituda rośnie tam gdzie fresnel mały (centrum bryły), a maleje przy krawędziach.
+        float shimmerAmt = (1.0 - fresnel) * 0.016;
+        float sx = sin(vWorldPos.x * 1.4 + time * 0.55) * shimmerAmt;
+        float sy = sin(vWorldPos.y * 1.1 + time * 0.42 + 1.5) * shimmerAmt;
+        // Zagięcie UV przez normalną (refrakcja) + subtelny shimmer
+        vec2 refractedUV = vScreenPos + vNormal.xy * refractionStrength + vec2(sx, sy);
 
         // Fresnel — krawędzie bardziej widoczne (liczone przed CA: steruje siłą
         // pryzmatycznego rozszczepienia na krawędziach)
@@ -143,8 +148,8 @@ export async function initSignet(ctx) {
         vec3 toLight  = normalize(lightPos - vWorldPos);
         vec3 toCamera = normalize(cameraPosition - vWorldPos);
         vec3 halfVec  = normalize(toLight + toCamera);
-        float spec    = pow(max(dot(vNormal, halfVec), 0.0), 64.0);
-        vec3 specColor = vec3(0.5, 0.3, 1.0) * spec * 2.0;   // fioletowy refleks (primary)
+        float spec    = pow(max(dot(vNormal, halfVec), 0.0), 28.0);   // niższy → szerszy refleks (widać w centrum)
+        vec3 specColor = vec3(0.5, 0.3, 1.0) * spec * 3.5;
 
         // Przejście primary → magenta sterowane kątem obrotu (uColorMix)
         vec3 cPrimary = vec3(0.35, 0.18, 1.0);
@@ -158,6 +163,10 @@ export async function initSignet(ctx) {
         vec3  color = refr;
         color += specColor * colorAmt;
         color += tint * 0.4 * colorAmt;
+        // Wewnętrzna emisja — subtelna plasma widoczna w centrum (niski fresnel) na ciemnym tle.
+        // Oscyluje w czasie → ruch wewnętrzny = szkło wygląda jak materiał a nie flat powierzchnia.
+        float plasma = 0.5 + 0.5 * sin(vWorldPos.x * 1.5 + time * 0.6) * sin(vWorldPos.y * 1.2 - time * 0.45 + 1.8);
+        color += tint * plasma * 0.14 * (1.0 - fresnel) * colorAmt;
         color += tint * fresnel * 0.5 * colorAmt;
         // Stałe krawędziowe oświetlenie — widoczne niezależnie od tła i trybu szkła.
         // Idle: delikatna jasna krawędź (bryłowatość na ciemnym mobile bg).

@@ -13,12 +13,13 @@ import { onTick } from './scene.js';
 
 const LERP_RATE = 0.10;   // tempo doganiania myszy (niżej = bardziej marzycielski)
 
-// Siła reakcji na mysz per warstwa
-// planet — jedn. świata; mouse ±1 = krawędź ekranu
-// fog    — height-units (0..1 = pełna wysokość ekranu)
+// Siła reakcji na mysz/żyroskop per warstwa.
+// Na mobile żyroskop daje pełny zakres ±1 już przy ±20° → mocniejsze wartości dają
+// efekt "latania po planecie". Planet jest 2000wu wide — jest gdzie jeździć.
+const _mob = window.innerWidth <= 768;
 const MOUSE = {
-  planet: { x: 28, y: 18 },    // słabiej — daleko w scenie
-  fog:    { x: 0.50, y: 0.32 }, // mocniej — blisko kamery
+  planet: { x: _mob ? 88 : 28, y: _mob ? 56 : 18 },
+  fog:    { x: _mob ? 1.10 : 0.50, y: _mob ? 0.70 : 0.32 },
 };
 
 // Autonomiczny dryf — sinusoidy niesynchronizowane (różne okresy, różne fazy)
@@ -58,8 +59,8 @@ export function initParallax(ctx) {
   // Kalibracja do pierwszego eventu: neutralna pozycja = jak trzymasz telefon teraz.
   {
     let betaBase = null;
-    const GAMMA_RANGE = 30;   // stopnie przechylenia na pełny efekt (±1)
-    const BETA_RANGE  = 22;   // stopnie od bazowej pozycji na pełny efekt
+    const GAMMA_RANGE = 20;   // stopnie przechylenia na pełny efekt (±1) — bardziej responsywny
+    const BETA_RANGE  = 16;   // stopnie od bazowej pozycji na pełny efekt
 
     function onOrientation(e) {
       if (e.gamma == null) return;
