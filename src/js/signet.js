@@ -11,7 +11,7 @@ window.addEventListener('mousemove', e => { _mouse.x = e.clientX; _mouse.y = e.c
 // indziej (nav/tint/HUD) — to wyłącznie mnożnik JASNOŚCI koloru poświaty sygnetu.
 // (Mnożnik na opacity nie działał: klipuje się do 1; jasność daje czysty zakres.)
 // Cel: wszystkie ~równe, lekko poniżej Studio (środek między Events a Studio).
-const GLOW_GAIN = { events: 1.15, studio: 1.15, lab: 0.45 };
+const GLOW_GAIN = { events: 1.15, studio: 1.15, lab: 0.30 };
 
 // Siła „łapania barwy" działu przez sygnet — DOPASOWANA do mgły. atmosphere.js miesza
 // barwę mgły ku kolorowi działu z siłą intensity * 0.4 (uTintIntensity * 0.4 we frag).
@@ -280,7 +280,8 @@ export async function initSignet(ctx) {
   let hoverScale = 1.0;
   let colorMix   = 0.0;
   let glassMix   = 0.0;   // 0..1 — przejście w stan „czyste szkło" (hover sygnetu, brak działu)
-  const _c = new THREE.Color();   // scratch do liczenia koloru obrysu per klatkę
+  const _c    = new THREE.Color();   // scratch do liczenia koloru obrysu per klatkę
+  const _gray = new THREE.Color();   // scratch dla desaturacji Lab glow
 
   onTick((_dt, elapsed) => {
     uniforms.time.value = elapsed;
@@ -316,9 +317,12 @@ export async function initSignet(ctx) {
                      + Math.sin(t * 0.83 + 5.0)  * 0.4
                      + navFX.tugY + navFX.pageY;
 
-    // Przejście primary → magenta — sterowane fazą obrotu (edge-on → magenta).
-    // Podczas loadingu pinujemy do 0 (czysty primary — to barwa „wlewanej materii").
-    const target = loadFX.active ? 0 : Math.abs(Math.sin(pivot.rotation.y));
+    // Magenta jako nagroda za interakcję — w spoczynku sygnet trzyma się primary.
+    // idleMix: kąt obrotu daje cień magenty (max ~0.14 przy edge-on), nie pełne przejście.
+    // hoverBoost: hover działu lub sygnetu otwiera pełne przejście ku magenta.
+    const idleMix    = Math.abs(Math.sin(pivot.rotation.y)) * 0.28;
+    const hoverBoost = navFX.intensity * 0.65 + glassMix * 0.40;
+    const target     = loadFX.active ? 0 : Math.min(1, idleMix + hoverBoost);
     colorMix += (target - colorMix) * (loadFX.active ? 0.1 : 0.05);
     uniforms.uColorMix.value = colorMix;
 
@@ -347,6 +351,13 @@ export async function initSignet(ctx) {
       _c.copy(p.base).lerp(navFX.target, navFX.intensity * TINT_MATCH);
       if (p.glow) {
         _c.multiplyScalar(eff);                                       // balans per dział = jasność
+        // Lab: cyjan percepcyjnie jaśniejszy ~1.5× niż fiolet → desaturacja samej poświaty
+        // (baza HUD/ramki zostają nasycone — tylko blask sygnetu jest łagodniejszy)
+        if (navFX.activeDiv === 'lab' && navFX.intensity > 0) {
+          const lum = _c.r * 0.299 + _c.g * 0.587 + _c.b * 0.114;
+          _gray.setRGB(lum, lum, lum);
+          _c.lerp(_gray, 0.28 * navFX.intensity);
+        }
         // (1 - glowHide) → w trybie szkła / podczas loadingu neonowy obrys i blask gasną
         p.apply(_c, Math.min(1, p.baseOpacity * (1 + navFX.glow * 1.8)) * (1 - glowHide));
       } else {

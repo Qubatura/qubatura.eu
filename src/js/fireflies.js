@@ -15,8 +15,8 @@ const ARRIVE_R  = 30;    // wu — "osiągam cel XY, biorę nowy"
 const SIGNET_R  = 52;    // wu od centrum → fade (wyłącznie tryb signet/pong)
 const BOUND_X   = 270;   // half-width strefy lotu (nav labels ≈ ±250wu)
 const BOUND_Y   = 155;   // half-height strefy lotu
-const Z_MIN     = -30;   // najdalej od kamery
-const Z_MAX     = 65;    // najbliżej kamery
+const Z_MIN     = -55;   // najdalej od kamery (szerszy zakres → lepsza głębia 3D)
+const Z_MAX     = 85;    // najbliżej kamery
 const Z_NORM    = 15;    // głębokość neutralna (brightness = 1.0)
 const FF_SIZE   = 7;     // wu — rozmiar glow sprite (sizeAttenuation skaluje perspektywicznie)
 
@@ -120,6 +120,8 @@ function makeFF() {
     // Mikro-flicker: losowa faza per instancja (używana jako offset 3 szybkich sinusoid)
     maxBright:   0.22 + Math.random() * 0.38,   // per-firefly max (0.22..0.60)
     phase:       Math.random() * Math.PI * 2,
+    pulseMod:    0.75 + Math.random() * 0.55,   // 0.75–1.30× — każdy świetlik inny rytm
+    flicker:     0.78,                           // aktualna wartość pulsu (zapisywana per klatka)
     // Nieregularna prędkość — sinusoidalna modulacja niezależna per instancja
     speedPeriod: 0.9  + Math.random() * 1.8,    // 0.9–2.7s
     speedPhase:  Math.random() * Math.PI * 2,
@@ -136,15 +138,18 @@ function makeFF() {
 function updateFF(ff, delta, elapsed, activeDiv, divCol, signetActive, orbitActive) {
   if (ff.state === 'wander') {
     // Nieregularna prędkość — modulacja sinus per świetlik (zakres 45–125% MAX_SPD)
-    const sm    = 0.45 + 0.80 * (Math.sin(elapsed / ff.speedPeriod + ff.speedPhase) * 0.5 + 0.5);
-    const effXY = MAX_SPD   * sm;
-    const effZ  = MAX_SPD_Z * sm;
+    const sm = 0.45 + 0.80 * (Math.sin(elapsed / ff.speedPeriod + ff.speedPhase) * 0.5 + 0.5);
+    // Drapieżne zlatywanie: targeting = 2× wyższy cap prędkości (wygląda jak "zauważyli")
+    const spdBoost = ff.targeting ? 2.0 : 1.0;
+    const effXY    = MAX_SPD   * sm * spdBoost;
+    const effZ     = MAX_SPD_Z * sm;
 
-    // Steering XY
-    const dx   = ff.tx - ff.x, dy = ff.ty - ff.y;
-    const dist = Math.hypot(dx, dy) || 0.001;
-    ff.vx += (dx / dist) * MAX_ACC * delta;
-    ff.vy += (dy / dist) * MAX_ACC * delta;
+    // Steering XY — urgency: im dalej od celu gdy targeting, tym mocniejsze przyspieszenie
+    const dx      = ff.tx - ff.x, dy = ff.ty - ff.y;
+    const dist    = Math.hypot(dx, dy) || 0.001;
+    const urgency = ff.targeting ? Math.min(3.0, Math.max(1.0, dist / 55)) : 1.0;
+    ff.vx += (dx / dist) * MAX_ACC * delta * urgency;
+    ff.vy += (dy / dist) * MAX_ACC * delta * urgency;
     const spd = Math.hypot(ff.vx, ff.vy);
     if (spd > effXY) { ff.vx = ff.vx / spd * effXY; ff.vy = ff.vy / spd * effXY; }
     ff.x += ff.vx * delta;
@@ -181,18 +186,20 @@ function updateFF(ff, delta, elapsed, activeDiv, divCol, signetActive, orbitActi
       else                                                 pickRandom(ff);
     }
 
-    // Organiczny puls jasności: dominanta 3.1 rad/s (~2s okres) + dwie wyższe harmoniczne.
-    // Zakres ±22% → każdy świetlik wyraźnie "oddycha", ale asynchronicznie (losowa faza).
-    const flicker = 0.78 + 0.22 * (
-      0.50 * Math.sin(elapsed *  3.1 + ff.phase) +
-      0.30 * Math.sin(elapsed *  8.7 + ff.phase * 1.618) +
-      0.20 * Math.sin(elapsed * 19.3 + ff.phase * 2.414)
-    );
+    // Puls jasności: każdy świetlik inny rytm (pulseMod) i faza → rój organiczny, nie mechaniczny.
+    // rawSum ∈ [-1,+1]; normalizacja do [0.60, 1.00] — nigdy nie gaśnie całkowicie.
+    const pm     = ff.pulseMod;
+    const rawSum = 0.50 * Math.sin(elapsed *  3.1 * pm + ff.phase) +
+                   0.30 * Math.sin(elapsed *  8.7 * pm + ff.phase * 1.618) +
+                   0.20 * Math.sin(elapsed * 19.3 * pm + ff.phase * 2.414);
+    const flicker = 0.60 + 0.40 * (rawSum * 0.5 + 0.5);
+    ff.flicker = flicker;
     // Boost przy hover (orbit = jak dept, nieco łagodniejszy)
     const boost = ff.targeting === 'signet' ? 3.5 :
                   (ff.targeting === 'dept' || ff.targeting === 'orbit') ? 2.5 : 1.0;
-    // Głębokość Z → jasność: bliżej kamery = jaśniejszy (±15-20%)
-    const depthK = Math.min(1.4, (300 - Z_NORM) / Math.max(10, 300 - ff.z));
+    // Głębokość Z → jasność: potęgowanie 1.8 daje nielinearny, czytelny kontrast głębi
+    // Zakres: ~0.65 (Z=-55, daleko) do ~1.55 (Z=85, blisko) → 2.4× różnica — widoczna 3D
+    const depthK = Math.min(1.6, Math.pow((300 - Z_NORM) / Math.max(10, 300 - ff.z), 1.8));
     const ti     = Math.min(0.85, ff.maxBright * flicker * boost * depthK);
     ff.intensity += (ti - ff.intensity) * Math.min(1, delta * 2.8);
 
@@ -309,12 +316,14 @@ export function initFireflies(ctx) {
       const ff = pool[i];
       updateFF(ff, delta, elapsed, activeDiv, divCol, signetActive, orbitActive);
       const brightness = ff.intensity * ffReveal;
+      // Szczyt pulsu: rdzeń rozbłyskuje bielej (jak realna bioluminescencja — core jaśniejszy)
+      const peakW = Math.max(0, (ff.flicker - 0.84) / 0.16) * 0.22 * brightness;
       pos[i * 3]     = ff.x;
       pos[i * 3 + 1] = ff.y;
       pos[i * 3 + 2] = ff.z;
-      col[i * 3]     = ff.cr * brightness;
-      col[i * 3 + 1] = ff.cg * brightness;
-      col[i * 3 + 2] = ff.cb * brightness;
+      col[i * 3]     = Math.min(1, ff.cr * brightness + peakW);
+      col[i * 3 + 1] = Math.min(1, ff.cg * brightness + peakW);
+      col[i * 3 + 2] = Math.min(1, ff.cb * brightness + peakW);
     }
 
     geo.attributes.position.needsUpdate = true;
