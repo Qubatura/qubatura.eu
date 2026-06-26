@@ -106,6 +106,7 @@ export async function initSignet(ctx) {
       }
     `,
     fragmentShader: /* glsl */`
+      precision highp float;   /* iOS Safari domyślnie mediump — za mała precyzja dla gl_FragCoord na 3× DPR */
       uniform sampler2D tBackground;
       uniform float refractionStrength;
       uniform float time;

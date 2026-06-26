@@ -87,6 +87,8 @@ export function initParallax(ctx) {
             })
             .catch(() => {});
         }
+        // click jest pewniejszy niż touchstart jako "user gesture" na iOS Safari
+        document.addEventListener('click',      tryGyro, { passive: true });
         document.addEventListener('touchstart', tryGyro, { passive: true });
       } else {
         // Android i iOS < 13 — bez zezwolenia, listener od razu
