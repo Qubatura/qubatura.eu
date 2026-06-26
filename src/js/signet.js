@@ -77,6 +77,8 @@ export async function initSignet(ctx) {
     time:               { value: 0 },
     uColorMix:          { value: 0 },      // 0 = primary, 1 = magenta (sterowane kątem)
     uGlass:             { value: 0 },      // 0 = normalny tint, 1 = czyste szkło (hover sygnetu, brak działu)
+    uDivColor:          { value: new THREE.Vector3(0.35, 0.18, 1.0) },  // kolor aktywnej dywizji (default = primary)
+    uDivMix:            { value: 0 },      // siła blendowania barwy dywizji do tintu ciała sygnetu
   };
 
   const mat = new THREE.ShaderMaterial({
@@ -101,6 +103,8 @@ export async function initSignet(ctx) {
       uniform float time;
       uniform float uColorMix;
       uniform float uGlass;
+      uniform vec3  uDivColor;
+      uniform float uDivMix;
 
       varying vec3 vNormal;
       varying vec4 vClip;
@@ -137,6 +141,7 @@ export async function initSignet(ctx) {
         vec3 cPrimary = vec3(0.35, 0.18, 1.0);
         vec3 cMagenta = vec3(0.95, 0.15, 0.60);
         vec3 tint     = mix(cPrimary, cMagenta, uColorMix);
+        tint          = mix(tint, uDivColor, uDivMix);   // kolor aktywnej dywizji (np. cyjan Lab)
 
         // Tryb szkła (uGlass): wygaszamy barwny tint, zostawiając refrakcję + białe
         // pryzmatyczne krawędzie. Poza szkłem: pełny barwny tint + refleks.
@@ -298,13 +303,16 @@ export async function initSignet(ctx) {
                    + Math.sin(t * 0.087 + 4.1) * 0.06;
     // Loading (Etap 9): jeden pełny obrót 360° sterowany progresem (loadFX.spin), mieszany
     // z idle przez spinWeight (1 w loadingu → 0 przy osiadaniu w HOME = bezszwowo).
-    pivot.rotation.y = loadFX.active
+    const baseRotY = loadFX.active
       ? idleRotY * (1 - loadFX.spinWeight) + loadFX.spin * loadFX.spinWeight
       : idleRotY;
+    // nudgeRotY/X: cykliczny impuls obrotu ku dywizji (navigation.js GSAP yoyo)
+    pivot.rotation.y = baseRotY + navFX.nudgeRotY;
     // Przechył góra-dół (~0.22)
     pivot.rotation.x = Math.sin(t * 0.17 + 0.6)  * 0.10
                      + Math.sin(t * 0.283 + 2.9) * 0.07
-                     + Math.sin(t * 0.119 + 5.2) * 0.05;
+                     + Math.sin(t * 0.119 + 5.2) * 0.05
+                     + navFX.nudgeRotX;
     // Subtelny roll (~0.057)
     pivot.rotation.z = Math.sin(t * 0.093 + 3.3) * 0.035
                      + Math.sin(t * 0.157 + 0.9) * 0.022;
@@ -325,6 +333,9 @@ export async function initSignet(ctx) {
     const target     = loadFX.active ? 0 : Math.min(1, idleMix + hoverBoost);
     colorMix += (target - colorMix) * (loadFX.active ? 0.1 : 0.05);
     uniforms.uColorMix.value = colorMix;
+    // Barwa dywizji wchodzi bezpośrednio do tintu ciała sygnetu — ta sama siła co w mgłach
+    uniforms.uDivColor.value.set(navFX.target.r, navFX.target.g, navFX.target.b);
+    uniforms.uDivMix.value  = navFX.intensity * TINT_MATCH;
 
     // Hover SAMEGO sygnetu (proxy: kursor blisko środka ekranu) przy BRAKU aktywnego działu
     // → stan „czyste szkło": gaśnie magenta idle i neonowy obrys (pętla niżej), zostaje sama

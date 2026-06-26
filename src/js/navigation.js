@@ -20,8 +20,9 @@ const hudTimelines = [];
 
 // Aktywne tweeny reakcji sygnetu — w scope modułu, żeby resetNavState()/router mogły je
 // ubić przy zmianie stanu (powrót HOME / wejście na podstronę).
-let beat = null;   // „heartbeat" przy wejściu: puls skali + eksplozja glow
-let pull = null;   // pulsujące przyciąganie tug w stronę działu (yoyo, nieskończone)
+let beat  = null;   // „heartbeat" przy wejściu: puls skali + eksplozja glow
+let pull  = null;   // pulsujące przyciąganie tug w stronę działu (yoyo, nieskończone)
+let nudge = null;   // cykliczny impuls obrotu sygnetu ku dywizji (yoyo, nieskończony)
 
 // Wymuszenie czystego stanu nawigacji — wołane przez router.js przy renderze HOME.
 // Naprawia „zamrożone" HUD-y: guard trybu strony blokuje mouseleave, więc timeline
@@ -29,8 +30,10 @@ let pull = null;   // pulsujące przyciąganie tug w stronę działu (yoyo, nies
 export function resetNavState() {
   hudTimelines.forEach(tl => tl.pause(0));   // seek do 0 = stan „from" (opacity 0, ukryte)
   navFX.activeDiv = null;                     // zgaś chmury tintu przy napisach
-  if (beat) { beat.kill(); beat = null; }     // ubij heartbeat, jeśli leciał
-  if (pull) { pull.kill(); pull = null; }     // zatrzymaj pulsujące przyciąganie tug
+  if (beat)  { beat.kill();  beat  = null; }
+  if (pull)  { pull.kill();  pull  = null; }
+  if (nudge) { nudge.kill(); nudge = null; }
+  gsap.to(navFX, { nudgeRotY: 0, nudgeRotX: 0, duration: 0.4, ease: 'power2.out' });
   // Tint sceny i sygnet resetuje closePage() w router.js (tweenem) — nie dublujemy tu.
 }
 
@@ -83,6 +86,15 @@ export function initNavigation() {
         { tugX: 0, tugY: 0 },
         { tugX: dir.x * TUG, tugY: dir.y * TUG, duration: 1.6, ease: 'sine.inOut' });
 
+      // Cykliczny zwrot „głowy" sygnetu: obrót → powrót → pauza → obrót … (dopóki hover trwa)
+      // Działa NIEZALEŻNIE od tug (tug = pozycja; nudge = obrót — dwa osobne kanały)
+      if (nudge) nudge.kill();
+      nudge = gsap.to(navFX, {
+        nudgeRotY: dir.x * 0.25,
+        nudgeRotX: -dir.y * 0.18,
+        duration: 0.65, ease: 'sine.inOut', yoyo: true, repeat: -1, repeatDelay: 0.35,
+      });
+
       // Heartbeat — szybki „sygnał": puls skali + eksplozja glow → opadanie (bez ruchu kierunkowego)
       if (beat) beat.kill();
       beat = gsap.timeline();
@@ -96,12 +108,14 @@ export function initNavigation() {
       if (document.body.classList.contains('page-active')) return;  // nie zeruj tintu strony
       navFX.activeDiv = null;
       if (hud) hud.reverse();
-      if (beat) { beat.kill(); beat = null; }
-      if (pull) { pull.kill(); pull = null; }   // zatrzymaj pulsujące przyciąganie
+      if (beat)  { beat.kill();  beat  = null; }
+      if (pull)  { pull.kill();  pull  = null; }
+      if (nudge) { nudge.kill(); nudge = null; }
       gsap.to(navFX, {
         intensity: 0, glow: 0, pulse: 0,
         duration: 0.5, ease: EASE, overwrite: 'auto',
       });
+      gsap.to(navFX, { nudgeRotY: 0, nudgeRotX: 0, duration: 0.5, ease: EASE, overwrite: 'auto' });
       // Dryf powrotny do bazy — równie dostojny, wolny (z punktu, w którym zastał go puls)
       gsap.to(navFX, {
         tugX: 0, tugY: 0,
@@ -113,4 +127,24 @@ export function initNavigation() {
       });
     });
   });
+
+  // Q-PONG — brak DIVISION_COLORS, więc pominięty wyżej; dodajemy tylko cykliczny zwrot ku górze
+  if (isDesktop) {
+    const pongEl = document.querySelector('#nav-pong');
+    if (pongEl) {
+      pongEl.addEventListener('mouseenter', () => {
+        if (document.body.classList.contains('page-active')) return;
+        if (nudge) nudge.kill();
+        nudge = gsap.to(navFX, {
+          nudgeRotY: 0,
+          nudgeRotX: -0.18,   // Q-PONG jest u góry → sygnet patrzy w górę
+          duration: 0.65, ease: 'sine.inOut', yoyo: true, repeat: -1, repeatDelay: 0.35,
+        });
+      });
+      pongEl.addEventListener('mouseleave', () => {
+        if (nudge) { nudge.kill(); nudge = null; }
+        gsap.to(navFX, { nudgeRotY: 0, nudgeRotX: 0, duration: 0.5, ease: EASE, overwrite: 'auto' });
+      });
+    }
+  }
 }

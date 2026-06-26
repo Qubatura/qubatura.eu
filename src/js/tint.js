@@ -27,6 +27,7 @@ export const navFX = {
   pulse: 0,                                       // „uderzenie serca" — bump skali (0..0.15)
   glow:  0,                                       // intensywność eksplozji glow outline (0..1)
   tugX: 0, tugY: 0,                               // przeskok pozycji w stronę działu (jedn. świata)
+  nudgeRotY: 0, nudgeRotX: 0,                     // cykliczny zwrot sygnetu ku dywizji (navigation.js)
   activeDiv: null,                                // id aktywnego działu (dla chmur przy napisach)
 
   // Tryb podstrony (Etap 10) — sygnet zjeżdża do rogu jako logo. Tweenowane przez router.js.
