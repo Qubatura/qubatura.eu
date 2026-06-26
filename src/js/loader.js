@@ -53,9 +53,12 @@ export function initLoader(promises) {
   onTick((dt) => {
     if (!loadFX.ramping) return;
     elapsed += dt;
-    const timeCap = Math.min(1, elapsed / MIN_DURATION);             // dolna granica ~3s
-    loadFX.progress += (loadFX.target - loadFX.progress) * Math.min(1, dt * 3.5);
-    loadFX.progress = Math.min(loadFX.progress, timeCap);
+    const timeCap = Math.min(1, elapsed / MIN_DURATION);
+    // Progres CZYSTO CZASOWY — eliminuje stalle/skoki gdy zasoby są już pre-resolved.
+    // target >= 1 jest tylko bramką dla finish(), nie sterownikiem paska.
+    loadFX.progress = timeCap;
+    // Safety valve: po 1.5× MIN_DURATION wymuszamy target=1 (zasoby nie załadowane w czasie)
+    if (elapsed > MIN_DURATION * 1.5) loadFX.target = 1;
 
     const p = loadFX.progress;
     loadFX.spin    = p * TWO_PI;                                     // jeden pełny obrót 0→100%
