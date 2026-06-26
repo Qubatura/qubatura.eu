@@ -137,9 +137,12 @@ function startGame() {
     gsap.set(header, { opacity: 1 });
   }
   if (footer) {
-    footer.style.top   = (GT + GH + 9) + 'px';
-    footer.style.left  = GL + 'px';
-    footer.style.width = GW + 'px';
+    footer.style.top     = (GT + GH + 9) + 'px';
+    footer.style.left    = GL + 'px';
+    footer.style.width   = GW + 'px';
+    footer.textContent   = isMobile()
+      ? 'PRZESUWAJ PALCEM · GRA DO 3 BRAMEK'
+      : 'MYSZ LUB STRZAŁKI ↑↓ · GRA DO 3 BRAMEK';
     gsap.set(footer, { opacity: 1 });
   }
 
@@ -224,10 +227,11 @@ function startGame() {
   window.addEventListener('mousemove', onMove);
   window.addEventListener('keydown',   onKey);
   window.addEventListener('keyup',     onKey);
-  canvas.addEventListener('touchstart',  onTouch,    { passive: false });
-  canvas.addEventListener('touchmove',   onTouch,    { passive: false });
-  canvas.addEventListener('touchend',    onTouchEnd, { passive: false });
-  canvas.addEventListener('touchcancel', onTouchEnd, { passive: false });
+  // Listenery na overlay (cały ekran), nie canvas — żeby "touch anywhere" naprawdę działał.
+  overlay.addEventListener('touchstart',  onTouch,    { passive: false });
+  overlay.addEventListener('touchmove',   onTouch,    { passive: false });
+  overlay.addEventListener('touchend',    onTouchEnd, { passive: false });
+  overlay.addEventListener('touchcancel', onTouchEnd, { passive: false });
 
   document.body.classList.add('pong-active');
   gsap.to(overlay, { opacity: 1, duration: 0.4, ease: 'power2.out' });
@@ -238,10 +242,10 @@ function startGame() {
     window.removeEventListener('mousemove', onMove);
     window.removeEventListener('keydown',   onKey);
     window.removeEventListener('keyup',     onKey);
-    canvas.removeEventListener('touchstart',  onTouch);
-    canvas.removeEventListener('touchmove',   onTouch);
-    canvas.removeEventListener('touchend',    onTouchEnd);
-    canvas.removeEventListener('touchcancel', onTouchEnd);
+    overlay.removeEventListener('touchstart',  onTouch);
+    overlay.removeEventListener('touchmove',   onTouch);
+    overlay.removeEventListener('touchend',    onTouchEnd);
+    overlay.removeEventListener('touchcancel', onTouchEnd);
   }
 
   function movePlayer() {

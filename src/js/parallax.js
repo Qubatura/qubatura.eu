@@ -18,8 +18,8 @@ const LERP_RATE = 0.10;   // tempo doganiania myszy (niżej = bardziej marzyciel
 // efekt "latania po planecie". Planet jest 2000wu wide — jest gdzie jeździć.
 const _mob = window.innerWidth <= 768;
 const MOUSE = {
-  planet: { x: _mob ? 88 : 28, y: _mob ? 56 : 18 },
-  fog:    { x: _mob ? 1.10 : 0.50, y: _mob ? 0.70 : 0.32 },
+  planet: { x: _mob ? 200 : 28, y: _mob ? 125 : 18 },
+  fog:    { x: _mob ? 1.30 : 0.50, y: _mob ? 0.85 : 0.32 },
 };
 
 // Autonomiczny dryf — sinusoidy niesynchronizowane (różne okresy, różne fazy)
@@ -59,8 +59,8 @@ export function initParallax(ctx) {
   // Kalibracja do pierwszego eventu: neutralna pozycja = jak trzymasz telefon teraz.
   {
     let betaBase = null;
-    const GAMMA_RANGE = 20;   // stopnie przechylenia na pełny efekt (±1) — bardziej responsywny
-    const BETA_RANGE  = 16;   // stopnie od bazowej pozycji na pełny efekt
+    const GAMMA_RANGE = 13;   // stopnie przechylenia na pełny efekt (±1) — agresywna czułość
+    const BETA_RANGE  = 11;   // stopnie od bazowej pozycji na pełny efekt
 
     function onOrientation(e) {
       if (e.gamma == null) return;

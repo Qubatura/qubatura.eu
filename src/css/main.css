@@ -1056,9 +1056,9 @@ body.page-active #tagline {
 
     /* Glass */
     border-radius: 16px;
-    background: rgba(var(--div-rgb, 91, 46, 255), 0.05);
-    backdrop-filter: blur(24px) saturate(160%);
-    -webkit-backdrop-filter: blur(24px) saturate(160%);
+    background: rgba(var(--div-rgb, 91, 46, 255), 0.03);
+    backdrop-filter: blur(20px) saturate(120%);
+    -webkit-backdrop-filter: blur(20px) saturate(120%);
 
     /* Obrys + lewy neon (inset) + outer glow + górny highlight */
     border: 1px solid rgba(var(--div-rgb, 91, 46, 255), 0.22);
