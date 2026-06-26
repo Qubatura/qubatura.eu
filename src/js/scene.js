@@ -12,7 +12,7 @@ const _dbs = new THREE.Vector2();
 // Planeta — jaśniejsza w renderTargecie (Pass 1, próbkowanym przez sygnet),
 // subtelna gołym okiem (Pass 2). Na mobile nieco jaśniejsza bo vignette słabsza.
 let planetMat = null;
-const PLANET_OPACITY_VISIBLE = window.innerWidth <= 768 ? 0.22 : 0.17;
+const PLANET_OPACITY_VISIBLE = window.innerWidth <= 768 ? 0.26 : 0.17;
 const PLANET_OPACITY_REFRACT = 1.0;    // co zagina sygnet (jaśniejsza soczewka)
 
 export async function initScene() {

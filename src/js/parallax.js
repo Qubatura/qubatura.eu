@@ -18,8 +18,8 @@ const LERP_RATE = 0.10;   // tempo doganiania myszy (niżej = bardziej marzyciel
 // efekt "latania po planecie". Planet jest 2000wu wide — jest gdzie jeździć.
 const _mob = window.innerWidth <= 768;
 const MOUSE = {
-  planet: { x: _mob ? 200 : 28, y: _mob ? 125 : 18 },
-  fog:    { x: _mob ? 1.30 : 0.50, y: _mob ? 0.85 : 0.32 },
+  planet: { x: _mob ? 130 : 28, y: _mob ? 80 : 18 },
+  fog:    { x: _mob ? 0.80 : 0.50, y: _mob ? 0.52 : 0.32 },
 };
 
 // Autonomiczny dryf — sinusoidy niesynchronizowane (różne okresy, różne fazy)
@@ -59,8 +59,8 @@ export function initParallax(ctx) {
   // Kalibracja do pierwszego eventu: neutralna pozycja = jak trzymasz telefon teraz.
   {
     let betaBase = null;
-    const GAMMA_RANGE = 13;   // stopnie przechylenia na pełny efekt (±1) — agresywna czułość
-    const BETA_RANGE  = 11;   // stopnie od bazowej pozycji na pełny efekt
+    const GAMMA_RANGE = 18;   // stopnie przechylenia na pełny efekt (±1)
+    const BETA_RANGE  = 14;   // stopnie od bazowej pozycji na pełny efekt
 
     function onOrientation(e) {
       if (e.gamma == null) return;
@@ -105,12 +105,9 @@ export function initParallax(ctx) {
       const m = MOUSE[key];
       let ox = smooth.x * m.x;
       let oy = smooth.y * m.y;
-      // Na mobile: dryf wyłączony — żyroskop jedynym źródłem ruchu (czytelny test)
-      if (!_mob) {
-        for (const d of drifts) {
-          const w = Math.sin(elapsed * (Math.PI * 2 / d.period) + d.phase) * d.amp;
-          if (d.axis === 'x') ox += w; else oy += w;
-        }
+      for (const d of drifts) {
+        const w = Math.sin(elapsed * (Math.PI * 2 / d.period) + d.phase) * d.amp;
+        if (d.axis === 'x') ox += w; else oy += w;
       }
       px[key].x = ox;
       px[key].y = oy;
