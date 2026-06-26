@@ -25,13 +25,15 @@ let pull  = null;   // pulsujące przyciąganie tug w stronę działu (yoyo, nie
 let nudge = null;   // cykliczny impuls obrotu sygnetu ku dywizji (yoyo, nieskończony)
 
 // Jeden silnik nudge — używany przez wszystkie 4 odnogi nav (Events/Studio/Lab/Q-PONG).
-// overwrite:'auto' kasuje ewentualne konflikty z tween powrotnym z poprzedniego hover.
+// gsap.set do 0 przed tweenем: gwarantuje że yoyo zawsze biegnie 0 → target → 0,
+// a nie od resztkowej wartości poprzedniego hover (co powodowało "zawsze Events" bug).
 function startNudge(rotY, rotX) {
   if (nudge) nudge.kill();
+  gsap.killTweensOf(navFX, 'nudgeRotY,nudgeRotX');  // ubija tween powrotny z stopNudge
+  gsap.set(navFX, { nudgeRotY: 0, nudgeRotX: 0 });  // bazuje yoyo zawsze na 0
   nudge = gsap.to(navFX, {
     nudgeRotY: rotY, nudgeRotX: rotX,
     duration: 0.65, ease: 'sine.inOut', yoyo: true, repeat: -1, repeatDelay: 0.35,
-    overwrite: 'auto',
   });
 }
 function stopNudge() {
