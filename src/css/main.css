@@ -1108,25 +1108,50 @@ body.page-active #tagline {
     text-shadow: none;
   }
 
-  /* ─── Środek: podtytuł (hud-title) ─── */
+  /* ─── Środek: podtytuł i opis usług ─── */
   .nav-hud {
     position: static;
     transform: none;
     flex: 1;
     padding: 0;
     white-space: normal;
+    overflow: hidden;
+  }
+
+  /* Issue 2: #nav-lab .nav-hud ma desktop left:50%; transform:translateX(-50%)
+     z ID specificity (1,1,0) — bije .nav-hud class override (0,1,0) na mobile
+     → hud wsuwa się pod "Lab". Wymuszamy tu tym samym poziomem specyficzności. */
+  #nav-lab .nav-hud {
+    transform: none;
+    left: auto;
+    text-align: left;
   }
 
   .hud-title {
     opacity: 1;
-    font-size: 8px;
-    letter-spacing: 0.1em;
-    color: rgba(255, 255, 255, 0.32);
+    font-size: 11px;
+    letter-spacing: 0.10em;
+    color: rgba(255, 255, 255, 0.62);
     text-shadow: none;
-    margin: 0;
+    margin: 0 0 2px;
     text-transform: uppercase;
-    line-height: 1.4;
+    line-height: 1.3;
     white-space: normal;
+  }
+
+  .hud-services {
+    opacity: 1;
+  }
+
+  .hud-row {
+    font-size: 9px;
+    color: rgba(255, 255, 255, 0.40);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    letter-spacing: 0.04em;
+    line-height: 1.4;
+    margin: 0;
   }
 
   /* ─── Prawa strzałka ─── */
@@ -1178,5 +1203,10 @@ body.page-active #tagline {
 
   #page-back {
     top: calc(env(safe-area-inset-top, 0px) + 16px);
+  }
+
+  /* Issue 5: vignette słabsza — ciemna zasłona mniej agresywna, więcej widać planety/mgły */
+  #vignette {
+    box-shadow: inset 0 0 140px 30px var(--color-bg);
   }
 }

@@ -88,6 +88,9 @@ export async function initSignet(ctx) {
     uResolution:        { value: dbSize }, // drawing buffer size — potrzebne do gl_FragCoord UV
   };
 
+  // Na mobile szyba zagina mocniej — przy ciemnym tle subtelne 0.06 jest niewidoczne
+  if (window.innerWidth <= 768) uniforms.refractionStrength.value = 0.12;
+
   const mat = new THREE.ShaderMaterial({
     uniforms,
     transparent: true,
@@ -156,7 +159,10 @@ export async function initSignet(ctx) {
         color += specColor * colorAmt;
         color += tint * 0.4 * colorAmt;
         color += tint * fresnel * 0.5 * colorAmt;
-        color += vec3(1.0) * fresnel * 0.6 * uGlass;
+        // Stałe krawędziowe oświetlenie — widoczne niezależnie od tła i trybu szkła.
+        // Idle: delikatna jasna krawędź (bryłowatość na ciemnym mobile bg).
+        // Szkło: silniejsze, pryzmatyczne (+0.50).
+        color += vec3(0.88, 0.76, 1.0) * fresnel * (0.22 + uGlass * 0.50);
 
         gl_FragColor = vec4(color, 0.85 + fresnel * 0.15);
       }

@@ -53,6 +53,37 @@ export function initParallax(ctx) {
     raw.y = -(e.clientY / window.innerHeight - 0.5) * 2;  // ekran → świat: Y odwrócone
   });
 
+  // Żyroskop (mobile) — przechylenie telefonu zastępuje mysz.
+  // gamma = obrót lewo/prawo (-90..+90°), beta = przechyl przód/tył (0..180°).
+  // Kalibracja do pierwszego eventu: neutralna pozycja = jak trzymasz telefon teraz.
+  {
+    let betaBase = null;
+    const GAMMA_RANGE = 30;   // stopnie przechylenia na pełny efekt (±1)
+    const BETA_RANGE  = 22;   // stopnie od bazowej pozycji na pełny efekt
+
+    function onOrientation(e) {
+      if (e.gamma == null) return;
+      if (betaBase === null) betaBase = e.beta ?? 90;
+      raw.x =  Math.max(-1, Math.min(1, (e.gamma || 0) / GAMMA_RANGE));
+      raw.y =  Math.max(-1, Math.min(1, (betaBase - (e.beta ?? betaBase)) / BETA_RANGE));
+    }
+
+    if (typeof DeviceOrientationEvent !== 'undefined') {
+      if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+        // iOS 13+ — zezwolenie wymagane z gestą użytkownika (pierwsze dotknięcie)
+        document.addEventListener('touchstart', function ask() {
+          document.removeEventListener('touchstart', ask);
+          DeviceOrientationEvent.requestPermission()
+            .then(s => { if (s === 'granted') window.addEventListener('deviceorientation', onOrientation, true); })
+            .catch(() => {});
+        }, { once: true });
+      } else {
+        // Android i iOS < 13 — listener od razu
+        window.addEventListener('deviceorientation', onOrientation, true);
+      }
+    }
+  }
+
   onTick((delta, elapsed) => {
     // Frame-rate independent lerp (stała "odczucia" niezależna od FPS)
     const t = 1 - Math.pow(1 - LERP_RATE, delta * 60);

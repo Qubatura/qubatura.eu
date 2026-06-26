@@ -6,19 +6,21 @@ import { onTick } from './scene.js';
 import { navFX, DIVISION_COLORS, loadFX } from './tint.js';
 
 // ── Konfiguracja ──────────────────────────────────────────────────────────────
-const POOL      = 22;
 const MAX_SPD   = 58;    // wu/s XY
 const MAX_ACC   = 42;    // wu/s² XY
 const MAX_SPD_Z = 18;    // wu/s głębia
 const MAX_ACC_Z = 10;    // wu/s² głębia
 const ARRIVE_R  = 30;    // wu — "osiągam cel XY, biorę nowy"
 const SIGNET_R  = 52;    // wu od centrum → fade (wyłącznie tryb signet/pong)
-const BOUND_X   = 270;   // half-width strefy lotu (nav labels ≈ ±250wu)
-const BOUND_Y   = 155;   // half-height strefy lotu
 const Z_MIN     = -55;   // najdalej od kamery (szerszy zakres → lepsza głębia 3D)
 const Z_MAX     = 85;    // najbliżej kamery
 const Z_NORM    = 15;    // głębokość neutralna (brightness = 1.0)
 const FF_SIZE   = 7;     // wu — rozmiar glow sprite (sizeAttenuation skaluje perspektywicznie)
+
+// BOUND_X/Y obliczane w initFireflies() z rozmiaru ekranu — na mobile portretowym
+// połowa szerokości ekranu to ~80wu, a stałe 270/155 wyrzucały świetliki poza kadr.
+let BOUND_X = 270;
+let BOUND_Y = 155;
 
 // Selektory: tożsame z atmosphere.js CLOUD_DEFS (te same punkty co centra chmur)
 const DEPT_SEL = {
@@ -230,6 +232,15 @@ function updateFF(ff, delta, elapsed, activeDiv, divCol, signetActive, orbitActi
 // ── Public API ────────────────────────────────────────────────────────────────
 export function initFireflies(ctx) {
   const { scene } = ctx;
+
+  // Dostosuj granice do aspektu ekranu (mobile portretowy: ~80wu wide vs desktop ~308wu).
+  // FOV=60°, cam_z=300 → halfH=tan(30°)*300≈173wu; halfW=halfH*(w/h).
+  const halfH = Math.tan(Math.PI / 6) * 300;
+  const halfW = halfH * (window.innerWidth / window.innerHeight);
+  BOUND_X = Math.min(270, halfW * 0.90);
+  BOUND_Y = Math.min(155, halfH * 0.72);
+
+  const POOL = window.innerWidth <= 768 ? 12 : 22;
 
   computeLabelPos();
   window.addEventListener('resize', computeLabelPos);
