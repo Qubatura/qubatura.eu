@@ -42,7 +42,7 @@ const GLOW_FRAG = /* glsl */`
 `;
 
 export async function initSignet(ctx) {
-  const { scene } = ctx;
+  const { scene, renderer } = ctx;
 
   // ─── Load SVG ──────────────────────────────────────────────────────────────
   const loader = new SVGLoader();
@@ -71,6 +71,12 @@ export async function initSignet(ctx) {
   const S      = (51.4 * 1.1) / svgMax;   // +10% rozmiaru bazowego
 
   // ─── Material — custom GLSL: refrakcja tła + chromatic aberration + fresnel ──
+  // uResolution: rozmiar drawing buffer w pikselach fizycznych — używane w shaderze do
+  // obliczenia screen-space UV przez gl_FragCoord (bardziej stabilne niż vClip na mobile).
+  const dbSize = new THREE.Vector2();
+  renderer.getDrawingBufferSize(dbSize);
+  window.addEventListener('resize', () => renderer.getDrawingBufferSize(dbSize));
+
   const uniforms = {
     tBackground:        { value: null },   // wstrzykiwane co klatkę przez scene.js
     refractionStrength: { value: 0.06 },   // siła zagięcia planety (do tuningu)
@@ -79,6 +85,7 @@ export async function initSignet(ctx) {
     uGlass:             { value: 0 },      // 0 = normalny tint, 1 = czyste szkło (hover sygnetu, brak działu)
     uDivColor:          { value: new THREE.Vector3(0.35, 0.18, 1.0) },  // kolor aktywnej dywizji (default = primary)
     uDivMix:            { value: 0 },      // siła blendowania barwy dywizji do tintu ciała sygnetu
+    uResolution:        { value: dbSize }, // drawing buffer size — potrzebne do gl_FragCoord UV
   };
 
   const mat = new THREE.ShaderMaterial({
@@ -88,13 +95,11 @@ export async function initSignet(ctx) {
     depthWrite:  false,
     vertexShader: /* glsl */`
       varying vec3 vNormal;
-      varying vec4 vClip;
       varying vec3 vWorldPos;
       void main() {
-        vNormal   = normalize(normalMatrix * normal);
-        vWorldPos = (modelMatrix * vec4(position, 1.0)).xyz;
-        vClip     = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-        gl_Position = vClip;
+        vNormal     = normalize(normalMatrix * normal);
+        vWorldPos   = (modelMatrix * vec4(position, 1.0)).xyz;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
       }
     `,
     fragmentShader: /* glsl */`
@@ -105,14 +110,15 @@ export async function initSignet(ctx) {
       uniform float uGlass;
       uniform vec3  uDivColor;
       uniform float uDivMix;
+      uniform vec2  uResolution;
 
       varying vec3 vNormal;
-      varying vec4 vClip;
       varying vec3 vWorldPos;
 
       void main() {
-        // Screen-space UV — dzielenie perspektywiczne per-fragment (poprawne)
-        vec2 vScreenPos = (vClip.xy / vClip.w) * 0.5 + 0.5;
+        // Screen-space UV przez gl_FragCoord — stabilniejsze na mobile niż vClip interpolacja.
+        // gl_FragCoord.y=0 u dołu; renderTarget z flipY=false też ma Y=0 u dołu → brak flipu.
+        vec2 vScreenPos = gl_FragCoord.xy / uResolution;
 
         // Zagięcie UV przez normalną (refrakcja)
         vec2 refractedUV = vScreenPos + vNormal.xy * refractionStrength;
@@ -288,6 +294,20 @@ export async function initSignet(ctx) {
   const _c    = new THREE.Color();   // scratch do liczenia koloru obrysu per klatkę
   const _gray = new THREE.Color();   // scratch dla desaturacji Lab glow
 
+  // Mobile Y-shift — przesuwa sygnet w górę tak, żeby był wizualnie wycentrowany
+  // w przestrzeni powyżej tacy nawigacyjnej (3 × 64px ≈ 192px).
+  const TAN30 = Math.tan(Math.PI / 6);   // tan(FOV/2) dla FOV=60°
+  const CAM_Z = 300;
+  let mobileYShift = 0;
+  function updateMobileShift() {
+    if (window.innerWidth > 768) { mobileYShift = 0; return; }
+    const navH    = 192;                                          // 3 karty × 64px
+    const wuPerPx = (2 * TAN30 * CAM_Z) / window.innerHeight;   // world units / CSS pixel
+    mobileYShift  = (navH * 0.5) * wuPerPx;                     // przesuń w górę o pół tacy
+  }
+  updateMobileShift();
+  window.addEventListener('resize', updateMobileShift);
+
   onTick((_dt, elapsed) => {
     uniforms.time.value = elapsed;
 
@@ -319,11 +339,14 @@ export async function initSignet(ctx) {
 
     // Float góra-dół: amplituda −30% (5.0 → ~3.5), też rozbity na kilka fal
     // + navFX.tug = przeskok „jakby go pociągnęło" w stronę działu (heartbeat)
+    // mobileYShift — na mobile przesuwa sygnet w górę, żeby nie siedział za nisko nad tacą nav
     pivot.position.x = navFX.tugX + navFX.pageX;
-    pivot.position.y = Math.sin(t * 0.6)         * 2.2
+    pivot.position.y = mobileYShift
+                     + Math.sin(t * 0.6)         * 2.2
                      + Math.sin(t * 0.41 + 2.2)  * 0.9
                      + Math.sin(t * 0.83 + 5.0)  * 0.4
                      + navFX.tugY + navFX.pageY;
+    pivot.position.z = navFX.pageZ;   // Q-PONG na mobile: odjazd w głąb sceny
 
     // Magenta jako nagroda za interakcję — w spoczynku sygnet trzyma się primary.
     // idleMix: kąt obrotu daje cień magenty (max ~0.14 przy edge-on), nie pełne przejście.

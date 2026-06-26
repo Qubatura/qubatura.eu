@@ -89,11 +89,15 @@ export function initPong() {
   btn.addEventListener('click', e => { e.preventDefault(); startGame(); });
 }
 
+const isMobile = () => window.innerWidth <= 768;
+
 // getArea zwraca wymiary boiska — szersze o ~15% bo sygnet skurczony do 0.62
 function getArea() {
   const W  = window.innerWidth;
   const H  = window.innerHeight;
-  const gt = 52;
+  // Na mobile dodajemy bufor na safe-area-inset-top (notch/Dynamic Island ≈ 47px).
+  // Nagłówek gry (header) wyrenderuje się 30px nad krawędzią boiska → gt - 30 ≥ safe area.
+  const gt = isMobile() ? 80 : 52;
   const gb = H * 0.5 - 115;   // tighter: signet @ 0.62 → mniej miejsca zajmuje
   const GH = Math.max(120, gb - gt);
   const GW = Math.round(GH * 4 / 3);
@@ -110,6 +114,8 @@ function startGame() {
   if (!overlay || !canvas || !card) return;
 
   gsap.to(navFX, { pageScale: 0.62, duration: 0.55, ease: 'power2.inOut' });
+  // Mobile: sygnet odpływa w głąb sceny — perspektywa głębi + robi miejsce na boisko
+  if (isMobile()) gsap.to(navFX, { pageZ: -70, duration: 0.65, ease: 'power2.inOut' });
 
   const { GW, GH, GT, GL } = getArea();
   const PAD_H  = Math.round(GH / 5);
@@ -197,9 +203,19 @@ function startGame() {
     keys[e.key] = e.type === 'keydown';
     if (e.type === 'keydown') { lastKeyMs = Date.now(); inputMode = 'key'; }
   };
+  // Touch — drag palcem przesuwa paletkę; e.preventDefault() blokuje scroll strony
+  const onTouch = e => {
+    e.preventDefault();
+    const t = e.touches[0];
+    if (!t) return;
+    mouseY    = t.clientY - GT;
+    inputMode = 'mouse';   // reuse mouse tracking logic
+  };
   window.addEventListener('mousemove', onMove);
   window.addEventListener('keydown',   onKey);
   window.addEventListener('keyup',     onKey);
+  canvas.addEventListener('touchstart', onTouch, { passive: false });
+  canvas.addEventListener('touchmove',  onTouch, { passive: false });
 
   document.body.classList.add('pong-active');
   gsap.to(overlay, { opacity: 1, duration: 0.4, ease: 'power2.out' });
@@ -210,6 +226,8 @@ function startGame() {
     window.removeEventListener('mousemove', onMove);
     window.removeEventListener('keydown',   onKey);
     window.removeEventListener('keyup',     onKey);
+    canvas.removeEventListener('touchstart', onTouch);
+    canvas.removeEventListener('touchmove',  onTouch);
   }
 
   function movePlayer() {
@@ -389,6 +407,8 @@ function showCard(overlay, canvas, card, header, footer) {
     onComplete() {
       document.body.classList.remove('pong-active');
       gsap.to(navFX, { pageScale: 1, duration: 0.5, ease: 'power2.out' });
+      // Mobile: sygnet wraca z głębi sceny do pozycji HOME
+      if (isMobile()) gsap.to(navFX, { pageZ: 0, duration: 0.5, ease: 'power2.out' });
       gsap.set([overlay, card, ...fadeEls], { opacity: 0 });
       gsap.set([quoteEl, identEl], { clearProps: 'opacity' });
       canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);

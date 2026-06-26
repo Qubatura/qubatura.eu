@@ -31,7 +31,7 @@ export const navFX = {
   activeDiv: null,                                // id aktywnego działu (dla chmur przy napisach)
 
   // Tryb podstrony (Etap 10) — sygnet zjeżdża do rogu jako logo. Tweenowane przez router.js.
-  pageX: 0, pageY: 0,                             // offset pozycji sygnetu w jedn. świata
+  pageX: 0, pageY: 0, pageZ: 0,                    // offset pozycji sygnetu w jedn. świata
   pageScale: 1,                                   // mnożnik skali sygnetu (1 = hero, <1 = logo)
 };
 
