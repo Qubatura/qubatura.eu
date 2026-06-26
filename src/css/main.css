@@ -1016,7 +1016,7 @@ body.page-active #tagline {
     display: none;                          /* za mało miejsca na mobile */
   }
 
-  /* ─── Nav: pionowa taca kart u dołu ─── */
+  /* ─── Nav: transparentny kontener — scena prześwituje między kartami ─── */
   #nav {
     position: fixed;
     bottom: 0;
@@ -1025,17 +1025,22 @@ body.page-active #tagline {
     top: auto;
     display: flex;
     flex-direction: column;
-    gap: 0;
-    padding: 0;
-    padding-bottom: env(safe-area-inset-bottom, 0px);
-    background: rgba(6, 5, 15, 0.82);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-top: 1px solid rgba(255, 255, 255, 0.07);
+    gap: 8px;
+    padding: 10px 14px;
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 10px);
+    background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border-top: none;
     z-index: 20;
   }
 
-  /* ─── Karty — wspólne ─── */
+  /* RGB per dywizję — potrzebne do rgba() w tle karty */
+  #nav-events { --div-rgb: 124, 58, 237; }   /* #7C3AED */
+  #nav-studio { --div-rgb: 30, 144, 255;  }  /* #1E90FF */
+  #nav-lab    { --div-rgb: 0, 229, 255;   }  /* #00E5FF */
+
+  /* ─── Karty — Dark Glassmorphism ─── */
   .nav-item {
     position: static;
     transform: none;
@@ -1046,18 +1051,30 @@ body.page-active #tagline {
     flex: none;
     width: 100%;
     max-width: none;
-    min-height: 64px;                       /* > 48px touch target */
-    padding: 0 20px 0 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    border-left: 2px solid var(--div-color, var(--color-primary));
+    min-height: 64px;
+    padding: 0 16px 0 0;
+
+    /* Glass */
+    border-radius: 16px;
+    background: rgba(var(--div-rgb, 91, 46, 255), 0.13);
+    backdrop-filter: blur(24px) saturate(160%);
+    -webkit-backdrop-filter: blur(24px) saturate(160%);
+
+    /* Obrys + lewy neon (inset) + outer glow + górny highlight */
+    border: 1px solid rgba(var(--div-rgb, 91, 46, 255), 0.28);
+    box-shadow:
+      inset 3px 0 0 rgba(var(--div-rgb, 91, 46, 255), 0.75),
+      0 8px 32px rgba(var(--div-rgb, 91, 46, 255), 0.18),
+      0 2px 8px rgba(0, 0, 0, 0.35),
+      inset 0 1px 0 rgba(255, 255, 255, 0.09);
+
     text-decoration: none;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
-    transition: background 0.12s ease;
+    transition: background 0.16s ease, box-shadow 0.16s ease;
   }
 
-  /* Specyficzność: desktop #nav-lab{flex-direction:column} i #nav-studio{transform:translateY(-50%)}
-     mają reguły ID-poziomu (1,0,0) bijące .nav-item class override (0,1,0) — wymuszamy tu. */
+  /* Specyficzność: ID-level override dla flex-direction i transform */
   #nav-events,
   #nav-studio,
   #nav-lab {
@@ -1065,18 +1082,19 @@ body.page-active #tagline {
     transform: none;
   }
 
-  /* Topbar ukryty podczas Q-PONG — nie zasłania planszy ani nagłówka gry */
+  /* Topbar ukryty podczas Q-PONG */
   body.pong-active #topbar {
     opacity: 0 !important;
     pointer-events: none !important;
   }
 
-  .nav-item:last-of-type {
-    border-bottom: none;
-  }
-
   .nav-item:active {
-    background: rgba(255, 255, 255, 0.04);
+    background: rgba(var(--div-rgb, 91, 46, 255), 0.24);
+    box-shadow:
+      inset 3px 0 0 rgba(var(--div-rgb, 91, 46, 255), 1.0),
+      0 4px 20px rgba(var(--div-rgb, 91, 46, 255), 0.34),
+      0 1px 4px rgba(0, 0, 0, 0.30),
+      inset 0 1px 0 rgba(255, 255, 255, 0.13);
   }
 
   /* ─── Lewa kolumna: nazwa działu ─── */
