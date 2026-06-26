@@ -24,16 +24,30 @@ let beat  = null;   // „heartbeat" przy wejściu: puls skali + eksplozja glow
 let pull  = null;   // pulsujące przyciąganie tug w stronę działu (yoyo, nieskończone)
 let nudge = null;   // cykliczny impuls obrotu sygnetu ku dywizji (yoyo, nieskończony)
 
+// Jeden silnik nudge — używany przez wszystkie 4 odnogi nav (Events/Studio/Lab/Q-PONG).
+// overwrite:'auto' kasuje ewentualne konflikty z tween powrotnym z poprzedniego hover.
+function startNudge(rotY, rotX) {
+  if (nudge) nudge.kill();
+  nudge = gsap.to(navFX, {
+    nudgeRotY: rotY, nudgeRotX: rotX,
+    duration: 0.65, ease: 'sine.inOut', yoyo: true, repeat: -1, repeatDelay: 0.35,
+    overwrite: 'auto',
+  });
+}
+function stopNudge() {
+  if (nudge) { nudge.kill(); nudge = null; }
+  gsap.to(navFX, { nudgeRotY: 0, nudgeRotX: 0, duration: 0.4, ease: EASE, overwrite: 'auto' });
+}
+
 // Wymuszenie czystego stanu nawigacji — wołane przez router.js przy renderze HOME.
 // Naprawia „zamrożone" HUD-y: guard trybu strony blokuje mouseleave, więc timeline
 // klikniętej dywizji nie cofa się sam. Tu cofamy WSZYSTKIE do czasu 0 (stan ukryty).
 export function resetNavState() {
   hudTimelines.forEach(tl => tl.pause(0));   // seek do 0 = stan „from" (opacity 0, ukryte)
   navFX.activeDiv = null;                     // zgaś chmury tintu przy napisach
-  if (beat)  { beat.kill();  beat  = null; }
-  if (pull)  { pull.kill();  pull  = null; }
-  if (nudge) { nudge.kill(); nudge = null; }
-  gsap.to(navFX, { nudgeRotY: 0, nudgeRotX: 0, duration: 0.4, ease: 'power2.out' });
+  if (beat) { beat.kill(); beat = null; }
+  if (pull) { pull.kill(); pull = null; }
+  stopNudge();
   // Tint sceny i sygnet resetuje closePage() w router.js (tweenem) — nie dublujemy tu.
 }
 
@@ -86,14 +100,8 @@ export function initNavigation() {
         { tugX: 0, tugY: 0 },
         { tugX: dir.x * TUG, tugY: dir.y * TUG, duration: 1.6, ease: 'sine.inOut' });
 
-      // Cykliczny zwrot „głowy" sygnetu: obrót → powrót → pauza → obrót … (dopóki hover trwa)
-      // Działa NIEZALEŻNIE od tug (tug = pozycja; nudge = obrót — dwa osobne kanały)
-      if (nudge) nudge.kill();
-      nudge = gsap.to(navFX, {
-        nudgeRotY: dir.x * 0.25,
-        nudgeRotX: -dir.y * 0.18,
-        duration: 0.65, ease: 'sine.inOut', yoyo: true, repeat: -1, repeatDelay: 0.35,
-      });
+      // Cykliczny zwrot „głowy" sygnetu (tug = pozycja; nudge = obrót — dwa osobne kanały)
+      startNudge(dir.x * 0.25, -dir.y * 0.18);
 
       // Heartbeat — szybki „sygnał": puls skali + eksplozja glow → opadanie (bez ruchu kierunkowego)
       if (beat) beat.kill();
@@ -108,14 +116,13 @@ export function initNavigation() {
       if (document.body.classList.contains('page-active')) return;  // nie zeruj tintu strony
       navFX.activeDiv = null;
       if (hud) hud.reverse();
-      if (beat)  { beat.kill();  beat  = null; }
-      if (pull)  { pull.kill();  pull  = null; }
-      if (nudge) { nudge.kill(); nudge = null; }
+      if (beat) { beat.kill(); beat = null; }
+      if (pull) { pull.kill(); pull = null; }
+      stopNudge();
       gsap.to(navFX, {
         intensity: 0, glow: 0, pulse: 0,
         duration: 0.5, ease: EASE, overwrite: 'auto',
       });
-      gsap.to(navFX, { nudgeRotY: 0, nudgeRotX: 0, duration: 0.5, ease: EASE, overwrite: 'auto' });
       // Dryf powrotny do bazy — równie dostojny, wolny (z punktu, w którym zastał go puls)
       gsap.to(navFX, {
         tugX: 0, tugY: 0,
@@ -134,17 +141,9 @@ export function initNavigation() {
     if (pongEl) {
       pongEl.addEventListener('mouseenter', () => {
         if (document.body.classList.contains('page-active')) return;
-        if (nudge) nudge.kill();
-        nudge = gsap.to(navFX, {
-          nudgeRotY: 0,
-          nudgeRotX: -0.18,   // Q-PONG jest u góry → sygnet patrzy w górę
-          duration: 0.65, ease: 'sine.inOut', yoyo: true, repeat: -1, repeatDelay: 0.35,
-        });
+        startNudge(0, -0.18);   // Q-PONG jest u góry → sygnet patrzy w górę
       });
-      pongEl.addEventListener('mouseleave', () => {
-        if (nudge) { nudge.kill(); nudge = null; }
-        gsap.to(navFX, { nudgeRotY: 0, nudgeRotX: 0, duration: 0.5, ease: EASE, overwrite: 'auto' });
-      });
+      pongEl.addEventListener('mouseleave', () => stopNudge());
     }
   }
 }

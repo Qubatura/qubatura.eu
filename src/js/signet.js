@@ -345,7 +345,10 @@ export async function initSignet(ctx) {
       _mouse.y - window.innerHeight * 0.5
     );
     const wantGlass = (distC < 72 && !navFX.activeDiv && !loadFX.active) ? 1 : 0;
-    glassMix += (wantGlass - glassMix) * 0.1;   // miękkie wejście/wyjście ze szkła
+    // Przy aktywnym dziale: szybki odpływ szkła (~5 klatek = 83ms → niewidoczny).
+    // Zapobiega chwilowemu przeskokowi do „czyste szkło" gdy kursor przechodzi przez centrum
+    // w drodze do Lab (bezpośrednio pod sygnetu — leży w strefie distC < 72).
+    glassMix += (wantGlass - glassMix) * (navFX.activeDiv ? 0.5 : 0.1);
     // Loading: „materia w kolorze" wlewa się w sygnet — szkło (1−charge) gęstnieje w primary.
     const loadGlass = loadFX.active ? (1 - loadFX.charge) : 0;
     const gEff = Math.max(glassMix, loadGlass);
