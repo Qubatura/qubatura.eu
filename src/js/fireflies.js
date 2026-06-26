@@ -180,7 +180,7 @@ function updateFF(ff, delta, elapsed, activeDiv, divCol, signetActive, orbitActi
     const rawSum = 0.50 * Math.sin(elapsed *  3.1 * pm + ff.phase) +
                    0.30 * Math.sin(elapsed *  8.7 * pm + ff.phase * 1.618) +
                    0.20 * Math.sin(elapsed * 19.3 * pm + ff.phase * 2.414);
-    const flicker = 0.60 + 0.40 * (rawSum * 0.5 + 0.5);
+    const flicker = 0.42 + 0.58 * (rawSum * 0.5 + 0.5);   // szerszy zakres pulsu = bardziej dramatyczne
     ff.flicker = flicker;
     const boost = ff.targeting === 'signet' ? 3.5 :
                   (ff.targeting === 'dept' || ff.targeting === 'orbit') ? 2.5 : 1.0;

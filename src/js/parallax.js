@@ -105,9 +105,12 @@ export function initParallax(ctx) {
       const m = MOUSE[key];
       let ox = smooth.x * m.x;
       let oy = smooth.y * m.y;
-      for (const d of drifts) {
-        const w = Math.sin(elapsed * (Math.PI * 2 / d.period) + d.phase) * d.amp;
-        if (d.axis === 'x') ox += w; else oy += w;
+      // Na mobile: dryf wyłączony — żyroskop jedynym źródłem ruchu (czytelny test)
+      if (!_mob) {
+        for (const d of drifts) {
+          const w = Math.sin(elapsed * (Math.PI * 2 / d.period) + d.phase) * d.amp;
+          if (d.axis === 'x') ox += w; else oy += w;
+        }
       }
       px[key].x = ox;
       px[key].y = oy;
