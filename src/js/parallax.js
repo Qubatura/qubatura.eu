@@ -71,15 +71,25 @@ export function initParallax(ctx) {
 
     if (typeof DeviceOrientationEvent !== 'undefined') {
       if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-        // iOS 13+ — zezwolenie wymagane z gestą użytkownika (pierwsze dotknięcie)
-        document.addEventListener('touchstart', function ask() {
-          document.removeEventListener('touchstart', ask);
+        // iOS 13+ — requestPermission wymaga gestu użytkownika. Ponawiamy przy każdym dotyku
+        // (nie tylko pierwszym) — dialog pojawia się tylko raz, kolejne wywołania zwracają
+        // cached decyzję bez UI. Dzięki temu nie tracimy szansy gdy użytkownik nie widział
+        // pierwszego dialogu (loading screen, nieoczekiwany timing).
+        let gyroGranted = false;
+        function tryGyro() {
+          if (gyroGranted) return;
           DeviceOrientationEvent.requestPermission()
-            .then(s => { if (s === 'granted') window.addEventListener('deviceorientation', onOrientation, true); })
+            .then(s => {
+              if (s === 'granted' && !gyroGranted) {
+                gyroGranted = true;
+                window.addEventListener('deviceorientation', onOrientation, true);
+              }
+            })
             .catch(() => {});
-        }, { once: true });
+        }
+        document.addEventListener('touchstart', tryGyro, { passive: true });
       } else {
-        // Android i iOS < 13 — listener od razu
+        // Android i iOS < 13 — bez zezwolenia, listener od razu
         window.addEventListener('deviceorientation', onOrientation, true);
       }
     }

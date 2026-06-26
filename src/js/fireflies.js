@@ -55,7 +55,7 @@ function makeGlowTex() {
   const g  = cx.createRadialGradient(r, r, 0, r, r, r);
   g.addColorStop(0.00, 'rgba(255,255,255,1.00)');
   g.addColorStop(0.14, 'rgba(255,255,255,0.82)');
-  g.addColorStop(0.28, 'rgba(255,255,255,0.14)');  // było 0.55=0.20 → ciasne jądro, brak dalekiego halo
+  g.addColorStop(0.28, 'rgba(255,255,255,0.14)');
   g.addColorStop(0.46, 'rgba(255,255,255,0.02)');
   g.addColorStop(1.00, 'rgba(255,255,255,0.00)');
   cx.fillStyle = g;
@@ -78,14 +78,13 @@ function pickRandom(ff) {
 
 function pickDeptTarget(ff, activeDiv) {
   let lp = labelPos[activeDiv];
-  if (!lp) { computeLabelPos(); lp = labelPos[activeDiv]; }  // lazy — jeśli init był przed layoutem
+  if (!lp) { computeLabelPos(); lp = labelPos[activeDiv]; }
   if (!lp) { pickRandom(ff); return; }
   const a = Math.random() * Math.PI * 2;
   const r = 10 + Math.random() * 22;
-  // Clamped do granic — etykiety mogą być przy samej krawędzi ekranu
   ff.tx        = Math.min(BOUND_X, Math.max(-BOUND_X, lp.x + Math.cos(a) * r));
   ff.ty        = Math.min(BOUND_Y, Math.max(-BOUND_Y, lp.y + Math.sin(a) * r));
-  ff.tz        = Z_MIN + Math.random() * (Z_MAX - Z_MIN);  // pełny zakres Z jak wander
+  ff.tz        = Z_MIN + Math.random() * (Z_MAX - Z_MIN);
   ff.targeting = 'dept';
 }
 
@@ -98,7 +97,7 @@ function pickSignetTarget(ff) {
   ff.targeting = 'signet';
 }
 
-// 'orbit': krążenie wokół sygnetu BEZ fade (używane przy hover "Chwila relaksu")
+// 'orbit': krążenie wokół sygnetu BEZ fade — domyślny tryb na mobile (brak hover)
 function pickSignetOrbit(ff) {
   const a = Math.random() * Math.PI * 2;
   const r = 20 + Math.random() * 35;   // orbit 20-55wu — wokół, nie na sygnecie
@@ -119,18 +118,15 @@ function makeFF() {
     vz: (Math.random() - 0.5) * MAX_SPD_Z * 0.6,
     tx: 0, ty: 0, tz: 0,
     targeting: null,
-    // Mikro-flicker: losowa faza per instancja (używana jako offset 3 szybkich sinusoid)
-    maxBright:   0.22 + Math.random() * 0.38,   // per-firefly max (0.22..0.60)
+    maxBright:   0.42 + Math.random() * 0.52,   // per-firefly max (0.42..0.94) — bardziej aktywne i widoczne
     phase:       Math.random() * Math.PI * 2,
     pulseMod:    0.75 + Math.random() * 0.55,   // 0.75–1.30× — każdy świetlik inny rytm
-    flicker:     0.78,                           // aktualna wartość pulsu (zapisywana per klatka)
-    // Nieregularna prędkość — sinusoidalna modulacja niezależna per instancja
-    speedPeriod: 0.9  + Math.random() * 1.8,    // 0.9–2.7s
+    flicker:     0.78,
+    speedPeriod: 0.9  + Math.random() * 1.8,
     speedPhase:  Math.random() * Math.PI * 2,
-    // Kolor
     cr: IDLE_COL.r, cg: IDLE_COL.g, cb: IDLE_COL.b,
     intensity: Math.random() * 0.15,
-    state: 'wander',                             // 'wander' | 'fading'
+    state: 'wander',
   };
   pickRandom(ff);
   return ff;
@@ -139,14 +135,11 @@ function makeFF() {
 // ── Update ────────────────────────────────────────────────────────────────────
 function updateFF(ff, delta, elapsed, activeDiv, divCol, signetActive, orbitActive) {
   if (ff.state === 'wander') {
-    // Nieregularna prędkość — modulacja sinus per świetlik (zakres 45–125% MAX_SPD)
     const sm = 0.45 + 0.80 * (Math.sin(elapsed / ff.speedPeriod + ff.speedPhase) * 0.5 + 0.5);
-    // Drapieżne zlatywanie: targeting = 2× wyższy cap prędkości (wygląda jak "zauważyli")
     const spdBoost = ff.targeting ? 2.0 : 1.0;
     const effXY    = MAX_SPD   * sm * spdBoost;
     const effZ     = MAX_SPD_Z * sm;
 
-    // Steering XY — urgency: im dalej od celu gdy targeting, tym mocniejsze przyspieszenie
     const dx      = ff.tx - ff.x, dy = ff.ty - ff.y;
     const dist    = Math.hypot(dx, dy) || 0.001;
     const urgency = ff.targeting ? Math.min(3.0, Math.max(1.0, dist / 55)) : 1.0;
@@ -157,13 +150,11 @@ function updateFF(ff, delta, elapsed, activeDiv, divCol, signetActive, orbitActi
     ff.x += ff.vx * delta;
     ff.y += ff.vy * delta;
 
-    // Steering Z — ta sama mechanika, wolniejsza
     const dz = ff.tz - ff.z;
     ff.vz += Math.sign(dz) * MAX_ACC_Z * delta;
     if (Math.abs(ff.vz) > effZ) ff.vz = Math.sign(ff.vz) * effZ;
     ff.z += ff.vz * delta;
 
-    // Granice — miękkie odbicie z tłumieniem
     if (ff.x < -BOUND_X) { ff.x = -BOUND_X; ff.vx =  Math.abs(ff.vx) * 0.7; }
     if (ff.x >  BOUND_X) { ff.x =  BOUND_X; ff.vx = -Math.abs(ff.vx) * 0.7; }
     if (ff.y < -BOUND_Y) { ff.y = -BOUND_Y; ff.vy =  Math.abs(ff.vy) * 0.7; }
@@ -171,14 +162,11 @@ function updateFF(ff, delta, elapsed, activeDiv, divCol, signetActive, orbitActi
     if (ff.z <    Z_MIN) { ff.z =    Z_MIN; ff.vz =  Math.abs(ff.vz) * 0.6; }
     if (ff.z >    Z_MAX) { ff.z =    Z_MAX; ff.vz = -Math.abs(ff.vz) * 0.6; }
 
-    // Fade przy sygnecie (wyłącznie tryb signet/pong — dept NIE fediuje)
     if (ff.targeting === 'signet' && Math.hypot(ff.x, ff.y) < SIGNET_R) {
       ff.state = 'fading';
       return;
     }
 
-    // Dotarcie do celu XY → nowy cel.
-    // Pełny rój: brak filtra pozycji — każdy świetlik trzyma się aktywnego celu.
     if (dist < ARRIVE_R) {
       if      (ff.targeting === 'dept'   && activeDiv)    pickDeptTarget(ff, activeDiv);
       else if (ff.targeting === 'orbit'  && orbitActive)  pickSignetOrbit(ff);
@@ -188,24 +176,18 @@ function updateFF(ff, delta, elapsed, activeDiv, divCol, signetActive, orbitActi
       else                                                 pickRandom(ff);
     }
 
-    // Puls jasności: każdy świetlik inny rytm (pulseMod) i faza → rój organiczny, nie mechaniczny.
-    // rawSum ∈ [-1,+1]; normalizacja do [0.60, 1.00] — nigdy nie gaśnie całkowicie.
     const pm     = ff.pulseMod;
     const rawSum = 0.50 * Math.sin(elapsed *  3.1 * pm + ff.phase) +
                    0.30 * Math.sin(elapsed *  8.7 * pm + ff.phase * 1.618) +
                    0.20 * Math.sin(elapsed * 19.3 * pm + ff.phase * 2.414);
     const flicker = 0.60 + 0.40 * (rawSum * 0.5 + 0.5);
     ff.flicker = flicker;
-    // Boost przy hover (orbit = jak dept, nieco łagodniejszy)
     const boost = ff.targeting === 'signet' ? 3.5 :
                   (ff.targeting === 'dept' || ff.targeting === 'orbit') ? 2.5 : 1.0;
-    // Głębokość Z → jasność: potęgowanie 1.8 daje nielinearny, czytelny kontrast głębi
-    // Zakres: ~0.65 (Z=-55, daleko) do ~1.55 (Z=85, blisko) → 2.4× różnica — widoczna 3D
     const depthK = Math.min(1.6, Math.pow((300 - Z_NORM) / Math.max(10, 300 - ff.z), 1.8));
     const ti     = Math.min(0.85, ff.maxBright * flicker * boost * depthK);
     ff.intensity += (ti - ff.intensity) * Math.min(1, delta * 2.8);
 
-    // Kolor: kolor działu gdy targeting, idle violet gdy nie
     const tc = ff.targeting ? divCol : IDLE_COL;
     const ck = Math.min(1, delta * 3.5);
     ff.cr += (tc.r - ff.cr) * ck;
@@ -233,19 +215,22 @@ function updateFF(ff, delta, elapsed, activeDiv, divCol, signetActive, orbitActi
 export function initFireflies(ctx) {
   const { scene } = ctx;
 
-  // Dostosuj granice do aspektu ekranu (mobile portretowy: ~80wu wide vs desktop ~308wu).
-  // FOV=60°, cam_z=300 → halfH=tan(30°)*300≈173wu; halfW=halfH*(w/h).
   const halfH = Math.tan(Math.PI / 6) * 300;
   const halfW = halfH * (window.innerWidth / window.innerHeight);
   BOUND_X = Math.min(270, halfW * 0.90);
   BOUND_Y = Math.min(155, halfH * 0.72);
 
-  const POOL = window.innerWidth <= 768 ? 12 : 22;
+  const POOL = window.innerWidth <= 768 ? 16 : 22;
 
   computeLabelPos();
   window.addEventListener('resize', computeLabelPos);
 
   const pool = Array.from({ length: POOL }, makeFF);
+
+  // Na mobile: domyślny orbit wokół sygnetu — brak hoverów, więc dajemy życie inaczej
+  if (window.innerWidth <= 768) {
+    for (const ff of pool) pickSignetOrbit(ff);
+  }
 
   const pos = new Float32Array(POOL * 3);
   const col = new Float32Array(POOL * 3);
@@ -263,23 +248,21 @@ export function initFireflies(ctx) {
   });
   const pts = new THREE.Points(geo, mat);
   pts.frustumCulled = false;
-  scene.add(pts);   // pts.position.z = 0; z kontrolowane per-firefly w buforze
+  scene.add(pts);
 
   let prevDiv          = null;
   let prevOrbitActive  = false;
   let prevSignetActive = false;
-  let ffReveal         = 0;    // 0..1 — slow bloom po zakończeniu loadera (loadFX.active → false)
+  let ffReveal         = 0;
 
   onTick((delta, elapsed) => {
     const activeDiv    = navFX.activeDiv;
     const signetActive = !activeDiv && document.body.classList.contains('pong-active');
-    // signet-hover ustawiany przez cursor.js: zakrywa signet (<72px), korytarz i #nav-pong.
-    // Bez eventów na nav-pong (ma pointer-events:none domyślnie; body.signet-hover to jedyny
-    // niezawodny sygnał obejmujący wszystkie przypadki: sygnet, Chwila relaksu, Q-PONG nav).
+    // Na mobile: orbit zawsze aktywny gdy brak działu i brak pongu — zastępuje brak hoverów
     const orbitActive  = !activeDiv && !signetActive &&
-                         document.body.classList.contains('signet-hover');
+                         (document.body.classList.contains('signet-hover') ||
+                          window.innerWidth <= 768);
 
-    // Zmiana departamentu: CAŁY rój bez filtra pozycji (full swarm)
     if (activeDiv !== prevDiv) {
       for (const ff of pool) {
         if (ff.targeting === 'dept' || ff.targeting === 'orbit') {
@@ -288,12 +271,11 @@ export function initFireflies(ctx) {
         if (ff.state === 'fading') { pickRandom(ff); ff.state = 'wander'; }
       }
       if (activeDiv) {
-        for (const ff of pool) pickDeptTarget(ff, activeDiv);  // cały rój, brak filtra
+        for (const ff of pool) pickDeptTarget(ff, activeDiv);
       }
       prevDiv = activeDiv;
     }
 
-    // Zmiana hover "Chwila relaksu" — orbit wokół sygnetu
     if (orbitActive !== prevOrbitActive) {
       if (orbitActive) {
         for (const ff of pool) pickSignetOrbit(ff);
@@ -306,7 +288,6 @@ export function initFireflies(ctx) {
       prevOrbitActive = orbitActive;
     }
 
-    // Zmiana stanu pong-active — fade do sygnetu
     if (signetActive !== prevSignetActive) {
       if (signetActive) {
         for (const ff of pool) pickSignetTarget(ff);
@@ -320,14 +301,14 @@ export function initFireflies(ctx) {
     }
 
     const divCol = DIVISION_COLORS[activeDiv] ?? IDLE_COL;
-    // Bloom DOPIERO po zakończeniu loadera — rate 0.42/s → pełnia po ~7s (wolny wykwit)
-    if (!loadFX.active) ffReveal = Math.min(1, ffReveal + delta * 0.42);
+    // Bloom po zakończeniu loadera — szybszy na mobile żeby od razu widać było efekt
+    const bloomRate = window.innerWidth <= 768 ? 0.90 : 0.70;
+    if (!loadFX.active) ffReveal = Math.min(1, ffReveal + delta * bloomRate);
 
     for (let i = 0; i < POOL; i++) {
       const ff = pool[i];
       updateFF(ff, delta, elapsed, activeDiv, divCol, signetActive, orbitActive);
       const brightness = ff.intensity * ffReveal;
-      // Szczyt pulsu: rdzeń rozbłyskuje bielej (jak realna bioluminescencja — core jaśniejszy)
       const peakW = Math.max(0, (ff.flicker - 0.84) / 0.16) * 0.22 * brightness;
       pos[i * 3]     = ff.x;
       pos[i * 3 + 1] = ff.y;

@@ -113,7 +113,7 @@ function startGame() {
 
   gsap.to(navFX, { pageScale: 0.62, duration: 0.55, ease: 'power2.inOut' });
   // Mobile: sygnet odpływa w głąb sceny — perspektywa głębi + robi miejsce na boisko
-  if (isMobile()) gsap.to(navFX, { pageZ: -70, duration: 0.65, ease: 'power2.inOut' });
+  if (isMobile()) gsap.to(navFX, { pageZ: -70, pageY: -25, duration: 0.65, ease: 'power2.inOut' });
 
   const { GW, GH, GT, GL } = getArea();
   const PAD_H      = Math.round(GH / 5);
@@ -213,6 +213,7 @@ function startGame() {
   // Paletka nie skacze do miejsca dotyku, podąża za gestem (jak touchpad).
   let touchPrevY = null;
   const onTouch = e => {
+    if (e.target.closest?.('#pong-speed')) return;   // przepuść dotyku do przycisków prędkości/pauzy
     e.preventDefault();
     const t = e.touches[0];
     if (!t) return;
@@ -428,7 +429,7 @@ function showCard(overlay, canvas, card, header, footer) {
       document.body.classList.remove('pong-active');
       gsap.to(navFX, { pageScale: 1, duration: 0.5, ease: 'power2.out' });
       // Mobile: sygnet wraca z głębi sceny do pozycji HOME
-      if (isMobile()) gsap.to(navFX, { pageZ: 0, duration: 0.5, ease: 'power2.out' });
+      if (isMobile()) gsap.to(navFX, { pageZ: 0, pageY: 0, duration: 0.5, ease: 'power2.out' });
       gsap.set([overlay, card, ...fadeEls], { opacity: 0 });
       gsap.set([quoteEl, identEl], { clearProps: 'opacity' });
       canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);

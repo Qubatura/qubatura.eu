@@ -1056,7 +1056,7 @@ body.page-active #tagline {
 
     /* Glass */
     border-radius: 16px;
-    background: rgba(var(--div-rgb, 91, 46, 255), 0.03);
+    background: rgba(91, 46, 255, 0.04);   /* primary violet — niezależnie od dywizji */
     backdrop-filter: blur(20px) saturate(120%);
     -webkit-backdrop-filter: blur(20px) saturate(120%);
 
