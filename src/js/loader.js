@@ -65,7 +65,7 @@ export function initLoader(promises) {
     loadFX.charge  = Math.pow(p, 1.8) * 0.8;                         // ease-in: prawie czyste szkło na starcie → mocniej później (≈80% przy stówie)
     sceneFX.fog    = smoothstep(0.00, 0.45, p);                      // mgła NAJPIERW
     sceneFX.planet = smoothstep(0.35, 0.85, p);                      // miasto/planeta PÓŹNIEJ
-    loadFX.scale   = 1.0 + smoothstep(0.95, 0.99, p) * 0.28;        // puchnięcie ku nam przy 95–99%
+    loadFX.scale   = 1.0 + smoothstep(0.95, 0.99, p) * 0.15;        // puchnięcie ku nam przy 95–99%
     if (pct) pct.textContent = Math.round(p * 100);
 
     if (!finishing && loadFX.target >= 1 && loadFX.progress > 0.992) {
@@ -73,7 +73,7 @@ export function initLoader(promises) {
       loadFX.ramping = false;
       loadFX.progress = 1;
       loadFX.spin = 0;                          // na wprost (≡ 2π), ale 0 → osiadanie NIE odkręca obrotu
-      loadFX.scale = 1.28;                      // upewniamy się że jest na max gdy GSAP przejmuje powrót
+      loadFX.scale = 1.15;                      // upewniamy się że jest na max gdy GSAP przejmuje powrót
       loadFX.charge = 0.8;                      // dobity do pełni dopiero pulsem w finish()
       if (pct) pct.textContent = 100;
       finish(loading);
@@ -83,7 +83,12 @@ export function initLoader(promises) {
 
 // Faza 2 — sygnet osiada z obrotu w idle, świat dopełniony; UI wjeżdża na końcu.
 function finish(loading) {
-  const chrome = ['#topbar', '#nav', '#tagline'];
+  // Na mobile: karty animowane osobno ze staggerem — backdrop-filter każdej karty
+  // jest pre-aktywny (nie popuje gdy #nav-container staje się widoczny nagle).
+  const isMobile = window.innerWidth <= 768;
+  const chrome = isMobile
+    ? ['#topbar', '#nav-events', '#nav-studio', '#nav-lab', '#tagline']
+    : ['#topbar', '#nav', '#tagline'];
 
   // Pewnik: świat na pełni od razu (gdyby cokolwiek przerwało timeline poniżej).
   sceneFX.fog = 1;
@@ -103,9 +108,9 @@ function finish(loading) {
     },
   });
 
-  // POWRÓT — sygnet był na max (1.28) przy 99%; teraz osiada z powrotem w pozycję HOME.
-  // Lepki, trudny, jakby przestrzeń nie chciała go puścić. Brak forward pulse — już go widzieliśmy.
-  tl.to(loadFX, { scale: 1.0,  duration: 2.80, ease: 'sine.inOut' }, 0)
+  // POWRÓT — sygnet był na max (1.15) przy 99%; dostojnie wraca w pozycję HOME.
+  // power2.inOut: wolny start (jakby nie mógł wyjść z atmosfery) + wolne osiadanie.
+  tl.to(loadFX, { scale: 1.0,  duration: 3.20, ease: 'power2.inOut' }, 0)
 
   // FULL KOLOR — substancja dobija z 80% do pełni na pulsie (moment „ożywienia")
     .to(loadFX, { charge: 1, duration: 0.32, ease: 'power2.out' }, 0)
@@ -120,5 +125,5 @@ function finish(loading) {
     .to(loading, { opacity: 0, duration: 0.5, ease: 'power2.inOut' }, 0.35)
 
   // UI (nav/linie/topbar/tagline) — DOPIERO TERAZ (po fontach), staggerem
-    .to(chrome, { opacity: 1, duration: 0.6, ease: 'power2.out', stagger: 0.1 }, 0.6);
+    .to(chrome, { opacity: 1, duration: 0.5, ease: 'power2.out', stagger: 0.10 }, 0.6);
 }

@@ -1056,12 +1056,12 @@ body.page-active #tagline {
 
     /* Glass */
     border-radius: 16px;
-    background: rgba(var(--div-rgb, 91, 46, 255), 0.13);
+    background: rgba(var(--div-rgb, 91, 46, 255), 0.09);
     backdrop-filter: blur(24px) saturate(160%);
     -webkit-backdrop-filter: blur(24px) saturate(160%);
 
     /* Obrys + lewy neon (inset) + outer glow + górny highlight */
-    border: 1px solid rgba(var(--div-rgb, 91, 46, 255), 0.28);
+    border: 1px solid rgba(var(--div-rgb, 91, 46, 255), 0.22);
     box-shadow:
       inset 3px 0 0 rgba(var(--div-rgb, 91, 46, 255), 0.75),
       0 8px 32px rgba(var(--div-rgb, 91, 46, 255), 0.18),
@@ -1174,9 +1174,13 @@ body.page-active #tagline {
   /* --div-color jest ustawiony desktop na #nav-events/#nav-studio/#nav-lab,
      więc border-left dziedziczone automatycznie */
 
-  /* ─── Loading: nav nie wypełnia dołu podczas loadera ─── */
-  body.is-loading #nav {
-    opacity: 0;                             /* dziedziczy z desktop rule; CSS guard */
+  /* ─── Loading: karty ukryte osobno — #nav kontener widoczny ale karty niewidoczne.
+     Dzięki temu backdrop-filter jest pre-kompostowany (GPU) gdy karty są opacity:0,
+     i nie "popuje" gdy GSAP je wfadowuje. Desktop używa #nav całości (patrz global rule). */
+  body.is-loading #nav-events,
+  body.is-loading #nav-studio,
+  body.is-loading #nav-lab {
+    opacity: 0;
   }
 
   /* ─── Podstrony: mobilne layout adjustments ─── */
