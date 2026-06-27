@@ -91,6 +91,10 @@ export async function initSignet(ctx) {
     // Mobile: solidne wypełnienie ciała — refrakcja ciemnego nieba dawała czarne wnętrze
     // (sygnet kolorowy dopiero po interakcji). Desktop: 0 (refrakcja wieży wypełnia sama). (BRIEF 15 #2)
     uBaseFill:          { value: window.innerWidth <= 768 ? 0.35 : 0.0 },
+    // Mobile: podłoga „szkła" w spoczynku — utrzymuje pryzmatyczny rant + chromatic aberration
+    // jak podczas ładowania (po loadingu uGlass→0 je gasiło → sygnet robił się płaski/pusty).
+    // NIE dotyka glowHide (glow nieprzygaszony). Desktop=0. (BRIEF 15 — różnica loading vs home)
+    uGlassFloor:        { value: window.innerWidth <= 768 ? 0.30 : 0.0 },
   };
 
   // Na mobile szyba zagina mocniej — przy ciemnym tle subtelne 0.06 jest niewidoczne
@@ -121,6 +125,7 @@ export async function initSignet(ctx) {
       uniform float uDivMix;
       uniform vec2  uResolution;
       uniform float uBaseFill;
+      uniform float uGlassFloor;
 
       varying vec3 vNormal;
       varying vec3 vWorldPos;
@@ -146,7 +151,8 @@ export async function initSignet(ctx) {
 
         // Chromatic aberration — rozszczepianie RGB. Rośnie ku krawędziom w trybie szkła
         // (uGlass) → pryzmatyczny, tęczowy rozkład światła na krawędziach.
-        float ca = 0.002 + uGlass * fresnel * 0.010;
+        float glassEdge = max(uGlass, uGlassFloor);   // rant/CA trzymają „szkło" też po loadingu (mobile)
+        float ca = 0.002 + glassEdge * fresnel * 0.010;
         float r = texture2D(tBackground, refractedUV + vec2(ca, 0.0)).r;
         float g = texture2D(tBackground, refractedUV).g;
         float b = texture2D(tBackground, refractedUV - vec2(ca, 0.0)).b;
@@ -186,7 +192,7 @@ export async function initSignet(ctx) {
         // Stałe krawędziowe oświetlenie — widoczne niezależnie od tła i trybu szkła.
         // Idle: delikatna jasna krawędź (bryłowatość na ciemnym mobile bg).
         // Szkło: silniejsze, pryzmatyczne (+0.50).
-        color += vec3(0.88, 0.76, 1.0) * fresnel * (0.22 + uGlass * 0.50);
+        color += vec3(0.88, 0.76, 1.0) * fresnel * (0.22 + glassEdge * 0.50);
 
         gl_FragColor = vec4(color, 0.85 + fresnel * 0.15);
       }
@@ -301,8 +307,10 @@ export async function initSignet(ctx) {
   }
 
   // szeroki, miękki bloom + ciaśniejszy jaśniejszy rdzeń poświaty + ostry kontur
-  addGlowSprite(makeGlowTexture(48), 0x5B2EFF, 0.55, 6);   // szersza warstwa — więcej oddechu
-  addGlowSprite(makeGlowTexture(14), 0x9B8CFF, 0.95, 7);
+  // Mobile: więcej blasku (×1.3) — poświata bohatera mocniejsza na rzadkim ekranie.
+  const _glowMul = window.innerWidth <= 768 ? 1.3 : 1.0;
+  addGlowSprite(makeGlowTexture(48), 0x5B2EFF, 0.55 * _glowMul, 6);   // szersza warstwa — więcej oddechu
+  addGlowSprite(makeGlowTexture(14), 0x9B8CFF, 0.95 * _glowMul, 7);
   group.add(buildOutline(1.0, 0x9B8CFF, 0.90, 8));   // ostry rdzeń (czytelność idle)
 
   group.scale.set(S, -S, S);
