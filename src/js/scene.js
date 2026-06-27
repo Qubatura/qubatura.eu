@@ -44,51 +44,60 @@ export async function initScene() {
   // błędzie, żeby nie blokować progresu.
   let _resolvePlanet;
   const planetReady = new Promise(res => { _resolvePlanet = res; });
-  const planetTexture = new THREE.TextureLoader().load(
-    '../assets/planet-bg.png',
-    () => _resolvePlanet(),
-    undefined,
-    () => _resolvePlanet(),
-  );
-  planetTexture.colorSpace = THREE.SRGBColorSpace;
-  planetMat = new THREE.MeshBasicMaterial({
-    map: planetTexture, transparent: true, opacity: PLANET_OPACITY_VISIBLE,
-  });
+
   const PLANET_W = 2000, PLANET_H = 1200, PLANET_Z = -500;
-  // EXTRA_TOP — zapas nieba NAD sceną. Na mobile kamera „rozgląda się" w górę przy przechyle
-  // telefonu; bez zapasu ujawniała się urwana górna krawędź planu (pustka). Górny rząd tekstury
-  // to ciemne niebo z księżycami → ClampToEdgeWrapping powtarza go bezszwowo w obszarze EXTRA_TOP.
-  // NIE ograniczamy zakresu ruchu — poszerzamy tło (zgodnie z celem „rozglądania się").
-  const EXTRA_TOP = window.innerWidth <= 768 ? 900 : 0;
+  const _mobile  = window.innerWidth <= 768;
+  // EXTRA_TOP — zapas nieba NAD sceną na mobile (kamera „rozgląda się" w górę). Klamrowanie
+  // (BRIEF13) i alphaMapa (BRIEF14) dawały na styku stały PASEK na iOS. Tu DOKLEJAMY do tekstury
+  // gładki gradient nieba: dolny stop = kolor górnego rzędu obrazu (styk bezszwowy), górny =
+  // tło strony. Brak twardej krawędzi w żadnym położeniu kamery. (BRIEF 15 #1)
+  const EXTRA_TOP = _mobile ? 900 : 0;
   const fullH = PLANET_H + EXTRA_TOP;
-  planetTexture.wrapT    = THREE.ClampToEdgeWrapping;
-  planetTexture.repeat.y = fullH / PLANET_H;   // pełny obraz w dolnych PLANET_H, niebo klamrowane wyżej
+  const BG_HEX = '#0A0A0F';   // = --color-bg (tło strony)
 
-  // #33 — twardy/płaski klamrowany pas (ta „granatowa zaślepka" na iOS) zastąpiony PŁYNNYM
-  // wygaszeniem górnej części planu w przezroczystość → niebo rozpływa się w near-black tło
-  // strony, bez widocznej krawędzi ani plamy. Tylko mobile (na desktopie EXTRA_TOP=0).
-  if (EXTRA_TOP > 0) {
-    const contentTopV = PLANET_H / fullH;                       // koniec obrazu / start klamrowanego nieba
-    const yFull  = (1 - contentTopV) * 256;                     // canvas y pełnego krycia (księżyce)
-    const yClear = (1 - Math.min(1, contentTopV + 0.30)) * 256; // canvas y pełnej przezroczystości (szczyt)
-    const fade = document.createElement('canvas');
-    fade.width = 4; fade.height = 256;
-    const fctx = fade.getContext('2d');
-    const grad = fctx.createLinearGradient(0, 0, 0, 256);       // y=0 = góra planu (v=1, CanvasTexture flipY)
-    grad.addColorStop(0,             '#000');                   // szczyt — przezroczyste
-    grad.addColorStop(yClear / 256,  '#000');
-    grad.addColorStop(yFull / 256,   '#fff');                   // od górnej krawędzi treści — pełne krycie
-    grad.addColorStop(1,             '#fff');
-    fctx.fillStyle = grad; fctx.fillRect(0, 0, 4, 256);
-    const planetAlpha = new THREE.CanvasTexture(fade);
-    planetAlpha.wrapT = THREE.ClampToEdgeWrapping;
-    planetAlpha.minFilter = THREE.LinearFilter;
-    planetAlpha.generateMipmaps = false;
-    planetMat.alphaMap = planetAlpha;
-    planetMat.needsUpdate = true;
-  }
-
+  planetMat = new THREE.MeshBasicMaterial({
+    transparent: true, opacity: PLANET_OPACITY_VISIBLE, depthWrite: false,
+  });
   const planetMesh = new THREE.Mesh(new THREE.PlaneGeometry(PLANET_W, fullH), planetMat);
+
+  // Tekstura budowana po wczytaniu obrazu — na mobile jako kompozyt obraz + gradient-niebo.
+  const img = new Image();
+  img.onload = () => {
+    let tex;
+    if (EXTRA_TOP > 0) {
+      const cw  = img.width;
+      const ch  = Math.round(img.height * (fullH / PLANET_H));  // wyższy canvas (obraz + niebo)
+      const top = ch - img.height;                              // px nieba doklejonego u góry
+      const cnv = document.createElement('canvas');
+      cnv.width = cw; cnv.height = ch;
+      const cx = cnv.getContext('2d');
+      cx.drawImage(img, 0, top, cw, img.height);                // obraz przy dolnej krawędzi canvasu
+      // Średni kolor górnego rzędu obrazu → dolny stop gradientu (bezszwowy styk z niebem).
+      let r = 10, g = 10, b = 15;
+      try {
+        const row = cx.getImageData(0, top, cw, 1).data;
+        r = g = b = 0;
+        for (let i = 0; i < cw; i++) { r += row[i * 4]; g += row[i * 4 + 1]; b += row[i * 4 + 2]; }
+        r = Math.round(r / cw); g = Math.round(g / cw); b = Math.round(b / cw);
+      } catch (_) { /* tainted canvas — fallback do BG */ }
+      const grad = cx.createLinearGradient(0, 0, 0, top);
+      grad.addColorStop(0, BG_HEX);                             // szczyt = tło strony
+      grad.addColorStop(1, `rgb(${r},${g},${b})`);             // styk z obrazem = jego górny rząd
+      cx.fillStyle = grad; cx.fillRect(0, 0, cw, top);
+      tex = new THREE.CanvasTexture(cnv);
+    } else {
+      tex = new THREE.Texture(img);
+      tex.needsUpdate = true;
+    }
+    tex.colorSpace      = THREE.SRGBColorSpace;
+    tex.minFilter       = THREE.LinearFilter;   // NPOT-safe na iOS (bez mipmap)
+    tex.generateMipmaps = false;
+    planetMat.map = tex;
+    planetMat.needsUpdate = true;
+    _resolvePlanet();
+  };
+  img.onerror = () => _resolvePlanet();
+  img.src = '../assets/planet-bg.png';
   const viewTop = (camera.position.z - PLANET_Z) * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
   // Na mobile przesunięcie w dół o 200wu — budynek w centrum kadru startowo
   const planetShift  = window.innerWidth <= 768 ? -200 : 0;

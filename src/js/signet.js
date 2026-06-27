@@ -166,6 +166,12 @@ export async function initSignet(ctx) {
         vec3  color = refr;
         color += specColor * colorAmt;
         color += tint * 0.4 * colorAmt;
+        // Adaptacyjne wypełnienie wnętrza: gdy tło ZA sygnetem jest ciemne (mobile — niebo,
+        // nie jasna wieża), refrakcja daje czerń i sygnet wygląda jak pusta/czarna skorupa.
+        // Dolewamy tint proporcjonalnie do ciemności tła → solidne fioletowe szkło. Na jasnym
+        // tle (desktop, wieża za sygnetem) ~0 → refrakcja nietknięta. (BRIEF 15 #2 / #35)
+        float bgLum = dot(refr, vec3(0.299, 0.587, 0.114));
+        color += tint * (1.0 - smoothstep(0.0, 0.22, bgLum)) * 0.45 * colorAmt;
         // Wewnętrzna emisja — subtelna plasma widoczna w centrum (niski fresnel) na ciemnym tle.
         // Oscyluje w czasie → ruch wewnętrzny = szkło wygląda jak materiał a nie flat powierzchnia.
         float plasma = 0.5 + 0.5 * sin(vWorldPos.x * 1.5 + time * 0.6) * sin(vWorldPos.y * 1.2 - time * 0.45 + 1.8);

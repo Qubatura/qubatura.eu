@@ -25,11 +25,12 @@ const DEBUG = new URLSearchParams(location.search).has('debug');
 
 // Siła reakcji na input per warstwa. UWAGA: wartości mobile to robocza baza — finalna
 // kalibracja po potwierdzeniu żywego sygnału żyroskopu na iOS (HUD: ?debug).
-// Mobile −18% względem pierwszej kalibracji żyroskopu (130/80/0.80/0.52) — po teście na
-// żywo ruch był zbyt dynamiczny. (BRIEF 14 #32)
+// Kolejny krok wyciszenia ruchu (BRIEF 15 #3) — poprzednie −18% nie wystarczyło.
+// Amplituda −25% (107/66/0.66/0.43 → 80/50/0.50/0.32) + szersze zakresy żyroskopu niżej
+// (mniej czułe na przechył). Do ponownej oceny na żywo.
 const MOUSE = {
-  planet: { x: _mob ? 107 : 28, y: _mob ? 66 : 18 },
-  fog:    { x: _mob ? 0.66 : 0.50, y: _mob ? 0.43 : 0.32 },
+  planet: { x: _mob ? 80 : 28, y: _mob ? 50 : 18 },
+  fog:    { x: _mob ? 0.50 : 0.50, y: _mob ? 0.32 : 0.32 },
 };
 
 // Autonomiczny dryf — sinusoidy niesynchronizowane (różne okresy, różne fazy)
@@ -91,8 +92,8 @@ export function initParallax(ctx) {
   // gamma = obrót lewo/prawo (-90..+90°), beta = przechył przód/tył (0..180°).
   // Kalibracja bazy do pierwszego eventu: neutralna pozycja = jak trzymasz telefon teraz.
   let betaBase = null;
-  const GAMMA_RANGE = 18;   // stopnie przechylenia na pełny efekt (±1)
-  const BETA_RANGE  = 14;
+  const GAMMA_RANGE = 23;   // stopnie przechylenia na pełny efekt (±1) — szerszy = spokojniej
+  const BETA_RANGE  = 18;
   let gyroLive = false;     // true gdy realnie przychodzą eventy (≠ samej zgody)
 
   function onOrientation(e) {
