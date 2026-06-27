@@ -51,6 +51,7 @@ export function initCursor() {
   // Sygnet + linia + etykieta = jedna zona kliknięcia
   // Kliknięcie w centrum sygnetu (gdy nav-pong widoczny) = to samo co klik przycisku
   window.addEventListener('click', e => {
+    if (e.target?.closest('#motion-prompt')) return; // gate zgody na ruch — nie odpala Ponga (BRIEF 14 #34)
     if (e.target?.closest('#nav-pong')) return; // przycisk sam się obsługuje
     const pongOn  = document.body.classList.contains('pong-active');
     const pageOn  = document.body.classList.contains('page-active');

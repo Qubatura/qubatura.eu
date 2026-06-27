@@ -25,9 +25,11 @@ const DEBUG = new URLSearchParams(location.search).has('debug');
 
 // Siła reakcji na input per warstwa. UWAGA: wartości mobile to robocza baza — finalna
 // kalibracja po potwierdzeniu żywego sygnału żyroskopu na iOS (HUD: ?debug).
+// Mobile −18% względem pierwszej kalibracji żyroskopu (130/80/0.80/0.52) — po teście na
+// żywo ruch był zbyt dynamiczny. (BRIEF 14 #32)
 const MOUSE = {
-  planet: { x: _mob ? 130 : 28, y: _mob ? 80 : 18 },
-  fog:    { x: _mob ? 0.80 : 0.50, y: _mob ? 0.52 : 0.32 },
+  planet: { x: _mob ? 107 : 28, y: _mob ? 66 : 18 },
+  fog:    { x: _mob ? 0.66 : 0.50, y: _mob ? 0.43 : 0.32 },
 };
 
 // Autonomiczny dryf — sinusoidy niesynchronizowane (różne okresy, różne fazy)
@@ -197,7 +199,13 @@ export function initParallax(ctx) {
     enableTouchFallback();   // bezpieczny fallback od razu — scena nie jest statyczna zanim user tapnie
     whenLoaded(() => showBanner('Włącz ruch sceny', 'tap'));
 
-    const ask = () => {
+    let asking = false;
+    const ask = (e) => {
+      // KLUCZOWE: zatrzymaj propagację — pill gate jest na środku ekranu, a cursor.js łapie
+      // klik <72px od centrum jako „tap w sygnet" → odpalał Q-PONG po zgodzie. (BRIEF 14 #34)
+      if (e) { e.stopPropagation(); e.preventDefault(); }
+      if (asking) return;
+      asking = true;
       DeviceOrientationEvent.requestPermission()
         .then(state => {
           diag.perm = state;

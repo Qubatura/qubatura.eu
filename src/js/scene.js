@@ -63,6 +63,31 @@ export async function initScene() {
   const fullH = PLANET_H + EXTRA_TOP;
   planetTexture.wrapT    = THREE.ClampToEdgeWrapping;
   planetTexture.repeat.y = fullH / PLANET_H;   // pełny obraz w dolnych PLANET_H, niebo klamrowane wyżej
+
+  // #33 — twardy/płaski klamrowany pas (ta „granatowa zaślepka" na iOS) zastąpiony PŁYNNYM
+  // wygaszeniem górnej części planu w przezroczystość → niebo rozpływa się w near-black tło
+  // strony, bez widocznej krawędzi ani plamy. Tylko mobile (na desktopie EXTRA_TOP=0).
+  if (EXTRA_TOP > 0) {
+    const contentTopV = PLANET_H / fullH;                       // koniec obrazu / start klamrowanego nieba
+    const yFull  = (1 - contentTopV) * 256;                     // canvas y pełnego krycia (księżyce)
+    const yClear = (1 - Math.min(1, contentTopV + 0.30)) * 256; // canvas y pełnej przezroczystości (szczyt)
+    const fade = document.createElement('canvas');
+    fade.width = 4; fade.height = 256;
+    const fctx = fade.getContext('2d');
+    const grad = fctx.createLinearGradient(0, 0, 0, 256);       // y=0 = góra planu (v=1, CanvasTexture flipY)
+    grad.addColorStop(0,             '#000');                   // szczyt — przezroczyste
+    grad.addColorStop(yClear / 256,  '#000');
+    grad.addColorStop(yFull / 256,   '#fff');                   // od górnej krawędzi treści — pełne krycie
+    grad.addColorStop(1,             '#fff');
+    fctx.fillStyle = grad; fctx.fillRect(0, 0, 4, 256);
+    const planetAlpha = new THREE.CanvasTexture(fade);
+    planetAlpha.wrapT = THREE.ClampToEdgeWrapping;
+    planetAlpha.minFilter = THREE.LinearFilter;
+    planetAlpha.generateMipmaps = false;
+    planetMat.alphaMap = planetAlpha;
+    planetMat.needsUpdate = true;
+  }
+
   const planetMesh = new THREE.Mesh(new THREE.PlaneGeometry(PLANET_W, fullH), planetMat);
   const viewTop = (camera.position.z - PLANET_Z) * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
   // Na mobile przesunięcie w dół o 200wu — budynek w centrum kadru startowo
