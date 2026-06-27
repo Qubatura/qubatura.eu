@@ -90,7 +90,7 @@ export async function initSignet(ctx) {
     uResolution:        { value: dbSize }, // drawing buffer size — potrzebne do gl_FragCoord UV
     // Mobile: solidne wypełnienie ciała — refrakcja ciemnego nieba dawała czarne wnętrze
     // (sygnet kolorowy dopiero po interakcji). Desktop: 0 (refrakcja wieży wypełnia sama). (BRIEF 15 #2)
-    uBaseFill:          { value: window.innerWidth <= 768 ? 0.30 : 0.0 },
+    uBaseFill:          { value: window.innerWidth <= 768 ? 0.35 : 0.0 },
   };
 
   // Na mobile szyba zagina mocniej — przy ciemnym tle subtelne 0.06 jest niewidoczne
@@ -172,10 +172,12 @@ export async function initSignet(ctx) {
         vec3  color = refr;
         color += specColor * colorAmt;
         color += tint * 0.4 * colorAmt;
-        // Wypełnienie ciała: na mobile solidny tint niezależny od tła (uBaseFill>0) — bez tego
-        // refrakcja ciemnego nieba dawała czarne wnętrze (kolor dopiero po interakcji). Na
-        // desktopie uBaseFill=0 → refrakcja jasnej wieży wypełnia sama. (BRIEF 15 #2 / #35)
-        color += tint * uBaseFill * colorAmt;
+        // Wypełnienie ciała glassem: tint NIEZALEŻNY od tła ORAZ od trybu szkła (BEZ colorAmt) —
+        // wcześniej *colorAmt zerowało wypełnienie w trybie szkła/ładowania, czyli dokładnie gdy
+        // było potrzebne → czarne wnętrze + glass tylko na obrysie. Teraz CAŁA bryła jest z
+        // fioletowego szkła, nigdy czarna; refleks/fresnel/refrakcja zostają na wierzchu.
+        // Desktop uBaseFill=0 → bez zmian. (BRIEF 15 #1/#4)
+        color += tint * uBaseFill;
         // Wewnętrzna emisja — subtelna plasma widoczna w centrum (niski fresnel) na ciemnym tle.
         // Oscyluje w czasie → ruch wewnętrzny = szkło wygląda jak materiał a nie flat powierzchnia.
         float plasma = 0.5 + 0.5 * sin(vWorldPos.x * 1.5 + time * 0.6) * sin(vWorldPos.y * 1.2 - time * 0.45 + 1.8);
@@ -379,7 +381,7 @@ export async function initSignet(ctx) {
     // Magenta jako nagroda za interakcję — w spoczynku sygnet trzyma się primary.
     // idleMix: kąt obrotu daje cień magenty (max ~0.14 przy edge-on), nie pełne przejście.
     // hoverBoost: hover działu lub sygnetu otwiera pełne przejście ku magenta.
-    const idleMix    = Math.abs(Math.sin(pivot.rotation.y)) * 0.12;   // mniej dryfu ku magencie → trzyma się primary
+    const idleMix    = 0.0;   // primary 1:1 — bez dryfu ku magencie w spoczynku (próba wg uwagi)
     const hoverBoost = navFX.intensity * 0.65 + glassMix * 0.40;
     const target     = loadFX.active ? 0 : Math.min(1, idleMix + hoverBoost);
     colorMix += (target - colorMix) * (loadFX.active ? 0.1 : 0.05);

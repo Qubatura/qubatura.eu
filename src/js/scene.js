@@ -61,7 +61,7 @@ export async function initScene() {
   // desktopie). Wcześniejsze doklejanie sztucznego nieba (klamr/gradient/alpha) za każdym razem
   // czytało się jako stały granatowy PAS u góry. Tu nie ma żadnej dosztukówki — tylko realny
   // obraz, większy, zakotwiczony tak by wypełniał górę kadru. (BRIEF 15 #1)
-  const ZOOM     = _mobile ? 1.5 : 1.0;
+  const ZOOM     = _mobile ? 1.25 : 1.0;   // oddalone vs 1.5 → księżyce wracają w kadr
   const PLANET_W = 2000 * ZOOM;
   const PLANET_H = 1200 * ZOOM;
   const planetMesh = new THREE.Mesh(new THREE.PlaneGeometry(PLANET_W, PLANET_H), planetMat);
@@ -73,7 +73,7 @@ export async function initScene() {
   const basePlanetY = viewTop + HEADROOM - PLANET_H / 2;
   // Mobile: plan przesunięty w LEWO → wieża (jest po prawej obrazu) wraca obok sygnetu —
   // widoczna startowo + jej jasna wiązka za sygnetem przywraca szklaną refrakcję. (knob do tuningu)
-  const basePlanetX = _mobile ? -220 : 0;
+  const basePlanetX = _mobile ? -120 : 0;   // delikatnie w prawo vs -220 (wieża nie wchodzi pod sygnet)
   planetMesh.position.set(basePlanetX, basePlanetY, PLANET_Z);
   scene.add(planetMesh);
 
