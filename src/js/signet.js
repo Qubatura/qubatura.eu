@@ -68,7 +68,9 @@ export async function initSignet(ctx) {
   const svgCX  = (bb.min.x + bb.max.x) / 2;
   const svgCY  = (bb.min.y + bb.max.y) / 2;
   const svgMax = Math.max(bb.max.x - bb.min.x, bb.max.y - bb.min.y);
-  const S      = (51.4 * 1.1) / svgMax;   // +10% rozmiaru bazowego
+  // Mobile: sygnet-bohater +20% (jedyny element 3D na rzadkim ekranie — może dominować).
+  const SIZE_MUL = window.innerWidth <= 768 ? 1.2 : 1.0;
+  const S      = (51.4 * 1.1 * SIZE_MUL) / svgMax;   // +10% bazowo, ×1.2 na mobile
 
   // ─── Material — custom GLSL: refrakcja tła + chromatic aberration + fresnel ──
   // uResolution: rozmiar drawing buffer w pikselach fizycznych — używane w shaderze do
@@ -88,7 +90,7 @@ export async function initSignet(ctx) {
     uResolution:        { value: dbSize }, // drawing buffer size — potrzebne do gl_FragCoord UV
     // Mobile: solidne wypełnienie ciała — refrakcja ciemnego nieba dawała czarne wnętrze
     // (sygnet kolorowy dopiero po interakcji). Desktop: 0 (refrakcja wieży wypełnia sama). (BRIEF 15 #2)
-    uBaseFill:          { value: window.innerWidth <= 768 ? 0.55 : 0.0 },
+    uBaseFill:          { value: window.innerWidth <= 768 ? 0.30 : 0.0 },
   };
 
   // Na mobile szyba zagina mocniej — przy ciemnym tle subtelne 0.06 jest niewidoczne
@@ -377,7 +379,7 @@ export async function initSignet(ctx) {
     // Magenta jako nagroda za interakcję — w spoczynku sygnet trzyma się primary.
     // idleMix: kąt obrotu daje cień magenty (max ~0.14 przy edge-on), nie pełne przejście.
     // hoverBoost: hover działu lub sygnetu otwiera pełne przejście ku magenta.
-    const idleMix    = Math.abs(Math.sin(pivot.rotation.y)) * 0.28;
+    const idleMix    = Math.abs(Math.sin(pivot.rotation.y)) * 0.12;   // mniej dryfu ku magencie → trzyma się primary
     const hoverBoost = navFX.intensity * 0.65 + glassMix * 0.40;
     const target     = loadFX.active ? 0 : Math.min(1, idleMix + hoverBoost);
     colorMix += (target - colorMix) * (loadFX.active ? 0.1 : 0.05);

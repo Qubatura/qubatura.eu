@@ -65,7 +65,7 @@ function makeHUD() {
 // ─── Init ─────────────────────────────────────────────────────────────────────
 
 export function initParallax(ctx) {
-  const { planetMesh, basePlanetY } = ctx;
+  const { planetMesh, basePlanetY, basePlanetX = 0 } = ctx;
 
   const raw    = { x: 0, y: 0 };
   const smooth = { x: 0, y: 0 };
@@ -250,8 +250,8 @@ export function initParallax(ctx) {
       px[key].y = oy;
     }
 
-    // Planeta przesuwa się w jedn. świata (x=0 jest bazą, y ma offset viewTop)
-    planetMesh.position.x = px.planet.x;
+    // Planeta przesuwa się w jedn. świata (x/y mają bazę zadaną w scene.js)
+    planetMesh.position.x = basePlanetX + px.planet.x;
     planetMesh.position.y = basePlanetY + px.planet.y;
 
     if (hud) {

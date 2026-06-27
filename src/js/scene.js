@@ -71,7 +71,10 @@ export async function initScene() {
   // w górnym-centrum kadru. Brak luki nad obrazem = brak pasa. Desktop bez zmian (ZOOM=1, HEADROOM=0).
   const HEADROOM    = _mobile ? 90 : 0;
   const basePlanetY = viewTop + HEADROOM - PLANET_H / 2;
-  planetMesh.position.set(0, basePlanetY, PLANET_Z);
+  // Mobile: plan przesunięty w LEWO → wieża (jest po prawej obrazu) wraca obok sygnetu —
+  // widoczna startowo + jej jasna wiązka za sygnetem przywraca szklaną refrakcję. (knob do tuningu)
+  const basePlanetX = _mobile ? -220 : 0;
+  planetMesh.position.set(basePlanetX, basePlanetY, PLANET_Z);
   scene.add(planetMesh);
 
   // Dim violet ambient — creatures use additive blending, so they self-illuminate
@@ -86,7 +89,7 @@ export async function initScene() {
     renderTarget.setSize(_dbs.x, _dbs.y);
   });
 
-  return { scene, camera, renderer, clock, planetReady, planetMesh, basePlanetY };
+  return { scene, camera, renderer, clock, planetReady, planetMesh, basePlanetY, basePlanetX };
 }
 
 // Modules register their per-frame callbacks here
