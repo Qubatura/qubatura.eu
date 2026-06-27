@@ -8,12 +8,12 @@ import { navFX, DIVISION_COLORS, loadFX } from './tint.js';
 // ── Konfiguracja ──────────────────────────────────────────────────────────────
 const MAX_SPD   = 58;    // wu/s XY
 const MAX_ACC   = 42;    // wu/s² XY
-const MAX_SPD_Z = 18;    // wu/s głębia
-const MAX_ACC_Z = 10;    // wu/s² głębia
+const MAX_SPD_Z = 26;    // wu/s głębia — szybsze nurkowanie/powroty (A1: realne wycieczki w głąb)
+const MAX_ACC_Z = 16;    // wu/s² głębia — żywsze przyspieszanie w osi Z
 const ARRIVE_R  = 30;    // wu — "osiągam cel XY, biorę nowy"
 const SIGNET_R  = 52;    // wu od centrum → fade (wyłącznie tryb signet/pong)
-const Z_MIN     = -55;   // najdalej od kamery (szerszy zakres → lepsza głębia 3D)
-const Z_MAX     = 85;    // najbliżej kamery
+const Z_MIN     = -78;   // najdalej od kamery — głębsze nurki "w planetę" (A1)
+const Z_MAX     = 108;   // najbliżej kamery — wyraźniejsze przeloty tuż przed nami (A1)
 const Z_NORM    = 15;    // głębokość neutralna (brightness = 1.0)
 const FF_SIZE   = 7;     // wu — rozmiar glow sprite (sizeAttenuation skaluje perspektywicznie)
 
@@ -118,7 +118,7 @@ function makeFF() {
     vz: (Math.random() - 0.5) * MAX_SPD_Z * 0.6,
     tx: 0, ty: 0, tz: 0,
     targeting: null,
-    maxBright:   0.42 + Math.random() * 0.52,   // per-firefly max (0.42..0.94) — bardziej aktywne i widoczne
+    maxBright:   0.55 + Math.random() * 0.45,   // per-firefly max (0.55..1.00) — jaśniejsze w spoczynku (A1)
     phase:       Math.random() * Math.PI * 2,
     pulseMod:    0.75 + Math.random() * 0.55,   // 0.75–1.30× — każdy świetlik inny rytm
     flicker:     0.78,
@@ -183,9 +183,9 @@ function updateFF(ff, delta, elapsed, activeDiv, divCol, signetActive, orbitActi
     const flicker = 0.42 + 0.58 * (rawSum * 0.5 + 0.5);   // szerszy zakres pulsu = bardziej dramatyczne
     ff.flicker = flicker;
     const boost = ff.targeting === 'signet' ? 3.5 :
-                  (ff.targeting === 'dept' || ff.targeting === 'orbit') ? 2.5 : 1.0;
+                  (ff.targeting === 'dept' || ff.targeting === 'orbit') ? 2.5 : 1.3;   // idle 1.0→1.3: więcej obecności w spoczynku (A1)
     const depthK = Math.min(1.6, Math.pow((300 - Z_NORM) / Math.max(10, 300 - ff.z), 1.8));
-    const ti     = Math.min(0.85, ff.maxBright * flicker * boost * depthK);
+    const ti     = Math.min(0.90, ff.maxBright * flicker * boost * depthK);   // wyższy sufit (A1)
     ff.intensity += (ti - ff.intensity) * Math.min(1, delta * 2.8);
 
     const tc = ff.targeting ? divCol : IDLE_COL;
@@ -220,7 +220,7 @@ export function initFireflies(ctx) {
   BOUND_X = Math.min(270, halfW * 0.90);
   BOUND_Y = Math.min(155, halfH * 0.72);
 
-  const POOL = window.innerWidth <= 768 ? 16 : 22;
+  const POOL = window.innerWidth <= 768 ? 16 : 26;   // desktop +4: gęstszy rój w spoczynku (A1)
 
   computeLabelPos();
   window.addEventListener('resize', computeLabelPos);
