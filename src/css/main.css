@@ -1233,15 +1233,19 @@ body.page-active #tagline {
   transition: opacity 0.4s ease;
   -webkit-tap-highlight-color: transparent;
 }
+/* KRYTYCZNE: [hidden] musi naprawdę chować element. Bez tego `display:flex` powyżej wygrywa
+   z regułą UA `[hidden]{display:none}` → niewidzialny overlay (inset:0, z-index:80) ŁAPIE
+   wszystkie tapy i blokuje guziki/działy/pong na obu platformach. (BRIEF 15 #3) */
+#motion-prompt[hidden] { display: none; }
 #motion-prompt.is-on { opacity: 1; }
 
 /* Gate (iOS permission) — przyciemniony scrim + wycentrowany pill; tap = zgoda + zamknięcie.
    Zasłania resztę UI (karty) do interakcji → koniec kolizji banera z kartami. */
 #motion-prompt.is-gate {
   align-items: center;
-  background: rgba(6, 5, 15, 0.55);
-  backdrop-filter: blur(6px) saturate(110%);
-  -webkit-backdrop-filter: blur(6px) saturate(110%);
+  background: rgba(6, 5, 15, 0.32);              /* lżejszy scrim — sygnet nie czernieje za gate'em */
+  backdrop-filter: blur(3px) saturate(110%);
+  -webkit-backdrop-filter: blur(3px) saturate(110%);
   cursor: pointer;
 }
 

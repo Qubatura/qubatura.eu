@@ -25,12 +25,10 @@ const DEBUG = new URLSearchParams(location.search).has('debug');
 
 // Siła reakcji na input per warstwa. UWAGA: wartości mobile to robocza baza — finalna
 // kalibracja po potwierdzeniu żywego sygnału żyroskopu na iOS (HUD: ?debug).
-// Kolejny krok wyciszenia ruchu (BRIEF 15 #3) — poprzednie −18% nie wystarczyło.
-// Amplituda −25% (107/66/0.66/0.43 → 80/50/0.50/0.32) + szersze zakresy żyroskopu niżej
-// (mniej czułe na przechył). Do ponownej oceny na żywo.
+// Wyciszanie ruchu: amplituda mobile −10% (80/50/0.50/0.32 → 72/45/0.45/0.29). (BRIEF 15)
 const MOUSE = {
-  planet: { x: _mob ? 80 : 28, y: _mob ? 50 : 18 },
-  fog:    { x: _mob ? 0.50 : 0.50, y: _mob ? 0.32 : 0.32 },
+  planet: { x: _mob ? 72 : 28, y: _mob ? 45 : 18 },
+  fog:    { x: _mob ? 0.45 : 0.50, y: _mob ? 0.29 : 0.32 },
 };
 
 // Autonomiczny dryf — sinusoidy niesynchronizowane (różne okresy, różne fazy)
