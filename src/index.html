@@ -273,6 +273,13 @@
   <!-- Tagline -->
   <p id="tagline">Przybywamy z sygnałem</p>
 
+  <!-- Motion permission / touch-drag prompt (mobile) — sterowany przez parallax.js.
+       iOS 13+ wymaga jawnego gestu do requestPermission() — tap w ten baner JEST tym gestem. -->
+  <button id="motion-prompt" type="button" hidden aria-hidden="true">
+    <span class="mp-icon" aria-hidden="true">⟳</span>
+    <span class="mp-text">Przechyl telefonem — włącz ruch sceny</span>
+  </button>
+
   <!-- ── Contact overlay — fullscreen nakładka nad żywą sceną (NIE podstrona) ── -->
   <div id="contact-overlay" role="dialog" aria-modal="true" aria-label="Kontakt" aria-hidden="true">
     <button id="contact-close" type="button" aria-label="Zamknij kontakt">← Powrót</button>

@@ -1214,3 +1214,61 @@ body.page-active #tagline {
     box-shadow: inset 0 0 140px 30px var(--color-bg);
   }
 }
+
+/* ── Motion permission / touch-drag prompt (mobile) — parallax.js ── */
+#motion-prompt {
+  position: fixed;
+  left: 50%;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 20px);
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 18px;
+  border: 1px solid rgba(91, 46, 255, 0.45);
+  border-radius: 100px;
+  background: rgba(10, 10, 15, 0.62);
+  backdrop-filter: blur(16px) saturate(130%);
+  -webkit-backdrop-filter: blur(16px) saturate(130%);
+  box-shadow:
+    0 8px 30px rgba(91, 46, 255, 0.28),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+  color: var(--color-white);
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transform: translate(-50%, 14px);
+  opacity: 0;
+  transition: opacity 0.45s ease, transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  -webkit-tap-highlight-color: transparent;
+}
+#motion-prompt.is-on { opacity: 1; transform: translate(-50%, 0); }
+#motion-prompt .mp-icon {
+  font-size: 15px;
+  color: #8B4FFF;
+  animation: mp-tilt 2.2s ease-in-out infinite;
+}
+#motion-prompt[data-mode="touch"] .mp-icon { animation: none; }
+@keyframes mp-tilt {
+  0%, 100% { transform: rotate(-18deg); }
+  50%      { transform: rotate(18deg); }
+}
+
+/* ── Debug HUD (?debug) — żywy stan żyroskopu/inputu, parallax.js ── */
+#gyro-debug {
+  position: fixed;
+  top: calc(env(safe-area-inset-top, 0px) + 8px);
+  left: 8px;
+  z-index: 9999;
+  padding: 8px 10px;
+  border: 1px solid rgba(0, 229, 255, 0.5);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.72);
+  color: #00E5FF;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.5;
+  white-space: pre;
+  pointer-events: none;
+}
