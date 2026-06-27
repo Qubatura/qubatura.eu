@@ -86,6 +86,9 @@ export async function initSignet(ctx) {
     uDivColor:          { value: new THREE.Vector3(0.35, 0.18, 1.0) },  // kolor aktywnej dywizji (default = primary)
     uDivMix:            { value: 0 },      // siła blendowania barwy dywizji do tintu ciała sygnetu
     uResolution:        { value: dbSize }, // drawing buffer size — potrzebne do gl_FragCoord UV
+    // Mobile: solidne wypełnienie ciała — refrakcja ciemnego nieba dawała czarne wnętrze
+    // (sygnet kolorowy dopiero po interakcji). Desktop: 0 (refrakcja wieży wypełnia sama). (BRIEF 15 #2)
+    uBaseFill:          { value: window.innerWidth <= 768 ? 0.55 : 0.0 },
   };
 
   // Na mobile szyba zagina mocniej — przy ciemnym tle subtelne 0.06 jest niewidoczne
@@ -115,6 +118,7 @@ export async function initSignet(ctx) {
       uniform vec3  uDivColor;
       uniform float uDivMix;
       uniform vec2  uResolution;
+      uniform float uBaseFill;
 
       varying vec3 vNormal;
       varying vec3 vWorldPos;
@@ -166,12 +170,10 @@ export async function initSignet(ctx) {
         vec3  color = refr;
         color += specColor * colorAmt;
         color += tint * 0.4 * colorAmt;
-        // Adaptacyjne wypełnienie wnętrza: gdy tło ZA sygnetem jest ciemne (mobile — niebo,
-        // nie jasna wieża), refrakcja daje czerń i sygnet wygląda jak pusta/czarna skorupa.
-        // Dolewamy tint proporcjonalnie do ciemności tła → solidne fioletowe szkło. Na jasnym
-        // tle (desktop, wieża za sygnetem) ~0 → refrakcja nietknięta. (BRIEF 15 #2 / #35)
-        float bgLum = dot(refr, vec3(0.299, 0.587, 0.114));
-        color += tint * (1.0 - smoothstep(0.0, 0.22, bgLum)) * 0.45 * colorAmt;
+        // Wypełnienie ciała: na mobile solidny tint niezależny od tła (uBaseFill>0) — bez tego
+        // refrakcja ciemnego nieba dawała czarne wnętrze (kolor dopiero po interakcji). Na
+        // desktopie uBaseFill=0 → refrakcja jasnej wieży wypełnia sama. (BRIEF 15 #2 / #35)
+        color += tint * uBaseFill * colorAmt;
         // Wewnętrzna emisja — subtelna plasma widoczna w centrum (niski fresnel) na ciemnym tle.
         // Oscyluje w czasie → ruch wewnętrzny = szkło wygląda jak materiał a nie flat powierzchnia.
         float plasma = 0.5 + 0.5 * sin(vWorldPos.x * 1.5 + time * 0.6) * sin(vWorldPos.y * 1.2 - time * 0.45 + 1.8);
