@@ -180,12 +180,12 @@ function updateFF(ff, delta, elapsed, activeDiv, divCol, signetActive, orbitActi
     const rawSum = 0.50 * Math.sin(elapsed *  3.1 * pm + ff.phase) +
                    0.30 * Math.sin(elapsed *  8.7 * pm + ff.phase * 1.618) +
                    0.20 * Math.sin(elapsed * 19.3 * pm + ff.phase * 2.414);
-    const flicker = 0.42 + 0.58 * (rawSum * 0.5 + 0.5);   // szerszy zakres pulsu = bardziej dramatyczne
+    const flicker = 0.36 + 0.64 * (rawSum * 0.5 + 0.5);   // większy rozhuśt pulsu (A1: "puls większy")
     ff.flicker = flicker;
     const boost = ff.targeting === 'signet' ? 3.5 :
-                  (ff.targeting === 'dept' || ff.targeting === 'orbit') ? 2.5 : 1.3;   // idle 1.0→1.3: więcej obecności w spoczynku (A1)
+                  (ff.targeting === 'dept' || ff.targeting === 'orbit') ? 2.5 : 1.45;  // idle: więcej obecności w spoczynku (A1)
     const depthK = Math.min(1.6, Math.pow((300 - Z_NORM) / Math.max(10, 300 - ff.z), 1.8));
-    const ti     = Math.min(0.90, ff.maxBright * flicker * boost * depthK);   // wyższy sufit (A1)
+    const ti     = Math.min(0.96, ff.maxBright * flicker * boost * depthK);   // wyższy sufit jasności (A1)
     ff.intensity += (ti - ff.intensity) * Math.min(1, delta * 2.8);
 
     const tc = ff.targeting ? divCol : IDLE_COL;
@@ -309,7 +309,7 @@ export function initFireflies(ctx) {
       const ff = pool[i];
       updateFF(ff, delta, elapsed, activeDiv, divCol, signetActive, orbitActive);
       const brightness = ff.intensity * ffReveal;
-      const peakW = Math.max(0, (ff.flicker - 0.84) / 0.16) * 0.22 * brightness;
+      const peakW = Math.max(0, (ff.flicker - 0.80) / 0.20) * 0.32 * brightness;   // gorętsze szczyty pulsu (A1)
       pos[i * 3]     = ff.x;
       pos[i * 3 + 1] = ff.y;
       pos[i * 3 + 2] = ff.z;
