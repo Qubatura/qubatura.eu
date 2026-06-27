@@ -124,6 +124,12 @@ export async function initSignet(ctx) {
         // gl_FragCoord.y=0 u dołu; renderTarget z flipY=false też ma Y=0 u dołu → brak flipu.
         vec2 vScreenPos = gl_FragCoord.xy / uResolution;
 
+        // Fresnel — krawędzie bardziej widoczne. MUSI być policzony PRZED shimmer/CA, które go
+        // używają. Wcześniej deklarowany niżej a użyty tu → use-before-declaration = błąd
+        // kompilacji frag shadera → CAŁE ciało sygnetu nie renderowało się (zostawał płaski
+        // outline + glow). To była przyczyna „płaskiego SVG" na mobile i desktopie.
+        float fresnel = pow(1.0 - abs(dot(vNormal, vec3(0.0, 0.0, 1.0))), 3.0);
+
         // Wewnętrzna animacja szkła — falowanie UV tworzy ruch w centrum nawet na ciemnym tle.
         // Amplituda rośnie tam gdzie fresnel mały (centrum bryły), a maleje przy krawędziach.
         float shimmerAmt = (1.0 - fresnel) * 0.008;
@@ -131,10 +137,6 @@ export async function initSignet(ctx) {
         float sy = sin(vWorldPos.y * 1.1 + time * 0.42 + 1.5) * shimmerAmt;
         // Zagięcie UV przez normalną (refrakcja) + subtelny shimmer
         vec2 refractedUV = vScreenPos + vNormal.xy * refractionStrength + vec2(sx, sy);
-
-        // Fresnel — krawędzie bardziej widoczne (liczone przed CA: steruje siłą
-        // pryzmatycznego rozszczepienia na krawędziach)
-        float fresnel = pow(1.0 - abs(dot(vNormal, vec3(0.0, 0.0, 1.0))), 3.0);
 
         // Chromatic aberration — rozszczepianie RGB. Rośnie ku krawędziom w trybie szkła
         // (uGlass) → pryzmatyczny, tęczowy rozkład światła na krawędziach.

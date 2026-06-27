@@ -54,12 +54,22 @@ export async function initScene() {
   planetMat = new THREE.MeshBasicMaterial({
     map: planetTexture, transparent: true, opacity: PLANET_OPACITY_VISIBLE,
   });
-  const PLANET_H = 1200, PLANET_Z = -500;
-  const planetMesh = new THREE.Mesh(new THREE.PlaneGeometry(2000, PLANET_H), planetMat);
+  const PLANET_W = 2000, PLANET_H = 1200, PLANET_Z = -500;
+  // EXTRA_TOP — zapas nieba NAD sceną. Na mobile kamera „rozgląda się" w górę przy przechyle
+  // telefonu; bez zapasu ujawniała się urwana górna krawędź planu (pustka). Górny rząd tekstury
+  // to ciemne niebo z księżycami → ClampToEdgeWrapping powtarza go bezszwowo w obszarze EXTRA_TOP.
+  // NIE ograniczamy zakresu ruchu — poszerzamy tło (zgodnie z celem „rozglądania się").
+  const EXTRA_TOP = window.innerWidth <= 768 ? 900 : 0;
+  const fullH = PLANET_H + EXTRA_TOP;
+  planetTexture.wrapT    = THREE.ClampToEdgeWrapping;
+  planetTexture.repeat.y = fullH / PLANET_H;   // pełny obraz w dolnych PLANET_H, niebo klamrowane wyżej
+  const planetMesh = new THREE.Mesh(new THREE.PlaneGeometry(PLANET_W, fullH), planetMat);
   const viewTop = (camera.position.z - PLANET_Z) * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
   // Na mobile przesunięcie w dół o 200wu — budynek w centrum kadru startowo
   const planetShift  = window.innerWidth <= 768 ? -200 : 0;
-  const basePlanetY  = viewTop - PLANET_H / 2 + planetShift;
+  // Kotwiczymy DOLNĄ krawędź obrazu tam gdzie była; nadmiar wysokości idzie w górę (niebo).
+  const contentBaseY = viewTop - PLANET_H / 2 + planetShift;
+  const basePlanetY  = contentBaseY + EXTRA_TOP / 2;   // środek wyższego planu (dół niezmieniony)
   planetMesh.position.set(0, basePlanetY, PLANET_Z);
   scene.add(planetMesh);
 

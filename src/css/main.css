@@ -1097,14 +1097,16 @@ body.page-active #tagline {
       inset 0 1px 0 rgba(255, 255, 255, 0.13);
   }
 
-  /* ─── Lewa kolumna: nazwa działu ─── */
+  /* ─── Lewa kolumna: nazwa działu — DOMINUJĄCA (hierarchia: nazwa > opis) ─── */
   .nav-label {
-    flex: 0 0 96px;
-    padding: 0 0 0 18px;
-    font-size: 12px;
-    letter-spacing: 0.18em;
+    flex: 0 0 auto;
+    min-width: 78px;
+    padding: 0 14px 0 18px;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
     white-space: nowrap;
-    color: rgba(255, 255, 255, 0.92);
+    color: rgba(255, 255, 255, 0.96);
     text-shadow: none;
   }
 
@@ -1127,16 +1129,21 @@ body.page-active #tagline {
     text-align: left;
   }
 
+  /* Opis usług — DRUGOPLANOWY: mniejszy, ciemniejszy, max 2 linie, bez wychodzenia poza kartę */
   .hud-title {
     opacity: 1;
-    font-size: 11px;
-    letter-spacing: 0.10em;
-    color: rgba(255, 255, 255, 0.62);
+    font-size: 9.5px;
+    letter-spacing: 0.06em;
+    color: rgba(255, 255, 255, 0.50);
     text-shadow: none;
-    margin: 0 0 2px;
+    margin: 0;
     text-transform: uppercase;
-    line-height: 1.3;
+    line-height: 1.35;
     white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 
   .hud-services {
@@ -1215,44 +1222,71 @@ body.page-active #tagline {
   }
 }
 
-/* ── Motion permission / touch-drag prompt (mobile) — parallax.js ── */
+/* ── Motion permission gate / touch hint (mobile) — parallax.js ── */
 #motion-prompt {
   position: fixed;
-  left: 50%;
-  bottom: calc(env(safe-area-inset-bottom, 0px) + 20px);
-  z-index: 60;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+#motion-prompt.is-on { opacity: 1; }
+
+/* Gate (iOS permission) — przyciemniony scrim + wycentrowany pill; tap = zgoda + zamknięcie.
+   Zasłania resztę UI (karty) do interakcji → koniec kolizji banera z kartami. */
+#motion-prompt.is-gate {
+  align-items: center;
+  background: rgba(6, 5, 15, 0.55);
+  backdrop-filter: blur(6px) saturate(110%);
+  -webkit-backdrop-filter: blur(6px) saturate(110%);
+  cursor: pointer;
+}
+
+/* Toast (podpowiedź touch) — bez scrimu, pod topbarem, nie dotyka kart na dole */
+#motion-prompt.is-toast {
+  align-items: flex-start;
+  padding-top: calc(env(safe-area-inset-top, 0px) + 72px);
+  background: none;
+  pointer-events: none;
+}
+
+.mp-card {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px 18px;
-  border: 1px solid rgba(91, 46, 255, 0.45);
+  gap: 11px;
+  padding: 14px 22px;
+  border: 1px solid rgba(91, 46, 255, 0.5);
   border-radius: 100px;
-  background: rgba(10, 10, 15, 0.62);
+  background: rgba(10, 10, 15, 0.72);
   backdrop-filter: blur(16px) saturate(130%);
   -webkit-backdrop-filter: blur(16px) saturate(130%);
   box-shadow:
-    0 8px 30px rgba(91, 46, 255, 0.28),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+    0 12px 40px rgba(91, 46, 255, 0.35),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.05);
   color: var(--color-white);
   font-family: var(--font-mono);
-  font-size: 12.5px;
-  letter-spacing: 0.02em;
-  cursor: pointer;
-  transform: translate(-50%, 14px);
-  opacity: 0;
-  transition: opacity 0.45s ease, transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
-  -webkit-tap-highlight-color: transparent;
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transform: translateY(12px);
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
 }
-#motion-prompt.is-on { opacity: 1; transform: translate(-50%, 0); }
-#motion-prompt .mp-icon {
-  font-size: 15px;
+#motion-prompt.is-on .mp-card { transform: translateY(0); }
+
+.mp-icon {
+  display: inline-block;
+  font-size: 16px;
   color: #8B4FFF;
   animation: mp-tilt 2.2s ease-in-out infinite;
 }
-#motion-prompt[data-mode="touch"] .mp-icon { animation: none; }
+#motion-prompt.is-toast .mp-icon { animation: none; }
 @keyframes mp-tilt {
-  0%, 100% { transform: rotate(-18deg); }
-  50%      { transform: rotate(18deg); }
+  0%, 100% { transform: rotate(-20deg); }
+  50%      { transform: rotate(20deg); }
 }
 
 /* ── Debug HUD (?debug) — żywy stan żyroskopu/inputu, parallax.js ── */

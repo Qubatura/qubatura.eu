@@ -111,6 +111,8 @@ export function initParallax(ctx) {
   // (nie podczas loadingu / pongu / podstron / kontaktu) i tylko gdy gyro milczy.
   function overlayBusy() {
     if (document.body.classList.contains('is-loading')) return true;
+    // Gate (pełny overlay zgody iOS) przejmuje wejście — touch-drag nie rusza sceny pod nim.
+    if (banner && banner.classList.contains('is-gate') && !banner.hidden) return true;
     for (const id of ['pong-overlay', 'page', 'contact-overlay']) {
       const el = document.getElementById(id);
       if (el && el.getAttribute('aria-hidden') === 'false') return true;
@@ -144,11 +146,13 @@ export function initParallax(ctx) {
   const bText  = banner ? banner.querySelector('.mp-text') : null;
   let bannerHideT = null;
 
+  // mode 'tap' → gate (pełny overlay zgody iOS); cokolwiek innego → toast (podpowiedź touch)
   function showBanner(msg, mode, autoHideMs) {
     if (!banner) return;
     clearTimeout(bannerHideT);
     if (msg && bText) bText.textContent = msg;
-    banner.dataset.mode = mode || '';
+    banner.classList.remove('is-gate', 'is-toast');
+    banner.classList.add(mode === 'tap' ? 'is-gate' : 'is-toast');
     banner.hidden = false;
     banner.setAttribute('aria-hidden', 'false');
     requestAnimationFrame(() => banner.classList.add('is-on'));
@@ -158,7 +162,7 @@ export function initParallax(ctx) {
     if (!banner) return;
     banner.classList.remove('is-on');
     banner.setAttribute('aria-hidden', 'true');
-    setTimeout(() => { banner.hidden = true; }, 500);
+    setTimeout(() => { banner.hidden = true; banner.classList.remove('is-gate', 'is-toast'); }, 500);
   }
 
   // Baner pokazujemy DOPIERO po loading screen (nie walczy o uwagę z sygnetem).
@@ -177,7 +181,7 @@ export function initParallax(ctx) {
     setTimeout(() => {
       if (diag.events === before) {
         enableTouchFallback();
-        if (_mob) whenLoaded(() => showBanner('Brak żyroskopu — przesuwaj scenę palcem', 'touch', 4000));
+        if (_mob) whenLoaded(() => showBanner('Przesuwaj scenę palcem', 'touch', 4000));
       }
     }, 1500);
   }
@@ -191,7 +195,7 @@ export function initParallax(ctx) {
     // iOS 13+ — requestPermission MUSI iść z gestu. Baner = ten gest.
     diag.perm = 'needs-tap';
     enableTouchFallback();   // bezpieczny fallback od razu — scena nie jest statyczna zanim user tapnie
-    whenLoaded(() => showBanner('Przechyl telefonem — włącz ruch sceny', 'tap'));
+    whenLoaded(() => showBanner('Włącz ruch sceny', 'tap'));
 
     const ask = () => {
       DeviceOrientationEvent.requestPermission()
@@ -202,7 +206,7 @@ export function initParallax(ctx) {
             watchdog();          // sprawdzi czy faktycznie lecą eventy
             hideBanner();
           } else {
-            showBanner('Ruch wyłączony — przesuwaj scenę palcem', 'touch', 4000);
+            showBanner('Przesuwaj scenę palcem', 'touch', 4000);
           }
         })
         .catch(() => {
