@@ -88,17 +88,21 @@ export async function initSignet(ctx) {
     uDivColor:          { value: new THREE.Vector3(0.35, 0.18, 1.0) },  // kolor aktywnej dywizji (default = primary)
     uDivMix:            { value: 0 },      // siła blendowania barwy dywizji do tintu ciała sygnetu
     uResolution:        { value: dbSize }, // drawing buffer size — potrzebne do gl_FragCoord UV
-    // Mobile: solidne wypełnienie ciała — refrakcja ciemnego nieba dawała czarne wnętrze
-    // (sygnet kolorowy dopiero po interakcji). Desktop: 0 (refrakcja wieży wypełnia sama). (BRIEF 15 #2)
-    uBaseFill:          { value: window.innerWidth <= 768 ? 0.35 : 0.0 },
+    // Mobile: wypełnienie ciała — refrakcja ciemnego nieba dawała czarne wnętrze. ZMNIEJSZONE
+    // (0.35→0.28, B2): płaski tint „matowił" bryłę; teraz mniej flat fill, a życie daje
+    // opalescencja (uOpal) + mocniejszy rant. Desktop: 0 (refrakcja wieży wypełnia sama).
+    uBaseFill:          { value: window.innerWidth <= 768 ? 0.28 : 0.0 },
     // Mobile: podłoga „szkła" w spoczynku — utrzymuje pryzmatyczny rant + chromatic aberration
-    // jak podczas ładowania (po loadingu uGlass→0 je gasiło → sygnet robił się płaski/pusty).
-    // NIE dotyka glowHide (glow nieprzygaszony). Desktop=0. (BRIEF 15 — różnica loading vs home)
-    uGlassFloor:        { value: window.innerWidth <= 768 ? 0.30 : 0.0 },
+    // jak podczas ładowania. PODBITA (0.30→0.42, B2) → wyraźniejsze szklane refleksy/krawędzie.
+    // NIE dotyka glowHide (glow nieprzygaszony). Desktop=0.
+    uGlassFloor:        { value: window.innerWidth <= 768 ? 0.42 : 0.0 },
+    // Mnożnik opalizującego płynu (A2/B2): mobile mocniej — matowy sygnet nad ciemnym tłem
+    // potrzebuje więcej „mienienia się"; desktop refraktuje jasną wieżę i ma dość naturalnie.
+    uOpal:              { value: window.innerWidth <= 768 ? 1.7 : 1.0 },
   };
 
   // Na mobile szyba zagina mocniej — przy ciemnym tle subtelne 0.06 jest niewidoczne
-  if (window.innerWidth <= 768) uniforms.refractionStrength.value = 0.12;
+  if (window.innerWidth <= 768) uniforms.refractionStrength.value = 0.14;
 
   const mat = new THREE.ShaderMaterial({
     uniforms,
@@ -126,6 +130,7 @@ export async function initSignet(ctx) {
       uniform vec2  uResolution;
       uniform float uBaseFill;
       uniform float uGlassFloor;
+      uniform float uOpal;
 
       varying vec3 vNormal;
       varying vec3 vWorldPos;
@@ -195,7 +200,7 @@ export async function initSignet(ctx) {
         vec3  opalCol = mix(cPrimary, vec3(0.55, 0.45, 1.0), opal); // refleksy w primary/jasny fiolet
         // Widoczna w głębi bryły (niski fresnel); gaśnie z colorAmt → podczas loadingu
         // wlewa się wraz z „nasiąkaniem" szkła, w trybie czystego szkła ustępuje refrakcji.
-        color += opalCol * opal * 0.16 * (1.0 - fresnel) * colorAmt;
+        color += opalCol * opal * 0.16 * (1.0 - fresnel) * colorAmt * uOpal;
         // Drobne dodatkowe migotanie substancji (dawna plasma) — ruch wewnętrzny.
         float plasma = 0.5 + 0.5 * sin(vWorldPos.x * 1.5 + time * 0.6) * sin(vWorldPos.y * 1.2 - time * 0.45 + 1.8);
         color += tint * plasma * 0.06 * (1.0 - fresnel) * colorAmt;
