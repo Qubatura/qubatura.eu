@@ -184,6 +184,14 @@
   <main id="page" aria-hidden="true">
     <button id="page-back" type="button" aria-label="Powrót">← Powrót</button>
 
+    <!-- Logo / powrót na HOME — pełny lockup (sygnet + wordmark QUBATURA), biały statyczny.
+         Nie bierze koloru działu (żeby nie wprowadzać konkurującej barwy). Hover-glow TYLKO na
+         sygnecie (sygnalizuje klikalność); wordmark zostaje statyczny. Sygnet = mask na signet.svg. -->
+    <button id="page-home" type="button" aria-label="Qubatura — powrót na stronę główną">
+      <span class="home-mark" aria-hidden="true"></span>
+      <span class="home-word">QUBATURA</span>
+    </button>
+
     <!-- Events -->
     <article class="page-view" id="page-events" data-division="events" hidden>
       <p class="page-kicker">Events</p>

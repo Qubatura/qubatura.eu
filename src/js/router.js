@@ -12,8 +12,10 @@ const gsap = GSAPmod.gsap || GSAPmod.default || GSAPmod;
 
 const EASE = 'power3.out';
 
-// Sygnet w trybie podstrony — pozycja/skala w jedn. świata (tunable)
-const SIGNET_PAGE = { x: -235, y: 120, scale: 0.42 };
+// Sygnet w trybie podstrony — pozycja/skala w jedn. świata (tunable).
+// scale=0 (pkt 6): rolę logo w rogu przejmuje płaski biały lockup #page-home (sygnet+wordmark);
+// sygnet 3D był i tak za scrimem #page (z40) → chowamy go całkiem, by nie prześwitywał za logo.
+const SIGNET_PAGE = { x: -235, y: 120, scale: 0.0 };
 
 // Kontakt nie jest dywizją — używa koloru primary
 const CONTACT_COLOR = new THREE.Color(0x6B2FD9);
@@ -28,6 +30,7 @@ const ROUTES = {
 export function initRouter() {
   const page    = document.getElementById('page');
   const back    = document.getElementById('page-back');
+  const home    = document.getElementById('page-home');   // logo/HOME (pkt 6)
   const views   = [...document.querySelectorAll('.page-view')];
   if (!page) return;
 
@@ -50,6 +53,7 @@ export function initRouter() {
     page.classList.add('is-open');
     page.dataset.division = route.div;   // → tło podstrony w CSS (#page[data-division=...])
     back.classList.add('is-open');
+    if (home) home.classList.add('is-open');
     page.setAttribute('aria-hidden', 'false');
 
     // subtelny wjazd treści
@@ -78,6 +82,7 @@ export function initRouter() {
     resetNavState();   // czysty stan nav: zgaś wszystkie HUD-y „zamrożone" przez guard
     page.classList.remove('is-open');
     back.classList.remove('is-open');
+    if (home) home.classList.remove('is-open');
     document.body.classList.remove('page-active');
     page.setAttribute('aria-hidden', 'true');
 
@@ -118,6 +123,9 @@ export function initRouter() {
     if (history.state && history.state.path) history.back();
     else navigate('/');
   });
+
+  // Logo w rogu → zawsze prosto na HOME (nie history.back — to świadomy „dom").
+  if (home) home.addEventListener('click', () => navigate('/'));
 
   window.addEventListener('popstate', e => {
     render((e.state && e.state.path) || pathFromLocation());

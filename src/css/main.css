@@ -830,6 +830,61 @@ body.pong-active #pong-speed {
   color: rgba(255, 255, 255, 1);
 }
 
+/* ── Logo / powrót na HOME — lewy górny róg (pkt 6) ─────────────────── */
+/* Pełny lockup sygnet + wordmark. Biały/jasnoszary STATYCZNY — nie bierze koloru
+   działu (logika: biel = główna treść; kolor/glow = nagroda za hover, nie stan bazowy). */
+#page-home {
+  position: fixed;
+  top: 3.4%;
+  left: 2.6%;
+  z-index: 101;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 6px 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+
+#page-home.is-open {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* Sygnet — biały kształt przez maskę na signet.svg (recolor + glow przez CSS). */
+.home-mark {
+  width: 26px;
+  height: 26px;
+  background: rgba(255, 255, 255, 0.9);
+  -webkit-mask: url('../../assets/signet.svg') center / contain no-repeat;
+          mask: url('../../assets/signet.svg') center / contain no-repeat;
+  transition: background 0.3s ease, filter 0.3s ease;
+}
+
+/* Wordmark — Chakra Petch, statyczny jasnoszary. Bez zmian na hover. */
+.home-word {
+  font-family: var(--font-display);   /* Chakra Petch */
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: 0.34em;
+  /* trailing letter-spacing dosuwa wizualny środek — kompensacja po prawej */
+  padding-left: 0.34em;
+  color: rgba(255, 255, 255, 0.82);
+  white-space: nowrap;
+}
+
+/* Mikroruch — hover-glow TYLKO na sygnecie: rozjaśnienie + delikatna fioletowa poświata. */
+#page-home:hover .home-mark {
+  background: #ffffff;
+  filter:
+    drop-shadow(0 0 6px rgba(139, 79, 255, 0.85))
+    drop-shadow(0 0 14px rgba(107, 47, 217, 0.55));
+}
+
 /* W trybie strony chowamy tagline (kolizja z Powrotem) */
 body.page-active #tagline {
   opacity: 0;
