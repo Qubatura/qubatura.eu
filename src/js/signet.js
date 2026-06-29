@@ -89,20 +89,31 @@ export async function initSignet(ctx) {
     uDivMix:            { value: 0 },      // siła blendowania barwy dywizji do tintu ciała sygnetu
     uResolution:        { value: dbSize }, // drawing buffer size — potrzebne do gl_FragCoord UV
     // Mobile: wypełnienie ciała — refrakcja ciemnego nieba dawała czarne wnętrze. ZMNIEJSZONE
-    // (0.35→0.28, B2): płaski tint „matowił" bryłę; teraz mniej flat fill, a życie daje
-    // opalescencja (uOpal) + mocniejszy rant. Desktop: 0 (refrakcja wieży wypełnia sama).
-    uBaseFill:          { value: window.innerWidth <= 768 ? 0.28 : 0.0 },
+    // (0.28→0.22, C1): płaski tint to GŁÓWNE źródło „matowości" — mniej flat fill = więcej
+    // widać refrakcję tła = bliżej szkła desktopowego; życie trzyma opalescencja (uOpal) +
+    // mocniejszy rant (uGlassFloor) + większa refrakcja. Desktop: 0 (refrakcja wieży sama).
+    uBaseFill:          { value: window.innerWidth <= 768 ? 0.22 : 0.0 },
     // Mobile: podłoga „szkła" w spoczynku — utrzymuje pryzmatyczny rant + chromatic aberration
-    // jak podczas ładowania. PODBITA (0.30→0.42, B2) → wyraźniejsze szklane refleksy/krawędzie.
-    // NIE dotyka glowHide (glow nieprzygaszony). Desktop=0.
-    uGlassFloor:        { value: window.innerWidth <= 768 ? 0.42 : 0.0 },
+    // jak podczas ładowania. PODBITA (0.42→0.52, C1) → rekompensuje niższy uBaseFill: mniej
+    // matowego wypełnienia, więcej szklanych krawędzi/refleksów. NIE dotyka glowHide. Desktop=0.
+    uGlassFloor:        { value: window.innerWidth <= 768 ? 0.52 : 0.0 },
     // Mnożnik opalizującego płynu (A2/B2): mobile mocniej — matowy sygnet nad ciemnym tłem
     // potrzebuje więcej „mienienia się"; desktop refraktuje jasną wieżę i ma dość naturalnie.
     uOpal:              { value: window.innerWidth <= 768 ? 1.7 : 1.0 },
+    // Barwa krawędziowego rozświetlenia (rant fresnela). Desktop: ciepły lawendowo-biały.
+    // Mobile (C1): chłodniejszy, mniej czerwieni — mocny rant nad uGlassFloor=0.52 czytał się
+    // różowo/magentowo; przesuwamy ku primary, żeby obrys bryły trzymał fiolet jak desktop.
+    uEdgeWarm:          { value: window.innerWidth <= 768
+                            ? new THREE.Vector3(0.78, 0.74, 1.0)
+                            : new THREE.Vector3(0.88, 0.76, 1.0) },
+    // Bazowa nieprzezroczystość ciała. Mobile (C1): niższa = więcej przezroczystego szkła
+    // (refrakcja/glow prześwitują) → mniej „solidnej" matowej bryły, bliżej desktopu. Desktop=0.85.
+    uBodyAlpha:         { value: window.innerWidth <= 768 ? 0.80 : 0.85 },
   };
 
-  // Na mobile szyba zagina mocniej — przy ciemnym tle subtelne 0.06 jest niewidoczne
-  if (window.innerWidth <= 768) uniforms.refractionStrength.value = 0.14;
+  // Na mobile szyba zagina mocniej — przy ciemnym tle subtelne 0.06 jest niewidoczne.
+  // PODBITE (0.14→0.18, C1): więcej refrakcji tła = mocniejszy efekt szkła zamiast flat fill.
+  if (window.innerWidth <= 768) uniforms.refractionStrength.value = 0.18;
 
   const mat = new THREE.ShaderMaterial({
     uniforms,
@@ -131,6 +142,8 @@ export async function initSignet(ctx) {
       uniform float uBaseFill;
       uniform float uGlassFloor;
       uniform float uOpal;
+      uniform vec3  uEdgeWarm;
+      uniform float uBodyAlpha;
 
       varying vec3 vNormal;
       varying vec3 vWorldPos;
@@ -168,13 +181,17 @@ export async function initSignet(ctx) {
         vec3 toLight  = normalize(lightPos - vWorldPos);
         vec3 toCamera = normalize(cameraPosition - vWorldPos);
         vec3 halfVec  = normalize(toLight + toCamera);
-        float spec    = pow(max(dot(vNormal, halfVec), 0.0), 64.0);
-        vec3 specColor = vec3(0.5, 0.3, 1.0) * spec * 2.5;
+        // Specular MIĘKSZY (C4): wykładnik 64→28 = szerszy, łagodniejszy refleks (światło
+        // „ślizga się" po powierzchni zamiast punktowego rozbłysku); siła 2.5→1.7 = mniej hot-spota.
+        float spec    = pow(max(dot(vNormal, halfVec), 0.0), 28.0);
+        vec3 specColor = vec3(0.5, 0.3, 1.0) * spec * 1.7;
 
         // Przejście primary → magenta sterowane kątem/hoverem (uColorMix).
         // Magenta = AKCENT: stonowana (mniej czerwieni) i sięga max ~akcentu, baza trzyma primary.
+        // C1/C3: przesunięta z różu ku elektrycznemu fioletowi (0.80,0.20,0.70 → 0.58,0.20,0.92) —
+        // mniej magenty w całej estetyce (mobile bryła + desktop akcenty), bliżej primary.
         vec3 cPrimary = vec3(0.35, 0.18, 1.0);
-        vec3 cMagenta = vec3(0.80, 0.20, 0.70);
+        vec3 cMagenta = vec3(0.58, 0.20, 0.92);
         vec3 tint     = mix(cPrimary, cMagenta, uColorMix);
         tint          = mix(tint, uDivColor, uDivMix);   // kolor aktywnej dywizji (np. cyjan Lab)
 
@@ -194,23 +211,28 @@ export async function initSignet(ctx) {
         // Sygnet ma wyglądać jak bryła wypełniona mieniącą się substancją, nie jak
         // pusty obrys. Dwa niewspółmierne wiry → ruchoma „gęstość" płynu; iryzacja
         // trzymana w rodzinie primary→jasny fiolet (NIGDY magenta) = drogie szkło.
-        float swirl1 = sin(vWorldPos.x * 0.95 + vWorldPos.y * 0.55 + time * 0.45);
-        float swirl2 = sin(vWorldPos.y * 1.25 - vWorldPos.x * 0.40 - time * 0.33 + 2.1);
+        // C4 — „woda w szklanej butelce": niższe częstotliwości wirów (0.95/0.55→0.50/0.30,
+        // 1.25/0.40→0.66/0.24) = większe, gładsze komórki płynu, mniej węzłów = łagodniejsze
+        // przejścia jasności, światło ślizga się po całej powierzchni zamiast drobić na plamki.
+        float swirl1 = sin(vWorldPos.x * 0.50 + vWorldPos.y * 0.30 + time * 0.40);
+        float swirl2 = sin(vWorldPos.y * 0.66 - vWorldPos.x * 0.24 - time * 0.30 + 2.1);
         float opal   = 0.5 + 0.5 * swirl1 * swirl2;                 // 0..1 ruchoma substancja
         vec3  opalCol = mix(cPrimary, vec3(0.55, 0.45, 1.0), opal); // refleksy w primary/jasny fiolet
         // Widoczna w głębi bryły (niski fresnel); gaśnie z colorAmt → podczas loadingu
         // wlewa się wraz z „nasiąkaniem" szkła, w trybie czystego szkła ustępuje refrakcji.
         color += opalCol * opal * 0.16 * (1.0 - fresnel) * colorAmt * uOpal;
-        // Drobne dodatkowe migotanie substancji (dawna plasma) — ruch wewnętrzny.
-        float plasma = 0.5 + 0.5 * sin(vWorldPos.x * 1.5 + time * 0.6) * sin(vWorldPos.y * 1.2 - time * 0.45 + 1.8);
-        color += tint * plasma * 0.06 * (1.0 - fresnel) * colorAmt;
+        // „Plasma" (drobne migotanie) — GŁÓWNE źródło pstrokatych plamek przez wysokie freq.
+        // C4: częstotliwości 1.5/1.2→0.80/0.62 (większe plamy) + waga 0.06→0.03 (ledwo widoczne)
+        // → jednolita, płynna refrakcja zamiast punktowych rozbłysków.
+        float plasma = 0.5 + 0.5 * sin(vWorldPos.x * 0.80 + time * 0.6) * sin(vWorldPos.y * 0.62 - time * 0.45 + 1.8);
+        color += tint * plasma * 0.03 * (1.0 - fresnel) * colorAmt;
         color += tint * fresnel * 0.5 * colorAmt;
         // Stałe krawędziowe oświetlenie — widoczne niezależnie od tła i trybu szkła.
         // Idle: delikatna jasna krawędź (bryłowatość na ciemnym mobile bg).
-        // Szkło: silniejsze, pryzmatyczne (+0.50).
-        color += vec3(0.88, 0.76, 1.0) * fresnel * (0.22 + glassEdge * 0.50);
+        // Szkło: silniejsze, pryzmatyczne (+0.50). Barwa = uEdgeWarm (mobile chłodniejsza, C1).
+        color += uEdgeWarm * fresnel * (0.22 + glassEdge * 0.50);
 
-        gl_FragColor = vec4(color, 0.85 + fresnel * 0.15);
+        gl_FragColor = vec4(color, uBodyAlpha + fresnel * 0.15);
       }
     `,
   });
@@ -406,8 +428,9 @@ export async function initSignet(ctx) {
     // idleMix: kąt obrotu daje cień magenty (max ~0.14 przy edge-on), nie pełne przejście.
     // hoverBoost: hover działu lub sygnetu otwiera pełne przejście ku magenta.
     const idleMix    = 0.0;   // primary 1:1 — bez dryfu ku magencie w spoczynku
-    // Magenta = akcent, nie baza (A2): mocno ścięty wkład hovera, żeby sygnet trzymał primary.
-    const hoverBoost = navFX.intensity * 0.18 + glassMix * 0.10;
+    // Magenta = akcent, nie baza (A2/C3): mocno ścięty wkład hovera, żeby sygnet trzymał primary.
+    // C3: 0.18→0.14 — jeszcze niższy szczyt magenty na hover = mniej magenty w akcentach desktop.
+    const hoverBoost = navFX.intensity * 0.14 + glassMix * 0.10;
     const target     = loadFX.active ? 0 : Math.min(1, idleMix + hoverBoost);
     colorMix += (target - colorMix) * (loadFX.active ? 0.1 : 0.05);
     uniforms.uColorMix.value = colorMix;
