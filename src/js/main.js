@@ -16,6 +16,7 @@ import { initFireflies }        from './fireflies.js';
 import { initSignet }           from './signet.js';
 import { initNavigation }       from './navigation.js';
 import { initRouter }           from './router.js';
+import { initPlayers }          from './players.js';   // Część 2: playery audio (Studio)
 import { initCursor }           from './cursor.js';
 import { initContact }          from './contact.js';
 import { initLoader }           from './loader.js';   // Etap 9: loading screen
@@ -35,6 +36,7 @@ async function boot() {
 
   initNavigation(ctx);
   initRouter();
+  initPlayers();                // playery audio działu Studio (skeleton + slot 1)
   initPong();
 
   // Etap 9 — loading screen: realny tracking zasobów (Promise.all, nie fake timer).

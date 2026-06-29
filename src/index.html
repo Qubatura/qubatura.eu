@@ -244,6 +244,85 @@
 
     <!-- Kontakt = overlay (#contact-overlay), nie podstrona -->
 
+    <!-- Playery audio (Studio) — prawa strona, grid 2×2, zero scrolla, dolna część sceny
+         zarezerwowana. Dziecko #page (nie artykułu) — GSAP transform na artykule nie psuje
+         pozycji. Slot 1 = realna treść + link YT; sloty 2-4 = placeholder [TBD — DEMO].
+         Wskaźnik postępu = pierścień wokół play (reużycie motywu obręczy sygnetu). -->
+    <section class="studio-players" aria-label="Posłuchaj — próbki Studio Q">
+      <p class="pl-head">Posłuchaj:</p>
+      <div class="pl-grid">
+
+        <!-- Slot 1 — POTWIERDZONY -->
+        <article class="pl-card" data-audio="" data-dur="26">
+          <button class="pl-ring" type="button" aria-label="Odtwórz fragment: Nie z tej ziemi">
+            <svg class="pl-svg" viewBox="0 0 48 48" aria-hidden="true">
+              <circle class="pl-track" cx="24" cy="24" r="21"></circle>
+              <circle class="pl-prog"  cx="24" cy="24" r="21"></circle>
+            </svg>
+            <svg class="pl-ico pl-ico-play" viewBox="0 0 24 24" aria-hidden="true"><polygon points="9,7 18,12 9,17"></polygon></svg>
+            <svg class="pl-ico pl-ico-pause" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="7" width="3" height="10"></rect><rect x="13" y="7" width="3" height="10"></rect></svg>
+          </button>
+          <div class="pl-text">
+            <p class="pl-title">„Nie z tej ziemi"</p>
+            <p class="pl-meta">Podcast · ponad 100 odcinków</p>
+            <a class="pl-yt" href="https://www.youtube.com/results?search_query=nie+z+tej+ziemi+podcast"
+               target="_blank" rel="noopener" aria-label="Zobacz „Nie z tej ziemi" na YouTube">
+              <i class="fa-brands fa-youtube" aria-hidden="true"></i><span>Zobacz na YouTube</span>
+            </a>
+          </div>
+        </article>
+
+        <!-- Slot 2 — TBD -->
+        <article class="pl-card is-tbd" data-audio="" data-dur="24">
+          <button class="pl-ring" type="button" aria-label="Demo — wkrótce">
+            <svg class="pl-svg" viewBox="0 0 48 48" aria-hidden="true">
+              <circle class="pl-track" cx="24" cy="24" r="21"></circle>
+              <circle class="pl-prog"  cx="24" cy="24" r="21"></circle>
+            </svg>
+            <svg class="pl-ico pl-ico-play" viewBox="0 0 24 24" aria-hidden="true"><polygon points="9,7 18,12 9,17"></polygon></svg>
+            <svg class="pl-ico pl-ico-pause" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="7" width="3" height="10"></rect><rect x="13" y="7" width="3" height="10"></rect></svg>
+          </button>
+          <div class="pl-text">
+            <p class="pl-title">[ TBD — demo ]</p>
+            <p class="pl-meta">—</p>
+          </div>
+        </article>
+
+        <!-- Slot 3 — TBD -->
+        <article class="pl-card is-tbd" data-audio="" data-dur="24">
+          <button class="pl-ring" type="button" aria-label="Demo — wkrótce">
+            <svg class="pl-svg" viewBox="0 0 48 48" aria-hidden="true">
+              <circle class="pl-track" cx="24" cy="24" r="21"></circle>
+              <circle class="pl-prog"  cx="24" cy="24" r="21"></circle>
+            </svg>
+            <svg class="pl-ico pl-ico-play" viewBox="0 0 24 24" aria-hidden="true"><polygon points="9,7 18,12 9,17"></polygon></svg>
+            <svg class="pl-ico pl-ico-pause" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="7" width="3" height="10"></rect><rect x="13" y="7" width="3" height="10"></rect></svg>
+          </button>
+          <div class="pl-text">
+            <p class="pl-title">[ TBD — demo ]</p>
+            <p class="pl-meta">—</p>
+          </div>
+        </article>
+
+        <!-- Slot 4 — TBD -->
+        <article class="pl-card is-tbd" data-audio="" data-dur="24">
+          <button class="pl-ring" type="button" aria-label="Demo — wkrótce">
+            <svg class="pl-svg" viewBox="0 0 48 48" aria-hidden="true">
+              <circle class="pl-track" cx="24" cy="24" r="21"></circle>
+              <circle class="pl-prog"  cx="24" cy="24" r="21"></circle>
+            </svg>
+            <svg class="pl-ico pl-ico-play" viewBox="0 0 24 24" aria-hidden="true"><polygon points="9,7 18,12 9,17"></polygon></svg>
+            <svg class="pl-ico pl-ico-pause" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="7" width="3" height="10"></rect><rect x="13" y="7" width="3" height="10"></rect></svg>
+          </button>
+          <div class="pl-text">
+            <p class="pl-title">[ TBD — demo ]</p>
+            <p class="pl-meta">—</p>
+          </div>
+        </article>
+
+      </div>
+    </section>
+
     <!-- Galeria realizacji (Events) — placeholder, sama ramka HUD bez zdjęć.
          Dziecko #page (nie artykułu) — GSAP transform na artykule nie psuje pozycji. -->
     <div class="page-gallery" aria-hidden="true">
