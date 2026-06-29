@@ -65,7 +65,7 @@ export function initLoader(promises) {
     loadFX.charge  = Math.pow(p, 1.8) * 0.8;                         // ease-in: prawie czyste szkło na starcie → mocniej później (≈80% przy stówie)
     sceneFX.fog    = smoothstep(0.00, 0.45, p);                      // mgła NAJPIERW
     sceneFX.planet = smoothstep(0.35, 0.85, p);                      // miasto/planeta PÓŹNIEJ
-    loadFX.scale   = 1.0 + smoothstep(0.95, 0.99, p) * 0.15;        // puchnięcie ku nam przy 95–99%
+    loadFX.scale   = 1.0 + smoothstep(0.88, 1.00, p) * 0.07;        // delikatniejsze, łagodniej narastające puchnięcie ku nam (A3)
     if (pct) pct.textContent = Math.round(p * 100);
 
     if (!finishing && loadFX.target >= 1 && loadFX.progress > 0.992) {
@@ -73,7 +73,7 @@ export function initLoader(promises) {
       loadFX.ramping = false;
       loadFX.progress = 1;
       loadFX.spin = 0;                          // na wprost (≡ 2π), ale 0 → osiadanie NIE odkręca obrotu
-      loadFX.scale = 1.15;                      // upewniamy się że jest na max gdy GSAP przejmuje powrót
+      loadFX.scale = 1.07;                      // łagodniejszy szczyt zbliżenia gdy GSAP przejmuje powrót (A3)
       loadFX.charge = 0.8;                      // dobity do pełni dopiero pulsem w finish()
       if (pct) pct.textContent = 100;
       finish(loading);
@@ -108,8 +108,8 @@ function finish(loading) {
     },
   });
 
-  // POWRÓT — sygnet był na max (1.15) przy 99%; dostojnie wraca w pozycję HOME.
-  // power2.inOut: wolny start (jakby nie mógł wyjść z atmosfery) + wolne osiadanie.
+  // POWRÓT — sygnet był na łagodnym szczycie (1.07) przy 99%; dostojnie wraca w pozycję HOME.
+  // power2.inOut: wolny start (jakby nie mógł wyjść z atmosfery) + wolne osiadanie (slow-mo zostaje).
   tl.to(loadFX, { scale: 1.0,  duration: 3.20, ease: 'power2.inOut' }, 0)
 
   // FULL KOLOR — substancja dobija z 80% do pełni na pulsie (moment „ożywienia")
