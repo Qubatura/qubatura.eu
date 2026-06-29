@@ -166,9 +166,10 @@ export async function initSignet(ctx) {
         float spec    = pow(max(dot(vNormal, halfVec), 0.0), 64.0);
         vec3 specColor = vec3(0.5, 0.3, 1.0) * spec * 2.5;
 
-        // Przejście primary → magenta sterowane kątem obrotu (uColorMix)
+        // Przejście primary → magenta sterowane kątem/hoverem (uColorMix).
+        // Magenta = AKCENT: stonowana (mniej czerwieni) i sięga max ~akcentu, baza trzyma primary.
         vec3 cPrimary = vec3(0.35, 0.18, 1.0);
-        vec3 cMagenta = vec3(0.95, 0.15, 0.60);
+        vec3 cMagenta = vec3(0.80, 0.20, 0.70);
         vec3 tint     = mix(cPrimary, cMagenta, uColorMix);
         tint          = mix(tint, uDivColor, uDivMix);   // kolor aktywnej dywizji (np. cyjan Lab)
 
@@ -184,10 +185,20 @@ export async function initSignet(ctx) {
         // fioletowego szkła, nigdy czarna; refleks/fresnel/refrakcja zostają na wierzchu.
         // Desktop uBaseFill=0 → bez zmian. (BRIEF 15 #1/#4)
         color += tint * uBaseFill;
-        // Wewnętrzna emisja — subtelna plasma widoczna w centrum (niski fresnel) na ciemnym tle.
-        // Oscyluje w czasie → ruch wewnętrzny = szkło wygląda jak materiał a nie flat powierzchnia.
+        // ── Opalizujący płyn wewnątrz szkła (A2) ──────────────────────────────────
+        // Sygnet ma wyglądać jak bryła wypełniona mieniącą się substancją, nie jak
+        // pusty obrys. Dwa niewspółmierne wiry → ruchoma „gęstość" płynu; iryzacja
+        // trzymana w rodzinie primary→jasny fiolet (NIGDY magenta) = drogie szkło.
+        float swirl1 = sin(vWorldPos.x * 0.95 + vWorldPos.y * 0.55 + time * 0.45);
+        float swirl2 = sin(vWorldPos.y * 1.25 - vWorldPos.x * 0.40 - time * 0.33 + 2.1);
+        float opal   = 0.5 + 0.5 * swirl1 * swirl2;                 // 0..1 ruchoma substancja
+        vec3  opalCol = mix(cPrimary, vec3(0.55, 0.45, 1.0), opal); // refleksy w primary/jasny fiolet
+        // Widoczna w głębi bryły (niski fresnel); gaśnie z colorAmt → podczas loadingu
+        // wlewa się wraz z „nasiąkaniem" szkła, w trybie czystego szkła ustępuje refrakcji.
+        color += opalCol * opal * 0.16 * (1.0 - fresnel) * colorAmt;
+        // Drobne dodatkowe migotanie substancji (dawna plasma) — ruch wewnętrzny.
         float plasma = 0.5 + 0.5 * sin(vWorldPos.x * 1.5 + time * 0.6) * sin(vWorldPos.y * 1.2 - time * 0.45 + 1.8);
-        color += tint * plasma * 0.05 * (1.0 - fresnel) * colorAmt;
+        color += tint * plasma * 0.06 * (1.0 - fresnel) * colorAmt;
         color += tint * fresnel * 0.5 * colorAmt;
         // Stałe krawędziowe oświetlenie — widoczne niezależnie od tła i trybu szkła.
         // Idle: delikatna jasna krawędź (bryłowatość na ciemnym mobile bg).
@@ -389,8 +400,9 @@ export async function initSignet(ctx) {
     // Magenta jako nagroda za interakcję — w spoczynku sygnet trzyma się primary.
     // idleMix: kąt obrotu daje cień magenty (max ~0.14 przy edge-on), nie pełne przejście.
     // hoverBoost: hover działu lub sygnetu otwiera pełne przejście ku magenta.
-    const idleMix    = 0.0;   // primary 1:1 — bez dryfu ku magencie w spoczynku (próba wg uwagi)
-    const hoverBoost = navFX.intensity * 0.65 + glassMix * 0.40;
+    const idleMix    = 0.0;   // primary 1:1 — bez dryfu ku magencie w spoczynku
+    // Magenta = akcent, nie baza (A2): mocno ścięty wkład hovera, żeby sygnet trzymał primary.
+    const hoverBoost = navFX.intensity * 0.18 + glassMix * 0.10;
     const target     = loadFX.active ? 0 : Math.min(1, idleMix + hoverBoost);
     colorMix += (target - colorMix) * (loadFX.active ? 0.1 : 0.05);
     uniforms.uColorMix.value = colorMix;
