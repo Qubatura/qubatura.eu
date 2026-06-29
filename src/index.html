@@ -274,12 +274,13 @@
   <!-- Tagline -->
   <p id="tagline">Przybywamy z sygnałem</p>
 
-  <!-- Motion permission / touch hint (mobile) — sterowany przez parallax.js.
-       Gate (iOS): pełny overlay; tap JEST gestem do requestPermission(). Toast: podpowiedź touch. -->
+  <!-- Motion invite / touch hint (mobile) — sterowany przez parallax.js (B4 — Opcja A).
+       Invite (iOS): nieblokujący pill; tap JEST gestem do requestPermission(), ale opcjonalny —
+       scena działa bez niego (touch-drag + dryf). Toast: podpowiedź o przesuwaniu palcem. -->
   <div id="motion-prompt" hidden aria-hidden="true" role="button" tabindex="-1">
     <div class="mp-card">
       <span class="mp-icon" aria-hidden="true">⟳</span>
-      <span class="mp-text">Włącz ruch sceny</span>
+      <span class="mp-text">Przechyl, by ożywić scenę</span>
     </div>
   </div>
 

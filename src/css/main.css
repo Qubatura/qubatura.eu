@@ -1265,6 +1265,20 @@ body.page-active #tagline {
   pointer-events: none;
 }
 
+/* Invite (B4 — Opcja A): nieblokujące zaproszenie do żyroskopu na iOS. Kontener przepuszcza
+   tapy do sceny (pointer-events:none); tylko pill je łapie (gest do requestPermission), więc
+   touch-drag + dryf działają równolegle. Żaden pełnoekranowy scrim, brak przymusu kliknięcia. */
+#motion-prompt.is-invite {
+  align-items: flex-start;
+  padding-top: calc(env(safe-area-inset-top, 0px) + 72px);
+  background: none;
+  pointer-events: none;
+}
+#motion-prompt.is-invite .mp-card {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
 .mp-card {
   display: flex;
   align-items: center;

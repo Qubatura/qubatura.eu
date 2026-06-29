@@ -147,13 +147,17 @@ export function initParallax(ctx) {
   const bText  = banner ? banner.querySelector('.mp-text') : null;
   let bannerHideT = null;
 
-  // mode 'tap' → gate (pełny overlay zgody iOS); cokolwiek innego → toast (podpowiedź touch)
+  // Tryby banera (B4 — Opcja A):
+  //   'invite' → nieblokujące zaproszenie do żyroskopu (iOS): pill łapie tap (gest do
+  //              requestPermission), ale scena pod spodem klikalna, touch-drag działa równolegle.
+  //   'touch'  → toast-podpowiedź o przesuwaniu palcem (gdy gyro odmówiony/nieobecny).
+  // Gate pełnoekranowy ('tap'/is-gate) ZDJĘTY — nie zmuszamy klienta do kliknięcia.
   function showBanner(msg, mode, autoHideMs) {
     if (!banner) return;
     clearTimeout(bannerHideT);
     if (msg && bText) bText.textContent = msg;
-    banner.classList.remove('is-gate', 'is-toast');
-    banner.classList.add(mode === 'tap' ? 'is-gate' : 'is-toast');
+    banner.classList.remove('is-gate', 'is-toast', 'is-invite');
+    banner.classList.add(mode === 'invite' ? 'is-invite' : 'is-toast');
     banner.hidden = false;
     banner.setAttribute('aria-hidden', 'false');
     requestAnimationFrame(() => banner.classList.add('is-on'));
@@ -163,7 +167,7 @@ export function initParallax(ctx) {
     if (!banner) return;
     banner.classList.remove('is-on');
     banner.setAttribute('aria-hidden', 'true');
-    setTimeout(() => { banner.hidden = true; banner.classList.remove('is-gate', 'is-toast'); }, 500);
+    setTimeout(() => { banner.hidden = true; banner.classList.remove('is-gate', 'is-toast', 'is-invite'); }, 500);
   }
 
   // Baner pokazujemy DOPIERO po loading screen (nie walczy o uwagę z sygnetem).
@@ -193,10 +197,11 @@ export function initParallax(ctx) {
     if (_mob) { enableTouchFallback(); whenLoaded(() => showBanner('Przesuwaj scenę palcem', 'touch', 4000)); }
 
   } else if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-    // iOS 13+ — requestPermission MUSI iść z gestu. Baner = ten gest.
+    // iOS 13+ — requestPermission MUSI iść z gestu. Pill-zaproszenie = ten gest, ale OPCJONALNY:
+    // nie blokuje sceny. Brak tapnięcia → touch-drag + dryf niosą scenę (Opcja A, B4).
     diag.perm = 'needs-tap';
-    enableTouchFallback();   // bezpieczny fallback od razu — scena nie jest statyczna zanim user tapnie
-    whenLoaded(() => showBanner('Włącz ruch sceny', 'tap'));
+    enableTouchFallback();   // fallback od razu — scena żyje niezależnie od decyzji o żyroskopie
+    whenLoaded(() => showBanner('Przechyl, by ożywić scenę', 'invite', 8000));
 
     let asking = false;
     const ask = (e) => {
