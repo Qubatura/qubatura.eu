@@ -89,19 +89,20 @@ export async function initSignet(ctx) {
     uDivMix:            { value: 0 },      // siła blendowania barwy dywizji do tintu ciała sygnetu
     uResolution:        { value: dbSize }, // drawing buffer size — potrzebne do gl_FragCoord UV
     // Mobile: wypełnienie ciała — refrakcja ciemnego nieba dawała czarne wnętrze. ZMNIEJSZONE
-    // (0.22→0.18, C5): płaski tint to GŁÓWNE źródło „matowości" — mniej flat fill = więcej
-    // widać refrakcję tła = bliżej szkła; flat fill zastępujemy ŻYWĄ opalescencją (uOpal↑).
+    // (0.18→0.16, C6): płaski tint to GŁÓWNE źródło „matowości" frontu — mniej flat fill =
+    // więcej widać refrakcję/szkło; flat fill zastępujemy ŻYWĄ opalescencją + sheenem szkła.
+    // Niżej nie schodzę: to podłoga chroniąca przed czernieniem wnętrza w trough'ach płynu.
     // Desktop: 0 (refrakcja wieży sama).
-    uBaseFill:          { value: window.innerWidth <= 768 ? 0.18 : 0.0 },
+    uBaseFill:          { value: window.innerWidth <= 768 ? 0.16 : 0.0 },
     // Mobile: podłoga „szkła" w spoczynku — utrzymuje pryzmatyczny rant + chromatic aberration
     // jak podczas ładowania. PODBITA (0.42→0.52, C1) → rekompensuje niższy uBaseFill: mniej
     // matowego wypełnienia, więcej szklanych krawędzi/refleksów. NIE dotyka glowHide. Desktop=0.
     uGlassFloor:        { value: window.innerWidth <= 768 ? 0.52 : 0.0 },
     // Mnożnik opalizującego płynu (A2/B2): mobile mocniej — matowy sygnet nad ciemnym tłem
     // potrzebuje więcej „mienienia się"; desktop refraktuje jasną wieżę i ma dość naturalnie.
-    // PODBITY (1.7→1.9, C5): żywa opalescencja zastępuje ścięty flat fill (uBaseFill↓) —
-    // bryła „mieni się płynem" zamiast matowego tintu = mniej matu, bardziej szkło.
-    uOpal:              { value: window.innerWidth <= 768 ? 1.9 : 1.0 },
+    // PODBITY (1.9→2.2, C6): żywa opalescencja zastępuje ścięty flat fill (uBaseFill↓) —
+    // bryła „mieni się płynem" zamiast matowego tintu = mniej matu, bardziej szkło na froncie.
+    uOpal:              { value: window.innerWidth <= 768 ? 2.2 : 1.0 },
     // Barwa krawędziowego rozświetlenia (rant fresnela). Desktop: ciepły lawendowo-biały.
     // Mobile (C5): WYRAŹNIE fioletowy (0.78,0.74→0.52,0.40), nie biały. Mobile ma uGlassFloor=0.52
     // → rant >2× jaśniejszy niż desktop w spoczynku; prawie biały uEdgeWarm robił z bryły
@@ -189,6 +190,15 @@ export async function initSignet(ctx) {
         float spec    = pow(max(dot(vNormal, halfVec), 0.0), 28.0);
         vec3 specColor = vec3(0.5, 0.3, 1.0) * spec * 1.7;
 
+        // ── Sheen szkła na FRONCIE (C6) — refleks tam gdzie fresnel niski (twarz bryły) ──
+        // Front patrzy w kamerę → fresnel≈0 → cała „szklistość" (rant/CA) go omijała = mat.
+        // Szeroki wykładnik (8) daje miękki, rozległy połysk po froncie = tafla szkła odbija
+        // światło, nie płaski tint. Primary-niebieski (nie biały/różowy). Gated uGlassFloor →
+        // desktop=0 (bez zmian), mobile rośnie z „podłogą szkła". (colorAmt domnożony NIŻEJ —
+        // tu jeszcze nie istnieje; jego użycie tu = use-before-declaration = błąd kompilacji.)
+        float sheen   = pow(max(dot(vNormal, halfVec), 0.0), 8.0);
+        vec3  sheenCol = vec3(0.40, 0.34, 0.95) * sheen * uGlassFloor * 0.35;
+
         // Przejście primary → magenta sterowane kątem/hoverem (uColorMix).
         // Magenta = AKCENT: stonowana (mniej czerwieni) i sięga max ~akcentu, baza trzyma primary.
         // C1/C3: przesunięta z różu ku elektrycznemu fioletowi (0.80,0.20,0.70 → 0.58,0.20,0.92) —
@@ -203,6 +213,7 @@ export async function initSignet(ctx) {
         float colorAmt = 1.0 - uGlass;
         vec3  color = refr;
         color += specColor * colorAmt;
+        color += sheenCol * colorAmt;   // C6: szklany połysk na froncie (mobile, gated uGlassFloor)
         color += tint * 0.4 * colorAmt;
         // Wypełnienie ciała glassem: tint NIEZALEŻNY od tła ORAZ od trybu szkła (BEZ colorAmt) —
         // wcześniej *colorAmt zerowało wypełnienie w trybie szkła/ładowania, czyli dokładnie gdy
@@ -220,7 +231,9 @@ export async function initSignet(ctx) {
         float swirl1 = sin(vWorldPos.x * 0.50 + vWorldPos.y * 0.30 + time * 0.40);
         float swirl2 = sin(vWorldPos.y * 0.66 - vWorldPos.x * 0.24 - time * 0.30 + 2.1);
         float opal   = 0.5 + 0.5 * swirl1 * swirl2;                 // 0..1 ruchoma substancja
-        vec3  opalCol = mix(cPrimary, vec3(0.55, 0.45, 1.0), opal); // refleksy w primary/jasny fiolet
+        // C6: jasny koniec iryzacji SCHŁODZONY (0.55,0.45→0.42,0.38) — ciepły fiolet czytał się
+        // różowo na froncie (gdzie opal dominuje przy uOpal↑); bliżej primary = mniej różu.
+        vec3  opalCol = mix(cPrimary, vec3(0.42, 0.38, 1.0), opal); // refleksy w primary/jasny fiolet
         // Widoczna w głębi bryły (niski fresnel); gaśnie z colorAmt → podczas loadingu
         // wlewa się wraz z „nasiąkaniem" szkła, w trybie czystego szkła ustępuje refrakcji.
         color += opalCol * opal * 0.16 * (1.0 - fresnel) * colorAmt * uOpal;
