@@ -113,6 +113,11 @@ export async function initSignet(ctx) {
     // Bazowa nieprzezroczystość ciała. Mobile (C1): niższa = więcej przezroczystego szkła
     // (refrakcja/glow prześwitują) → mniej „solidnej" matowej bryły, bliżej desktopu. Desktop=0.85.
     uBodyAlpha:         { value: window.innerWidth <= 768 ? 0.80 : 0.85 },
+    // Ściągnięcie BARWY ku czystemu primary (C7). Mobile nad ciemnym tłem czytał się różowo —
+    // ciepłe człony tint/opal wzmacniają czerwony lean primary #5B2EFF, a brak jasnej refrakcji
+    // wieży (jak na desktopie) tego nie chłodzi. Na mobile mamy JEDEN kolor = musi być primary,
+    // więc całą bryłę pociągamy: mniej R, lekko więcej B (siła niżej w shaderze). Desktop=0 (idealny).
+    uPrimaryShift:      { value: window.innerWidth <= 768 ? 0.7 : 0.0 },
   };
 
   // Na mobile szyba zagina mocniej — przy ciemnym tle subtelne 0.06 jest niewidoczne.
@@ -148,6 +153,7 @@ export async function initSignet(ctx) {
       uniform float uOpal;
       uniform vec3  uEdgeWarm;
       uniform float uBodyAlpha;
+      uniform float uPrimaryShift;
 
       varying vec3 vNormal;
       varying vec3 vWorldPos;
@@ -247,6 +253,11 @@ export async function initSignet(ctx) {
         // Idle: delikatna jasna krawędź (bryłowatość na ciemnym mobile bg).
         // Szkło: silniejsze, pryzmatyczne (+0.50). Barwa = uEdgeWarm (mobile chłodniejsza, C1).
         color += uEdgeWarm * fresnel * (0.22 + glassEdge * 0.50);
+
+        // C7 — korekta hue ku czystemu primary (mobile). Ściąga czerwień (rose) i lekko podnosi
+        // niebieski → bryła czyta się jak brandowy primary #5B2EFF, nie różowo. Pełna siła
+        // mnoży R×0.74 / G×0.94 / B×1.05; faktyczna siła = uPrimaryShift (mobile 0.7). Desktop=0.
+        color = mix(color, color * vec3(0.74, 0.94, 1.05), uPrimaryShift);
 
         gl_FragColor = vec4(color, uBodyAlpha + fresnel * 0.15);
       }
