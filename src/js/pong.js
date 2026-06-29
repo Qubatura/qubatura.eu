@@ -249,6 +249,39 @@ function startGame() {
     overlay.removeEventListener('touchcancel', onTouchEnd);
   }
 
+  // WYJDŹ — natychmiastowy powrót na HOME w trakcie meczu, bez dogrywania (B1).
+  // Sprząta tak samo jak finał gry: zatrzymuje pętlę, zdejmuje listenery, sygnet
+  // wraca z głębi/skali do pozycji HOME, panel/canvas znikają, przyciski reset.
+  function quitGame() {
+    if (done) return;
+    done = true;
+    cancelAnimationFrame(raf);
+    cleanup();
+    const fadeEls = [canvas, card];
+    if (header) fadeEls.push(header);
+    if (footer) fadeEls.push(footer);
+    if (speedPanel) fadeEls.push(speedPanel);
+    gsap.to(navFX, { pageScale: 1, duration: 0.5, ease: 'power2.out' });
+    if (isMobile()) gsap.to(navFX, { pageZ: 0, pageY: 0, duration: 0.5, ease: 'power2.out' });
+    gsap.to([overlay, ...fadeEls], {
+      opacity: 0, duration: 0.45, ease: 'power2.in',
+      onComplete() {
+        document.body.classList.remove('pong-active');
+        gsap.set([overlay, ...fadeEls], { opacity: 0 });
+        canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+        if (speedPanel) {
+          speedPanel.querySelectorAll('.speed-btn[data-mult]').forEach(b => {
+            b.classList.toggle('active', b.dataset.mult === '1.0');
+          });
+          const pb = document.getElementById('pong-pause');
+          if (pb) { pb.textContent = 'PAUSE'; pb.classList.remove('active'); }
+        }
+      },
+    });
+  }
+  const exitBtn = document.getElementById('pong-exit');
+  if (exitBtn) exitBtn.onclick = quitGame;   // .onclick (nie addEventListener) → brak kumulacji między grami
+
   function movePlayer() {
     if (inputMode === 'key') {
       if (keys['ArrowUp']   || keys['w'] || keys['W']) player.y -= K_SPD;

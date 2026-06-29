@@ -566,6 +566,14 @@ body.pong-active #pong-speed {
   background: rgba(255, 255, 255, 0.12);
   margin: 4px 0;
 }
+/* WYJDŹ — odsunięty od PAUSE, charakter „opuść grę" w klimacie monochrom Atari */
+.speed-exit {
+  margin-top: 8px;
+}
+.speed-exit:hover {
+  color: rgba(255, 255, 255, 0.92);
+  border-color: rgba(255, 255, 255, 0.55);
+}
 #pong-footer {
   position: absolute;
   text-align: center;
