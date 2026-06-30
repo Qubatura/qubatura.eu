@@ -29,8 +29,7 @@ const ROUTES = {
 
 export function initRouter() {
   const page    = document.getElementById('page');
-  const back    = document.getElementById('page-back');
-  const home    = document.getElementById('page-home');   // logo/HOME (pkt 6)
+  const home    = document.getElementById('page-home');   // logo + powrót (jeden element)
   const views   = [...document.querySelectorAll('.page-view')];
   if (!page) return;
 
@@ -51,8 +50,7 @@ export function initRouter() {
 
     document.body.classList.add('page-active');
     page.classList.add('is-open');
-    page.dataset.division = route.div;   // → tło podstrony w CSS (#page[data-division=...])
-    back.classList.add('is-open');
+    page.dataset.division = route.div;   // → tło podstrony + kolor/label logo (#page[data-division=...])
     if (home) home.classList.add('is-open');
     page.setAttribute('aria-hidden', 'false');
 
@@ -81,7 +79,6 @@ export function initRouter() {
   function closePage() {
     resetNavState();   // czysty stan nav: zgaś wszystkie HUD-y „zamrożone" przez guard
     page.classList.remove('is-open');
-    back.classList.remove('is-open');
     if (home) home.classList.remove('is-open');
     document.body.classList.remove('page-active');
     page.setAttribute('aria-hidden', 'true');
@@ -119,12 +116,7 @@ export function initRouter() {
     navigate(path);
   });
 
-  back.addEventListener('click', () => {
-    if (history.state && history.state.path) history.back();
-    else navigate('/');
-  });
-
-  // Logo w rogu → zawsze prosto na HOME (nie history.back — to świadomy „dom").
+  // Logo + strzałka w rogu → zawsze prosto na HOME (świadomy „dom", nie history.back).
   if (home) home.addEventListener('click', () => navigate('/'));
 
   window.addEventListener('popstate', e => {

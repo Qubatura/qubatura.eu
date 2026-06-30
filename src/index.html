@@ -182,19 +182,20 @@
 
   <!-- ── Podstrony (Etap 10) — overlay nad żywą sceną, przełączane przez router.js ── -->
   <main id="page" aria-hidden="true">
-    <button id="page-back" type="button" aria-label="Powrót">← Powrót</button>
 
-    <!-- Logo / powrót na HOME — pełny lockup (sygnet + wordmark QUBATURA), biały statyczny.
-         Nie bierze koloru działu (żeby nie wprowadzać konkurującej barwy). Hover-glow TYLKO na
-         sygnecie (sygnalizuje klikalność); wordmark zostaje statyczny. Sygnet = mask na signet.svg. -->
+    <!-- Logo + powrót w JEDNYM elemencie nawigacyjnym (lewy górny róg) — likwiduje
+         redundantny „← Powrót" z dołu. Strzałka (kolor działu) + pełny lockup z pliku
+         źródłowego (sygnet+QUBATURA jako biała maska, NIE tekst w foncie; subtelny puls
+         glow) + nazwa działu (treść/kolor z data-division). Cały obszar klikalny → HOME. -->
     <button id="page-home" type="button" aria-label="Qubatura — powrót na stronę główną">
-      <span class="home-mark" aria-hidden="true"></span>
-      <span class="home-word">QUBATURA</span>
+      <span class="home-arrow" aria-hidden="true"></span>
+      <span class="home-lockup" aria-hidden="true"></span>
+      <span class="home-dept" aria-hidden="true"></span>
     </button>
 
     <!-- Events -->
     <article class="page-view" id="page-events" data-division="events" hidden>
-      <p class="page-kicker">Events</p>
+      <!-- label działu „Events" jest już w lockupie w rogu — bez duplikatu nad hero -->
       <h1 class="page-title">Produkcja eventów<br>od A do Z</h1>
       <p class="page-lead">Nagłośnienie, światło, multimedia i streaming — jeden zespół od koncepcji,
         przez scenariusz, po realizację na żywo. Konferencje, hotele, koncerty.</p>
@@ -211,7 +212,7 @@
 
     <!-- Studio -->
     <article class="page-view" id="page-studio" data-division="studio" hidden>
-      <p class="page-kicker">Studio</p>
+      <!-- label działu „Studio" jest już w lockupie w rogu — bez duplikatu nad hero -->
       <h1 class="page-title">Produkcja<br>i post-produkcja audio</h1>
       <p class="page-lead">20 lat pracy studyjnej — od realizacji na żywo po dźwięk, który niesie historię.
         Audiobooki, słuchowiska, sound design i mastering w jednym miejscu.</p>
@@ -227,7 +228,7 @@
 
     <!-- Lab -->
     <article class="page-view" id="page-lab" data-division="lab" hidden>
-      <p class="page-kicker">Qlab</p>
+      <!-- label działu „Qlab" jest już w lockupie w rogu — bez duplikatu nad hero -->
       <h1 class="page-title">Technologia,<br>design i development</h1>
       <p class="page-lead">Druk 3D, IoT i software — od prototypu na biurku po wdrożony produkt.
         Projektujemy, programujemy i drukujemy rzeczy, których jeszcze nie ma.</p>
