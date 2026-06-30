@@ -92,12 +92,16 @@ export async function initSignet(ctx) {
     // (0.18→0.16, C6): płaski tint to GŁÓWNE źródło „matowości" frontu — mniej flat fill =
     // więcej widać refrakcję/szkło; flat fill zastępujemy ŻYWĄ opalescencją + sheenem szkła.
     // Niżej nie schodzę: to podłoga chroniąca przed czernieniem wnętrza w trough'ach płynu.
-    // Desktop: 0 (refrakcja wieży sama).
-    uBaseFill:          { value: window.innerWidth <= 768 ? 0.16 : 0.0 },
+    // Desktop: 0 (refrakcja wieży sama). Mobile ŚCIĘTY (0.16→0.12, 2026-06-30): płaski tint =
+    // mat; rolę wypełnienia przejmuje teraz mobilny uFillDensity (płyn), więc flat fill schodzi.
+    uBaseFill:          { value: window.innerWidth <= 768 ? 0.12 : 0.0 },
     // Mobile: podłoga „szkła" w spoczynku — utrzymuje pryzmatyczny rant + chromatic aberration
     // jak podczas ładowania. PODBITA (0.42→0.52, C1) → rekompensuje niższy uBaseFill: mniej
     // matowego wypełnienia, więcej szklanych krawędzi/refleksów. NIE dotyka glowHide. Desktop=0.
-    uGlassFloor:        { value: window.innerWidth <= 768 ? 0.52 : 0.0 },
+    // Mobile ŚCIĘTY (0.52→0.38, 2026-06-30): glassFloor napędzał szeroki sheen czoła + jasny
+    // pryzmatyczny rant = GŁÓWNE źródło „mleczności"/matu na iOS. Mniej = mniej białej tafli,
+    // więcej czytelnego szkła. Część roboty wypełnienia przejmuje uFillDensity (płyn).
+    uGlassFloor:        { value: window.innerWidth <= 768 ? 0.38 : 0.0 },
     // Mnożnik opalizującego płynu (A2/B2): mobile mocniej — matowy sygnet nad ciemnym tłem
     // potrzebuje więcej „mienienia się"; desktop refraktuje jasną wieżę i ma dość naturalnie.
     // PODBITY (1.9→2.2, C6): żywa opalescencja zastępuje ścięty flat fill (uBaseFill↓) —
@@ -127,12 +131,18 @@ export async function initSignet(ctx) {
     // Włączamy korektę też na desktopie (było 0.0) → czysta brandowa ultramaryna #5B2EFF.
     // Desktop podbity (0.7→0.82, 2026-06-30): mocniejsze ściągnięcie czerwieni → dobija resztkę
     // różu, którą Kuba wciąż widział. Mobile zostaje 0.7 (nietknięty).
-    uPrimaryShift:      { value: window.innerWidth <= 768 ? 0.7 : 0.82 },
+    // Mobile podbity (0.7→0.80, 2026-06-30): mniej mleczności (niżej) odsłania prawdziwy odcień,
+    // a resztka pastelowego różu wymaga mocniejszego ściągnięcia czerwieni — równa do desktopu.
+    uPrimaryShift:      { value: window.innerWidth <= 768 ? 0.80 : 0.82 },
     // Gęstość PŁYNU w centrum (2026-06-30): mix refrakcji tła → primary tam gdzie fresnel niski
     // (twarz bryły). Przykrywa ciepłą wieżę w środku (koniec „magenty w centrum") i robi z bryły
     // naczynie wypełnione opalizującą substancją, a nie okno na tło. Krawędzie (wysoki fresnel) =
     // density≈0 → zostają szkłem/refrakcją. Desktop>0; mobile=0 (jego look NIETKNIĘTY).
-    uFillDensity:       { value: window.innerWidth <= 768 ? 0.0 : 0.55 },
+    // Mobile WŁĄCZONY (0.0→0.42, 2026-06-30): ten sam płyn co na desktopie — gęsty primary w
+    // centrum daje STRUKTURĘ/głębię zamiast płaskiej mlecznej tafli. Na mobile refr=ciemne niebo,
+    // więc mix podnosi środek do nasyconego primary (nie czerni). Trochę niżej niż desktop (0.55),
+    // bo tło ciemne — mocniejszy mix zbytnio by przygasił. Zastępuje rolę ściętego uBaseFill.
+    uFillDensity:       { value: window.innerWidth <= 768 ? 0.42 : 0.55 },
   };
 
   // Na mobile szyba zagina mocniej — przy ciemnym tle subtelne 0.06 jest niewidoczne.
@@ -398,7 +408,9 @@ export async function initSignet(ctx) {
   // szeroki, miękki bloom + ciaśniejszy jaśniejszy rdzeń poświaty + ostry kontur
   // Mobile: więcej blasku (×1.1) — poświata bohatera mocniejsza na rzadkim ekranie.
   // ŚCIĘTE (1.3→1.1, C5): jasny lawendowy bloom ×1.3 dokładał się do „białości" bryły na mobile.
-  const _glowMul = window.innerWidth <= 768 ? 1.1 : 1.0;
+  // Mobile ŚCIĘTY (1.1→0.85, 2026-06-30): jasnolawendowy bloom (0x9B8CFF, prawie biały) addytywnie
+  // mył całą małą bryłę na pastel/mleczność. Mniej blasku = czystszy primary, mniej bieli.
+  const _glowMul = window.innerWidth <= 768 ? 0.85 : 1.0;
   addGlowSprite(makeGlowTexture(48), 0x5B2EFF, 0.55 * _glowMul, 6);   // szersza warstwa — więcej oddechu
   addGlowSprite(makeGlowTexture(14), 0x9B8CFF, 0.95 * _glowMul, 7);
   group.add(buildOutline(1.0, 0x9B8CFF, 0.90, 8));   // ostry rdzeń (czytelność idle)
