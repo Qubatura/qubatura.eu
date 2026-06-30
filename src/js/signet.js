@@ -102,7 +102,9 @@ export async function initSignet(ctx) {
     // potrzebuje więcej „mienienia się"; desktop refraktuje jasną wieżę i ma dość naturalnie.
     // PODBITY (1.9→2.2, C6): żywa opalescencja zastępuje ścięty flat fill (uBaseFill↓) —
     // bryła „mieni się płynem" zamiast matowego tintu = mniej matu, bardziej szkło na froncie.
-    uOpal:              { value: window.innerWidth <= 768 ? 2.2 : 1.0 },
+    // Desktop podbity (1.0→1.8, 2026-06-30): teraz centrum to PŁYN (uFillDensity), więc
+    // opalescencja ma się w nim „mienić" wyraźniej — żywa substancja zamiast okna refrakcji.
+    uOpal:              { value: window.innerWidth <= 768 ? 2.2 : 1.8 },
     // Barwa krawędziowego rozświetlenia (rant fresnela). Desktop: ciepły lawendowo-biały.
     // Mobile (C5): WYRAŹNIE fioletowy (0.78,0.74→0.52,0.40), nie biały. Mobile ma uGlassFloor=0.52
     // → rant >2× jaśniejszy niż desktop w spoczynku; prawie biały uEdgeWarm robił z bryły
@@ -117,7 +119,15 @@ export async function initSignet(ctx) {
     // ciepłe człony tint/opal wzmacniają czerwony lean primary #5B2EFF, a brak jasnej refrakcji
     // wieży (jak na desktopie) tego nie chłodzi. Na mobile mamy JEDEN kolor = musi być primary,
     // więc całą bryłę pociągamy: mniej R, lekko więcej B (siła niżej w shaderze). Desktop=0 (idealny).
-    uPrimaryShift:      { value: window.innerWidth <= 768 ? 0.7 : 0.0 },
+    // 2026-06-30 (decyzja Kuby): ten sam czerwony lean primary jest też na desktopie — jasne
+    // miejsca (specular/rant/piki opalu) dobijały B do 1.0, a R rósł ponad G → róż/magenta.
+    // Włączamy korektę też na desktopie (było 0.0) → czysta brandowa ultramaryna #5B2EFF.
+    uPrimaryShift:      { value: window.innerWidth <= 768 ? 0.7 : 0.7 },
+    // Gęstość PŁYNU w centrum (2026-06-30): mix refrakcji tła → primary tam gdzie fresnel niski
+    // (twarz bryły). Przykrywa ciepłą wieżę w środku (koniec „magenty w centrum") i robi z bryły
+    // naczynie wypełnione opalizującą substancją, a nie okno na tło. Krawędzie (wysoki fresnel) =
+    // density≈0 → zostają szkłem/refrakcją. Desktop>0; mobile=0 (jego look NIETKNIĘTY).
+    uFillDensity:       { value: window.innerWidth <= 768 ? 0.0 : 0.55 },
   };
 
   // Na mobile szyba zagina mocniej — przy ciemnym tle subtelne 0.06 jest niewidoczne.
@@ -154,6 +164,7 @@ export async function initSignet(ctx) {
       uniform vec3  uEdgeWarm;
       uniform float uBodyAlpha;
       uniform float uPrimaryShift;
+      uniform float uFillDensity;
 
       varying vec3 vNormal;
       varying vec3 vWorldPos;
@@ -217,7 +228,11 @@ export async function initSignet(ctx) {
         // Tryb szkła (uGlass): wygaszamy barwny tint, zostawiając refrakcję + białe
         // pryzmatyczne krawędzie. Poza szkłem: pełny barwny tint + refleks.
         float colorAmt = 1.0 - uGlass;
-        vec3  color = refr;
+        // PŁYN w centrum: im niższy fresnel (twarz bryły), tym mocniej przykrywamy refrakcję tła
+        // gęstą substancją primary. Krawędzie (fresnel wysoki) → density≈0 → zostają szkłem.
+        // colorAmt wygasza płyn w trybie czystego szkła/loadingu (jak reszta barwnych członów).
+        float fillDensity = uFillDensity * (1.0 - fresnel) * colorAmt;
+        vec3  color = mix(refr, tint, fillDensity);
         color += specColor * colorAmt;
         color += sheenCol * colorAmt;   // C6: szklany połysk na froncie (mobile, gated uGlassFloor)
         color += tint * 0.4 * colorAmt;
@@ -455,10 +470,11 @@ export async function initSignet(ctx) {
     // Magenta jako nagroda za interakcję — w spoczynku sygnet trzyma się primary.
     // idleMix: kąt obrotu daje cień magenty (max ~0.14 przy edge-on), nie pełne przejście.
     // hoverBoost: hover działu lub sygnetu otwiera pełne przejście ku magenta.
-    const idleMix    = 0.0;   // primary 1:1 — bez dryfu ku magencie w spoczynku
-    // Magenta = akcent, nie baza (A2/C3): mocno ścięty wkład hovera, żeby sygnet trzymał primary.
-    // C3: 0.18→0.14 — jeszcze niższy szczyt magenty na hover = mniej magenty w akcentach desktop.
-    const hoverBoost = navFX.intensity * 0.14 + glassMix * 0.10;
+    // Magenta ŚCIĘTA DO ZERA (2026-06-30, decyzja Kuby): sygnet trzyma się czystego primary —
+    // ani w spoczynku, ani na hover. cMagenta zostaje w shaderze jako kolor zarezerwowany na
+    // akcenty GDZIE INDZIEJ (nie na sygnecie). Powrót = przywrócić wkłady intensity/glassMix niżej.
+    const idleMix    = 0.0;
+    const hoverBoost = 0.0;   // było: navFX.intensity * 0.14 + glassMix * 0.10
     const target     = loadFX.active ? 0 : Math.min(1, idleMix + hoverBoost);
     colorMix += (target - colorMix) * (loadFX.active ? 0.1 : 0.05);
     uniforms.uColorMix.value = colorMix;
