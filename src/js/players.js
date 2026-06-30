@@ -77,7 +77,7 @@ export function initPlayers() {
           audio.addEventListener('ended', finish);
         }
         if (pos >= 1) { setProg(0); audio.currentTime = 0; }
-        audio.play().catch(() => {});                       // brak pliku / autoplay block → cicho
+        audio.play().catch(err => console.warn('[players] odtwarzanie nieudane:', src, err));
       } else {
         if (pos >= 1) setProg(0);                           // restart po dobiciu do końca
         t0 = performance.now() - pos * dur * 1000;          // wznów od bieżącego postępu
