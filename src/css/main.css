@@ -301,8 +301,10 @@ body.is-loading #tagline {
   letter-spacing: 0.15em;
   text-transform: uppercase;
   color: var(--div-color, var(--color-primary));
-  /* słabszy glow niż ramka/narożniki HUD → litery ostre i czytelne (było 8px) */
-  text-shadow: 0 0 3px var(--div-color, var(--color-primary));
+  /* Ciemna otoczka NAJPIERW (czytelność nad jasnym tintem działu — zwłaszcza niebieski Studio
+     rozjaśniał tło i „rozmywał" opisy), potem kolorowy glow. Kolor liter bez zmian. */
+  text-shadow: 0 0 4px rgba(6, 5, 15, 0.9), 0 0 7px rgba(6, 5, 15, 0.65),
+               0 0 3px var(--div-color, var(--color-primary));
   opacity: 0;                       /* tekst fade-in robi GSAP */
 }
 .hud-services {
@@ -319,6 +321,9 @@ body.is-loading #tagline {
   letter-spacing: 0.02em;
   line-height: 1.6;
   color: rgba(255, 255, 255, 0.85);
+  /* Ciemna otoczka — opisy nie miały żadnego cienia; nad jasnym tintem (Studio) traciły kontrast.
+     Czysto ciemny halo (bez koloru), żeby biały tekst zawsze czytelny. */
+  text-shadow: 0 0 4px rgba(6, 5, 15, 0.95), 0 0 7px rgba(6, 5, 15, 0.7);
   text-transform: uppercase;    /* spójność z nagłówkiem HUD (np. „PRODUKCJA EVENTÓW…") */
   white-space: nowrap;          /* jedna pozioma linia — spójnie we wszystkich trzech */
 }
