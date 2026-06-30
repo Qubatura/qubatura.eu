@@ -109,9 +109,12 @@ export async function initSignet(ctx) {
     // Mobile (C5): WYRAŹNIE fioletowy (0.78,0.74→0.52,0.40), nie biały. Mobile ma uGlassFloor=0.52
     // → rant >2× jaśniejszy niż desktop w spoczynku; prawie biały uEdgeWarm robił z bryły
     // „matowo-białą frosted", nie szkło. Saturujemy ku primary = mniej bieli, więcej koloru.
+    // Desktop SCHŁODZONY (0.88,0.76→0.66,0.66, 2026-06-30): ciepły lawendowo-biały rant (R≫G)
+    // dokładał róż na jasnych krawędziach — Kuba wciąż widział resztkę różu. R=G=0.66 → czysty
+    // niebiesko-biały refleks szkła, bez ciepła. Jasność trzyma B=1.0.
     uEdgeWarm:          { value: window.innerWidth <= 768
                             ? new THREE.Vector3(0.52, 0.40, 1.0)
-                            : new THREE.Vector3(0.88, 0.76, 1.0) },
+                            : new THREE.Vector3(0.66, 0.66, 1.0) },
     // Bazowa nieprzezroczystość ciała. Mobile (C1): niższa = więcej przezroczystego szkła
     // (refrakcja/glow prześwitują) → mniej „solidnej" matowej bryły, bliżej desktopu. Desktop=0.85.
     uBodyAlpha:         { value: window.innerWidth <= 768 ? 0.80 : 0.85 },
@@ -122,7 +125,9 @@ export async function initSignet(ctx) {
     // 2026-06-30 (decyzja Kuby): ten sam czerwony lean primary jest też na desktopie — jasne
     // miejsca (specular/rant/piki opalu) dobijały B do 1.0, a R rósł ponad G → róż/magenta.
     // Włączamy korektę też na desktopie (było 0.0) → czysta brandowa ultramaryna #5B2EFF.
-    uPrimaryShift:      { value: window.innerWidth <= 768 ? 0.7 : 0.7 },
+    // Desktop podbity (0.7→0.82, 2026-06-30): mocniejsze ściągnięcie czerwieni → dobija resztkę
+    // różu, którą Kuba wciąż widział. Mobile zostaje 0.7 (nietknięty).
+    uPrimaryShift:      { value: window.innerWidth <= 768 ? 0.7 : 0.82 },
     // Gęstość PŁYNU w centrum (2026-06-30): mix refrakcji tła → primary tam gdzie fresnel niski
     // (twarz bryły). Przykrywa ciepłą wieżę w środku (koniec „magenty w centrum") i robi z bryły
     // naczynie wypełnione opalizującą substancją, a nie okno na tło. Krawędzie (wysoki fresnel) =
@@ -257,7 +262,11 @@ export async function initSignet(ctx) {
         vec3  opalCol = mix(cPrimary, vec3(0.42, 0.38, 1.0), opal); // refleksy w primary/jasny fiolet
         // Widoczna w głębi bryły (niski fresnel); gaśnie z colorAmt → podczas loadingu
         // wlewa się wraz z „nasiąkaniem" szkła, w trybie czystego szkła ustępuje refrakcji.
-        color += opalCol * opal * 0.16 * (1.0 - fresnel) * colorAmt * uOpal;
+        // Wolny PULS całej opalescencji (2026-06-30) — „tam jest energia": płyn lekko pulsuje
+        // jasnością (±12%, okres ~11s) niezależnie od wirów przestrzennych. Subtelne, żeby
+        // sugerowało żywą substancję, nie mrugało. (Wspólne mobile/desktop — delikatne.)
+        float opalPulse = 0.88 + 0.12 * sin(time * 0.55);
+        color += opalCol * opal * 0.16 * (1.0 - fresnel) * colorAmt * uOpal * opalPulse;
         // „Plasma" (drobne migotanie) — GŁÓWNE źródło pstrokatych plamek przez wysokie freq.
         // C4: częstotliwości 1.5/1.2→0.80/0.62 (większe plamy) + waga 0.06→0.03 (ledwo widoczne)
         // → jednolita, płynna refrakcja zamiast punktowych rozbłysków.
