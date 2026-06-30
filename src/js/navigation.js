@@ -25,15 +25,19 @@ let pull  = null;   // pulsujące przyciąganie tug w stronę działu (yoyo, nie
 let nudge = null;   // cykliczny impuls obrotu sygnetu ku dywizji (yoyo, nieskończony)
 
 // Jeden silnik nudge — używany przez wszystkie 4 odnogi nav (Events/Studio/Lab/Q-PONG).
-// gsap.set do 0 przed tweenем: gwarantuje że yoyo zawsze biegnie 0 → target → 0,
-// a nie od resztkowej wartości poprzedniego hover (co powodowało "zawsze Events" bug).
+// 2026-06-30: zwrot TRZYMA kierunek ku działowi (dojazd do pełnego celu, potem delikatne
+// „oddychanie" między 60% a 100% celu — NIGDY nie wraca do 0). Wcześniejszy yoyo 0↔cel
+// dawał średnią ~±0.1, tonął pod idle-sway (±0.35) i gubił kierunek (wrażenie „zawsze Events").
+// Teraz średnia siedzi na ~±0.25 po stronie działu → zwrot ku Studio/Events/Lab czytelny.
 function startNudge(rotY, rotX) {
   if (nudge) nudge.kill();
-  gsap.killTweensOf(navFX, 'nudgeRotY,nudgeRotX');  // ubija tween powrotny z stopNudge
-  gsap.set(navFX, { nudgeRotY: 0, nudgeRotX: 0 });  // bazuje yoyo zawsze na 0
-  nudge = gsap.to(navFX, {
-    nudgeRotY: rotY, nudgeRotX: rotX,
-    duration: 0.65, ease: 'sine.inOut', yoyo: true, repeat: -1, repeatDelay: 0.35,
+  gsap.killTweensOf(navFX, 'nudgeRotY,nudgeRotX');  // ubija tween powrotny ze stopNudge
+  gsap.set(navFX, { nudgeRotY: 0, nudgeRotX: 0 });  // start zawsze od 0 (brak resztki z poprz. hover)
+  nudge = gsap.timeline();
+  nudge.to(navFX, { nudgeRotY: rotY, nudgeRotX: rotX, duration: 0.5, ease: 'power2.out' });
+  nudge.to(navFX, {
+    nudgeRotY: rotY * 0.6, nudgeRotX: rotX * 0.6,    // oddycha między 100% a 60% — zawsze po stronie działu
+    duration: 1.5, ease: 'sine.inOut', yoyo: true, repeat: -1,
   });
 }
 function stopNudge() {
@@ -102,8 +106,9 @@ export function initNavigation() {
         { tugX: 0, tugY: 0 },
         { tugX: dir.x * TUG, tugY: dir.y * TUG, duration: 1.6, ease: 'sine.inOut' });
 
-      // Cykliczny zwrot „głowy" sygnetu (tug = pozycja; nudge = obrót — dwa osobne kanały)
-      startNudge(dir.x * 0.25, -dir.y * 0.18);
+      // Cykliczny zwrot „głowy" sygnetu (tug = pozycja; nudge = obrót — dwa osobne kanały).
+      // Amplituda 0.25→0.30 / 0.18→0.20: zwrot czytelny ponad idle-sway (±0.35).
+      startNudge(dir.x * 0.30, -dir.y * 0.20);
 
       // Heartbeat — szybki „sygnał": puls skali + eksplozja glow → opadanie (bez ruchu kierunkowego)
       if (beat) beat.kill();
@@ -143,7 +148,7 @@ export function initNavigation() {
     if (pongEl) {
       pongEl.addEventListener('mouseenter', () => {
         if (document.body.classList.contains('page-active')) return;
-        startNudge(0, -0.18);   // Q-PONG jest u góry → sygnet patrzy w górę
+        startNudge(0, -0.22);   // Q-PONG jest u góry → sygnet patrzy w górę (spójne z dz. 0.20)
       });
       pongEl.addEventListener('mouseleave', () => stopNudge());
     }
