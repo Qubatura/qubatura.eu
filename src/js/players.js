@@ -23,7 +23,13 @@ export function initPlayers() {
     const prog = card.querySelector('.pl-prog');
     if (!ring || !prog) return;
 
-    const src = (card.dataset.audio || '').trim();
+    // Rozwiązujemy do ABSOLUTNEGO URL TERAZ (init = baza dokumentu still .../src/), ZANIM router
+    // zmieni URL przez history.pushState('/studio'). Inaczej `new Audio(wzglednySrc)` rozwijałby
+    // się względem '/studio' po nawigacji SPA → na GitHub Pages (/qubatura.eu/) leci 404 i play()
+    // cicho pada. To była przyczyna „playery nie grają na żywo" (na localhost niewidoczne, bo tam
+    // root serwera = root projektu, więc nawet zła baza trafiała w plik).
+    const rawSrc = (card.dataset.audio || '').trim();
+    const src = rawSrc ? new URL(rawSrc, document.baseURI).href : '';
     const dur = parseFloat(card.dataset.dur) || 24;
 
     prog.style.strokeDasharray  = CIRC.toFixed(2);
