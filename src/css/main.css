@@ -840,8 +840,11 @@ body.pong-active #pong-speed {
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 15px 16px;
-  min-height: 92px;
+  padding: 14px 16px;
+  /* STAŁA wysokość (nie min-height): wszystkie 4 karty identyczne niezależnie od ilości tekstu
+     — slot 1 ma najwięcej (tytuł + 3 linie + YT) i to on dyktuje wysokość. (Kuba: rozmiar kafelka
+     się nie zmienia.) box-sizing:border-box → 124px zawiera padding+border. */
+  height: 124px;
   border: 1px solid color-mix(in srgb, var(--pg-color, #8B4FFF) 22%, transparent);
   background: linear-gradient(135deg, rgba(139, 79, 255, 0.07), rgba(6, 5, 15, 0.20));
   /* cicha poświata na obrysie w spoczynku — krawędź świetlna, nie płaski prostokąt */
@@ -935,6 +938,7 @@ body.pong-active #pong-speed {
   font-family: var(--font-mono);
   font-size: 11px;
   letter-spacing: 0.03em;
+  line-height: 1.4;                 /* zwarte, przewidywalne linie — 3 linie kredytów mieszczą się w karcie */
   color: rgba(255, 255, 255, 0.5);
   margin: 0;
   white-space: nowrap;
