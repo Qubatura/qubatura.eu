@@ -856,14 +856,13 @@ body.pong-active #pong-speed {
   transition: border-color 0.35s ease, background 0.35s ease, box-shadow 0.35s ease, transform 0.35s ease;
 }
 .pl-card:hover {
-  border-color: color-mix(in srgb, var(--pg-color, #8B4FFF) 68%, transparent);
-  /* frost subtelnie nabiera barwy działu — jak plexi podświetlona LED-em od środka */
-  background: linear-gradient(135deg,
-    color-mix(in srgb, var(--pg-color, #8B4FFF) 14%, rgba(6, 5, 15, 0.20)),
-    rgba(6, 5, 15, 0.20));
+  border-color: color-mix(in srgb, var(--pg-color, #8B4FFF) 60%, transparent);
+  /* CAŁA tafla frostu równomiernie nabiera barwy działu (jednolity tint, nie gradient) —
+     jak podświetlone od tyłu szkiełko. Blur zostaje → dalej szkło, nie płaski prostokąt. */
+  background: color-mix(in srgb, var(--pg-color, #8B4FFF) 15%, rgba(6, 5, 15, 0.22));
   box-shadow:
-    0 0 40px color-mix(in srgb, var(--pg-color, #8B4FFF) 34%, transparent),    /* mocniejszy glow ramki */
-    inset 0 0 40px color-mix(in srgb, var(--pg-color, #8B4FFF) 16%, transparent); /* wnętrze rozświetlone (LED za plexi) */
+    0 0 34px color-mix(in srgb, var(--pg-color, #8B4FFF) 28%, transparent),    /* glow ramki */
+    inset 0 0 26px color-mix(in srgb, var(--pg-color, #8B4FFF) 9%, transparent); /* delikatne domknięcie, bez ciemnego środka */
   transform: translateY(-2px);
 }
 .pl-card.is-active {
