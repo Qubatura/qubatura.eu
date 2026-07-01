@@ -842,9 +842,9 @@ body.pong-active #pong-speed {
   gap: 14px;
   padding: 14px 16px;
   /* STAŁA wysokość (nie min-height): wszystkie 4 karty identyczne niezależnie od ilości tekstu
-     — slot 1 ma najwięcej (tytuł + 3 linie + YT) i to on dyktuje wysokość. (Kuba: rozmiar kafelka
-     się nie zmienia.) box-sizing:border-box → 124px zawiera padding+border. */
-  height: 124px;
+     — slot 1 ma najwięcej (tytuł + 3 linie + YT + „ponad 100 odcinków") i to on dyktuje wysokość.
+     (Kuba: rozmiar kafelka się nie zmienia.) 124→144 by zmieścić podpis pod YT. box-sizing border-box. */
+  height: 144px;
   border: 1px solid color-mix(in srgb, var(--pg-color, #8B4FFF) 22%, transparent);
   background: linear-gradient(135deg, rgba(139, 79, 255, 0.07), rgba(6, 5, 15, 0.20));
   /* cicha poświata na obrysie w spoczynku — krawędź świetlna, nie płaski prostokąt */
@@ -856,10 +856,14 @@ body.pong-active #pong-speed {
   transition: border-color 0.35s ease, background 0.35s ease, box-shadow 0.35s ease, transform 0.35s ease;
 }
 .pl-card:hover {
-  border-color: color-mix(in srgb, var(--pg-color, #8B4FFF) 55%, transparent);
+  border-color: color-mix(in srgb, var(--pg-color, #8B4FFF) 68%, transparent);
+  /* frost subtelnie nabiera barwy działu — jak plexi podświetlona LED-em od środka */
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--pg-color, #8B4FFF) 14%, rgba(6, 5, 15, 0.20)),
+    rgba(6, 5, 15, 0.20));
   box-shadow:
-    0 0 34px color-mix(in srgb, var(--pg-color, #8B4FFF) 30%, transparent),
-    inset 0 0 22px color-mix(in srgb, var(--pg-color, #8B4FFF) 8%, transparent);
+    0 0 40px color-mix(in srgb, var(--pg-color, #8B4FFF) 34%, transparent),    /* mocniejszy glow ramki */
+    inset 0 0 40px color-mix(in srgb, var(--pg-color, #8B4FFF) 16%, transparent); /* wnętrze rozświetlone (LED za plexi) */
   transform: translateY(-2px);
 }
 .pl-card.is-active {
@@ -946,7 +950,8 @@ body.pong-active #pong-speed {
   text-overflow: ellipsis;
 }
 
-/* Druga akcja karty — link YT (osobny od play/pause). */
+/* Druga akcja karty — link YT (osobny od play/pause). Optycznie w kolorze działu (Kuba),
+   żeby odznaczał się jako akcja, spójnie z tożsamością Studio. */
 .pl-yt {
   display: inline-flex;
   align-items: center;
@@ -957,11 +962,25 @@ body.pong-active #pong-speed {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   text-decoration: none;
-  color: rgba(255, 255, 255, 0.55);
-  transition: color 0.3s ease;
+  color: color-mix(in srgb, var(--pg-color, #8B4FFF) 78%, #ffffff 22%);
+  text-shadow: 0 0 8px color-mix(in srgb, var(--pg-color, #8B4FFF) 45%, transparent);
+  transition: color 0.3s ease, text-shadow 0.3s ease;
 }
 .pl-yt i { font-size: 13px; }
-.pl-yt:hover { color: #ff3d3d; }      /* YouTube-red jako nagroda za hover */
+.pl-yt:hover {                        /* jaśniej ku bieli, mocniejsza poświata działu */
+  color: color-mix(in srgb, var(--pg-color, #8B4FFF) 45%, #ffffff 55%);
+  text-shadow: 0 0 12px color-mix(in srgb, var(--pg-color, #8B4FFF) 70%, transparent);
+}
+
+/* Podpis pod linkiem YT — „ponad 100 odcinków" (drobny, przygaszony). */
+.pl-eps {
+  margin: 6px 0 0;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.4);
+  white-space: nowrap;
+}
 
 @media (max-width: 768px) {
   .studio-players { display: none !important; }   /* mobile: layout playerów = osobny etap */
