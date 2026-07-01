@@ -133,7 +133,7 @@ export async function initSignet(ctx) {
     // różu, którą Kuba wciąż widział. Mobile zostaje 0.7 (nietknięty).
     // Mobile podbity (0.7→0.80, 2026-06-30): mniej mleczności (niżej) odsłania prawdziwy odcień,
     // a resztka pastelowego różu wymaga mocniejszego ściągnięcia czerwieni — równa do desktopu.
-    uPrimaryShift:      { value: window.innerWidth <= 768 ? 0.80 : 0.82 },
+    uPrimaryShift:      { value: window.innerWidth <= 768 ? 0.80 : 0.90 },
     // Gęstość PŁYNU w centrum (2026-06-30): mix refrakcji tła → primary tam gdzie fresnel niski
     // (twarz bryły). Przykrywa ciepłą wieżę w środku (koniec „magenty w centrum") i robi z bryły
     // naczynie wypełnione opalizującą substancją, a nie okno na tło. Krawędzie (wysoki fresnel) =
@@ -142,7 +142,7 @@ export async function initSignet(ctx) {
     // centrum daje STRUKTURĘ/głębię zamiast płaskiej mlecznej tafli. Na mobile refr=ciemne niebo,
     // więc mix podnosi środek do nasyconego primary (nie czerni). Trochę niżej niż desktop (0.55),
     // bo tło ciemne — mocniejszy mix zbytnio by przygasił. Zastępuje rolę ściętego uBaseFill.
-    uFillDensity:       { value: window.innerWidth <= 768 ? 0.42 : 0.55 },
+    uFillDensity:       { value: window.innerWidth <= 768 ? 0.42 : 0.72 },
   };
 
   // Na mobile szyba zagina mocniej — przy ciemnym tle subtelne 0.06 jest niewidoczne.
@@ -206,7 +206,10 @@ export async function initSignet(ctx) {
         // Chromatic aberration — rozszczepianie RGB. Rośnie ku krawędziom w trybie szkła
         // (uGlass) → pryzmatyczny, tęczowy rozkład światła na krawędziach.
         float glassEdge = max(uGlass, uGlassFloor);   // rant/CA trzymają „szkło" też po loadingu (mobile)
-        float ca = 0.002 + glassEdge * fresnel * 0.010;
+        // CA związane z fresnelem: FRONT (fresnel≈0) → ~0 rozszczepienia (koniec „pixelowych"
+        // obwódek na twarzy bryły), a KRAWĘDZIE (fresnel wysoki) trzymają pryzmat. Było stałe
+        // +0.002 na całości → fringing też na froncie z dalsza.
+        float ca = fresnel * (0.004 + glassEdge * 0.010);
         float r = texture2D(tBackground, refractedUV + vec2(ca, 0.0)).r;
         float g = texture2D(tBackground, refractedUV).g;
         float b = texture2D(tBackground, refractedUV - vec2(ca, 0.0)).b;
@@ -220,7 +223,9 @@ export async function initSignet(ctx) {
         // Specular MIĘKSZY (C4): wykładnik 64→28 = szerszy, łagodniejszy refleks (światło
         // „ślizga się" po powierzchni zamiast punktowego rozbłysku); siła 2.5→1.7 = mniej hot-spota.
         float spec    = pow(max(dot(vNormal, halfVec), 0.0), 28.0);
-        vec3 specColor = vec3(0.5, 0.3, 1.0) * spec * 1.7;
+        // Refleks SCHŁODZONY (0.5,0.3→0.34,0.30, 2026-07-01): miał sporo czerwieni → różowe błyski.
+        // R≈G → czysty fioletowo-niebieski połysk, mniej różu.
+        vec3 specColor = vec3(0.34, 0.30, 1.0) * spec * 1.7;
 
         // ── Sheen szkła na FRONCIE (C6) — refleks tam gdzie fresnel niski (twarz bryły) ──
         // Front patrzy w kamerę → fresnel≈0 → cała „szklistość" (rant/CA) go omijała = mat.
@@ -276,7 +281,9 @@ export async function initSignet(ctx) {
         // jasnością (±12%, okres ~11s) niezależnie od wirów przestrzennych. Subtelne, żeby
         // sugerowało żywą substancję, nie mrugało. (Wspólne mobile/desktop — delikatne.)
         float opalPulse = 0.88 + 0.12 * sin(time * 0.55);
-        color += opalCol * opal * 0.16 * (1.0 - fresnel) * colorAmt * uOpal * opalPulse;
+        // Waga 0.16→0.22 (2026-07-01): płyn świeci mocniej „sam z siebie" (gęsta, samo-świecąca
+        // substancja zamiast prześwitu tła) — kierunek z opisu Kuby.
+        color += opalCol * opal * 0.22 * (1.0 - fresnel) * colorAmt * uOpal * opalPulse;
         // „Plasma" (drobne migotanie) — GŁÓWNE źródło pstrokatych plamek przez wysokie freq.
         // C4: częstotliwości 1.5/1.2→0.80/0.62 (większe plamy) + waga 0.06→0.03 (ledwo widoczne)
         // → jednolita, płynna refrakcja zamiast punktowych rozbłysków.
@@ -408,12 +415,12 @@ export async function initSignet(ctx) {
   // szeroki, miękki bloom + ciaśniejszy jaśniejszy rdzeń poświaty + ostry kontur
   // Mobile: więcej blasku (×1.1) — poświata bohatera mocniejsza na rzadkim ekranie.
   // ŚCIĘTE (1.3→1.1, C5): jasny lawendowy bloom ×1.3 dokładał się do „białości" bryły na mobile.
-  // Mobile ŚCIĘTY (1.1→0.85, 2026-06-30): jasnolawendowy bloom (0x9B8CFF, prawie biały) addytywnie
+  // Mobile ŚCIĘTY (1.1→0.85, 2026-06-30): jasnolawendowy bloom (0x8288FF, prawie biały) addytywnie
   // mył całą małą bryłę na pastel/mleczność. Mniej blasku = czystszy primary, mniej bieli.
   const _glowMul = window.innerWidth <= 768 ? 0.85 : 1.0;
   addGlowSprite(makeGlowTexture(48), 0x5B2EFF, 0.55 * _glowMul, 6);   // szersza warstwa — więcej oddechu
-  addGlowSprite(makeGlowTexture(14), 0x9B8CFF, 0.95 * _glowMul, 7);
-  group.add(buildOutline(1.0, 0x9B8CFF, 0.90, 8));   // ostry rdzeń (czytelność idle)
+  addGlowSprite(makeGlowTexture(14), 0x8288FF, 0.95 * _glowMul, 7);
+  group.add(buildOutline(1.0, 0x8288FF, 0.90, 8));   // ostry rdzeń (czytelność idle)
 
   group.scale.set(S, -S, S);
 
