@@ -94,21 +94,21 @@ export async function initSignet(ctx) {
     // Niżej nie schodzę: to podłoga chroniąca przed czernieniem wnętrza w trough'ach płynu.
     // Desktop: 0 (refrakcja wieży sama). Mobile ŚCIĘTY (0.16→0.12, 2026-06-30): płaski tint =
     // mat; rolę wypełnienia przejmuje teraz mobilny uFillDensity (płyn), więc flat fill schodzi.
-    uBaseFill:          { value: window.innerWidth <= 768 ? 0.12 : 0.0 },
+    uBaseFill:          { value: 0.0 },   // 1:1 (było mobile 0.12) — płyn (uFillDensity) trzyma wypełnienie
     // Mobile: podłoga „szkła" w spoczynku — utrzymuje pryzmatyczny rant + chromatic aberration
     // jak podczas ładowania. PODBITA (0.42→0.52, C1) → rekompensuje niższy uBaseFill: mniej
     // matowego wypełnienia, więcej szklanych krawędzi/refleksów. NIE dotyka glowHide. Desktop=0.
     // Mobile ŚCIĘTY (0.52→0.38, 2026-06-30): glassFloor napędzał szeroki sheen czoła + jasny
     // pryzmatyczny rant = GŁÓWNE źródło „mleczności"/matu na iOS. Mniej = mniej białej tafli,
     // więcej czytelnego szkła. Część roboty wypełnienia przejmuje uFillDensity (płyn).
-    uGlassFloor:        { value: window.innerWidth <= 768 ? 0.38 : 0.0 },
+    uGlassFloor:        { value: 0.0 },   // 1:1 (było mobile 0.38) — front-szkło robi teraz uFrontGlass
     // Mnożnik opalizującego płynu (A2/B2): mobile mocniej — matowy sygnet nad ciemnym tłem
     // potrzebuje więcej „mienienia się"; desktop refraktuje jasną wieżę i ma dość naturalnie.
     // PODBITY (1.9→2.2, C6): żywa opalescencja zastępuje ścięty flat fill (uBaseFill↓) —
     // bryła „mieni się płynem" zamiast matowego tintu = mniej matu, bardziej szkło na froncie.
     // Desktop podbity (1.0→1.8, 2026-06-30): teraz centrum to PŁYN (uFillDensity), więc
     // opalescencja ma się w nim „mienić" wyraźniej — żywa substancja zamiast okna refrakcji.
-    uOpal:              { value: window.innerWidth <= 768 ? 2.2 : 1.8 },
+    uOpal:              { value: 1.8 },   // 1:1 (było mobile 2.2)
     // Barwa krawędziowego rozświetlenia (rant fresnela). Desktop: ciepły lawendowo-biały.
     // Mobile (C5): WYRAŹNIE fioletowy (0.78,0.74→0.52,0.40), nie biały. Mobile ma uGlassFloor=0.52
     // → rant >2× jaśniejszy niż desktop w spoczynku; prawie biały uEdgeWarm robił z bryły
@@ -116,12 +116,10 @@ export async function initSignet(ctx) {
     // Desktop SCHŁODZONY (0.88,0.76→0.66,0.66, 2026-06-30): ciepły lawendowo-biały rant (R≫G)
     // dokładał róż na jasnych krawędziach — Kuba wciąż widział resztkę różu. R=G=0.66 → czysty
     // niebiesko-biały refleks szkła, bez ciepła. Jasność trzyma B=1.0.
-    uEdgeWarm:          { value: window.innerWidth <= 768
-                            ? new THREE.Vector3(0.52, 0.40, 1.0)
-                            : new THREE.Vector3(0.66, 0.66, 1.0) },
+    uEdgeWarm:          { value: new THREE.Vector3(0.66, 0.66, 1.0) },   // 1:1 (było mobile 0.52,0.40,1.0)
     // Bazowa nieprzezroczystość ciała. Mobile (C1): niższa = więcej przezroczystego szkła
     // (refrakcja/glow prześwitują) → mniej „solidnej" matowej bryły, bliżej desktopu. Desktop=0.85.
-    uBodyAlpha:         { value: window.innerWidth <= 768 ? 0.80 : 0.85 },
+    uBodyAlpha:         { value: 0.85 },   // 1:1 (było mobile 0.80)
     // Ściągnięcie BARWY ku czystemu primary (C7). Mobile nad ciemnym tłem czytał się różowo —
     // ciepłe człony tint/opal wzmacniają czerwony lean primary #5B2EFF, a brak jasnej refrakcji
     // wieży (jak na desktopie) tego nie chłodzi. Na mobile mamy JEDEN kolor = musi być primary,
@@ -133,7 +131,7 @@ export async function initSignet(ctx) {
     // różu, którą Kuba wciąż widział. Mobile zostaje 0.7 (nietknięty).
     // Mobile podbity (0.7→0.80, 2026-06-30): mniej mleczności (niżej) odsłania prawdziwy odcień,
     // a resztka pastelowego różu wymaga mocniejszego ściągnięcia czerwieni — równa do desktopu.
-    uPrimaryShift:      { value: window.innerWidth <= 768 ? 0.80 : 0.90 },
+    uPrimaryShift:      { value: 0.90 },   // 1:1 (było mobile 0.80)
     // Gęstość PŁYNU w centrum (2026-06-30): mix refrakcji tła → primary tam gdzie fresnel niski
     // (twarz bryły). Przykrywa ciepłą wieżę w środku (koniec „magenty w centrum") i robi z bryły
     // naczynie wypełnione opalizującą substancją, a nie okno na tło. Krawędzie (wysoki fresnel) =
@@ -142,12 +140,20 @@ export async function initSignet(ctx) {
     // centrum daje STRUKTURĘ/głębię zamiast płaskiej mlecznej tafli. Na mobile refr=ciemne niebo,
     // więc mix podnosi środek do nasyconego primary (nie czerni). Trochę niżej niż desktop (0.55),
     // bo tło ciemne — mocniejszy mix zbytnio by przygasił. Zastępuje rolę ściętego uBaseFill.
-    uFillDensity:       { value: window.innerWidth <= 768 ? 0.42 : 0.72 },
+    uFillDensity:       { value: 0.72 },   // 1:1 (było mobile 0.42)
+    // EKSPERYMENT „szyba + płyn w środku" (2026-07-01, desktop; mobile=0 = bez zmian):
+    // uFrontGlass — wąska, chłodna smuga refleksu szklanej tafli NA FRONCIE (nie matowa zasłona);
+    // uInnerDepth — parallax płynu „w głąb" (opal przesuwa się z kątem patrzenia = wygląda za szybą).
+    // 1:1 mobile↔desktop (2026-07-01, życzenie Kuby): struktura „szyba + płyn" na obu platformach.
+    uFrontGlass:        { value: 0.85 },
+    uInnerDepth:        { value: 2.2 },
+    // Minimalne przyciemnienie całej bryły — elegancja > przepych, sygnet lepiej siada w tle.
+    uBodyDim:           { value: 0.90 },
   };
 
-  // Na mobile szyba zagina mocniej — przy ciemnym tle subtelne 0.06 jest niewidoczne.
-  // PODBITE (0.18→0.20, C5): więcej refrakcji tła = mocniejsza dystorsja „butelki" zamiast flat fill.
-  if (window.innerWidth <= 768) uniforms.refractionStrength.value = 0.20;
+  // 1:1 (2026-07-01): refractionStrength = 0.06 na OBU platformach (zniesiony mobilny override 0.20).
+  // ⚠ RYZYKO do sprawdzenia na telefonie: na ciemnym tle 0.06 może nie zaginać widocznie krawędzi
+  // (na desktopie jasna wieża to „łapie"). Jeśli krawędzie wyjdą płaskie na mobile → podbić dla mobile.
 
   const mat = new THREE.ShaderMaterial({
     uniforms,
@@ -180,6 +186,9 @@ export async function initSignet(ctx) {
       uniform float uBodyAlpha;
       uniform float uPrimaryShift;
       uniform float uFillDensity;
+      uniform float uFrontGlass;
+      uniform float uInnerDepth;
+      uniform float uBodyDim;
 
       varying vec3 vNormal;
       varying vec3 vWorldPos;
@@ -269,8 +278,11 @@ export async function initSignet(ctx) {
         // C4 — „woda w szklanej butelce": niższe częstotliwości wirów (0.95/0.55→0.50/0.30,
         // 1.25/0.40→0.66/0.24) = większe, gładsze komórki płynu, mniej węzłów = łagodniejsze
         // przejścia jasności, światło ślizga się po całej powierzchni zamiast drobić na plamki.
-        float swirl1 = sin(vWorldPos.x * 0.50 + vWorldPos.y * 0.30 + time * 0.40);
-        float swirl2 = sin(vWorldPos.y * 0.66 - vWorldPos.x * 0.24 - time * 0.30 + 2.1);
+        // Płyn „za szybą": przesuwamy współrzędne wirów o parallax zależny od kąta patrzenia
+        // (toCamera.xy) → opal wygląda jakby leżał GŁĘBIEJ niż powierzchnia = wrażenie środka.
+        vec2 lp = vWorldPos.xy - toCamera.xy * uInnerDepth;
+        float swirl1 = sin(lp.x * 0.50 + lp.y * 0.30 + time * 0.40);
+        float swirl2 = sin(lp.y * 0.66 - lp.x * 0.24 - time * 0.30 + 2.1);
         float opal   = 0.5 + 0.5 * swirl1 * swirl2;                 // 0..1 ruchoma substancja
         // C6: jasny koniec iryzacji SCHŁODZONY (0.55,0.45→0.42,0.38) — ciepły fiolet czytał się
         // różowo na froncie (gdzie opal dominuje przy uOpal↑); bliżej primary = mniej różu.
@@ -295,10 +307,19 @@ export async function initSignet(ctx) {
         // Szkło: silniejsze, pryzmatyczne (+0.50). Barwa = uEdgeWarm (mobile chłodniejsza, C1).
         color += uEdgeWarm * fresnel * (0.22 + glassEdge * 0.50);
 
+        // Refleks szklanej TAFLI na FRONCIE (eksperyment): wąska (pow 90), chłodna smuga tam gdzie
+        // fresnel niski (twarz bryły) → „patrzysz na szybę, a płyn jest za nią". Chłodna barwa
+        // (bez czerwieni) i wąska = NIE matowa/mleczna zasłona. Gated uFrontGlass (desktop).
+        float glassSpec = pow(max(dot(vNormal, halfVec), 0.0), 90.0);
+        color += vec3(0.62, 0.70, 1.0) * glassSpec * uFrontGlass * (1.0 - fresnel);
+
         // C7 — korekta hue ku czystemu primary (mobile). Ściąga czerwień (rose) i lekko podnosi
         // niebieski → bryła czyta się jak brandowy primary #5B2EFF, nie różowo. Pełna siła
         // mnoży R×0.74 / G×0.94 / B×1.05; faktyczna siła = uPrimaryShift (mobile 0.7). Desktop=0.
         color = mix(color, color * vec3(0.74, 0.94, 1.05), uPrimaryShift);
+
+        // Minimalne, równomierne przyciemnienie (elegancja w kontekście ciemnego tła).
+        color *= uBodyDim;
 
         gl_FragColor = vec4(color, uBodyAlpha + fresnel * 0.15);
       }
@@ -307,7 +328,8 @@ export async function initSignet(ctx) {
 
   // ─── Geometry — bevel mały żeby nie pożerał cienkich fragmentów ogona Q ───
   const group  = new THREE.Group();
-  const depth  = 4.5 / S;   // grubsza bryła — wyraźniej widać 3D przy obrocie (było 3)
+  const depth  = 7.5 / S;   // pękatszy (4.5→7.5, 2026-07-01): więcej „środka" na płyn za szybą.
+                            // UWAGA: głębia NIE zatrze wavy (to robi bevel, którego nie ruszamy).
   // bevelSize 0.25wu w przestrzeni świata → ~6 jedn. SVG → nie niszczy detali
   const bevel  = 0.25 / S;
 
@@ -415,9 +437,9 @@ export async function initSignet(ctx) {
   // szeroki, miękki bloom + ciaśniejszy jaśniejszy rdzeń poświaty + ostry kontur
   // Mobile: więcej blasku (×1.1) — poświata bohatera mocniejsza na rzadkim ekranie.
   // ŚCIĘTE (1.3→1.1, C5): jasny lawendowy bloom ×1.3 dokładał się do „białości" bryły na mobile.
-  // Mobile ŚCIĘTY (1.1→0.85, 2026-06-30): jasnolawendowy bloom (0x8288FF, prawie biały) addytywnie
-  // mył całą małą bryłę na pastel/mleczność. Mniej blasku = czystszy primary, mniej bieli.
-  const _glowMul = window.innerWidth <= 768 ? 0.85 : 1.0;
+  // 1:1 (2026-07-01): _glowMul = 1.0 na obu (zniesiony mobilny 0.85). Poświata jest teraz chłodna
+  // (0x8288FF), a bryłę przyciemnia uBodyDim — nie ma już powodu ścinać mobilnego blasku osobno.
+  const _glowMul = 1.0;
   addGlowSprite(makeGlowTexture(48), 0x5B2EFF, 0.55 * _glowMul, 6);   // szersza warstwa — więcej oddechu
   addGlowSprite(makeGlowTexture(14), 0x8288FF, 0.95 * _glowMul, 7);
   group.add(buildOutline(1.0, 0x8288FF, 0.90, 8));   // ostry rdzeń (czytelność idle)
