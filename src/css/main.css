@@ -1522,6 +1522,20 @@ body.page-active #tagline {
     top: calc(env(safe-area-inset-top, 0px) + 16px);
   }
 
+  /* Mobile: nazwa działu ZAWIJA się POD strzałkę+lockup (druga linia) — nie napiera w prawo
+     na topbar (KONTAKT/EN/dźwięk). Pionowa kreska-separator znika (bez sensu w pionie),
+     nazwa siada blisko pod logiem = więcej powietrza. */
+  #page-home {
+    flex-wrap: wrap;
+    row-gap: 3px;
+  }
+  .home-dept {
+    flex-basis: 100%;        /* własna linia pod strzałką+lockupem */
+    padding-left: 0;
+    border-left: none;       /* zdejmij pionowy separator (dla układu poziomego) */
+    margin-top: 1px;
+  }
+
   /* Issue 5: vignette słabsza — ciemna zasłona mniej agresywna, więcej widać planety/mgły */
   #vignette {
     box-shadow: inset 0 0 140px 30px var(--color-bg);

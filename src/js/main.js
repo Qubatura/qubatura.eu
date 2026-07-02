@@ -9,18 +9,18 @@
 //   Etap 7: navigation.js   — directional nav tint integration
 //   Etap 10: router.js      — SPA History API + GSAP transitions
 
-import { initScene, startLoop } from './scene.js?v=20260702b';
-import { initParallax }         from './parallax.js?v=20260702b';
-import { initAtmosphere }       from './atmosphere.js?v=20260702b';
-import { initFireflies }        from './fireflies.js?v=20260702b';
-import { initSignet }           from './signet.js?v=20260702b';
-import { initNavigation }       from './navigation.js?v=20260702b';
-import { initRouter }           from './router.js?v=20260702b';
-import { initPlayers }          from './players.js?v=20260702b';   // Część 2: playery audio (Studio)
-import { initCursor }           from './cursor.js?v=20260702b';
-import { initContact }          from './contact.js?v=20260702b';
-import { initLoader }           from './loader.js?v=20260702b';   // Etap 9: loading screen
-import { initPong }             from './pong.js?v=20260702b';     // Easter egg: Chwila relaksu
+import { initScene, startLoop } from './scene.js?v=20260702c';
+import { initParallax }         from './parallax.js?v=20260702c';
+import { initAtmosphere }       from './atmosphere.js?v=20260702c';
+import { initFireflies }        from './fireflies.js?v=20260702c';
+import { initSignet }           from './signet.js?v=20260702c';
+import { initNavigation }       from './navigation.js?v=20260702c';
+import { initRouter }           from './router.js?v=20260702c';
+import { initPlayers }          from './players.js?v=20260702c';   // Część 2: playery audio (Studio)
+import { initCursor }           from './cursor.js?v=20260702c';
+import { initContact }          from './contact.js?v=20260702c';
+import { initLoader }           from './loader.js?v=20260702c';   // Etap 9: loading screen
+import { initPong }             from './pong.js?v=20260702c';     // Easter egg: Chwila relaksu
 
 async function boot() {
   initCursor();                 // własna kulka kursora — od razu aktywna

@@ -30,13 +30,18 @@ for (const f of readdirSync(jsDir)) {
   if (out !== src) { writeFileSync(p, out); touched++; }
 }
 
-// Wpis entry w index.html
+// Wpis entry (JS) + arkusz CSS w index.html — oba cache'owane per-URL na iOS, więc oba stemplujemy
 const htmlPath = join(ROOT, 'src', 'index.html');
 const html = readFileSync(htmlPath, 'utf8');
-const htmlOut = html.replace(
-  /(<script\s+type="module"\s+src="js\/main\.js)(?:\?v=[^"]*)?(")/,
-  `$1?v=${TOKEN}$2`
-);
+const htmlOut = html
+  .replace(
+    /(<script\s+type="module"\s+src="js\/main\.js)(?:\?v=[^"]*)?(")/,
+    `$1?v=${TOKEN}$2`
+  )
+  .replace(
+    /(<link\s+rel="stylesheet"\s+href="css\/main\.css)(?:\?v=[^"]*)?(")/,
+    `$1?v=${TOKEN}$2`
+  );
 if (htmlOut !== html) { writeFileSync(htmlPath, htmlOut); touched++; }
 
 console.log(`stamp-version: token=${TOKEN}, zaktualizowano plików=${touched}`);
