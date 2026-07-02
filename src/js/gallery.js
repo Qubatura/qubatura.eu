@@ -18,8 +18,9 @@ const MEDIA = [
   { src: '../assets/events/ev-06.webp' },
   { src: '../assets/events/ev-08.webp' },
   { src: '../assets/events/ev-09.webp' },
+  { src: '../assets/events/ev-11.webp' },
   { src: '../assets/events/ev-10.webp' },
-  // ev-11/ev-12 (IMG_2887/IMG_8067) — dojdą gdy OneDrive je pobierze lokalnie.
+  { src: '../assets/events/ev-12.webp' },
 ];
 
 const PHOTO_MS = 4500;   // czas slajdu-zdjęcia

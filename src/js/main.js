@@ -9,20 +9,20 @@
 //   Etap 7: navigation.js   — directional nav tint integration
 //   Etap 10: router.js      — SPA History API + GSAP transitions
 
-import { initScene, startLoop } from './scene.js?v=20260702h';
-import { initParallax }         from './parallax.js?v=20260702h';
-import { initAtmosphere }       from './atmosphere.js?v=20260702h';
-import { initFireflies }        from './fireflies.js?v=20260702h';
-import { initSignet }           from './signet.js?v=20260702h';
-import { initNavigation }       from './navigation.js?v=20260702h';
-import { initRouter }           from './router.js?v=20260702h';
-import { initPlayers }          from './players.js?v=20260702h';   // Część 2: playery audio (Studio)
-import { initCursor }           from './cursor.js?v=20260702h';
-import { initContact }          from './contact.js?v=20260702h';
-import { initLoader }           from './loader.js?v=20260702h';   // Etap 9: loading screen
-import { initPong }             from './pong.js?v=20260702h';     // Easter egg: Chwila relaksu
-import { initGallery }          from './gallery.js?v=20260702h';              // Events: galeria realizacji + lightbox
-import { initLab }              from './lab.js?v=20260702h';                  // Lab: oprogramowanie audio + podstrona produktu
+import { initScene, startLoop } from './scene.js?v=20260702i';
+import { initParallax }         from './parallax.js?v=20260702i';
+import { initAtmosphere }       from './atmosphere.js?v=20260702i';
+import { initFireflies }        from './fireflies.js?v=20260702i';
+import { initSignet }           from './signet.js?v=20260702i';
+import { initNavigation }       from './navigation.js?v=20260702i';
+import { initRouter }           from './router.js?v=20260702i';
+import { initPlayers }          from './players.js?v=20260702i';   // Część 2: playery audio (Studio)
+import { initCursor }           from './cursor.js?v=20260702i';
+import { initContact }          from './contact.js?v=20260702i';
+import { initLoader }           from './loader.js?v=20260702i';   // Etap 9: loading screen
+import { initPong }             from './pong.js?v=20260702i';     // Easter egg: Chwila relaksu
+import { initGallery }          from './gallery.js?v=20260702i';              // Events: galeria realizacji + lightbox
+import { initLab }              from './lab.js?v=20260702i';                  // Lab: oprogramowanie audio + podstrona produktu
 
 async function boot() {
   initCursor();                 // własna kulka kursora — od razu aktywna
