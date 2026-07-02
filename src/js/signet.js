@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { SVGLoader } from 'three/addons/loaders/SVGLoader.js';
-import { onTick, registerRefraction } from './scene.js?v=20260702a';
-import { navFX, loadFX } from './tint.js?v=20260702a';
+import { onTick, registerRefraction } from './scene.js?v=20260702b';
+import { navFX, loadFX } from './tint.js?v=20260702b';
 
 const _mouse = { x: -9999, y: -9999 };
 window.addEventListener('mousemove', e => { _mouse.x = e.clientX; _mouse.y = e.clientY; });
@@ -69,7 +69,8 @@ export async function initSignet(ctx) {
   const svgCY  = (bb.min.y + bb.max.y) / 2;
   const svgMax = Math.max(bb.max.x - bb.min.x, bb.max.y - bb.min.y);
   // Mobile: sygnet-bohater +20% (jedyny element 3D na rzadkim ekranie — może dominować).
-  const SIZE_MUL = window.innerWidth <= 768 ? 1.2 : 1.0;
+  const isMobile = window.innerWidth <= 768;
+  const SIZE_MUL = isMobile ? 1.2 : 1.0;
   const S      = (51.4 * 1.1 * SIZE_MUL) / svgMax;   // +10% bazowo, ×1.2 na mobile
 
   // ─── Material — custom GLSL: refrakcja tła + chromatic aberration + fresnel ──
@@ -81,7 +82,10 @@ export async function initSignet(ctx) {
 
   const uniforms = {
     tBackground:        { value: null },   // wstrzykiwane co klatkę przez scene.js
-    refractionStrength: { value: 0.06 },   // siła zagięcia planety (do tuningu)
+    // 2026-07-02: mobile PODBITE (0.06→0.13). Na desktopie refrakcja zagina jasną wieżę = błyski
+    // szkła; na mobile za sygnetem CIEMNE niebo → 0.06 zaginało ciemne→ciemne = niewidoczne = mat.
+    // Większe zagięcie na mobile łapie choć trochę jaśniejszych smug drogi/nieba = więcej życia.
+    refractionStrength: { value: isMobile ? 0.13 : 0.06 },   // siła zagięcia planety (do tuningu)
     time:               { value: 0 },
     uColorMix:          { value: 0 },      // 0 = primary, 1 = magenta (sterowane kątem)
     uGlass:             { value: 0 },      // 0 = normalny tint, 1 = czyste szkło (hover sygnetu, brak działu)
@@ -101,7 +105,12 @@ export async function initSignet(ctx) {
     // Mobile ŚCIĘTY (0.52→0.38, 2026-06-30): glassFloor napędzał szeroki sheen czoła + jasny
     // pryzmatyczny rant = GŁÓWNE źródło „mleczności"/matu na iOS. Mniej = mniej białej tafli,
     // więcej czytelnego szkła. Część roboty wypełnienia przejmuje uFillDensity (płyn).
-    uGlassFloor:        { value: 0.0 },   // 1:1 (było mobile 0.38) — front-szkło robi teraz uFrontGlass
+    // 2026-07-02: PRZYWRÓCONE dla mobile (0.0→0.28). To ono daje „glass" niezależny od tła:
+    // szeroki sheen na froncie (pow N·H 8), pryzmat na krawędzi (+0.50) i CA rantu. Przy 1:1
+    // zeszło do 0 → mobile zmatowiał (ciemne tło nie daje refrakcyjnych błysków jak wieża na
+    // desktopie). Mleczności NIE wróci: kolory są już zimne (0x8288FF, uEdgeWarm 0.66,0.66,1.0,
+    // uPrimaryShift 0.90). Niżej niż stare 0.38 — sam sheen, bez mlecznej tafli. Desktop=0.
+    uGlassFloor:        { value: isMobile ? 0.28 : 0.0 },   // front-szkło + rant (mobile); desktop robi uFrontGlass
     // Mnożnik opalizującego płynu (A2/B2): mobile mocniej — matowy sygnet nad ciemnym tłem
     // potrzebuje więcej „mienienia się"; desktop refraktuje jasną wieżę i ma dość naturalnie.
     // PODBITY (1.9→2.2, C6): żywa opalescencja zastępuje ścięty flat fill (uBaseFill↓) —
