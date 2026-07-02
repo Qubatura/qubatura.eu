@@ -1134,22 +1134,34 @@ body.page-active #tagline {
   pointer-events: none;
 }
 
-/* Zamknięcie kontaktu — dyskretny tekst w lewym dolnym rogu (mono, jasny na hover). */
+/* Zamknięcie kontaktu — SPÓJNE z powrotem na podstronach: logo + strzałka w LEWYM GÓRNYM rogu.
+   Kontakt nie jest dywizją → kolor NEUTRALNY (biel/szarość), nie kolor działu. Ta sama pozycja
+   i skala co #page-home (wspólny „sufit" 28px z topbarem). */
 #contact-close {
   position: absolute;
-  bottom: 2.5%;
-  left: 2.5%;
+  top: 22px;
+  left: 2.6%;
   z-index: 10;                  /* nad .contact-inner — inaczej zasłania klik/hover */
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.45);
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 6px 8px;
   background: none;
   border: none;
-  transition: color 0.3s ease;
+  cursor: pointer;
 }
-#contact-close:hover { color: rgba(255, 255, 255, 1); }   /* biały, jak #page-back */
+/* Strzałka neutralna (biało-szara), nie kolor działu */
+#contact-close .home-arrow {
+  border-right-color: rgba(255, 255, 255, 0.72);
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.25));
+}
+/* Lockup statyczny biały (bez fioletowego pulsu home-glow — neutralny na Kontakcie) */
+#contact-close .home-lockup { animation: none; }
+#contact-close:hover .home-arrow { transform: translateX(-3px); }
+#contact-close:hover .home-lockup {
+  background: #ffffff;
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.6));
+}
 
 .contact-inner {
   position: relative;
@@ -1505,7 +1517,8 @@ body.page-active #tagline {
     display: none !important;
   }
 
-  #page-home {
+  #page-home,
+  #contact-close {
     top: calc(env(safe-area-inset-top, 0px) + 16px);
   }
 

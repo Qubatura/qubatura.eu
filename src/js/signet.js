@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { SVGLoader } from 'three/addons/loaders/SVGLoader.js';
-import { onTick, registerRefraction } from './scene.js';
-import { navFX, loadFX } from './tint.js';
+import { onTick, registerRefraction } from './scene.js?v=20260702a';
+import { navFX, loadFX } from './tint.js?v=20260702a';
 
 const _mouse = { x: -9999, y: -9999 };
 window.addEventListener('mousemove', e => { _mouse.x = e.clientX; _mouse.y = e.clientY; });
@@ -150,7 +150,8 @@ export async function initSignet(ctx) {
     uFrontGlass:        { value: 0.85 },
     uInnerDepth:        { value: 2.2 },
     // Minimalne przyciemnienie całej bryły — elegancja > przepych, sygnet lepiej siada w tle.
-    uBodyDim:           { value: 0.90 },
+    // 2026-07-02 (Kuba: „sygnet minimalnie za intensywny, trochę na dół z jasnością"): 0.90→0.84.
+    uBodyDim:           { value: 0.84 },
   };
 
   // 1:1 (2026-07-01): refractionStrength = 0.06 na OBU platformach (zniesiony mobilny override 0.20).

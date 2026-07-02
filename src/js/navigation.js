@@ -7,7 +7,7 @@
 // Wszystko czyta navFX, który tu płynnie tweenujemy.
 
 import * as GSAPmod from 'gsap';
-import { DIVISION_COLORS, DIVISION_DIR, BASE_TINT, navFX } from './tint.js';
+import { DIVISION_COLORS, DIVISION_DIR, BASE_TINT, navFX } from './tint.js?v=20260702a';
 
 // +esm bywa default albo named — bądź odporny na obie postacie
 const gsap = GSAPmod.gsap || GSAPmod.default || GSAPmod;
@@ -34,7 +34,9 @@ function startNudge(rotY, rotX) {
   gsap.killTweensOf(navFX, 'nudgeRotY,nudgeRotX');  // ubija tween powrotny ze stopNudge
   gsap.set(navFX, { nudgeRotY: 0, nudgeRotX: 0 });  // start zawsze od 0 (brak resztki z poprz. hover)
   nudge = gsap.timeline();
-  nudge.to(navFX, { nudgeRotY: rotY, nudgeRotX: rotX, duration: 0.5, ease: 'power2.out' });
+  // 2026-07-02 (Kuba: „zwrot zbyt gwałtowny — ma być dostojny, slow-mo na starcie, jak w atmosferze
+  // planety"): dojazd 0.5→1.1s, ease power2.out→power2.inOut (miękki, powolny początek ruchu).
+  nudge.to(navFX, { nudgeRotY: rotY, nudgeRotX: rotX, duration: 1.1, ease: 'power2.inOut' });
   nudge.to(navFX, {
     nudgeRotY: rotY * 0.6, nudgeRotX: rotX * 0.6,    // oddycha między 100% a 60% — zawsze po stronie działu
     duration: 1.5, ease: 'sine.inOut', yoyo: true, repeat: -1,
@@ -113,11 +115,13 @@ export function initNavigation() {
       startNudge(dir.x * 0.55, -dir.y * 0.40);
 
       // Heartbeat — szybki „sygnał": puls skali + eksplozja glow → opadanie (bez ruchu kierunkowego)
+      // 2026-07-02 (Kuba: „ten wybuch koloru za mocny; poświata i stan podświetlony OK"):
+      // szczyt eksplozji glow 1→0.55 — ściszony rozbłysk. Stan ustalony (0.3) NIETKNIĘTY.
       if (beat) beat.kill();
       beat = gsap.timeline();
       beat.fromTo(navFX, { pulse: 0 }, { pulse: 0.15, duration: 0.35, ease: 'power2.out' }, 0)
           .to(navFX,     { pulse: 0,    duration: 0.55, ease: 'power2.inOut' }, 0.35)
-          .fromTo(navFX, { glow: 0 },   { glow: 1,   duration: 0.18, ease: 'power3.out' }, 0)
+          .fromTo(navFX, { glow: 0 },   { glow: 0.55, duration: 0.18, ease: 'power3.out' }, 0)
           .to(navFX,     { glow: 0.3,             duration: 0.60, ease: 'power2.out' }, 0.18);
     });
 

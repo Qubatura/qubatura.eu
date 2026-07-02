@@ -377,7 +377,11 @@
 
   <!-- ── Contact overlay — fullscreen nakładka nad żywą sceną (NIE podstrona) ── -->
   <div id="contact-overlay" role="dialog" aria-modal="true" aria-label="Kontakt" aria-hidden="true">
-    <button id="contact-close" type="button" aria-label="Zamknij kontakt">← Powrót</button>
+    <!-- Powrót SPÓJNY z podstronami: logo + strzałka w lewym górnym rogu (kolor neutralny). -->
+    <button id="contact-close" type="button" aria-label="Zamknij kontakt — powrót">
+      <span class="home-arrow" aria-hidden="true"></span>
+      <span class="home-lockup" aria-hidden="true"></span>
+    </button>
 
     <div class="contact-inner">
       <div class="contact-coords">
@@ -437,7 +441,7 @@
     });
   </script>
 
-  <script type="module" src="js/main.js"></script>
+  <script type="module" src="js/main.js?v=20260702a"></script>
 
 </body>
 </html>
