@@ -26,7 +26,7 @@
         referrerpolicy="no-referrer">
 
   <!-- CSS -->
-  <link rel="stylesheet" href="css/main.css?v=20260702f">
+  <link rel="stylesheet" href="css/main.css?v=20260702g">
 
   <!-- Three.js via CDN importmap -->
   <script type="importmap">
@@ -327,6 +327,26 @@
       </div>
     </section>
 
+    <!-- Lab: „Oprogramowanie audio" — system kafelek jak Studio („Posłuchaj produkcji").
+         Dziecko #page (nie artykułu). Karta 1 = Event Player (guzik → podstrona produktu),
+         karta 2 = pusta (TBD). Widoczne tylko na Lab. -->
+    <section class="lab-software" aria-label="Oprogramowanie audio — Qubatura Lab">
+      <p class="pl-head">Oprogramowanie audio</p>
+      <div class="pl-grid">
+        <article class="pl-card lab-card">
+          <div class="pl-text">
+            <p class="pl-title">Event Player</p>
+            <p class="pl-meta">Playback na eventy — pro</p>
+            <p class="pl-meta">Web Audio API · desktop</p>
+          </div>
+          <button class="pl-cta" type="button" data-product="event-player">Zobacz więcej →</button>
+        </article>
+        <article class="pl-card lab-card is-tbd">
+          <div class="pl-text"></div>
+        </article>
+      </div>
+    </section>
+
     <!-- Galeria realizacji (Events) — slideshow duotone→kolor, autoplay, licznik+kropki, klik→lightbox.
          Slajdy i kropki wstrzykuje gallery.js. Dziecko #page (nie artykułu) — GSAP transform na
          artykule nie psuje pozycji. -->
@@ -353,6 +373,21 @@
     </figure>
     <button class="lb-nav lb-next" type="button" aria-label="Następne zdjęcie">›</button>
     <div class="lb-count" aria-hidden="true"><b class="lb-idx">01</b> / <span class="lb-total">06</span></div>
+    <!-- Pasek miniaturek — klik = skok, przewijalny (buduje gallery.js) -->
+    <div class="lb-thumbs" aria-label="Miniatury"></div>
+  </div>
+
+  <!-- Podstrona produktu (Lab → Event Player) — placeholder na trailer + opis; sterowanie lab.js -->
+  <div id="product-overlay" class="product-overlay" role="dialog" aria-modal="true"
+       aria-label="Event Player — Qubatura Lab" aria-hidden="true">
+    <button class="prod-close" type="button" aria-label="Zamknij — wróć">‹ Wróć</button>
+    <div class="prod-inner">
+      <p class="prod-kicker">Qubatura Lab · Oprogramowanie audio</p>
+      <h2 class="prod-title">Event Player</h2>
+      <div class="prod-trailer" aria-hidden="true"><span>TRAILER — wkrótce</span></div>
+      <p class="prod-desc">Profesjonalna aplikacja do odtwarzania dźwięku na wydarzeniach —
+        pewny playback bez przypadków. Pełny opis i materiały wideo wkrótce.</p>
+    </div>
   </div>
 
   <!-- Pong easter egg overlay — canvas 2D nad sceną Three.js -->
@@ -457,7 +492,7 @@
     });
   </script>
 
-  <script type="module" src="js/main.js?v=20260702f"></script>
+  <script type="module" src="js/main.js?v=20260702g"></script>
 
 </body>
 </html>

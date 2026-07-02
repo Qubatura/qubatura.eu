@@ -36,6 +36,7 @@ export function initGallery() {
   const lbCap  = lb.querySelector('.lb-cap');
   const lbIdx  = lb.querySelector('.lb-idx');
   const lbTot  = lb.querySelector('.lb-total');
+  const lbThumbs = lb.querySelector('.lb-thumbs');
 
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   let cur = 0;
@@ -62,12 +63,27 @@ export function initGallery() {
     dot.setAttribute('aria-label', `Pokaż zdjęcie ${i + 1}`);
     dot.addEventListener('click', e => { e.stopPropagation(); show(i); restartFrame(); });
     dotsWrap.appendChild(dot);
+
+    // Miniatura w lightboxie — klik = skok do zdjęcia; pasek przewijalny (CSS overflow-x)
+    const thumb = document.createElement('button');
+    thumb.type = 'button';
+    thumb.className = 'lb-thumb' + (i === 0 ? ' is-on' : '');
+    thumb.dataset.idx = pad(i + 1);
+    thumb.setAttribute('aria-label', `Pokaż zdjęcie ${i + 1}`);
+    const tImg = new Image();
+    tImg.alt = '';
+    tImg.addEventListener('error', () => thumb.classList.add('is-missing'));
+    tImg.src = p.src;
+    thumb.appendChild(tImg);
+    thumb.addEventListener('click', e => { e.stopPropagation(); show(i); renderLb(); startLbAuto(); });
+    lbThumbs.appendChild(thumb);
   });
   totEl.textContent = pad(PHOTOS.length);
   lbTot.textContent = pad(PHOTOS.length);
 
   const slides = [...stage.querySelectorAll('.gal-slide')];
   const dots   = [...dotsWrap.querySelectorAll('.gal-dot')];
+  const thumbs = [...lbThumbs.querySelectorAll('.lb-thumb')];
 
   function show(i) {
     cur = (i + PHOTOS.length) % PHOTOS.length;
@@ -107,6 +123,8 @@ export function initGallery() {
     lbCap.textContent = p.cap || '';
     lbCap.style.display = p.cap ? '' : 'none';
     lbIdx.textContent = pad(cur + 1);
+    thumbs.forEach((t, k) => t.classList.toggle('is-on', k === cur));
+    if (thumbs[cur]) thumbs[cur].scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
   }
   function lbTick() { if (!lb.matches(':hover')) { next(); renderLb(); } }
   function startLbAuto() { if (reduceMotion) return; stopLbAuto(); lbTimer = setInterval(lbTick, LB_MS); }
