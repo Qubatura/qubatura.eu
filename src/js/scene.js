@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { sceneFX } from './tint.js?v=20260702d';
+import { sceneFX } from './tint.js?v=20260702e';
 
 let renderer, scene, camera, clock, renderTarget;
 const tickCallbacks = [];
@@ -45,7 +45,7 @@ export async function initScene() {
   let _resolvePlanet;
   const planetReady = new Promise(res => { _resolvePlanet = res; });
   const planetTexture = new THREE.TextureLoader().load(
-    '../assets/planet-bg.png',
+    '../assets/planet-bg.webp',   // 18.8MB PNG → 222KB WebP (2560w) — tło home ładuje się na czas loadingu
     () => _resolvePlanet(),
     undefined,
     () => _resolvePlanet(),

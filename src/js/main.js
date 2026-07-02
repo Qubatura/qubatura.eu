@@ -9,19 +9,19 @@
 //   Etap 7: navigation.js   — directional nav tint integration
 //   Etap 10: router.js      — SPA History API + GSAP transitions
 
-import { initScene, startLoop } from './scene.js?v=20260702d';
-import { initParallax }         from './parallax.js?v=20260702d';
-import { initAtmosphere }       from './atmosphere.js?v=20260702d';
-import { initFireflies }        from './fireflies.js?v=20260702d';
-import { initSignet }           from './signet.js?v=20260702d';
-import { initNavigation }       from './navigation.js?v=20260702d';
-import { initRouter }           from './router.js?v=20260702d';
-import { initPlayers }          from './players.js?v=20260702d';   // Część 2: playery audio (Studio)
-import { initCursor }           from './cursor.js?v=20260702d';
-import { initContact }          from './contact.js?v=20260702d';
-import { initLoader }           from './loader.js?v=20260702d';   // Etap 9: loading screen
-import { initPong }             from './pong.js?v=20260702d';     // Easter egg: Chwila relaksu
-import { initGallery }          from './gallery.js?v=20260702d';              // Events: galeria realizacji + lightbox
+import { initScene, startLoop } from './scene.js?v=20260702e';
+import { initParallax }         from './parallax.js?v=20260702e';
+import { initAtmosphere }       from './atmosphere.js?v=20260702e';
+import { initFireflies }        from './fireflies.js?v=20260702e';
+import { initSignet }           from './signet.js?v=20260702e';
+import { initNavigation }       from './navigation.js?v=20260702e';
+import { initRouter }           from './router.js?v=20260702e';
+import { initPlayers }          from './players.js?v=20260702e';   // Część 2: playery audio (Studio)
+import { initCursor }           from './cursor.js?v=20260702e';
+import { initContact }          from './contact.js?v=20260702e';
+import { initLoader }           from './loader.js?v=20260702e';   // Etap 9: loading screen
+import { initPong }             from './pong.js?v=20260702e';     // Easter egg: Chwila relaksu
+import { initGallery }          from './gallery.js?v=20260702e';              // Events: galeria realizacji + lightbox
 
 async function boot() {
   initCursor();                 // własna kulka kursora — od razu aktywna
@@ -43,7 +43,15 @@ async function boot() {
 
   // Etap 9 — loading screen: realny tracking zasobów (Promise.all, nie fake timer).
   // fonty + tekstura planety + sygnet (już gotowy) → progres sterujący kolorem sygnetu.
-  initLoader([document.fonts.ready, ctx.planetReady, signetReady]);
+  // + PRELOAD teł departamentów (WebP ~150KB): 100% czeka też na nie i są w cache PRZED
+  //   wejściem na podstronę → koniec „trzyma tło home, a napisy już z podstrony".
+  const preloadImg = src => new Promise(res => { const i = new Image(); i.onload = i.onerror = res; i.src = src; });
+  initLoader([
+    document.fonts.ready, ctx.planetReady, signetReady,
+    preloadImg('../assets/qubatura.eu-tlo-dep-events.webp'),
+    preloadImg('../assets/qubatura.eu-tlo-dep-studio.webp'),
+    preloadImg('../assets/qubatura.eu-tlo-dep-lab.webp'),
+  ]);
 
   startLoop();                  // pętla rusza → sygnet renderuje się jako wskaźnik loadingu
 }
