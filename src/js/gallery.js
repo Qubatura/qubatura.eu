@@ -1,109 +1,142 @@
-// gallery.js — Events: galeria realizacji.
-// W RAMCE (.page-gallery, 16:9): slideshow jednego zdjęcia, domyślnie DUOTONE (grayscale +
-// fioletowy event przez .gal-tint mix-blend:color). Hover → pełny kolor + zoom + pauza autoplay.
-// HUD: licznik „01 / 06" + klikalne kropki. Autoplay co FRAME_MS (crossfade CSS).
-// KLIK → lightbox prawie pełnoekranowy: pełny kolor, strzałki ‹ ›, klawiatura ← → / Esc,
-// klik-tło zamyka, autoplay co LB_MS gdy nie ruszasz, opcjonalny podpis (data cap).
-//
-// Placeholder-friendly: brak pliku (onerror) → elegancki gradient + „FOTO 0N" (CSS). Kuba wrzuca
-// pliki do assets/events/ pod nazwami ev-01.jpg … i galeria od razu żyje (bez zmian w kodzie).
+// gallery.js — Events: galeria realizacji (zdjęcia + WIDEO).
+// Ramka .page-gallery: slideshow, domyślnie DUOTONE (grayscale + fiolet przez .gal-tint) → pełny
+// kolor na hover. Autoplay: zdjęcie ~PHOTO_MS, wideo ~VIDEO_MS (dłużej). Licznik + klikalne kropki.
+// Wideo: MP4 muted/loop/playsinline, LAZY (preload=none → pobiera się dopiero przy play()),
+// gra tylko gdy jego slajd aktywny (reszta pauzowana) — zero wpływu na start strony.
+// Klik → lightbox: strzałki ‹ ›, klawiatura ←/→/Esc, klik-tło zamyka, autoplay, pasek miniaturek
+// (dla wideo miniatura = poster + znaczek ▶). Placeholder „FOTO 0N" gdy brak pliku zdjęcia.
 
-const PHOTOS = [
-  { src: '../assets/events/ev-01.jpg', cap: '' },
-  { src: '../assets/events/ev-02.jpg', cap: '' },
-  { src: '../assets/events/ev-03.jpg', cap: '' },
-  { src: '../assets/events/ev-04.jpg', cap: '' },
-  { src: '../assets/events/ev-05.jpg', cap: '' },
-  { src: '../assets/events/ev-06.jpg', cap: '' },
+const MEDIA = [
+  { src: '../assets/events/ev-07.webp' },
+  { src: '../assets/events/ev-01.webp' },
+  { type: 'video', src: '../assets/events/ev-v1.mp4', poster: '../assets/events/ev-v1-poster.webp' },
+  { src: '../assets/events/ev-02.webp' },
+  { src: '../assets/events/ev-03.webp' },
+  { src: '../assets/events/ev-04.webp' },
+  { type: 'video', src: '../assets/events/ev-v2.mp4', poster: '../assets/events/ev-v2-poster.webp' },
+  { src: '../assets/events/ev-05.webp' },
+  { src: '../assets/events/ev-06.webp' },
+  { src: '../assets/events/ev-08.webp' },
+  { src: '../assets/events/ev-09.webp' },
+  { src: '../assets/events/ev-10.webp' },
+  // ev-11/ev-12 (IMG_2887/IMG_8067) — dojdą gdy OneDrive je pobierze lokalnie.
 ];
 
-const FRAME_MS = 4500;   // autoplay w ramce
-const LB_MS    = 5000;   // autoplay w lightboxie
+const PHOTO_MS = 4500;   // czas slajdu-zdjęcia
+const VIDEO_MS = 9000;   // czas slajdu-wideo (dłużej, żeby było widać)
+const LB_MS    = 5500;   // autoplay w lightboxie
 const pad = n => String(n).padStart(2, '0');
+const isVid = m => m.type === 'video';
 
 export function initGallery() {
   const gallery = document.querySelector('[data-gallery]');
-  if (!gallery || !PHOTOS.length) return;
-
+  if (!gallery || !MEDIA.length) return;
   const stage    = gallery.querySelector('.gal-stage');
   const idxEl    = gallery.querySelector('.gal-idx');
   const totEl    = gallery.querySelector('.gal-total');
   const dotsWrap = gallery.querySelector('.gal-dots');
 
-  const lb     = document.getElementById('lightbox');
-  const lbFig  = lb.querySelector('.lb-figure');
-  const lbImg  = lb.querySelector('.lb-img');
-  const lbCap  = lb.querySelector('.lb-cap');
-  const lbIdx  = lb.querySelector('.lb-idx');
-  const lbTot  = lb.querySelector('.lb-total');
+  const lb       = document.getElementById('lightbox');
+  const lbFig    = lb.querySelector('.lb-figure');
+  const lbImg    = lb.querySelector('.lb-img');
+  const lbVid    = lb.querySelector('.lb-video');
+  const lbCap    = lb.querySelector('.lb-cap');
+  const lbIdx    = lb.querySelector('.lb-idx');
+  const lbTot    = lb.querySelector('.lb-total');
   const lbThumbs = lb.querySelector('.lb-thumbs');
 
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   let cur = 0;
   let frameTimer = null;
   let lbTimer = null;
+  const slideVideos = [];   // <video> w ramce (play/pause per aktywność)
 
-  // ── Budowa slajdów + kropek ──────────────────────────────────────────────
-  PHOTOS.forEach((p, i) => {
+  MEDIA.forEach((m, i) => {
     const slide = document.createElement('div');
     slide.className = 'gal-slide' + (i === 0 ? ' is-active' : '');
     slide.dataset.idx = pad(i + 1);
-    const img = new Image();
-    img.alt = p.cap || `Realizacja Events ${i + 1}`;
-    img.decoding = 'async';
-    img.loading = 'lazy';
-    img.addEventListener('error', () => slide.classList.add('is-missing'));
-    img.src = p.src;
-    slide.appendChild(img);
+    if (isVid(m)) {
+      const v = document.createElement('video');
+      v.muted = true; v.loop = true; v.playsInline = true; v.preload = 'none';
+      if (m.poster) v.poster = m.poster;
+      v.src = m.src;                       // preload=none → nie pobiera aż do play()
+      slide.appendChild(v);
+      slideVideos[i] = v;
+    } else {
+      const img = new Image();
+      img.alt = `Realizacja Events ${i + 1}`;
+      img.decoding = 'async';
+      img.loading = 'lazy';
+      img.addEventListener('error', () => slide.classList.add('is-missing'));
+      img.src = m.src;
+      slide.appendChild(img);
+    }
     stage.appendChild(slide);
 
     const dot = document.createElement('button');
     dot.type = 'button';
     dot.className = 'gal-dot' + (i === 0 ? ' is-on' : '');
-    dot.setAttribute('aria-label', `Pokaż zdjęcie ${i + 1}`);
-    dot.addEventListener('click', e => { e.stopPropagation(); show(i); restartFrame(); });
+    dot.setAttribute('aria-label', `Pokaż ${i + 1}`);
+    dot.addEventListener('click', e => { e.stopPropagation(); show(i); armFrame(); });
     dotsWrap.appendChild(dot);
 
-    // Miniatura w lightboxie — klik = skok do zdjęcia; pasek przewijalny (CSS overflow-x)
+    // Miniatura w lightboxie (wideo → poster + znaczek ▶ przez CSS .is-video)
     const thumb = document.createElement('button');
     thumb.type = 'button';
-    thumb.className = 'lb-thumb' + (i === 0 ? ' is-on' : '');
+    thumb.className = 'lb-thumb' + (i === 0 ? ' is-on' : '') + (isVid(m) ? ' is-video' : '');
     thumb.dataset.idx = pad(i + 1);
-    thumb.setAttribute('aria-label', `Pokaż zdjęcie ${i + 1}`);
+    thumb.setAttribute('aria-label', `Pokaż ${i + 1}`);
     const tImg = new Image();
     tImg.alt = '';
     tImg.addEventListener('error', () => thumb.classList.add('is-missing'));
-    tImg.src = p.src;
+    tImg.src = isVid(m) ? (m.poster || '') : m.src;
     thumb.appendChild(tImg);
     thumb.addEventListener('click', e => { e.stopPropagation(); show(i); renderLb(); startLbAuto(); });
     lbThumbs.appendChild(thumb);
   });
-  totEl.textContent = pad(PHOTOS.length);
-  lbTot.textContent = pad(PHOTOS.length);
+  totEl.textContent = pad(MEDIA.length);
+  lbTot.textContent = pad(MEDIA.length);
 
   const slides = [...stage.querySelectorAll('.gal-slide')];
   const dots   = [...dotsWrap.querySelectorAll('.gal-dot')];
   const thumbs = [...lbThumbs.querySelectorAll('.lb-thumb')];
 
+  // Odtwarzaj wideo aktywnego slajdu w RAMCE (playIdx); reszta pauza. playIdx=-1 → wszystkie pauza
+  // (używane gdy lightbox przejmuje odtwarzanie).
+  function playFrameVideo(playIdx) {
+    slideVideos.forEach((v, k) => {
+      if (!v) return;
+      if (k === playIdx) { const p = v.play(); if (p) p.catch(() => {}); }
+      else v.pause();
+    });
+  }
+
   function show(i) {
-    cur = (i + PHOTOS.length) % PHOTOS.length;
+    cur = (i + MEDIA.length) % MEDIA.length;
     slides.forEach((s, k) => s.classList.toggle('is-active', k === cur));
     dots.forEach((d, k) => d.classList.toggle('is-on', k === cur));
     idxEl.textContent = pad(cur + 1);
+    if (!lb.classList.contains('is-open')) playFrameVideo(cur);
   }
   const next = () => show(cur + 1);
   const prev = () => show(cur - 1);
 
-  // ── Autoplay w ramce (pauza: hover / lightbox / nie-Events / reduced-motion) ──
+  // ── Autoplay ramki (setTimeout — różny czas zdjęcie/wideo; pauza: hover/lightbox/nie-Events) ──
+  const frameDur = () => (isVid(MEDIA[cur]) ? VIDEO_MS : PHOTO_MS);
   function frameTick() {
-    if (getComputedStyle(gallery).display === 'none') return;   // widoczna tylko na Events
-    if (gallery.classList.contains('is-hot')) return;           // hover = pauza
-    if (lb.classList.contains('is-open')) return;               // lightbox otwarty
-    next();
+    const blocked = getComputedStyle(gallery).display === 'none'
+      || gallery.classList.contains('is-hot')
+      || lb.classList.contains('is-open');
+    if (!blocked) next();
+    armFrame();
   }
-  function startFrame() { if (!reduceMotion && !frameTimer) frameTimer = setInterval(frameTick, FRAME_MS); }
-  function restartFrame() { if (frameTimer) clearInterval(frameTimer); frameTimer = null; startFrame(); }
-  startFrame();
+  function armFrame() {
+    if (frameTimer) clearTimeout(frameTimer);
+    if (reduceMotion) return;
+    frameTimer = setTimeout(frameTick, frameDur());
+  }
+  armFrame();
+  playFrameVideo(0);   // gdyby pierwszy slajd był wideo
 
   gallery.addEventListener('mouseenter', () => gallery.classList.add('is-hot'));
   gallery.addEventListener('mouseleave', () => gallery.classList.remove('is-hot'));
@@ -114,24 +147,39 @@ export function initGallery() {
 
   // ── Lightbox ──────────────────────────────────────────────────────────────
   function renderLb() {
-    const p = PHOTOS[cur];
+    const m = MEDIA[cur];
     lbFig.classList.remove('is-missing');
     lbFig.dataset.idx = pad(cur + 1);
-    lbImg.onerror = () => lbFig.classList.add('is-missing');
-    lbImg.src = p.src;
-    lbImg.alt = p.cap || `Realizacja Events ${cur + 1}`;
-    lbCap.textContent = p.cap || '';
-    lbCap.style.display = p.cap ? '' : 'none';
+    if (isVid(m)) {
+      lbImg.removeAttribute('src');
+      lbImg.style.display = 'none';
+      lbVid.style.display = '';
+      if (m.poster) lbVid.poster = m.poster;
+      lbVid.src = m.src;
+      const p = lbVid.play(); if (p) p.catch(() => {});
+    } else {
+      lbVid.pause();
+      lbVid.removeAttribute('src');
+      lbVid.style.display = 'none';
+      lbImg.style.display = '';
+      lbImg.onerror = () => lbFig.classList.add('is-missing');
+      lbImg.src = m.src;
+      lbImg.alt = `Realizacja Events ${cur + 1}`;
+    }
+    lbCap.textContent = m.cap || '';
+    lbCap.style.display = m.cap ? '' : 'none';
     lbIdx.textContent = pad(cur + 1);
     thumbs.forEach((t, k) => t.classList.toggle('is-on', k === cur));
     if (thumbs[cur]) thumbs[cur].scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
   }
   function lbTick() { if (!lb.matches(':hover')) { next(); renderLb(); } }
   function startLbAuto() { if (reduceMotion) return; stopLbAuto(); lbTimer = setInterval(lbTick, LB_MS); }
-  function stopLbAuto()  { if (lbTimer) { clearInterval(lbTimer); lbTimer = null; } }
+  function stopLbAuto() { if (lbTimer) { clearInterval(lbTimer); lbTimer = null; } }
 
   function openLb(i) {
-    show(i); renderLb();
+    show(i);
+    playFrameVideo(-1);        // ramka pauzuje — lightbox przejmuje odtwarzanie
+    renderLb();
     lb.classList.add('is-open');
     lb.setAttribute('aria-hidden', 'false');
     document.body.classList.add('lb-locked');
@@ -142,8 +190,11 @@ export function initGallery() {
     lb.setAttribute('aria-hidden', 'true');
     document.body.classList.remove('lb-locked');
     stopLbAuto();
+    lbVid.pause();
+    playFrameVideo(cur);       // wróć do grania w ramce
+    armFrame();
   }
-  const lbNext = () => { next(); renderLb(); startLbAuto(); };   // manualna nawigacja resetuje timer
+  const lbNext = () => { next(); renderLb(); startLbAuto(); };
   const lbPrev = () => { prev(); renderLb(); startLbAuto(); };
 
   lb.querySelector('.lb-close').addEventListener('click', closeLb);

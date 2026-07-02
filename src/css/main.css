@@ -776,7 +776,8 @@ body.pong-active #pong-speed {
   transition: opacity 0.8s ease;
 }
 .gal-slide.is-active { opacity: 1; }
-.gal-slide img {
+.gal-slide img,
+.gal-slide video {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -812,7 +813,8 @@ body.pong-active #pong-speed {
   transition: opacity 0.6s ease;
 }
 .page-gallery:hover .gal-tint { opacity: 0; }
-.page-gallery:hover .gal-slide.is-active img { filter: grayscale(0) contrast(1); transform: scale(1.04); }
+.page-gallery:hover .gal-slide.is-active img,
+.page-gallery:hover .gal-slide.is-active video { filter: grayscale(0) contrast(1); transform: scale(1.04); }
 
 /* Narożniki HUD — nad zdjęciem */
 .gal-corner {
@@ -911,7 +913,8 @@ body.pong-active #pong-speed {
   transition: transform 0.35s ease;
 }
 .lightbox.is-open .lb-figure { transform: scale(1); }
-.lb-img {
+.lb-img,
+.lb-video {
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
@@ -1009,6 +1012,7 @@ body.lb-locked { overflow: hidden; }
 }
 .lb-thumbs::-webkit-scrollbar { display: none; }
 .lb-thumb {
+  position: relative;
   flex: 0 0 auto;
   width: 72px;
   height: 44px;
@@ -1020,6 +1024,19 @@ body.lb-locked { overflow: hidden; }
   background: #0c0a1c;
   opacity: 0.5;
   transition: opacity 0.25s ease, border-color 0.25s ease, transform 0.2s ease;
+}
+/* Miniatura wideo — znaczek ▶ */
+.lb-thumb.is-video::after {
+  content: "▶";
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  color: #fff;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
+  pointer-events: none;
 }
 .lb-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .lb-thumb.is-missing::after {

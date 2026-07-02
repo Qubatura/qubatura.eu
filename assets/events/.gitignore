@@ -1,0 +1,12 @@
+# Do repo idą TYLKO zoptymalizowane pliki webowe (ev-*.webp, ev-v*.mp4, *-poster.webp).
+# Oryginały (HEIC/MOV/JPG/PNG — ciężkie, ~60MB same MOV) zostają lokalnie, poza gitem.
+*.HEIC
+*.heic
+*.MOV
+*.mov
+*.JPG
+*.jpg
+*.JPEG
+*.jpeg
+*.PNG
+*.png
