@@ -1,0 +1,9 @@
+# Do repo idą tylko zoptymalizowane *.webp. Oryginały (JPG itd.) zostają lokalnie.
+*.JPG
+*.jpg
+*.JPEG
+*.jpeg
+*.PNG
+*.png
+*.HEIC
+*.heic

@@ -26,7 +26,7 @@
         referrerpolicy="no-referrer">
 
   <!-- CSS -->
-  <link rel="stylesheet" href="css/main.css?v=20260702i">
+  <link rel="stylesheet" href="css/main.css?v=20260702j">
 
   <!-- Three.js via CDN importmap -->
   <script type="importmap">
@@ -327,6 +327,16 @@
       </div>
     </section>
 
+    <!-- Studio — „ożywiony monitor": pulsujący hotspot nad środkowym ekranem konsolety (w tle).
+         Pozycję liczy studio.js z geometrii tła (cover). Nic nie zdradza — tylko puls kusi;
+         hover = narożniki HUD + glif „rozwiń"; klik → realizacje z podpisem i linkiem. -->
+    <button class="studio-hotspot" type="button" data-studio-monitor
+            aria-label="Zajrzyj do studia — realizacje">
+      <span class="sh-corner tl"></span><span class="sh-corner tr"></span>
+      <span class="sh-corner bl"></span><span class="sh-corner br"></span>
+      <span class="sh-cue" aria-hidden="true">⤢</span>
+    </button>
+
     <!-- Lab: „Oprogramowanie audio" — system kafelek jak Studio („Posłuchaj produkcji").
          Dziecko #page (nie artykułu). Karta 1 = Event Player (guzik → podstrona produktu),
          karta 2 = pusta (TBD). Widoczne tylko na Lab. -->
@@ -376,6 +386,20 @@
     <div class="lb-count" aria-hidden="true"><b class="lb-idx">01</b> / <span class="lb-total">06</span></div>
     <!-- Pasek miniaturek — klik = skok, przewijalny (buduje gallery.js) -->
     <div class="lb-thumbs" aria-label="Miniatury"></div>
+  </div>
+
+  <!-- Lightbox Studio (smaczek monitora) — realizacje z podpisem + linkiem; sterowanie studio.js -->
+  <div id="studio-lightbox" class="lightbox" role="dialog" aria-modal="true"
+       aria-label="Realizacje studia" aria-hidden="true">
+    <button class="lb-close" type="button" aria-label="Zamknij podgląd">×</button>
+    <button class="lb-nav lb-prev" type="button" aria-label="Poprzednie">‹</button>
+    <figure class="lb-figure">
+      <img class="lb-img" alt="">
+      <figcaption class="lb-cap"></figcaption>
+      <a class="lb-link" target="_blank" rel="noopener"></a>
+    </figure>
+    <button class="lb-nav lb-next" type="button" aria-label="Następne">›</button>
+    <div class="lb-count" aria-hidden="true"><b class="lb-idx">01</b> / <span class="lb-total">02</span></div>
   </div>
 
   <!-- Podstrona produktu (Lab → Event Player) — placeholder na trailer + opis; sterowanie lab.js -->
@@ -493,7 +517,7 @@
     });
   </script>
 
-  <script type="module" src="js/main.js?v=20260702i"></script>
+  <script type="module" src="js/main.js?v=20260702j"></script>
 
 </body>
 </html>

@@ -1,0 +1,95 @@
+// studio.js — Studio „ożywiony monitor": pulsujący hotspot nad środkowym ekranem konsolety w tle.
+// Nie zdradza treści (tylko puls kusi); hover = narożniki HUD + glif; klik → lightbox z realizacjami
+// (podpis + link). Hotspot pozycjonowany z GEOMETRII TŁA (background cover) → trzyma się ekranu na
+// każdej szerokości okna. Desktop-only smaczek (na mobile ukryty).
+
+const SHOTS = [
+  {
+    src: '../assets/studio/st-01.webp',
+    cap: '2023 — prace nad audiobookiem „Valentino Rossi. Biografia" · czyta Mateusz Kapusta',
+    link: 'https://audioteka.com/pl/audiobook/valentino-rossi-biografia/',
+    linkLabel: 'Posłuchaj w Audiotece →',
+  },
+  {
+    src: '../assets/studio/st-02.webp',
+    cap: '2026 — przygotowania do sesji nagraniowej · Studio koncertowe Radia Katowice im. Jerzego Haralda',
+    link: 'https://radio.katowice.pl/txt,4,Studio-nagran.html',
+    linkLabel: 'Radio Katowice →',
+  },
+];
+
+// Intrinsic tła dep-studio (16:9) + pozycja środkowego ekranu w OBRAZIE (ułamki 0..1). Do NUDGE.
+const IMG_W = 1920, IMG_H = 1080;
+const HOT = { fx: 0.335, fy: 0.552, fw: 0.135, fh: 0.072 };   // left, top, width, height (ułamki obrazu)
+const pad = n => String(n).padStart(2, '0');
+
+export function initStudioMonitor() {
+  const hot = document.querySelector('[data-studio-monitor]');
+  const lb  = document.getElementById('studio-lightbox');
+  if (!hot || !lb || !SHOTS.length) return;
+
+  const lbImg  = lb.querySelector('.lb-img');
+  const lbCap  = lb.querySelector('.lb-cap');
+  const lbLink = lb.querySelector('.lb-link');
+  const lbIdx  = lb.querySelector('.lb-idx');
+  const lbTot  = lb.querySelector('.lb-total');
+  lbTot.textContent = pad(SHOTS.length);
+
+  let cur = 0;
+
+  // ── Pozycja hotspotu z geometrii tła (cover, wyśrodkowane) ──────────────────
+  function positionHot() {
+    const vw = window.innerWidth, vh = window.innerHeight;
+    const scale = Math.max(vw / IMG_W, vh / IMG_H);   // cover
+    const rw = IMG_W * scale, rh = IMG_H * scale;
+    const ox = (vw - rw) / 2, oy = (vh - rh) / 2;     // center
+    hot.style.left   = (ox + HOT.fx * rw) + 'px';
+    hot.style.top    = (oy + HOT.fy * rh) + 'px';
+    hot.style.width  = (HOT.fw * rw) + 'px';
+    hot.style.height = (HOT.fh * rh) + 'px';
+  }
+  positionHot();
+  window.addEventListener('resize', positionHot);
+
+  // ── Lightbox ────────────────────────────────────────────────────────────────
+  function render() {
+    const s = SHOTS[cur];
+    lbImg.src = s.src;
+    lbImg.alt = s.cap || `Realizacja studia ${cur + 1}`;
+    lbCap.textContent = s.cap || '';
+    lbCap.style.display = s.cap ? '' : 'none';
+    if (s.link) {
+      lbLink.href = s.link;
+      lbLink.textContent = s.linkLabel || 'Zobacz →';
+      lbLink.style.display = '';
+    } else {
+      lbLink.style.display = 'none';
+    }
+    lbIdx.textContent = pad(cur + 1);
+  }
+  const show = i => { cur = (i + SHOTS.length) % SHOTS.length; render(); };
+
+  function open(i) {
+    show(i);
+    lb.classList.add('is-open');
+    lb.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('lb-locked');
+  }
+  function close() {
+    lb.classList.remove('is-open');
+    lb.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('lb-locked');
+  }
+
+  hot.addEventListener('click', () => open(0));
+  lb.querySelector('.lb-close').addEventListener('click', close);
+  lb.querySelector('.lb-next').addEventListener('click', e => { e.stopPropagation(); show(cur + 1); });
+  lb.querySelector('.lb-prev').addEventListener('click', e => { e.stopPropagation(); show(cur - 1); });
+  lb.addEventListener('click', e => { if (e.target === lb) close(); });
+  window.addEventListener('keydown', e => {
+    if (!lb.classList.contains('is-open')) return;
+    if (e.key === 'Escape') close();
+    else if (e.key === 'ArrowRight') show(cur + 1);
+    else if (e.key === 'ArrowLeft')  show(cur - 1);
+  });
+}
