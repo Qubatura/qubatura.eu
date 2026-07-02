@@ -26,7 +26,7 @@
         referrerpolicy="no-referrer">
 
   <!-- CSS -->
-  <link rel="stylesheet" href="css/main.css?v=20260702c">
+  <link rel="stylesheet" href="css/main.css?v=20260702d">
 
   <!-- Three.js via CDN importmap -->
   <script type="importmap">
@@ -327,17 +327,33 @@
       </div>
     </section>
 
-    <!-- Galeria realizacji (Events) — placeholder, sama ramka HUD bez zdjęć.
-         Dziecko #page (nie artykułu) — GSAP transform na artykule nie psuje pozycji. -->
-    <div class="page-gallery" aria-hidden="true">
+    <!-- Galeria realizacji (Events) — slideshow duotone→kolor, autoplay, licznik+kropki, klik→lightbox.
+         Slajdy i kropki wstrzykuje gallery.js. Dziecko #page (nie artykułu) — GSAP transform na
+         artykule nie psuje pozycji. -->
+    <div class="page-gallery" data-gallery role="button" tabindex="0"
+         aria-label="Realizacje Events — galeria zdjęć, kliknij aby powiększyć">
       <span class="gal-corner tl"></span><span class="gal-corner tr"></span>
       <span class="gal-corner bl"></span><span class="gal-corner br"></span>
-      <div class="gal-inner">
-        <p class="gal-title">Realizacje</p>
-        <p class="gal-sub">[ Zdjęcia ]</p>
-      </div>
+      <div class="gal-stage"></div>
+      <div class="gal-tint" aria-hidden="true"></div>
+      <div class="gal-hud" aria-hidden="true"><b class="gal-idx">01</b> / <span class="gal-total">06</span></div>
+      <div class="gal-dots" aria-hidden="true"></div>
+      <span class="gal-cta" aria-hidden="true">Kliknij, aby powiększyć</span>
     </div>
   </main>
+
+  <!-- Lightbox galerii (Events) — prawie pełnoekranowy podgląd; sterowanie w gallery.js. -->
+  <div id="lightbox" class="lightbox" role="dialog" aria-modal="true"
+       aria-label="Podgląd realizacji" aria-hidden="true">
+    <button class="lb-close" type="button" aria-label="Zamknij podgląd">×</button>
+    <button class="lb-nav lb-prev" type="button" aria-label="Poprzednie zdjęcie">‹</button>
+    <figure class="lb-figure">
+      <img class="lb-img" alt="">
+      <figcaption class="lb-cap"></figcaption>
+    </figure>
+    <button class="lb-nav lb-next" type="button" aria-label="Następne zdjęcie">›</button>
+    <div class="lb-count" aria-hidden="true"><b class="lb-idx">01</b> / <span class="lb-total">06</span></div>
+  </div>
 
   <!-- Pong easter egg overlay — canvas 2D nad sceną Three.js -->
   <div id="pong-overlay" aria-hidden="true">
@@ -441,7 +457,7 @@
     });
   </script>
 
-  <script type="module" src="js/main.js?v=20260702c"></script>
+  <script type="module" src="js/main.js?v=20260702d"></script>
 
 </body>
 </html>

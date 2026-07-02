@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { sceneFX } from './tint.js?v=20260702c';
+import { sceneFX } from './tint.js?v=20260702d';
 
 let renderer, scene, camera, clock, renderTarget;
 const tickCallbacks = [];
