@@ -107,8 +107,10 @@ export function initNavigation() {
         { tugX: dir.x * TUG, tugY: dir.y * TUG, duration: 1.6, ease: 'sine.inOut' });
 
       // Cykliczny zwrot „głowy" sygnetu (tug = pozycja; nudge = obrót — dwa osobne kanały).
-      // Amplituda 0.25→0.30 / 0.18→0.20: zwrot czytelny ponad idle-sway (±0.35).
-      startNudge(dir.x * 0.30, -dir.y * 0.20);
+      // A2 (2026-07-01): amplituda 0.30→0.55 / 0.20→0.40. Sam wzrost nie wystarczał (idle-sway
+      // realnie ±0.51, nie ±0.35 jak zakładał stary komentarz) — dlatego signet.js dodatkowo
+      // TŁUMI idle przy hoverze (idleDamp). Razem: wyraźny, pewny zwrot ku dywizji na każdym dziale.
+      startNudge(dir.x * 0.55, -dir.y * 0.40);
 
       // Heartbeat — szybki „sygnał": puls skali + eksplozja glow → opadanie (bez ruchu kierunkowego)
       if (beat) beat.kill();
@@ -148,7 +150,7 @@ export function initNavigation() {
     if (pongEl) {
       pongEl.addEventListener('mouseenter', () => {
         if (document.body.classList.contains('page-active')) return;
-        startNudge(0, -0.22);   // Q-PONG jest u góry → sygnet patrzy w górę (spójne z dz. 0.20)
+        startNudge(0, -0.40);   // Q-PONG jest u góry → sygnet patrzy w górę (spójne z dz. 0.40)
       });
       pongEl.addEventListener('mouseleave', () => stopNudge());
     }

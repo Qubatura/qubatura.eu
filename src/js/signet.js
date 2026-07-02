@@ -140,7 +140,9 @@ export async function initSignet(ctx) {
     // centrum daje STRUKTURĘ/głębię zamiast płaskiej mlecznej tafli. Na mobile refr=ciemne niebo,
     // więc mix podnosi środek do nasyconego primary (nie czerni). Trochę niżej niż desktop (0.55),
     // bo tło ciemne — mocniejszy mix zbytnio by przygasił. Zastępuje rolę ściętego uBaseFill.
-    uFillDensity:       { value: 0.72 },   // 1:1 (było mobile 0.42)
+    // A1 (2026-07-01): 0.72→0.82 — gęstszy, mocniejszy kolor płynu (Kuba: „gęsty mocny kolor",
+    // NIE o jasność). Nasycony primary przykrywa więcej refrakcji w centrum = mniej bieli.
+    uFillDensity:       { value: 0.82 },   // 1:1 (było mobile 0.42)
     // EKSPERYMENT „szyba + płyn w środku" (2026-07-01, desktop; mobile=0 = bez zmian):
     // uFrontGlass — wąska, chłodna smuga refleksu szklanej tafli NA FRONCIE (nie matowa zasłona);
     // uInnerDepth — parallax płynu „w głąb" (opal przesuwa się z kątem patrzenia = wygląda za szybą).
@@ -286,7 +288,10 @@ export async function initSignet(ctx) {
         float opal   = 0.5 + 0.5 * swirl1 * swirl2;                 // 0..1 ruchoma substancja
         // C6: jasny koniec iryzacji SCHŁODZONY (0.55,0.45→0.42,0.38) — ciepły fiolet czytał się
         // różowo na froncie (gdzie opal dominuje przy uOpal↑); bliżej primary = mniej różu.
-        vec3  opalCol = mix(cPrimary, vec3(0.42, 0.38, 1.0), opal); // refleksy w primary/jasny fiolet
+        // A1 (2026-07-01): jasny koniec iryzacji NASYCONY (0.42,0.38→0.26,0.16) — to był główny
+        // „rozbielacz" samego płynu (mało nasycony błękit). Głębszy fiolet = gęsty, mocny kolor
+        // cieczy zamiast mlecznej bieli; jasność bez zmian (to tylko odcień refleksów opalu).
+        vec3  opalCol = mix(cPrimary, vec3(0.26, 0.16, 1.0), opal); // refleksy w nasyconym fiolecie
         // Widoczna w głębi bryły (niski fresnel); gaśnie z colorAmt → podczas loadingu
         // wlewa się wraz z „nasiąkaniem" szkła, w trybie czystego szkła ustępuje refrakcji.
         // Wolny PULS całej opalescencji (2026-06-30) — „tam jest energia": płyn lekko pulsuje
@@ -477,6 +482,11 @@ export async function initSignet(ctx) {
   updateMobileShift();
   window.addEventListener('resize', updateMobileShift);
 
+  // A1 (2026-07-01): delikatne OBNIŻENIE sygnetu na desktopie (Kuba: „patrzeć na stosunek do tła,
+  // sygnet delikatnie niżej"). Tylko desktop — na mobile mobileYShift już go podnosi nad tacę nav.
+  let baseYOffset = window.innerWidth > 768 ? -7 : 0;
+  window.addEventListener('resize', () => { baseYOffset = window.innerWidth > 768 ? -7 : 0; });
+
   onTick((_dt, elapsed) => {
     uniforms.time.value = elapsed;
 
@@ -495,12 +505,18 @@ export async function initSignet(ctx) {
     const baseRotY = loadFX.active
       ? idleRotY * (1 - loadFX.spinWeight) + loadFX.spin * loadFX.spinWeight
       : idleRotY;
+    // A2 (2026-07-01): przy hoverze działu TŁUMIMY idle-sway proporcjonalnie do intensity.
+    // Idle rotacja Y sięga ±0.51 rad (suma 3 sinusów) i przebijała zwrot ku działowi (±0.30)
+    // → sygnet „patrzył bokiem"/w złą stronę. Teraz przy pełnym hoverze idle spada do 40%,
+    // a wzmocniony nudge (navigation.js) dominuje → sygnet PEWNIE zwraca się ku dywizji.
+    // Loading: intensity=0 (brak hoveru) → idleDamp=1, obrót ładowania nietknięty.
+    const idleDamp = 1 - navFX.intensity * 0.6;
     // nudgeRotY/X: cykliczny impuls obrotu ku dywizji (navigation.js GSAP yoyo)
-    pivot.rotation.y = baseRotY + navFX.nudgeRotY;
-    // Przechył góra-dół (~0.22)
-    pivot.rotation.x = Math.sin(t * 0.17 + 0.6)  * 0.10
-                     + Math.sin(t * 0.283 + 2.9) * 0.07
-                     + Math.sin(t * 0.119 + 5.2) * 0.05
+    pivot.rotation.y = baseRotY * idleDamp + navFX.nudgeRotY;
+    // Przechył góra-dół (~0.22 idle) — też tłumiony przy hoverze, by zwrot ku Lab (dół) był czytelny
+    pivot.rotation.x = (Math.sin(t * 0.17 + 0.6)  * 0.10
+                     +  Math.sin(t * 0.283 + 2.9) * 0.07
+                     +  Math.sin(t * 0.119 + 5.2) * 0.05) * idleDamp
                      + navFX.nudgeRotX;
     // Subtelny roll (~0.057)
     pivot.rotation.z = Math.sin(t * 0.093 + 3.3) * 0.035
@@ -510,7 +526,7 @@ export async function initSignet(ctx) {
     // + navFX.tug = przeskok „jakby go pociągnęło" w stronę działu (heartbeat)
     // mobileYShift — na mobile przesuwa sygnet w górę, żeby nie siedział za nisko nad tacą nav
     pivot.position.x = navFX.tugX + navFX.pageX;
-    pivot.position.y = mobileYShift
+    pivot.position.y = mobileYShift + baseYOffset
                      + Math.sin(t * 0.6)         * 2.2
                      + Math.sin(t * 0.41 + 2.2)  * 0.9
                      + Math.sin(t * 0.83 + 5.0)  * 0.4

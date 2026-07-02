@@ -982,7 +982,55 @@ body.pong-active #pong-speed {
 }
 
 @media (max-width: 768px) {
-  .studio-players { display: none !important; }   /* mobile: layout playerów = osobny etap */
+  /* B2 (2026-07-01) — Studio na mobile: hero + playery w JEDNEJ przewijanej kolumnie.
+     Wcześniej playery były ukryte (display:none) → materiały niedostępne z telefonu.
+     Zasada UX: hero nie zajmuje pełnego ekranu — pierwsza karta „wystaje" nad zgięciem
+     (+ cue ▽ pod CTA), więc od razu widać, że jest co przewijać (dostęp = prosty). */
+  #page[data-division="studio"] {
+    flex-direction: column;               /* stack: hero → playery (domyślnie #page = flex row) */
+    align-items: stretch;
+    justify-content: flex-start;          /* treść od góry, nie wyśrodkowana → przewijanie ma sens */
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;    /* płynny scroll iOS */
+  }
+  /* Hero skompaktowany — mniejsze marginesy, tak by peek pierwszej karty łapał się w 1. ekranie */
+  #page[data-division="studio"] .page-view {
+    flex: 0 0 auto;
+    padding-top: calc(env(safe-area-inset-top, 0px) + 88px);   /* pod lockupem w rogu */
+    padding-bottom: 8px;
+  }
+  #page[data-division="studio"] .page-lead     { margin-bottom: 18px; }
+  #page[data-division="studio"] .page-services { margin-bottom: 22px; }
+  /* Cue scrolla — subtelny, migający „▽ Posłuchaj produkcji" pod CTA */
+  #page[data-division="studio"] .page-view::after {
+    content: "Posłuchaj produkcji  ▽";
+    display: block;
+    margin-top: 20px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: color-mix(in srgb, var(--pg-color, #1E90FF) 78%, white 12%);
+    animation: studioScrollHint 1.9s ease-in-out infinite;
+  }
+  @keyframes studioScrollHint {
+    0%, 100% { transform: translateY(0);   opacity: 0.45; }
+    50%      { transform: translateY(3px); opacity: 0.9;  }
+  }
+  /* Playery: z absolutnego bloku (desktop) → normalny przepływ w kolumnie, pełna szerokość */
+  #page[data-division="studio"] .studio-players {
+    display: block;
+    position: static;
+    top: auto;
+    right: auto;
+    width: auto;
+    padding: 0 6vw;
+    /* dół: nad tacą nawigacji (3×64px + odstępy ≈ 216px) + safe-area, by ostatnia karta nie chowała się pod nią */
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 236px);
+  }
+  #page[data-division="studio"] .pl-grid {
+    grid-template-columns: 1fr;           /* jedna kolumna — karty stackowane, łatwe do trafienia kciukiem */
+  }
 }
 
 /* ── Logo + powrót — JEDEN element nawigacyjny (lewy górny róg) ──────────────
