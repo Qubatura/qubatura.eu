@@ -9,19 +9,19 @@
 //   Etap 7: navigation.js   — directional nav tint integration
 //   Etap 10: router.js      — SPA History API + GSAP transitions
 
-import { initScene, startLoop } from './scene.js?v=20260702e';
-import { initParallax }         from './parallax.js?v=20260702e';
-import { initAtmosphere }       from './atmosphere.js?v=20260702e';
-import { initFireflies }        from './fireflies.js?v=20260702e';
-import { initSignet }           from './signet.js?v=20260702e';
-import { initNavigation }       from './navigation.js?v=20260702e';
-import { initRouter }           from './router.js?v=20260702e';
-import { initPlayers }          from './players.js?v=20260702e';   // Część 2: playery audio (Studio)
-import { initCursor }           from './cursor.js?v=20260702e';
-import { initContact }          from './contact.js?v=20260702e';
-import { initLoader }           from './loader.js?v=20260702e';   // Etap 9: loading screen
-import { initPong }             from './pong.js?v=20260702e';     // Easter egg: Chwila relaksu
-import { initGallery }          from './gallery.js?v=20260702e';              // Events: galeria realizacji + lightbox
+import { initScene, startLoop } from './scene.js?v=20260702f';
+import { initParallax }         from './parallax.js?v=20260702f';
+import { initAtmosphere }       from './atmosphere.js?v=20260702f';
+import { initFireflies }        from './fireflies.js?v=20260702f';
+import { initSignet }           from './signet.js?v=20260702f';
+import { initNavigation }       from './navigation.js?v=20260702f';
+import { initRouter }           from './router.js?v=20260702f';
+import { initPlayers }          from './players.js?v=20260702f';   // Część 2: playery audio (Studio)
+import { initCursor }           from './cursor.js?v=20260702f';
+import { initContact }          from './contact.js?v=20260702f';
+import { initLoader }           from './loader.js?v=20260702f';   // Etap 9: loading screen
+import { initPong }             from './pong.js?v=20260702f';     // Easter egg: Chwila relaksu
+import { initGallery }          from './gallery.js?v=20260702f';              // Events: galeria realizacji + lightbox
 
 async function boot() {
   initCursor();                 // własna kulka kursora — od razu aktywna

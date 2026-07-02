@@ -1742,7 +1742,9 @@ body.page-active #tagline {
   }
   .home-dept {
     flex-basis: 100%;        /* własna linia pod strzałką+lockupem */
-    padding-left: 0;
+    /* Opcja 1 (Kuba): napis zaczyna się DOKŁADNIE tam gdzie hero (6vw od lewej), nie pod strzałką.
+       #page-home ma left:2.6% (=2.6vw) + padding-left 8px → dopychamy do 6vw. */
+    padding-left: calc(6vw - 2.6vw - 8px);
     border-left: none;       /* zdejmij pionowy separator (dla układu poziomego) */
     margin-top: 1px;
   }
