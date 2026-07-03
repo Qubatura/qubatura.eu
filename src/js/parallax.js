@@ -15,7 +15,7 @@
 // widoczny baner (#motion-prompt). Gdy zgody brak / czujnik nieobecny / odmowa → touch-drag,
 // więc scena NIGDY nie jest w pełni statyczna. ?debug w URL → HUD z żywym gamma/beta + stanem.
 
-import { onTick } from './scene.js?v=mr4ra2a3';
+import { onTick } from './scene.js?v=mr4s7ouo';
 
 // ─── Konfiguracja ─────────────────────────────────────────────────────────────
 

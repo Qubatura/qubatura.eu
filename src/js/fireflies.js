@@ -2,8 +2,8 @@
 // Glow sprite, 3D lot (z głębią), puls 50-100%, nieregularna prędkość, cel = etykieta działu.
 
 import * as THREE from 'three';
-import { onTick } from './scene.js?v=mr4ra2a3';
-import { navFX, DIVISION_COLORS, loadFX } from './tint.js?v=mr4ra2a3';
+import { onTick } from './scene.js?v=mr4s7ouo';
+import { navFX, DIVISION_COLORS, loadFX } from './tint.js?v=mr4s7ouo';
 
 // ── Konfiguracja ──────────────────────────────────────────────────────────────
 const MAX_SPD   = 58;    // wu/s XY
@@ -301,9 +301,10 @@ export function initFireflies(ctx) {
     }
 
     const divCol = DIVISION_COLORS[activeDiv] ?? IDLE_COL;
-    // Bloom po zakończeniu loadera — szybszy na mobile żeby od razu widać było efekt
-    const bloomRate = window.innerWidth <= 768 ? 0.90 : 0.70;
-    if (!loadFX.active) ffReveal = Math.min(1, ffReveal + delta * bloomRate);
+    // Bloom wplata się w moment wjazdu nawigacji (loadFX.revealed), ŁAGODNIE — wolne narastanie
+    // (~3s), żeby świetliki wpłynęły powoli, nie skoczyły na końcu 3.2s osiadania sygnetu.
+    const bloomRate = window.innerWidth <= 768 ? 0.42 : 0.32;
+    if (loadFX.revealed) ffReveal = Math.min(1, ffReveal + delta * bloomRate);
 
     for (let i = 0; i < POOL; i++) {
       const ff = pool[i];

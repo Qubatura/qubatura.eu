@@ -11,9 +11,9 @@
 //   (nav/topbar/tagline) wjeżdża DOPIERO TERAZ (po fontach) staggerem.
 
 import * as GSAPmod from 'gsap';
-import { onTick } from './scene.js?v=mr4ra2a3';
-import { loadFX, sceneFX } from './tint.js?v=mr4ra2a3';
-import { playNavIntro } from './nav-intro.js?v=mr4ra2a3';
+import { onTick } from './scene.js?v=mr4s7ouo';
+import { loadFX, sceneFX } from './tint.js?v=mr4s7ouo';
+import { playNavIntro } from './nav-intro.js?v=mr4s7ouo';
 
 const gsap = GSAPmod.gsap || GSAPmod.default || GSAPmod;
 
@@ -31,6 +31,7 @@ export function initLoader(promises) {
   const pct     = document.getElementById('loading-pct');
 
   loadFX.active = true;
+  loadFX.revealed = false;         // świetliki milczą w loadingu; bloom rusza dopiero na wjeździe nav
   loadFX.ramping = true;
   loadFX.progress = 0;
   loadFX.target = 0;
@@ -105,6 +106,7 @@ function finish(loading) {
       sceneFX.fog = 1;
       sceneFX.planet = 1;
       document.body.classList.remove('is-loading');
+      loadFX.revealed = true;                          // pewnik (gdyby coś przerwało timeline)
       gsap.set(chrome, { clearProps: 'opacity' });     // oddaj kontrolę CSS-owi
       if (loading) loading.style.display = 'none';
     },
@@ -133,4 +135,7 @@ function finish(loading) {
   // Wołane w SZCZYCIE ruchu sygnetu „do nas" (scale 1.07 @ t=0) → pierścień/plusk jest jego skutkiem;
   // linie/napisy dochodzą później (LINE_START w nav-intro.js).
   if (!isMobile) tl.call(playNavIntro, null, 0.05);
+
+  // Świetliki: bloom rusza TU (razem z wjazdem nav), łagodnie — nie skokowo na końcu osiadania (3.2s).
+  tl.call(() => { loadFX.revealed = true; }, null, 0.55);
 }

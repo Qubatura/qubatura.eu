@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { SVGLoader } from 'three/addons/loaders/SVGLoader.js';
-import { onTick } from './scene.js?v=mr4ra2a3';
+import { onTick } from './scene.js?v=mr4s7ouo';
 
 // Alternatywna wersja sygnetu — czysty hologram (wireframe), bez bryły i refrakcji.
 // EdgesGeometry z płaskiej ShapeGeometry (nie ExtrudeGeometry) → kontury SVG jako linie.

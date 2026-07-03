@@ -51,6 +51,8 @@ export const loadFX = {
   spinWeight: 0,     // 0..1 — ile obrotu vs idle (1 w loadingu, →0 przy osiadaniu w HOME)
   scale:      1,     // mnożnik skali — krok ku kamerze przy whipie finałowym
   charge:     1,     // 0..1 — „wlewanie koloru": 0 = czyste szkło, 1 = pełny primary (= progress)
+  revealed:   true,  // true = świetliki mogą się rozjaśniać (bloom). Loader ustawia false na start,
+                     // a true W MOMENCIE wjazdu nawigacji (nie na końcu 3.2s osiadania) → bez późnego popu.
 };
 
 // Bramki ujawniania sceny — etapowe (pkt 4). W normalnej pracy oba = 1.
