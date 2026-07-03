@@ -242,6 +242,72 @@ body.is-loading #tagline {
   to   { transform: scaleY(1.4); }
 }
 
+/* ── Mini player muzyczny (TYLKO HOME) ──────────────────────────────
+   Organicznie: same znaki na tle strony (bez ramki/frostu — spójnie z headerem), Space Mono,
+   ciemne halo dla czytelności nad sceną. Rolka: numer środek = akcent, boki małe/przygaszone. */
+#music-player {
+  position: absolute;
+  top: 54px;                     /* pod klastrem headera (#top-right top:28px) */
+  right: 40px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  pointer-events: all;
+  font-family: var(--font-mono);
+  transition: opacity 0.45s ease;
+}
+/* Znika CAŁKOWICIE na podstronach (toggle w topbarze dalej steruje dźwiękiem). */
+body.page-active #music-player { opacity: 0; pointer-events: none; }
+
+.mp-arrow {                      /* strzałki jak w galerii — same chevrony, bez kółek */
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-size: 19px;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.4);
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.75);
+  transition: color 0.3s ease, transform 0.2s ease;
+}
+.mp-arrow:hover { color: #fff; }
+.mp-prev:hover { transform: translateX(-2px); }
+.mp-next:hover { transform: translateX(2px); }
+
+.mp-reel {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  justify-content: center;
+  min-width: 58px;               /* stabilna szerokość — rolka nie skacze */
+  will-change: transform, opacity;
+}
+.mp-num {
+  font-weight: 700;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8);   /* halo — czytelność nad ruchomą sceną */
+  -webkit-user-select: none;
+  user-select: none;
+}
+.mp-side {                        /* boki — małe, przygaszone (szept „jest więcej") */
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.26);
+}
+.mp-cur {                         /* środek — akcent (primary; magenta-gdy-gra = opcja na później) */
+  font-size: 15px;
+  letter-spacing: 0.04em;
+  color: var(--color-primary);
+}
+.mp-title {
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8);
+  padding-left: 12px;
+  border-left: 1px solid rgba(255, 255, 255, 0.14);
+  white-space: nowrap;
+}
+
 /* ── Directional Navigation ─────────────────────────────────────── */
 #nav {
   position: fixed;

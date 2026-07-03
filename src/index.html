@@ -26,7 +26,7 @@
         referrerpolicy="no-referrer">
 
   <!-- CSS -->
-  <link rel="stylesheet" href="css/main.css?v=mr4sj9xg">
+  <link rel="stylesheet" href="css/main.css?v=mr4tr9aa">
 
   <!-- Three.js via CDN importmap -->
   <script type="importmap">
@@ -109,6 +109,19 @@
           <span style="height:5px"></span>
         </div>
       </button>
+    </div>
+
+    <!-- Mini player muzyczny (TYLKO HOME) — rolka numerów + tytuł, organicznie, spięty z waveform.
+         Numery i tytuł wypełnia player.js; znika na podstronach (body.page-active). -->
+    <div id="music-player" aria-label="Odtwarzacz muzyki Qubatura">
+      <button class="mp-arrow mp-prev" type="button" aria-label="Poprzedni utwór">‹</button>
+      <div class="mp-reel" aria-hidden="true">
+        <span class="mp-num mp-side mp-prev-n"></span>
+        <span class="mp-num mp-cur"></span>
+        <span class="mp-num mp-side mp-next-n"></span>
+      </div>
+      <button class="mp-arrow mp-next" type="button" aria-label="Następny utwór">›</button>
+      <span class="mp-title" aria-live="polite"></span>
     </div>
   </header>
 
@@ -522,7 +535,7 @@
     });
   </script>
 
-  <script type="module" src="js/main.js?v=mr4sj9xg"></script>
+  <script type="module" src="js/main.js?v=mr4tr9aa"></script>
 
 </body>
 </html>
