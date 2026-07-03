@@ -11,9 +11,9 @@
 //   (nav/topbar/tagline) wjeżdża DOPIERO TERAZ (po fontach) staggerem.
 
 import * as GSAPmod from 'gsap';
-import { onTick } from './scene.js?v=mr4qcwm5';
-import { loadFX, sceneFX } from './tint.js?v=mr4qcwm5';
-import { playNavIntro } from './nav-intro.js?v=mr4qcwm5';
+import { onTick } from './scene.js?v=mr4ra2a3';
+import { loadFX, sceneFX } from './tint.js?v=mr4ra2a3';
+import { playNavIntro } from './nav-intro.js?v=mr4ra2a3';
 
 const gsap = GSAPmod.gsap || GSAPmod.default || GSAPmod;
 
@@ -129,6 +129,8 @@ function finish(loading) {
   // UI (topbar/tagline — na desktopie; +karty na mobile) — DOPIERO TERAZ (po fontach), staggerem
     .to(chrome, { opacity: 1, duration: 0.5, ease: 'power2.out', stagger: 0.10 }, 0.6);
 
-  // Desktop: nawigacja wchodzi choreografią „głowicy energii" (raz, tu — konsekwencja ładowania).
-  if (!isMobile) tl.call(playNavIntro, null, 0.6);
+  // Desktop: nawigacja wchodzi choreografią „głowicy energii" (raz — konsekwencja ładowania).
+  // Wołane w SZCZYCIE ruchu sygnetu „do nas" (scale 1.07 @ t=0) → pierścień/plusk jest jego skutkiem;
+  // linie/napisy dochodzą później (LINE_START w nav-intro.js).
+  if (!isMobile) tl.call(playNavIntro, null, 0.05);
 }

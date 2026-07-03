@@ -11,7 +11,8 @@ const gsap = GSAPmod.gsap || GSAPmod.default || GSAPmod;
 const cssVar = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 const REST_LABEL = 'rgba(255,255,255,0.92)';   // spoczynkowy kolor .nav-label
 const DRAW  = 0.55;   // czas rośnięcia linii
-const LABEL = 0.5;    // czas wejścia napisu
+const LABEL = 0.85;   // czas wejścia napisu — DŁUŻSZE przejście blur-to-sharp (dostojniej)
+const LINE_START = 0.45;   // linie startują DOPIERO po plusku pierścienia (przyczyna→skutek)
 
 export function playNavIntro() {
   const nav = document.getElementById('nav');
@@ -59,18 +60,19 @@ export function playNavIntro() {
     },
   });
 
-  // IMPULS — pierścień emitowany z sygnetu (flash). GSAP trzyma centrowanie (xPercent/yPercent).
+  // IMPULS — pierścień/plusk emitowany z sygnetu, JAKO SKUTEK jego ruchu „do nas" (loader.finish
+   // woła intro w szczycie tego ruchu → pierścień wskakuje od razu, jak fala na wodzie).
   if (pulse) {
     gsap.set(pulse, { xPercent: -50, yPercent: -50, scale: 0.25, opacity: 0 });
     tl.to(pulse, { opacity: 0.8, duration: 0.12, ease: 'power2.out' }, 0)
       .to(pulse, { scale: 2.5, opacity: 0, duration: 0.8, ease: 'power2.out' }, 0.06);
   }
 
-  // Linie wyrastają + napisy dobijają
+  // Linie wyrastają (po plusku) + napisy dobijają
   arms.forEach(a => {
     const line = q(`${a.sel} .nav-line`);
     const label = q(`${a.sel} .nav-label`);
-    const s = 0.18 + a.t;   // start: Events/Studio ~0.18s, Lab +0.2s
+    const s = LINE_START + a.t;   // Events/Studio po plusku, Lab +0.2s
     if (line) {
       tl.fromTo(line,
         { [a.axis]: 0, boxShadow: `0 0 9px ${a.color}, 0 0 18px ${a.color}` },
