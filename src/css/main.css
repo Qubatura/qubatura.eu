@@ -726,6 +726,8 @@ body.pong-active #pong-speed {
   box-shadow: 0 0 8px var(--pg-color, var(--color-primary));
 }
 
+/* Guzik CTA — język „szkiełka" 1:1 z playerami Studio (.pl-card): frost + gradient + glow obrysu.
+   var(--pg-color) sam dobiera kolor działu, więc spójny na Events/Studio/Lab. */
 .page-cta {
   display: inline-block;
   font-family: var(--font-mono);
@@ -734,16 +736,28 @@ body.pong-active #pong-speed {
   text-transform: uppercase;
   text-decoration: none;
   color: var(--pg-color, var(--color-primary));
-  border: 1px solid color-mix(in srgb, var(--pg-color) 45%, transparent);
   padding: 14px 22px;
   cursor: pointer;
-  transition: background 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid color-mix(in srgb, var(--pg-color) 22%, transparent);
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--pg-color) 8%, transparent),
+    rgba(6, 5, 15, 0.22));
+  box-shadow:
+    0 0 16px color-mix(in srgb, var(--pg-color) 10%, transparent),
+    inset 0 0 18px color-mix(in srgb, var(--pg-color) 4%, transparent);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transition: border-color 0.35s ease, background 0.35s ease, box-shadow 0.35s ease, color 0.35s ease, transform 0.35s ease;
 }
 
 .page-cta:hover {
   color: var(--color-white);
-  background: color-mix(in srgb, var(--pg-color) 16%, transparent);
-  box-shadow: 0 0 24px color-mix(in srgb, var(--pg-color) 40%, transparent);
+  border-color: color-mix(in srgb, var(--pg-color) 60%, transparent);
+  background: color-mix(in srgb, var(--pg-color) 15%, rgba(6, 5, 15, 0.24));
+  box-shadow:
+    0 0 34px color-mix(in srgb, var(--pg-color) 30%, transparent),
+    inset 0 0 26px color-mix(in srgb, var(--pg-color) 9%, transparent);
+  transform: translateY(-2px);
 }
 
 /* ── Galeria realizacji (Events) — slideshow duotone→kolor + lightbox ────────── */
@@ -751,28 +765,28 @@ body.pong-active #pong-speed {
   --gal: #7C3AED;              /* fioletowy event (narożniki + duotone) */
   display: none;              /* widoczna tylko dla Events */
   position: absolute;
-  /* 2026-07-03 (Kuba): większa i top-anchored — górna krawędź ~na wysokości startu hero,
-     rośnie w górę/na boki (~+20%). Wartość top do dostrojenia na oko. */
-  top: 24vh;
+  /* 2026-07-03 (Kuba): top-anchored na wysokości białego hero; pod spodem trafią testimoniale.
+     overflow VISIBLE — kątowniki obejmują kadr od zewnątrz (clip robi .gal-stage). top do nudge. */
+  top: 15vh;
   right: 6vw;
   width: 40vw;
   aspect-ratio: 16 / 9;
   border: 1px solid color-mix(in srgb, var(--gal) 22%, transparent);
   background: rgba(124, 58, 237, 0.04);
-  overflow: hidden;
+  overflow: visible;
   cursor: pointer;
   pointer-events: auto;        /* hover/klik + kulka wykrywa galerię */
   box-shadow: 0 0 30px color-mix(in srgb, var(--gal) 10%, transparent);
 }
 #page[data-division="events"] .page-gallery { display: block; }
 
-/* Slajdy — crossfade (tylko .is-active widoczny) */
-.gal-stage { position: absolute; inset: 0; }
+/* Slajdy — crossfade (tylko .is-active widoczny). Scena clip-uje zdjęcia + zoom hover. */
+.gal-stage { position: absolute; inset: 0; overflow: hidden; }
 .gal-slide {
   position: absolute;
   inset: 0;
   opacity: 0;
-  transition: opacity 0.8s ease;
+  transition: opacity 1.2s ease-in-out;   /* delikatniejszy fade między zdjęciami */
 }
 .gal-slide.is-active { opacity: 1; }
 .gal-slide img,
@@ -806,24 +820,23 @@ body.pong-active #pong-speed {
 .page-gallery:hover .gal-slide.is-active img,
 .page-gallery:hover .gal-slide.is-active video { filter: grayscale(0) contrast(1); transform: scale(1.04); }
 
-/* Celownik — kątowniki po przekątnej (tr + bl), delikatnie pulsujące, kolor działu. Zaznacza
-   zdjęcie i zachęca do kliknięcia bez krzykliwości. tl/br schowane (przekątna wystarczy). */
+/* Celownik — kątowniki po przekątnej (prawa-góra + lewy-dół), OBEJMUJĄ kadr od ZEWNĄTRZ
+   (poza krawędzią, na tle), delikatnie pulsujący glow. tl/br schowane. */
 .gal-corner {
   position: absolute;
   z-index: 4;
-  width: 18px;
-  height: 18px;
+  width: 26px;
+  height: 26px;
   border: 2px solid var(--gal);
-  filter: drop-shadow(0 0 5px var(--gal));
-  animation: galPulse 2.8s ease-in-out infinite;
+  animation: galPulse 2.6s ease-in-out infinite;
 }
 .gal-corner.tl,
 .gal-corner.br { display: none; }
-.gal-corner.tr { top: 8px; right: 8px; border-left: 0;  border-bottom: 0; }
-.gal-corner.bl { bottom: 8px; left: 8px;  border-right: 0; border-top: 0; }
+.gal-corner.tr { top: -9px; right: -9px; border-left: 0;  border-bottom: 0; }
+.gal-corner.bl { bottom: -9px; left: -9px; border-right: 0; border-top: 0; }
 @keyframes galPulse {
-  0%, 100% { opacity: 0.35; }
-  50%      { opacity: 0.9;  }
+  0%, 100% { opacity: 0.4; filter: drop-shadow(0 0 3px var(--gal)); }
+  50%      { opacity: 1;   filter: drop-shadow(0 0 9px var(--gal)); }
 }
 
 /* Strzałki ‹ › w małej ramce — ręczne przewijanie bez otwierania lightboxa (pojawiają się na hover) */
