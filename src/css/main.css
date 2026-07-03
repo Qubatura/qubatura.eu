@@ -801,34 +801,57 @@ body.pong-active #pong-speed {
   color: color-mix(in srgb, var(--gal) 60%, white 20%);
 }
 
-/* Duotone fioletowy — mix-blend recolor; gaśnie na hover → pełny kolor */
-.gal-tint {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  background: var(--gal);
-  mix-blend-mode: color;
-  opacity: 0.5;
-  pointer-events: none;
-  transition: opacity 0.6s ease;
-}
-.page-gallery:hover .gal-tint { opacity: 0; }
+/* B&W domyślnie (grayscale w .gal-slide img) — fiolet zlewał się z tłem; kolor dopiero na hover.
+   .gal-tint wyłączony (zostawiony w HTML, neutralny), żeby zdjęcie było czysto czarno-białe. */
+.gal-tint { display: none; }
 .page-gallery:hover .gal-slide.is-active img,
 .page-gallery:hover .gal-slide.is-active video { filter: grayscale(0) contrast(1); transform: scale(1.04); }
 
-/* Narożniki HUD — nad zdjęciem */
+/* Celownik — pulsujące punkty w rogach zdjęcia (zamiast kątowników) */
 .gal-corner {
   position: absolute;
   z-index: 4;
-  width: 22px;
-  height: 22px;
-  border: 2px solid var(--gal);
-  filter: drop-shadow(0 0 6px var(--gal));
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--gal);
+  box-shadow: 0 0 8px var(--gal), 0 0 2px #fff;
+  animation: galPulse 2.4s ease-in-out infinite;
 }
-.gal-corner.tl { top: -1px; left: -1px;  border-right: 0; border-bottom: 0; }
-.gal-corner.tr { top: -1px; right: -1px; border-left: 0;  border-bottom: 0; }
-.gal-corner.bl { bottom: -1px; left: -1px;  border-right: 0; border-top: 0; }
-.gal-corner.br { bottom: -1px; right: -1px; border-left: 0;  border-top: 0; }
+.gal-corner.tl { top: 9px; left: 9px; }
+.gal-corner.tr { top: 9px; right: 9px; }
+.gal-corner.bl { bottom: 9px; left: 9px; }
+.gal-corner.br { bottom: 9px; right: 9px; }
+@keyframes galPulse {
+  0%, 100% { opacity: 0.35; transform: scale(0.8); }
+  50%      { opacity: 1;    transform: scale(1.2); }
+}
+
+/* Strzałki ‹ › w małej ramce — ręczne przewijanie bez otwierania lightboxa (pojawiają się na hover) */
+.gal-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+  width: 30px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.6);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.7);
+  opacity: 0;
+  transition: opacity 0.3s ease, color 0.3s ease;
+}
+.page-gallery:hover .gal-nav { opacity: 1; }
+.gal-nav:hover { color: #fff; }
+.gal-prev { left: 4px; }
+.gal-next { right: 4px; }
 
 /* Licznik „01 / 06" (prawy górny) */
 .gal-hud {
@@ -891,9 +914,9 @@ body.pong-active #pong-speed {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(6, 5, 15, 0.82);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: rgba(8, 6, 20, 0.30);              /* lekka płyta — scena działu wyraźnie przebija spod spodu */
+  backdrop-filter: blur(48px) brightness(0.82) saturate(1.12);   /* mocno rozmazane tło strony, lekko przyciemnione by litery nie ginęły */
+  -webkit-backdrop-filter: blur(48px) brightness(0.82) saturate(1.12);
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
@@ -913,14 +936,30 @@ body.pong-active #pong-speed {
   transition: transform 0.35s ease;
 }
 .lightbox.is-open .lb-figure { transform: scale(1); }
+/* Ambilight — rozmyta, powiększona kopia zdjęcia pod spodem: „ramka z marginesów zdjęcia",
+   zdjęcie zdaje się wychodzić z tła. Źródło = var(--lb-amb) ustawiany przez JS (gallery.js/studio.js). */
+.lb-figure::before {
+  content: "";
+  position: absolute;
+  inset: -3% -3%;
+  z-index: -1;
+  background-image: var(--lb-amb, none);
+  background-size: cover;
+  background-position: center;
+  filter: blur(46px) saturate(1.35);
+  transform: scale(1.05);
+  opacity: 0.68;
+  border-radius: 18px;
+  pointer-events: none;
+}
 .lb-img,
 .lb-video {
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
   display: block;
-  box-shadow: 0 20px 80px rgba(0, 0, 0, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.35);   /* delikatne osadzenie — poświata robi za ramkę */
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 .lb-figure.is-missing .lb-img { display: none; }
 .lb-figure.is-missing::after {
@@ -943,7 +982,8 @@ body.pong-active #pong-speed {
   font-family: var(--font-mono);
   font-size: 12px;
   letter-spacing: 0.08em;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.72);
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.8);    /* czytelność nad rozmazanym tłem strony */
 }
 .lb-close {
   position: absolute;
@@ -969,16 +1009,18 @@ body.pong-active #pong-speed {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
-  font-size: 34px;
+  font-size: 40px;
   line-height: 1;
-  color: #fff;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.82);
+  background: none;               /* bez kółka — same strzałki */
+  border: none;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.7);   /* czytelność na jasnym zdjęciu */
   cursor: pointer;
-  transition: background 0.3s ease;
+  transition: color 0.3s ease, transform 0.2s ease;
 }
-.lb-nav:hover { background: color-mix(in srgb, #7C3AED 40%, transparent); }
+.lb-nav:hover { color: #fff; }
+.lb-prev:hover { transform: translateY(-50%) translateX(-3px); }
+.lb-next:hover { transform: translateY(-50%) translateX(3px); }
 .lb-prev { left: 3%; }
 .lb-next { right: 3%; }
 .lb-count {
@@ -1190,15 +1232,18 @@ body.lb-locked { overflow: hidden; }
 .studio-hotspot::before {
   content: "";
   position: absolute;
-  inset: -8% -5%;
-  border-radius: 6px;
-  background: radial-gradient(ellipse at center, rgba(30, 144, 255, 0.30), rgba(30, 144, 255, 0) 70%);
-  animation: shPulse 3.6s ease-in-out infinite;
+  inset: -24% -15%;
+  border-radius: 8px;
+  background: radial-gradient(ellipse at center,
+    rgba(130, 200, 255, 0.60),
+    rgba(30, 144, 255, 0.38) 42%,
+    rgba(30, 144, 255, 0) 72%);
+  animation: shPulse 3s ease-in-out infinite;
   pointer-events: none;
 }
 @keyframes shPulse {
-  0%, 100% { opacity: 0.32; transform: scale(0.97); }
-  50%      { opacity: 0.9;  transform: scale(1.03); }
+  0%, 100% { opacity: 0.38; transform: scale(0.94); }
+  50%      { opacity: 1;    transform: scale(1.12); }
 }
 /* Narożniki HUD — na hover (język spójny z nav/Events) */
 .sh-corner {
@@ -1224,14 +1269,14 @@ body.lb-locked { overflow: hidden; }
   justify-content: center;
   font-size: 18px;
   color: #fff;
-  text-shadow: 0 0 8px var(--color-studio, #1E90FF);
-  opacity: 0;
+  text-shadow: 0 0 10px var(--color-studio, #1E90FF);
+  opacity: 0;                                     /* celownik/strzałki dopiero na hover */
   transform: scale(0.8);
   transition: opacity 0.3s ease, transform 0.3s ease;
   pointer-events: none;
 }
 .studio-hotspot:hover .sh-corner { opacity: 1; }
-.studio-hotspot:hover .sh-cue { opacity: 0.92; transform: scale(1); }
+.studio-hotspot:hover .sh-cue { opacity: 0.95; transform: scale(1); }
 .studio-hotspot:hover::before { opacity: 0.95; animation-play-state: paused; }
 
 /* Link pod podpisem w lightboxie (Studio) */

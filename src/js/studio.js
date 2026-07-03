@@ -20,7 +20,7 @@ const SHOTS = [
 
 // Intrinsic tła dep-studio (16:9) + pozycja środkowego ekranu w OBRAZIE (ułamki 0..1). Do NUDGE.
 const IMG_W = 1920, IMG_H = 1080;
-const HOT = { fx: 0.335, fy: 0.552, fw: 0.135, fh: 0.072 };   // left, top, width, height (ułamki obrazu)
+const HOT = { fx: 0.323, fy: 0.569, fw: 0.116, fh: 0.059 };   // left, top, width, height (ułamki obrazu) — lewy ekran (mapa + kula)
 const pad = n => String(n).padStart(2, '0');
 
 export function initStudioMonitor() {
@@ -28,6 +28,7 @@ export function initStudioMonitor() {
   const lb  = document.getElementById('studio-lightbox');
   if (!hot || !lb || !SHOTS.length) return;
 
+  const lbFig  = lb.querySelector('.lb-figure');
   const lbImg  = lb.querySelector('.lb-img');
   const lbCap  = lb.querySelector('.lb-cap');
   const lbLink = lb.querySelector('.lb-link');
@@ -55,6 +56,7 @@ export function initStudioMonitor() {
   function render() {
     const s = SHOTS[cur];
     lbImg.src = s.src;
+    if (lbFig) lbFig.style.setProperty('--lb-amb', `url("${s.src}")`);   // ambilight
     lbImg.alt = s.cap || `Realizacja studia ${cur + 1}`;
     lbCap.textContent = s.cap || '';
     lbCap.style.display = s.cap ? '' : 'none';

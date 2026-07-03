@@ -6,14 +6,14 @@
 // Klik → lightbox: strzałki ‹ ›, klawiatura ←/→/Esc, klik-tło zamyka, autoplay, pasek miniaturek
 // (dla wideo miniatura = poster + znaczek ▶). Placeholder „FOTO 0N" gdy brak pliku zdjęcia.
 
+// Wideo tymczasowo WYWALONE (Kuba: obecne nieprofesjonalne — dorobi porządne krótkie pętle).
+// Kolejność na razie LOSOWANA przy starcie (shuffle w initGallery) — do ustalenia z Kubą.
 const MEDIA = [
   { src: '../assets/events/ev-07.webp' },
   { src: '../assets/events/ev-01.webp' },
-  { type: 'video', src: '../assets/events/ev-v1.mp4', poster: '../assets/events/ev-v1-poster.webp' },
   { src: '../assets/events/ev-02.webp' },
   { src: '../assets/events/ev-03.webp' },
   { src: '../assets/events/ev-04.webp' },
-  { type: 'video', src: '../assets/events/ev-v2.mp4', poster: '../assets/events/ev-v2-poster.webp' },
   { src: '../assets/events/ev-05.webp' },
   { src: '../assets/events/ev-06.webp' },
   { src: '../assets/events/ev-08.webp' },
@@ -23,15 +23,25 @@ const MEDIA = [
   { src: '../assets/events/ev-12.webp' },
 ];
 
-const PHOTO_MS = 4500;   // czas slajdu-zdjęcia
-const VIDEO_MS = 9000;   // czas slajdu-wideo (dłużej, żeby było widać)
+const PHOTO_MS = 2600;   // czas slajdu-zdjęcia — gęsto, by trzymać widza
+const VIDEO_MS = 9000;   // (nieużywane póki brak wideo)
 const LB_MS    = 5500;   // autoplay w lightboxie
 const pad = n => String(n).padStart(2, '0');
 const isVid = m => m.type === 'video';
 
+// Losowa kolejność (Fisher–Yates, in-place) — Kuba ustali docelową
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
 export function initGallery() {
   const gallery = document.querySelector('[data-gallery]');
   if (!gallery || !MEDIA.length) return;
+  shuffle(MEDIA);
   const stage    = gallery.querySelector('.gal-stage');
   const idxEl    = gallery.querySelector('.gal-idx');
   const totEl    = gallery.querySelector('.gal-total');
@@ -145,12 +155,17 @@ export function initGallery() {
   gallery.addEventListener('keydown', e => {
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openLb(cur); }
   });
+  // Strzałki małej ramki — ręczne przewijanie bez otwierania lightboxa
+  gallery.querySelector('.gal-prev').addEventListener('click', e => { e.stopPropagation(); prev(); armFrame(); });
+  gallery.querySelector('.gal-next').addEventListener('click', e => { e.stopPropagation(); next(); armFrame(); });
 
   // ── Lightbox ──────────────────────────────────────────────────────────────
   function renderLb() {
     const m = MEDIA[cur];
     lbFig.classList.remove('is-missing');
     lbFig.dataset.idx = pad(cur + 1);
+    const ambSrc = isVid(m) ? (m.poster || m.src) : m.src;   // ambilight: poster dla wideo
+    lbFig.style.setProperty('--lb-amb', `url("${ambSrc}")`);
     if (isVid(m)) {
       lbImg.removeAttribute('src');
       lbImg.style.display = 'none';
