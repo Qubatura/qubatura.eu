@@ -9,21 +9,21 @@
 //   Etap 7: navigation.js   — directional nav tint integration
 //   Etap 10: router.js      — SPA History API + GSAP transitions
 
-import { initScene, startLoop } from './scene.js?v=mr4s7ouo';
-import { initParallax }         from './parallax.js?v=mr4s7ouo';
-import { initAtmosphere }       from './atmosphere.js?v=mr4s7ouo';
-import { initFireflies }        from './fireflies.js?v=mr4s7ouo';
-import { initSignet }           from './signet.js?v=mr4s7ouo';
-import { initNavigation }       from './navigation.js?v=mr4s7ouo';
-import { initRouter }           from './router.js?v=mr4s7ouo';
-import { initPlayers }          from './players.js?v=mr4s7ouo';   // Część 2: playery audio (Studio)
-import { initCursor }           from './cursor.js?v=mr4s7ouo';
-import { initContact }          from './contact.js?v=mr4s7ouo';
-import { initLoader }           from './loader.js?v=mr4s7ouo';   // Etap 9: loading screen
-import { initPong }             from './pong.js?v=mr4s7ouo';     // Easter egg: Chwila relaksu
-import { initGallery }          from './gallery.js?v=mr4s7ouo';              // Events: galeria realizacji + lightbox
-import { initLab }              from './lab.js?v=mr4s7ouo';                  // Lab: oprogramowanie audio + podstrona produktu
-import { initStudioMonitor }    from './studio.js?v=mr4s7ouo';               // Studio: „ożywiony monitor" (smaczek)
+import { initScene, startLoop } from './scene.js?v=mr4sj9xg';
+import { initParallax }         from './parallax.js?v=mr4sj9xg';
+import { initAtmosphere }       from './atmosphere.js?v=mr4sj9xg';
+import { initFireflies }        from './fireflies.js?v=mr4sj9xg';
+import { initSignet }           from './signet.js?v=mr4sj9xg';
+import { initNavigation }       from './navigation.js?v=mr4sj9xg';
+import { initRouter }           from './router.js?v=mr4sj9xg';
+import { initPlayers }          from './players.js?v=mr4sj9xg';   // Część 2: playery audio (Studio)
+import { initCursor }           from './cursor.js?v=mr4sj9xg';
+import { initContact }          from './contact.js?v=mr4sj9xg';
+import { initLoader }           from './loader.js?v=mr4sj9xg';   // Etap 9: loading screen
+import { initPong }             from './pong.js?v=mr4sj9xg';     // Easter egg: Chwila relaksu
+import { initGallery }          from './gallery.js?v=mr4sj9xg';              // Events: galeria realizacji + lightbox
+import { initLab }              from './lab.js?v=mr4sj9xg';                  // Lab: oprogramowanie audio + podstrona produktu
+import { initStudioMonitor }    from './studio.js?v=mr4sj9xg';               // Studio: „ożywiony monitor" (smaczek)
 
 async function boot() {
   initCursor();                 // własna kulka kursora — od razu aktywna

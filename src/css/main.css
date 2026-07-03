@@ -144,8 +144,10 @@ html, body {
 }
 
 /* Loading: reszta UI ukryta — loader.js (GSAP) wfadeuje ją na finał i zdejmuje klasę.
-   Klasa jest w <body> od pierwszej klatki (brak FOUC nav/tagline). */
-body.is-loading { background: #000; }
+   Klasa jest w <body> od pierwszej klatki (brak FOUC nav/tagline).
+   UWAGA: NIE nadpisujemy tu tła na #000 — body ma bazowo var(--color-bg)=#0A0A0F, a canvas
+   czyści się przezroczyście → #000 podczas ładowania przeświecał przez ciemne obszary sceny
+   i na finiszu SKAKAŁ #000→#0A0A0F (widoczny „przeskok barwy tła"). Jednolite tło = zero skoku. */
 body.is-loading #topbar,
 body.is-loading #nav,
 body.is-loading #tagline {
