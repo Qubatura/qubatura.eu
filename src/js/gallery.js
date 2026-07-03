@@ -29,6 +29,12 @@ const LB_MS    = 5500;   // autoplay w lightboxie
 const pad = n => String(n).padStart(2, '0');
 const isVid = m => m.type === 'video';
 
+// Assety jako ABSOLUTNY URL liczony z URL modułu (import.meta.url) — ODPORNY na SPA pushState.
+// Router zmienia document.baseURI (/events…), przez co względne ../assets/… 404-owały na żywo
+// (localhost maskował: root serwera = root projektu). DOC_ROOT = katalog /src/, jak baza dokumentu.
+const DOC_ROOT = new URL('../', import.meta.url).href;
+const asset = rel => new URL(rel, DOC_ROOT).href;
+
 // Losowa kolejność (Fisher–Yates, in-place) — Kuba ustali docelową
 function shuffle(arr) {
   for (let i = arr.length - 1; i > 0; i--) {
@@ -69,8 +75,8 @@ export function initGallery() {
     if (isVid(m)) {
       const v = document.createElement('video');
       v.muted = true; v.loop = true; v.playsInline = true; v.preload = 'none';
-      if (m.poster) v.poster = m.poster;
-      v.src = m.src;                       // preload=none → nie pobiera aż do play()
+      if (m.poster) v.poster = asset(m.poster);
+      v.src = asset(m.src);                // preload=none → nie pobiera aż do play()
       slide.appendChild(v);
       slideVideos[i] = v;
     } else {
@@ -79,7 +85,7 @@ export function initGallery() {
       img.decoding = 'async';
       img.loading = 'lazy';
       img.addEventListener('error', () => slide.classList.add('is-missing'));
-      img.src = m.src;
+      img.src = asset(m.src);
       slide.appendChild(img);
     }
     stage.appendChild(slide);
@@ -100,7 +106,7 @@ export function initGallery() {
     const tImg = new Image();
     tImg.alt = '';
     tImg.addEventListener('error', () => thumb.classList.add('is-missing'));
-    tImg.src = isVid(m) ? (m.poster || '') : m.src;
+    tImg.src = asset(isVid(m) ? (m.poster || m.src) : m.src);
     thumb.appendChild(tImg);
     thumb.addEventListener('click', e => { e.stopPropagation(); show(i); renderLb(); startLbAuto(); });
     lbThumbs.appendChild(thumb);
@@ -164,14 +170,14 @@ export function initGallery() {
     const m = MEDIA[cur];
     lbFig.classList.remove('is-missing');
     lbFig.dataset.idx = pad(cur + 1);
-    const ambSrc = isVid(m) ? (m.poster || m.src) : m.src;   // ambilight: poster dla wideo
+    const ambSrc = asset(isVid(m) ? (m.poster || m.src) : m.src);   // ambilight: poster dla wideo
     lbFig.style.setProperty('--lb-amb', `url("${ambSrc}")`);
     if (isVid(m)) {
       lbImg.removeAttribute('src');
       lbImg.style.display = 'none';
       lbVid.style.display = '';
-      if (m.poster) lbVid.poster = m.poster;
-      lbVid.src = m.src;
+      if (m.poster) lbVid.poster = asset(m.poster);
+      lbVid.src = asset(m.src);
       const p = lbVid.play(); if (p) p.catch(() => {});
     } else {
       lbVid.pause();
@@ -179,7 +185,7 @@ export function initGallery() {
       lbVid.style.display = 'none';
       lbImg.style.display = '';
       lbImg.onerror = () => lbFig.classList.add('is-missing');
-      lbImg.src = m.src;
+      lbImg.src = asset(m.src);
       lbImg.alt = `Realizacja Events ${cur + 1}`;
     }
     lbCap.textContent = m.cap || '';

@@ -23,6 +23,11 @@ const IMG_W = 1920, IMG_H = 1080;
 const HOT = { fx: 0.323, fy: 0.569, fw: 0.116, fh: 0.059 };   // left, top, width, height (ułamki obrazu) — lewy ekran (mapa + kula)
 const pad = n => String(n).padStart(2, '0');
 
+// Assety jako ABSOLUTNY URL z URL modułu — ODPORNY na SPA pushState (router zmienia document.baseURI
+// na /studio → względne ../assets/… 404-owały na żywo; localhost maskował). DOC_ROOT = katalog /src/.
+const DOC_ROOT = new URL('../', import.meta.url).href;
+const asset = rel => new URL(rel, DOC_ROOT).href;
+
 export function initStudioMonitor() {
   const hot = document.querySelector('[data-studio-monitor]');
   const lb  = document.getElementById('studio-lightbox');
@@ -55,8 +60,9 @@ export function initStudioMonitor() {
   // ── Lightbox ────────────────────────────────────────────────────────────────
   function render() {
     const s = SHOTS[cur];
-    lbImg.src = s.src;
-    if (lbFig) lbFig.style.setProperty('--lb-amb', `url("${s.src}")`);   // ambilight
+    const url = asset(s.src);
+    lbImg.src = url;
+    if (lbFig) lbFig.style.setProperty('--lb-amb', `url("${url}")`);   // ambilight
     lbImg.alt = s.cap || `Realizacja studia ${cur + 1}`;
     lbCap.textContent = s.cap || '';
     lbCap.style.display = s.cap ? '' : 'none';

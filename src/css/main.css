@@ -751,12 +751,11 @@ body.pong-active #pong-speed {
   --gal: #7C3AED;              /* fioletowy event (narożniki + duotone) */
   display: none;              /* widoczna tylko dla Events */
   position: absolute;
-  /* 2026-07-02 (Kuba): niżej i wyśrodkowana w pionie — równo z (wyśrodkowanym) hero, z dala od
-     księżyca w tle u góry (top:16% ucinał go brzydko cienkim paskiem). */
-  top: 50%;
-  transform: translateY(-50%);
+  /* 2026-07-03 (Kuba): większa i top-anchored — górna krawędź ~na wysokości startu hero,
+     rośnie w górę/na boki (~+20%). Wartość top do dostrojenia na oko. */
+  top: 24vh;
   right: 6vw;
-  width: 33vw;
+  width: 40vw;
   aspect-ratio: 16 / 9;
   border: 1px solid color-mix(in srgb, var(--gal) 22%, transparent);
   background: rgba(124, 58, 237, 0.04);
@@ -807,24 +806,24 @@ body.pong-active #pong-speed {
 .page-gallery:hover .gal-slide.is-active img,
 .page-gallery:hover .gal-slide.is-active video { filter: grayscale(0) contrast(1); transform: scale(1.04); }
 
-/* Celownik — pulsujące punkty w rogach zdjęcia (zamiast kątowników) */
+/* Celownik — kątowniki po przekątnej (tr + bl), delikatnie pulsujące, kolor działu. Zaznacza
+   zdjęcie i zachęca do kliknięcia bez krzykliwości. tl/br schowane (przekątna wystarczy). */
 .gal-corner {
   position: absolute;
   z-index: 4;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--gal);
-  box-shadow: 0 0 8px var(--gal), 0 0 2px #fff;
-  animation: galPulse 2.4s ease-in-out infinite;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--gal);
+  filter: drop-shadow(0 0 5px var(--gal));
+  animation: galPulse 2.8s ease-in-out infinite;
 }
-.gal-corner.tl { top: 9px; left: 9px; }
-.gal-corner.tr { top: 9px; right: 9px; }
-.gal-corner.bl { bottom: 9px; left: 9px; }
-.gal-corner.br { bottom: 9px; right: 9px; }
+.gal-corner.tl,
+.gal-corner.br { display: none; }
+.gal-corner.tr { top: 8px; right: 8px; border-left: 0;  border-bottom: 0; }
+.gal-corner.bl { bottom: 8px; left: 8px;  border-right: 0; border-top: 0; }
 @keyframes galPulse {
-  0%, 100% { opacity: 0.35; transform: scale(0.8); }
-  50%      { opacity: 1;    transform: scale(1.2); }
+  0%, 100% { opacity: 0.35; }
+  50%      { opacity: 0.9;  }
 }
 
 /* Strzałki ‹ › w małej ramce — ręczne przewijanie bez otwierania lightboxa (pojawiają się na hover) */
@@ -853,21 +852,10 @@ body.pong-active #pong-speed {
 .gal-prev { left: 4px; }
 .gal-next { right: 4px; }
 
-/* Licznik „01 / 06" (prawy górny) */
-.gal-hud {
-  position: absolute;
-  top: 10px;
-  right: 12px;
-  z-index: 3;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.18em;
-  color: rgba(255, 255, 255, 0.75);
-  pointer-events: none;
-}
-.gal-hud .gal-idx { color: #fff; font-weight: 700; }
+/* Licznik „01 / 06" — WYŁĄCZONY (Kuba: niepotrzebny, zachodził na kropki) */
+.gal-hud { display: none; }
 
-/* Kropki (dół, środek) — klikalne */
+/* Kropki (dół, środek) — klikalne, drobne i kubaturowe (fiolet działu) */
 .gal-dots {
   position: absolute;
   bottom: 10px;
@@ -876,25 +864,25 @@ body.pong-active #pong-speed {
   z-index: 3;
   display: flex;
   justify-content: center;
-  gap: 7px;
+  gap: 6px;
 }
 .gal-dot {
-  width: 7px;
-  height: 7px;
+  width: 5px;
+  height: 5px;
   padding: 0;
   border: none;
   border-radius: 50%;
   cursor: pointer;
-  background: rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.22);
   transition: background 0.3s ease, transform 0.3s ease;
 }
-.gal-dot.is-on { background: var(--gal); box-shadow: 0 0 8px var(--gal); transform: scale(1.25); }
+.gal-dot.is-on { background: var(--gal); box-shadow: 0 0 6px var(--gal); transform: scale(1.3); }
 
-/* Hint „Kliknij, aby powiększyć" (dół prawy) — gaśnie na hover */
+/* Hint „Kliknij, aby powiększyć" (lewy górny — nie zachodzi na kropki) — gaśnie na hover */
 .gal-cta {
   position: absolute;
-  bottom: 9px;
-  right: 12px;
+  top: 10px;
+  left: 12px;
   z-index: 3;
   font-family: var(--font-mono);
   font-size: 9px;
