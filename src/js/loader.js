@@ -11,8 +11,9 @@
 //   (nav/topbar/tagline) wjeżdża DOPIERO TERAZ (po fontach) staggerem.
 
 import * as GSAPmod from 'gsap';
-import { onTick } from './scene.js?v=mr4n3h3m';
-import { loadFX, sceneFX } from './tint.js?v=mr4n3h3m';
+import { onTick } from './scene.js?v=mr4qcwm5';
+import { loadFX, sceneFX } from './tint.js?v=mr4qcwm5';
+import { playNavIntro } from './nav-intro.js?v=mr4qcwm5';
 
 const gsap = GSAPmod.gsap || GSAPmod.default || GSAPmod;
 
@@ -86,9 +87,10 @@ function finish(loading) {
   // Na mobile: karty animowane osobno ze staggerem — backdrop-filter każdej karty
   // jest pre-aktywny (nie popuje gdy #nav-container staje się widoczny nagle).
   const isMobile = window.innerWidth <= 768;
+  // Desktop: #nav odsłania choreografia „głowicy energii" (playNavIntro) — nie prosty fade.
   const chrome = isMobile
     ? ['#topbar', '#nav-events', '#nav-studio', '#nav-lab', '#tagline']
-    : ['#topbar', '#nav', '#tagline'];
+    : ['#topbar', '#tagline'];
 
   // Pewnik: świat na pełni od razu (gdyby cokolwiek przerwało timeline poniżej).
   sceneFX.fog = 1;
@@ -124,6 +126,9 @@ function finish(loading) {
   // Licznik + etykieta znikają
     .to(loading, { opacity: 0, duration: 0.5, ease: 'power2.inOut' }, 0.35)
 
-  // UI (nav/linie/topbar/tagline) — DOPIERO TERAZ (po fontach), staggerem
+  // UI (topbar/tagline — na desktopie; +karty na mobile) — DOPIERO TERAZ (po fontach), staggerem
     .to(chrome, { opacity: 1, duration: 0.5, ease: 'power2.out', stagger: 0.10 }, 0.6);
+
+  // Desktop: nawigacja wchodzi choreografią „głowicy energii" (raz, tu — konsekwencja ładowania).
+  if (!isMobile) tl.call(playNavIntro, null, 0.6);
 }

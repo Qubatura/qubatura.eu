@@ -23,6 +23,9 @@
   --nav-line-gap: 12px;   /* gap between signet edge and line start */
   --nav-line-len: 90px;   /* resting line length */
   --nav-line-hover: 112px; /* line length on hover */
+  /* Oś sygnetu: desktop zjechany o −7 jedn. świata ≈ 2% wys. ekranu w dół (kamera FOV60, z300).
+     Ramiona nav kotwiczą się od tej osi, nie od 50%. Jeden nudge dla wszystkich czterech. */
+  --signet-shift: 2vh;
 }
 
 /* ── Reset ──────────────────────────────────────────────────────── */
@@ -245,6 +248,26 @@ body.is-loading #tagline {
   z-index: 20;
 }
 
+/* Impuls wejścia — pierścień emitowany z sygnetu (animuje nav-intro.js; centrowanie trzyma GSAP). */
+#nav-pulse {
+  position: fixed;
+  top: calc(50% + var(--signet-shift));
+  left: 50%;
+  width: calc(var(--signet-r) * 2);
+  height: calc(var(--signet-r) * 2);
+  border-radius: 50%;
+  border: 2px solid var(--color-primary);
+  box-shadow: 0 0 26px var(--color-primary),
+              inset 0 0 20px color-mix(in srgb, var(--color-primary) 60%, transparent);
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+/* Podczas choreografii wejścia GSAP pisze inline co klatkę — wyłącz przejścia CSS, by nie smużyły. */
+.nav-intro .nav-line,
+.nav-intro .nav-label { transition: none !important; }
+
 .nav-item {
   position: absolute;
   display: flex;
@@ -337,7 +360,7 @@ body.is-loading #tagline {
 #nav-events {
   /* Right edge of item sits near left edge of signet */
   right: calc(50% + var(--signet-r) + var(--nav-line-gap));
-  top: 50%;
+  top: calc(50% + var(--signet-shift));   /* na osi sygnetu, nie 50% */
   transform: translateY(-50%);
   flex-direction: row; /* DOM: [label][line] → visual: [label][line→signet] */
 }
@@ -368,7 +391,7 @@ body.is-loading #tagline {
 /* ── Studio → ──────────────────────────────────────────────────── */
 #nav-studio {
   left: calc(50% + var(--signet-r) + var(--nav-line-gap));
-  top: 50%;
+  top: calc(50% + var(--signet-shift));   /* na osi sygnetu, nie 50% */
   transform: translateY(-50%);
   /* DOM: [line][label] → visual: [signet→line]→[label] */
 }
@@ -398,7 +421,7 @@ body.is-loading #tagline {
 
 /* ── Lab ↓ ─────────────────────────────────────────────────────── */
 #nav-lab {
-  top: calc(50% + var(--signet-r) + var(--nav-line-gap));
+  top: calc(50% + var(--signet-shift) + var(--signet-r) + var(--nav-line-gap));
   left: 50%;
   transform: translateX(-50%);
   flex-direction: column;
@@ -430,7 +453,7 @@ body.is-loading #tagline {
 
 /* ── Pong ↑ — easter egg, widoczny tylko przy hover sygnetu ─────── */
 #nav-pong {
-  bottom: calc(50% + var(--signet-r) + var(--nav-line-gap));
+  bottom: calc(50% - var(--signet-shift) + var(--signet-r) + var(--nav-line-gap));  /* oś sygnetu (bottom-anchored → minus) */
   left: 50%;
   transform: translateX(-50%);
   flex-direction: column-reverse;  /* DOM: [label][line] → wizualnie: [linia→sygnet][label górą] */
@@ -1855,6 +1878,7 @@ body.page-active #tagline {
   /* ─── Signet: zmniejszony na mobile (płótno z nim jest nadal full-screen) ─── */
   :root {
     --signet-r: 64px;
+    --signet-shift: 0px;   /* mobile: baseYOffset=0 → oś sygnetu na 50% (nav-item i tak position:static) */
     --nav-line-len: 0px;
   }
 
