@@ -162,10 +162,21 @@ body.is-loading #tagline {
   z-index: 100;                 /* zawsze nad nawigacją (20) i sygnetem */
 }
 
-#top-right {
+/* Klaster prawy-górny — rząd akcji + player w jednej kolumnie, wyrównane do wspólnej LEWEJ
+   krawędzi. Rząd akcji jest szerszy → to on wyznacza lewą krawędź, a player (węższy) ląduje
+   pod nim: strzałka playera trafia dokładnie pod „KONTAKT". Odporne na długość tytułu utworu. */
+#top-cluster {
   position: absolute;
   top: 28px;
   right: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 11px;                    /* oddech header→player: „ciężki" klaster, pauza, cichy szept */
+  pointer-events: none;         /* przerwa między rzędami nie łapie kliknięć — scena pod spodem */
+}
+
+#top-right {
   display: flex;
   align-items: center;
   gap: 26px;
@@ -245,10 +256,7 @@ body.is-loading #tagline {
 /* ── Mini player muzyczny (TYLKO HOME) ──────────────────────────────
    Organicznie: same znaki na tle strony (bez ramki/frostu — spójnie z headerem), Space Mono,
    ciemne halo dla czytelności nad sceną. Rolka: numer środek = akcent, boki małe/przygaszone. */
-#music-player {
-  position: absolute;
-  top: 54px;                     /* pod klastrem headera (#top-right top:28px) */
-  right: 40px;
+#music-player {                  /* drugi rząd #top-cluster — wyrównany do lewej pod „KONTAKT" */
   display: flex;
   align-items: center;
   gap: 12px;
@@ -264,47 +272,47 @@ body.page-active #music-player { opacity: 0; pointer-events: none; }
   border: none;
   padding: 0;
   cursor: pointer;
-  font-size: 19px;
+  font-size: 14px;               /* ciszej niż topbar — player jest PODRZĘDNY wobec KONTAKT/EN */
   line-height: 1;
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.25);
   text-shadow: 0 1px 6px rgba(0, 0, 0, 0.75);
   transition: color 0.3s ease, transform 0.2s ease;
 }
-.mp-arrow:hover { color: #fff; }
+.mp-arrow:hover { color: rgba(255, 255, 255, 0.85); }
 .mp-prev:hover { transform: translateX(-2px); }
 .mp-next:hover { transform: translateX(2px); }
 
 .mp-reel {
   display: flex;
   align-items: baseline;
-  gap: 8px;
+  gap: 7px;
   justify-content: center;
-  min-width: 58px;               /* stabilna szerokość — rolka nie skacze */
+  min-width: 48px;               /* stabilna szerokość — rolka nie skacze */
   will-change: transform, opacity;
 }
 .mp-num {
-  font-weight: 700;
+  font-weight: 500;              /* było 700 — waga niżej, bez „krzyku" */
   text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8);   /* halo — czytelność nad ruchomą sceną */
   -webkit-user-select: none;
   user-select: none;
 }
 .mp-side {                        /* boki — małe, przygaszone (szept „jest więcej") */
-  font-size: 11px;
-  color: rgba(255, 255, 255, 0.26);
+  font-size: 9px;
+  color: rgba(255, 255, 255, 0.17);
 }
-.mp-cur {                         /* środek — akcent (primary; magenta-gdy-gra = opcja na później) */
-  font-size: 15px;
+.mp-cur {                         /* środek — czysto (mono, bez primary); mniejsze/lżejsze niż KONTAKT/EN */
+  font-size: 11px;
   letter-spacing: 0.04em;
-  color: var(--color-primary);
+  color: rgba(255, 255, 255, 0.5);
 }
 .mp-title {
-  font-size: 10px;
+  font-size: 9px;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.3);
   text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8);
-  padding-left: 12px;
-  border-left: 1px solid rgba(255, 255, 255, 0.14);
+  padding-left: 11px;
+  border-left: 1px solid rgba(255, 255, 255, 0.09);
   white-space: nowrap;
 }
 
@@ -862,17 +870,53 @@ body.pong-active #pong-speed {
   right: 6vw;
   width: 40vw;
   aspect-ratio: 16 / 9;
-  border: 1px solid color-mix(in srgb, var(--gal) 22%, transparent);
-  background: rgba(124, 58, 237, 0.04);
+  /* „Apparition": bez bordera/tła/box-shadow (rysowały OKNO). Zdjęcie wyłania się ze sceny
+     przez maskę-fade (.gal-stage), a „unosi się" dzięki radialnej poświacie (::before). */
   overflow: visible;
   cursor: pointer;
   pointer-events: auto;        /* hover/klik + kulka wykrywa galerię */
-  box-shadow: 0 0 30px color-mix(in srgb, var(--gal) 10%, transparent);
 }
 #page[data-division="events"] .page-gallery { display: block; }
 
+/* Fioletowa poświata Events pod zdjęciem — „światło sygnału". Bez ciemnego basenu: screen-blend
+   (.gal-glow) sam otwiera cienie na scenę, a ta łuna dokłada barwę i unoszenie nad tłem. */
+.page-gallery::before {
+  content: "";
+  position: absolute;
+  inset: -16%;
+  z-index: 0;
+  background: radial-gradient(58% 56% at 50% 54%,
+              color-mix(in srgb, var(--gal) 30%, transparent), transparent 74%);
+  filter: blur(24px);
+  pointer-events: none;
+  transition: opacity 0.6s ease;
+}
+
 /* Slajdy — crossfade (tylko .is-active widoczny). Scena clip-uje zdjęcia + zoom hover. */
-.gal-stage { position: absolute; inset: 0; overflow: hidden; }
+/* Maska-fade: CAŁY obwód zdjęcia fejduje się od 0 do 100% (owalna winieta) → brak prostokąta.
+   Knob = próg ostrości (50% — niżej: więcej rozpływa; wyżej: większy ostry środek). Nad ::before. */
+.gal-stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  z-index: 1;
+  -webkit-mask-image: radial-gradient(78% 78% at 50% 50%, #000 50%, transparent 100%);
+          mask-image: radial-gradient(78% 78% at 50% 50%, #000 50%, transparent 100%);
+}
+/* Barwa świecenia Events — screen na jasnych partiach → światła zdjęcia świecą fioletem.
+   KNOB fioletu: 30% (mniej = bliżej czystego B&W; 0% = wariant „F" bez koloru). */
+.gal-stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  background: radial-gradient(72% 96% at 52% 46%,
+              color-mix(in srgb, var(--gal) 45%, transparent), transparent 72%);
+  transition: opacity 0.6s ease;
+}
+.page-gallery:hover .gal-stage::after { opacity: 0.4; }   /* hover = realne zdjęcie, mniej łuny */
 .gal-slide {
   position: absolute;
   inset: 0;
@@ -882,13 +926,18 @@ body.pong-active #pong-speed {
 .gal-slide.is-active { opacity: 1; }
 .gal-slide img,
 .gal-slide video {
+  position: absolute;                            /* duch + światło nakładają się w kadrze */
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
-  filter: grayscale(1) contrast(1.03);          /* duotone-baza; kolor dopala .gal-tint */
-  transition: filter 0.6s ease, transform 0.9s ease;
+  transition: filter 0.6s ease, transform 0.9s ease, opacity 0.6s ease;
 }
+/* „Duch ciała" — przygaszona kopia daje STRUKTURĘ (żeby nie było samych świateł) */
+.gal-ghost { filter: grayscale(1) contrast(1.02); opacity: 0.32; }
+/* „Światło" — screen: czernie znikają (prześwituje scena → zdjęcie oddycha), jasne partie świecą */
+.gal-glow  { filter: grayscale(1) contrast(1.16) brightness(1.05); mix-blend-mode: screen; }
 /* Placeholder gdy brak pliku (onerror w gallery.js) — elegancki gradient + „FOTO 0N" */
 .gal-slide.is-missing { background: linear-gradient(135deg, #241a4a, #0c0a1c); }
 .gal-slide.is-missing img { display: none; }
@@ -908,7 +957,12 @@ body.pong-active #pong-speed {
 /* B&W domyślnie (grayscale w .gal-slide img) — fiolet zlewał się z tłem; kolor dopiero na hover.
    .gal-tint wyłączony (zostawiony w HTML, neutralny), żeby zdjęcie było czysto czarno-białe. */
 .gal-tint { display: none; }
-.page-gallery:hover .gal-slide.is-active img,
+/* Hover = sygnał KONDENSUJE się w realne, kolorowe zdjęcie: duch solidnieje + barwa, światło cofa się */
+.page-gallery:hover .gal-slide.is-active .gal-ghost {
+  opacity: 0.95; filter: grayscale(0) contrast(1.02); transform: scale(1.04);
+}
+.page-gallery:hover .gal-slide.is-active .gal-glow { opacity: 0.35; transform: scale(1.04); }
+/* Wideo (gdyby wróciło) — prosty kolor+zoom na hover */
 .page-gallery:hover .gal-slide.is-active video { filter: grayscale(0) contrast(1); transform: scale(1.04); }
 
 /* Celownik — kątowniki po przekątnej (prawa-góra + lewy-dół), OBEJMUJĄ kadr od ZEWNĄTRZ
@@ -919,8 +973,10 @@ body.pong-active #pong-speed {
   width: 26px;
   height: 26px;
   border: 2px solid var(--gal);
-  animation: galPulse 2.6s ease-in-out infinite;
+  opacity: 0;                                    /* spoczynek = czysta zjawa, bez celownika */
+  transition: opacity 0.4s ease;
 }
+.page-gallery:hover .gal-corner { animation: galPulse 2.6s ease-in-out infinite; }
 .gal-corner.tl,
 .gal-corner.br { display: none; }
 .gal-corner.tr { top: -9px; right: -9px; border-left: 0;  border-bottom: 0; }
@@ -982,21 +1038,21 @@ body.pong-active #pong-speed {
 }
 .gal-dot.is-on { background: var(--gal); box-shadow: 0 0 6px var(--gal); transform: scale(1.3); }
 
-/* Hint „Kliknij, aby powiększyć" (lewy górny — nie zachodzi na kropki) — gaśnie na hover */
+/* Symbol powiększenia ⊕ (prawy-górny) — subtelny, pojawia się DOPIERO na hover (opacity 0.5) */
 .gal-cta {
   position: absolute;
-  top: 10px;
-  left: 12px;
-  z-index: 3;
-  font-family: var(--font-mono);
-  font-size: 9px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.5);
+  top: 9px;
+  right: 11px;
+  z-index: 5;
+  font-size: 15px;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.85);
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.7);
   pointer-events: none;
+  opacity: 0;
   transition: opacity 0.4s ease;
 }
-.page-gallery:hover .gal-cta { opacity: 0; }
+.page-gallery:hover .gal-cta { opacity: 0.5; }
 
 /* ── Lightbox (prawie pełnoekranowy podgląd) ───────────────────────────────── */
 .lightbox {
@@ -1951,12 +2007,12 @@ body.page-active #tagline {
   }
 
   /* ─── Topbar ─── */
-  #top-right {
-    opacity: 1;
+  #top-cluster {
     top: 16px;
     top: calc(env(safe-area-inset-top, 0px) + 16px);  /* notch-safe */
     right: 16px;
   }
+  #top-right { opacity: 1; }
 
   #tagline {
     display: none;                          /* za mało miejsca na mobile */

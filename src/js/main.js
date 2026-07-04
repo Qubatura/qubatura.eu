@@ -9,22 +9,22 @@
 //   Etap 7: navigation.js   — directional nav tint integration
 //   Etap 10: router.js      — SPA History API + GSAP transitions
 
-import { initScene, startLoop } from './scene.js?v=mr4tr9aa';
-import { initParallax }         from './parallax.js?v=mr4tr9aa';
-import { initAtmosphere }       from './atmosphere.js?v=mr4tr9aa';
-import { initFireflies }        from './fireflies.js?v=mr4tr9aa';
-import { initSignet }           from './signet.js?v=mr4tr9aa';
-import { initNavigation }       from './navigation.js?v=mr4tr9aa';
-import { initRouter }           from './router.js?v=mr4tr9aa';
-import { initPlayers }          from './players.js?v=mr4tr9aa';   // Część 2: playery audio (Studio)
-import { initCursor }           from './cursor.js?v=mr4tr9aa';
-import { initContact }          from './contact.js?v=mr4tr9aa';
-import { initLoader }           from './loader.js?v=mr4tr9aa';   // Etap 9: loading screen
-import { initPong }             from './pong.js?v=mr4tr9aa';     // Easter egg: Chwila relaksu
-import { initGallery }          from './gallery.js?v=mr4tr9aa';              // Events: galeria realizacji + lightbox
-import { initLab }              from './lab.js?v=mr4tr9aa';                  // Lab: oprogramowanie audio + podstrona produktu
-import { initStudioMonitor }    from './studio.js?v=mr4tr9aa';               // Studio: „ożywiony monitor" (smaczek)
-import { initPlayer }           from './player.js?v=mr4tr9aa';               // HOME: mini player muzyczny (rolka)
+import { initScene, startLoop } from './scene.js?v=mr65b95x';
+import { initParallax }         from './parallax.js?v=mr65b95x';
+import { initAtmosphere }       from './atmosphere.js?v=mr65b95x';
+import { initFireflies }        from './fireflies.js?v=mr65b95x';
+import { initSignet }           from './signet.js?v=mr65b95x';
+import { initNavigation }       from './navigation.js?v=mr65b95x';
+import { initRouter }           from './router.js?v=mr65b95x';
+import { initPlayers }          from './players.js?v=mr65b95x';   // Część 2: playery audio (Studio)
+import { initCursor }           from './cursor.js?v=mr65b95x';
+import { initContact }          from './contact.js?v=mr65b95x';
+import { initLoader }           from './loader.js?v=mr65b95x';   // Etap 9: loading screen
+import { initPong }             from './pong.js?v=mr65b95x';     // Easter egg: Chwila relaksu
+import { initGallery }          from './gallery.js?v=mr65b95x';              // Events: galeria realizacji + lightbox
+import { initLab }              from './lab.js?v=mr65b95x';                  // Lab: oprogramowanie audio + podstrona produktu
+import { initStudioMonitor }    from './studio.js?v=mr65b95x';               // Studio: „ożywiony monitor" (smaczek)
+import { initPlayer }           from './player.js?v=mr65b95x';               // HOME: mini player muzyczny (rolka)
 
 async function boot() {
   initCursor();                 // własna kulka kursora — od razu aktywna

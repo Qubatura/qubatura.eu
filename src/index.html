@@ -26,7 +26,7 @@
         referrerpolicy="no-referrer">
 
   <!-- CSS -->
-  <link rel="stylesheet" href="css/main.css?v=mr4tr9aa">
+  <link rel="stylesheet" href="css/main.css?v=mr65b95x">
 
   <!-- Three.js via CDN importmap -->
   <script type="importmap">
@@ -96,6 +96,9 @@
 
   <!-- Top-right UI -->
   <header id="topbar">
+    <!-- Klaster prawy-górny: rząd akcji + player w jednej flex-kolumnie, wyrównane do wspólnej
+         LEWEJ krawędzi (align-items:flex-start) → strzałka playera ląduje pod „KONTAKT". -->
+    <div id="top-cluster">
     <div id="top-right">
       <button id="top-contact" data-contact>Kontakt</button>
       <button id="lang-toggle" aria-label="Przełącz na English" data-lang="pl">EN</button>
@@ -123,6 +126,7 @@
       <button class="mp-arrow mp-next" type="button" aria-label="Następny utwór">›</button>
       <span class="mp-title" aria-live="polite"></span>
     </div>
+    </div><!-- /#top-cluster -->
   </header>
 
   <!-- Directional navigation — emanating from central signet -->
@@ -386,7 +390,7 @@
       <button class="gal-nav gal-next" type="button" aria-label="Następne zdjęcie">›</button>
       <div class="gal-hud" aria-hidden="true"><b class="gal-idx">01</b> / <span class="gal-total">06</span></div>
       <div class="gal-dots" aria-hidden="true"></div>
-      <span class="gal-cta" aria-hidden="true">Kliknij, aby powiększyć</span>
+      <span class="gal-cta" aria-hidden="true">⊕</span>
     </div>
   </main>
 
@@ -535,7 +539,7 @@
     });
   </script>
 
-  <script type="module" src="js/main.js?v=mr4tr9aa"></script>
+  <script type="module" src="js/main.js?v=mr65b95x"></script>
 
 </body>
 </html>

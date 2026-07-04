@@ -62,7 +62,8 @@ export function initGallery() {
   const lbTot    = lb.querySelector('.lb-total');
   const lbThumbs = lb.querySelector('.lb-thumbs');
 
-  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // Autoplay gra ZAWSZE — pokaz slajdów to treść, nie ozdoba; nie może zależeć od ustawień
+  // dostępności systemu użytkownika (crossfade jest łagodny, nie wywołuje efektu „skoku").
   let cur = 0;
   let frameTimer = null;
   let lbTimer = null;
@@ -80,13 +81,24 @@ export function initGallery() {
       slide.appendChild(v);
       slideVideos[i] = v;
     } else {
-      const img = new Image();
-      img.alt = `Realizacja Events ${i + 1}`;
-      img.decoding = 'async';
-      img.loading = 'lazy';
-      img.addEventListener('error', () => slide.classList.add('is-missing'));
-      img.src = asset(m.src);
-      slide.appendChild(img);
+      // „Światło z ciemności": dwie warstwy TEGO SAMEGO pliku (jedno pobranie — cache).
+      // .gal-ghost = przygaszona kopia (STRUKTURA zdjęcia), .gal-glow = screen-blend (jasne partie
+      // ŚWIECĄ z ciemności). Zdjęcie = sygnał wyłaniający się ze sceny, nie kadr w ramce.
+      const ghost = new Image();
+      ghost.className = 'gal-ghost';
+      ghost.alt = `Realizacja Events ${i + 1}`;
+      ghost.decoding = 'async';
+      ghost.loading = 'lazy';
+      ghost.addEventListener('error', () => slide.classList.add('is-missing'));
+      ghost.src = asset(m.src);
+      const glow = new Image();
+      glow.className = 'gal-glow';
+      glow.alt = '';
+      glow.setAttribute('aria-hidden', 'true');
+      glow.decoding = 'async';
+      glow.loading = 'lazy';
+      glow.src = asset(m.src);
+      slide.append(ghost, glow);
     }
     stage.appendChild(slide);
 
@@ -149,7 +161,6 @@ export function initGallery() {
   }
   function armFrame() {
     if (frameTimer) clearTimeout(frameTimer);
-    if (reduceMotion) return;
     frameTimer = setTimeout(frameTick, frameDur());
   }
   armFrame();
@@ -195,7 +206,7 @@ export function initGallery() {
     if (thumbs[cur]) thumbs[cur].scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
   }
   function lbTick() { if (!lb.matches(':hover')) { next(); renderLb(); } }
-  function startLbAuto() { if (reduceMotion) return; stopLbAuto(); lbTimer = setInterval(lbTick, LB_MS); }
+  function startLbAuto() { stopLbAuto(); lbTimer = setInterval(lbTick, LB_MS); }
   function stopLbAuto() { if (lbTimer) { clearInterval(lbTimer); lbTimer = null; } }
 
   function openLb(i) {
