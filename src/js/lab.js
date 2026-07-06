@@ -52,17 +52,18 @@ export function initLab() {
     // 5 realnych platform (mockupy HTML). Każda: plik + nazwa + branża + własny akcent.
     // Karty galerii lecą w swoich barwach; klik → detal z pełnym mockupem (iframe).
     const MOCKUPS = [
-      { file: '../assets/lab/mockupy/01-warsztat-samochodowy.html', name: 'TORQ',         cap: 'Serwis samochodowy',    accent: '#FF5A1F' },
-      { file: '../assets/lab/mockupy/02-druzyna-pilkarska.html',    name: 'Młode Orły',    cap: 'Klub piłkarski dzieci', accent: '#F2C14E' },
-      { file: '../assets/lab/mockupy/03-salon-kosmetyczny.html',    name: 'Atelier Dłoń',  cap: 'Salon stylizacji',      accent: '#C9A227' },
-      { file: '../assets/lab/mockupy/04-silownia-fitness.html',     name: 'IRON LAB',      cap: 'Klub fitness',          accent: '#C6FF3D' },
-      { file: '../assets/lab/mockupy/05-restauracja.html',          name: 'Stół.',         cap: 'Restauracja',           accent: '#B08D57' },
+      { file: '../assets/lab/mockupy/01-warsztat-samochodowy.html', thumb: '../assets/lab/mockupy/thumbs/01.webp', name: 'TORQ',        cap: 'Serwis samochodowy',    accent: '#FF5A1F' },
+      { file: '../assets/lab/mockupy/02-druzyna-pilkarska.html',    thumb: '../assets/lab/mockupy/thumbs/02.webp', name: 'Młode Orły',  cap: 'Klub piłkarski dzieci', accent: '#F2C14E' },
+      { file: '../assets/lab/mockupy/03-salon-kosmetyczny.html',    thumb: '../assets/lab/mockupy/thumbs/03.webp', name: 'Atelier Dłoń',cap: 'Salon stylizacji',      accent: '#C9A227' },
+      { file: '../assets/lab/mockupy/04-silownia-fitness.html',     thumb: '../assets/lab/mockupy/thumbs/04.webp', name: 'IRON LAB',    cap: 'Klub fitness',          accent: '#C6FF3D' },
+      { file: '../assets/lab/mockupy/05-restauracja.html',          thumb: '../assets/lab/mockupy/thumbs/05.webp', name: 'Stół.',       cap: 'Restauracja',           accent: '#B08D57' },
     ];
     const makeCard = (m, i) => {
       const c = document.createElement('button');
       c.type = 'button';
       c.className = 'ls-card ls-plat';
       c.style.setProperty('--acc', m.accent);
+      if (m.thumb) c.style.backgroundImage = "url('" + asset(m.thumb) + "')";   // miniaturka realnego mockupu
       c.dataset.case = i;
       c.setAttribute('aria-label', m.name + ' — ' + m.cap);
       c.innerHTML = '<span class="ls-name">' + m.name + '</span><span class="ls-cap">' + m.cap + '</span>';
