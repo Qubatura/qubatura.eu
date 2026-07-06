@@ -3,8 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Qubatura Group — Events · Studio · Lab</title>
+  <title>Qubatura — obsługa techniczna imprez · studio · strony internetowe · Śląsk</title>
   <meta name="description" content="Qubatura Group — nagłośnienie i oświetlenie eventów, produkcja audio (Studio Q) oraz projekty techniczne i druk 3D (Qubatura Lab). Sosnowiec.">
+  <meta name="keywords" content="nagłośnienie, oświetlenie eventów, streaming, produkcja audio, audiobooki, sound design, lektor, druk 3D, IoT, strony www, Sosnowiec, Śląsk">
+  <meta name="author" content="Qubatura Group">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <meta name="theme-color" content="#0A0A0F">
   <link rel="canonical" href="https://qubatura.eu/">
 
   <!-- Open Graph -->
@@ -25,10 +29,8 @@
   <meta name="twitter:description" content="Nagłośnienie i oświetlenie eventów, produkcja audio i projekty techniczne. Events · Studio · Lab.">
   <meta name="twitter:image"       content="https://qubatura.eu/assets/og-image.png">
 
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@300;400;600;700&family=Press+Start+2P&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <!-- Fonts — self-hosted (Chakra Petch + Space Mono + Press Start 2P), zero zależności od Google -->
+  <link rel="stylesheet" href="css/fonts.css?v=mr96uf4b">
 
   <!-- Favicon — sygnet Q (violet) -->
   <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
@@ -38,7 +40,7 @@
         referrerpolicy="no-referrer">
 
   <!-- CSS -->
-  <link rel="stylesheet" href="css/main.css?v=mr65b95x">
+  <link rel="stylesheet" href="css/main.css?v=mr96uf4b">
 
   <!-- Three.js via CDN importmap -->
   <script type="importmap">
@@ -57,13 +59,34 @@
     "@context": "https://schema.org",
     "@type": "Organization",
     "name": "Qubatura Group",
+    "alternateName": "Qubatura",
+    "legalName": "Qubatura Jakub Hyrja",
+    "vatID": "PL6443374174",
     "url": "https://qubatura.eu",
+    "logo": "https://qubatura.eu/assets/favicon.svg",
+    "image": "https://qubatura.eu/assets/og-image.png",
     "email": "biuro@qubatura.eu",
+    "telephone": "+48505512305",
+    "slogan": "Przybywamy z sygnałem",
     "address": {
       "@type": "PostalAddress",
       "addressLocality": "Sosnowiec",
+      "addressRegion": "śląskie",
       "addressCountry": "PL"
     },
+    "areaServed": { "@type": "Country", "name": "Polska" },
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "telephone": "+48505512305",
+      "email": "biuro@qubatura.eu",
+      "contactType": "customer service",
+      "areaServed": "PL",
+      "availableLanguage": ["pl", "en"]
+    },
+    "sameAs": [
+      "https://facebook.com/qubatura",
+      "https://linkedin.com/in/kuba-hyrja"
+    ],
     "hasOfferCatalog": {
       "@type": "OfferCatalog",
       "name": "Usługi",
@@ -260,19 +283,23 @@
 
     <!-- Lab -->
     <article class="page-view" id="page-lab" data-division="lab" hidden>
-      <!-- label działu „Qlab" jest już w lockupie w rogu — bez duplikatu nad hero -->
+      <!-- label działu „Lab" jest już w lockupie w rogu — bez duplikatu nad hero -->
       <h1 class="page-title">Technologia,<br>design i development</h1>
-      <p class="page-lead">Druk 3D, IoT i software — od prototypu na biurku po wdrożony produkt.
-        Projektujemy, programujemy i drukujemy rzeczy, których jeszcze nie ma.</p>
+      <p class="page-lead">Software, strony i aplikacje — od pomysłu, przez UX, po wdrożony produkt.
+        Projektujemy i programujemy rzeczy, których jeszcze nie ma; do tego IoT, pomiary akustyczne i druk 3D.</p>
       <ul class="page-services">
-        <li>UX/UI</li>
         <li>Aplikacje &amp; software</li>
         <li>Web design</li>
-        <li>Druk 3D</li>
-        <li>Mapping</li>
+        <li>UX/UI</li>
         <li>IoT</li>
+        <li>Pomiary akustyczne</li>
+        <li>Druk 3D</li>
       </ul>
-      <a class="page-cta" data-contact role="button" tabindex="0">Opisz projekt →</a>
+      <button class="page-showcase" type="button" data-showcase aria-haspopup="dialog">
+        <span class="ps-kicker">Systemy · platformy · aplikacje</span>
+        <span class="ps-hook">Zbudujemy to pod Twoją branżę →</span>
+      </button>
+      <a class="page-cta" data-contact data-contact-tor="lab" role="button" tabindex="0">Opisz projekt →</a>
     </article>
 
     <!-- Kontakt = overlay (#contact-overlay), nie podstrona -->
@@ -370,21 +397,27 @@
     </button>
 
     <!-- Lab: „Oprogramowanie audio" — system kafelek jak Studio („Posłuchaj produkcji").
-         Dziecko #page (nie artykułu). Karta 1 = Event Player (guzik → podstrona produktu),
-         karta 2 = pusta (TBD). Widoczne tylko na Lab. -->
+         Dziecko #page (nie artykułu). Linia softu audio Qubatury z pieczęcią Q (spina z sygnetem):
+         Karta 1 = Qplayer (guzik → podstrona produktu), karta 2 = Qtune (w produkcji, bez podstrony).
+         Widoczne tylko na Lab. -->
     <section class="lab-software" aria-label="Oprogramowanie audio — Qubatura Lab">
       <p class="pl-head">Oprogramowanie audio</p>
       <div class="pl-grid">
         <article class="pl-card lab-card">
           <div class="pl-text">
-            <p class="pl-title">Event Player</p>
+            <p class="pl-title"><span class="q-mark">Q</span>player</p>
             <p class="pl-meta">Playback na eventy — pro</p>
             <p class="pl-meta">Web Audio API · desktop</p>
           </div>
-          <button class="pl-cta" type="button" data-product="event-player">Zobacz więcej →</button>
+          <button class="pl-cta" type="button" data-product="qplayer">Zobacz więcej →</button>
         </article>
-        <article class="pl-card lab-card is-tbd">
-          <div class="pl-text"></div>
+        <article class="pl-card lab-card is-soon">
+          <div class="pl-text">
+            <p class="pl-title"><span class="q-mark">Q</span>tune</p>
+            <p class="pl-meta">Strojenie systemu PA</p>
+            <p class="pl-meta">Kreator + auto-fazowanie subów</p>
+          </div>
+          <span class="pl-cta is-tag">w produkcji</span>
         </article>
       </div>
     </section>
@@ -438,15 +471,107 @@
 
   <!-- Podstrona produktu (Lab → Event Player) — placeholder na trailer + opis; sterowanie lab.js -->
   <div id="product-overlay" class="product-overlay" role="dialog" aria-modal="true"
-       aria-label="Event Player — Qubatura Lab" aria-hidden="true">
-    <button class="prod-close" type="button" aria-label="Zamknij — wróć">‹ Wróć</button>
-    <div class="prod-inner">
-      <p class="prod-kicker">Qubatura Lab · Oprogramowanie audio</p>
-      <h2 class="prod-title">Event Player</h2>
-      <div class="prod-trailer" aria-hidden="true"><span>TRAILER — wkrótce</span></div>
-      <p class="prod-desc">Profesjonalna aplikacja do odtwarzania dźwięku na wydarzeniach —
-        pewny playback bez przypadków. Pełny opis i materiały wideo wkrótce.</p>
+       aria-label="Qplayer — Qubatura Lab" aria-hidden="true">
+    <div class="pcard">
+      <span class="pc-tick tl"></span><span class="pc-tick tr"></span><span class="pc-tick bl"></span><span class="pc-tick br"></span>
+      <button class="prod-close" type="button" aria-label="Zamknij — wróć">‹ Wróć</button>
+
+      <div class="pc-top">
+        <!-- lewa: screen + kafle-liczby + offline -->
+        <div class="pc-bay">
+          <div class="pc-frame"><img class="prod-shot-img" alt="Qplayer — interfejs aplikacji"></div>
+          <div class="pc-cap"><span><b>Qplayer</b> · interfejs</span></div>
+          <div class="pc-stats">
+            <div class="pc-stat"><div class="v">2</div><div class="l">decki</div></div>
+            <div class="pc-stat"><div class="v">∞</div><div class="l">jingle</div></div>
+            <div class="pc-stat"><div class="v">9</div><div class="l">padów</div></div>
+            <div class="pc-stat"><div class="v">∞</div><div class="l">kolejka</div></div>
+          </div>
+          <div class="pc-offline"><span class="pc-dot"></span><span><b>100% offline</b> — gra bez sieci, nigdy nie tnie.</span></div>
+        </div>
+
+        <!-- prawa: pitch -->
+        <div class="pc-body">
+          <p class="pc-crumb"><span class="lab">Lab</span> <span class="sep">·</span> <span class="cur">Oprogramowanie audio</span></p>
+          <h2 class="pc-title"><span class="q">Q</span>player</h2>
+          <p class="pc-sub">Cały event z jednego okna. Wszystko w jednym miejscu, spokojna głowa — bez trzeciej ręki.</p>
+
+          <p class="pc-sec">Co potrafi</p>
+          <div class="pc-feats">
+            <div class="pc-feat"><span class="n">01</span><div><h3>Automix</h3><p>Kolejka gra sama, z zadanymi fade'ami — bez dziur.</p></div></div>
+            <div class="pc-feat"><span class="n">02</span><div><h3>Dwa dedykowane decki</h3><p>Lista z automatu + drugi z ręki — grasz i szykujesz naraz.</p></div></div>
+            <div class="pc-feat"><span class="n">03</span><div><h3>Jingle i spoty</h3><p>Wchodzą co N utworów, z priorytetami emisji — licznik pilnuje sam.</p></div></div>
+            <div class="pc-feat"><span class="n">04</span><div><h3>Sampler</h3><p>9 padów na klawiszach 1–9, gotowe zawsze.</p></div></div>
+            <div class="pc-feat"><span class="n">05</span><div><h3>Głośność i fade'y na sekcję</h3><p>Każda sekcja ma własną głośność i konfigurowalny fade in/out.</p></div></div>
+            <div class="pc-feat"><span class="n">06</span><div><h3>Mapowanie klawiszy</h3><p>Dowolna funkcja pod dowolny klawisz (MIDI w przyszłości).</p></div></div>
+          </div>
+
+          <div class="pc-actions">
+            <button class="pc-btn primary" type="button" disabled>Pobierz <span class="soon">· wkrótce</span></button>
+            <button class="pc-btn ghost" type="button" disabled>Pobierz instrukcję <span class="soon">· wkrótce</span></button>
+          </div>
+          <p class="pc-hint">Wersja komercyjna już wkrótce.</p>
+        </div>
+      </div>
+
+      <!-- dół: specyfikacja -->
+      <div class="pc-specbar">
+        <p class="pc-sc">Specyfikacja</p>
+        <div class="pc-spec3">
+          <div class="col">
+            <p class="k">Platforma</p>
+            <p class="v">macOS 12 Monterey+ — <b>v1.0</b></p>
+            <p class="v">Apple Silicon (M1–M4) / Intel i5+</p>
+            <p class="v dim">Windows 10/11 — wkrótce (v2)</p>
+          </div>
+          <div class="col">
+            <p class="k">Wymagania</p>
+            <p class="v">4 GB RAM · ~150 MB na dysku</p>
+            <p class="v">CoreAudio lub interfejs audio</p>
+            <p class="v dim">Windows: WASAPI / ASIO</p>
+          </div>
+          <div class="col">
+            <p class="k">Formaty — <b>czyta wszystko</b></p>
+            <p class="v">MP3 · MP2 · AAC · M4A · FLAC · ALAC</p>
+            <p class="v">WAV · AIFF · OGG · OPUS · WMA · WebM</p>
+            <p class="v dim">16 / 24 / 32-bit float · auto-resampling</p>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
+
+  <!-- Lab: showcase „oprogramowanie na zamówienie" — nowe tło Lab + 3 filary + latająca galeria
+       mockupów (marquee). Mockupy wstrzykuje lab.js z tablicy MOCKUPS (rozszerzalne). -->
+  <div id="lab-showcase" class="lab-showcase" role="dialog" aria-modal="true"
+       aria-label="Oprogramowanie na zamówienie — Qubatura Lab" aria-hidden="true">
+    <button class="ls-close" type="button" aria-label="Zamknij — wróć">‹ Wróć</button>
+    <div class="ls-inner">
+      <p class="ls-kicker">Systemy · platformy · aplikacje</p>
+      <h2 class="ls-title">Zbudujemy to pod Twoją branżę</h2>
+      <p class="ls-lead">Nie robimy jednej apki. Budujemy software pod pomysł — platformy, systemy
+        i aplikacje dla każdej branży, od koncepcji po wdrożenie.</p>
+      <div class="ls-pillars">
+        <div class="ls-pillar"><h3>Platformy i systemy</h3><p>Od zarządzania po sprzedaż — skrojone pod Twój proces.</p></div>
+        <div class="ls-pillar"><h3>Aplikacja + panel admin</h3><p>User w telefonie, Ty w przeglądarce — pełna kontrola online.</p></div>
+        <div class="ls-pillar"><h3>Integracje ze środowiskiem</h3><p>Spinamy z narzędziami, których już używasz.</p></div>
+      </div>
+      <div class="ls-gallery" aria-label="Przykładowe realizacje — różne branże"><div class="ls-track"></div></div>
+      <a class="ls-cta" data-contact data-contact-tor="lab" role="button" tabindex="0">Masz pomysł? Opisz projekt →</a>
+    </div>
+  </div>
+
+  <!-- Lab: detal branży — pełny mockup platformy w iframe (izolowany → własna tożsamość, zero kolizji)
+       + ‹ › przeskok między 5 branżami. Sterowanie i lazy-src w lab.js. -->
+  <div id="lab-case" class="lab-case" role="dialog" aria-modal="true"
+       aria-label="Podgląd platformy" aria-hidden="true">
+    <button class="lc-close" type="button" aria-label="Zamknij podgląd">‹ Wróć</button>
+    <div class="lc-frame">
+      <button class="lc-nav lc-prev" type="button" aria-label="Poprzednia branża">‹</button>
+      <div class="lc-stage"><iframe class="lc-iframe" title="Mockup platformy" loading="lazy"></iframe></div>
+      <button class="lc-nav lc-next" type="button" aria-label="Następna branża">›</button>
+    </div>
+    <p class="lc-meta"><span class="lc-idx">01 / 05</span> &nbsp;·&nbsp; przeglądaj branże: ‹ › lub strzałki</p>
   </div>
 
   <!-- Pong easter egg overlay — canvas 2D nad sceną Three.js -->
@@ -487,10 +612,16 @@
 
   <!-- ── Contact overlay — fullscreen nakładka nad żywą sceną (NIE podstrona) ── -->
   <div id="contact-overlay" role="dialog" aria-modal="true" aria-label="Kontakt" aria-hidden="true">
-    <!-- Powrót SPÓJNY z podstronami: logo + strzałka w lewym górnym rogu (kolor neutralny). -->
+    <!-- Tła „centrum łączności" — reveal na bramie + morfing w sceny działów (contact-console.js) -->
+    <div class="cc-depbg" id="cc-bgA" aria-hidden="true"></div>
+    <div class="cc-depbg" id="cc-bgB" aria-hidden="true"></div>
+    <div class="cc-vig" aria-hidden="true"></div>
+
+    <!-- Powrót SPÓJNY z podstronami: logo + strzałka + nazwa (jak dział) w lewym górnym rogu. -->
     <button id="contact-close" type="button" aria-label="Zamknij kontakt — powrót">
       <span class="home-arrow" aria-hidden="true"></span>
       <span class="home-lockup" aria-hidden="true"></span>
+      <span class="contact-dept" aria-hidden="true">Kontakt</span>
     </button>
 
     <div class="contact-inner">
@@ -498,6 +629,12 @@
         <h2 class="coords-line">50°17'N · 19°08'E</h2>
         <p class="coords-city">Śląsk · Polska</p>
       </div>
+
+      <!-- Brama do konsolety (frost-kafelek) — dopiero klik odsłania formularz + pokój łączności -->
+      <button id="cc-gate" type="button">
+        <span class="cc-gate-title">Napisz do nas</span>
+        <span class="cc-gate-sub">otwórz centrum łączności →</span>
+      </button>
 
       <div class="contact-cols">
         <div class="contact-data">
@@ -518,6 +655,68 @@
           <i class="fa-brands fa-linkedin-in"></i></a>
         <span class="social-soon" aria-label="TikTok — wkrótce"><i class="fa-brands fa-tiktok"></i></span>
         <span class="social-soon" aria-label="Instagram — wkrótce"><i class="fa-brands fa-instagram"></i></span>
+      </div>
+
+      <a class="contact-policy" data-policy href="polityka-prywatnosci.html" target="_blank" rel="noopener noreferrer">Polityka prywatności</a>
+    </div>
+
+    <!-- Konsoleta „Nadaj sygnał" — lejek: tor → podpowiedź → opis → wyślij -->
+    <div id="cc-console" aria-hidden="true">
+      <div class="cc-wrap" id="cc-wrap">
+        <div class="cc-head">
+          <button class="cc-back" id="cc-back" type="button">‹ Wstecz</button>
+          <div class="cc-count" id="cc-count">01 / 03</div>
+        </div>
+        <div class="cc-name">CENTRUM <b>ŁĄCZNOŚCI</b></div>
+
+        <div class="cc-step" id="cc-s1">
+          <div class="cc-q">Jaką masz sprawę?<span class="cur">_</span></div>
+          <div class="cc-sub">Wybierz temat — dalej poprowadzimy.</div>
+          <div class="cc-tory">
+            <div class="cc-tor" style="--c:var(--color-events)" data-tor="events">
+              <div class="cc-ring" aria-hidden="true"></div><h3>EVENTS</h3><p>Nagłośnienie, światło, multimedia, streaming.</p>
+            </div>
+            <div class="cc-tor" style="--c:var(--color-studio)" data-tor="studio">
+              <div class="cc-ring" aria-hidden="true"></div><h3>STUDIO</h3><p>Produkcja audio, reklama, lektor, sound design.</p>
+            </div>
+            <div class="cc-tor" style="--c:var(--color-lab)" data-tor="lab">
+              <div class="cc-ring" aria-hidden="true"></div><h3>LAB</h3><p>Strony www, aplikacje, UX design, IoT, pomiary akustyczne.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="cc-step" id="cc-s2">
+          <div class="cc-q" id="cc-s2q">Doprecyzuj<span class="cur">_</span></div>
+          <div class="cc-sub">Kliknij najbliższe — a my podstawimy Ci gotowy szkielet wiadomości.</div>
+          <div class="cc-chips" id="cc-chips"></div>
+        </div>
+
+        <div class="cc-step" id="cc-s3">
+          <div class="cc-q">Opowiedz krótko<span class="cur">_</span></div>
+          <div class="cc-sub">Uzupełnij luki — im więcej wiemy, tym celniej odpowiemy.</div>
+          <div class="cc-field"><label>Twoja sprawa</label><textarea id="cc-msg"></textarea></div>
+          <div class="cc-row">
+            <div class="cc-field"><label>Imię</label><input id="cc-name-in" placeholder="Jak masz na imię?"></div>
+            <div class="cc-field"><label>Mail lub telefon</label><input id="cc-contact-in" placeholder="Jak oddzwonić?"></div>
+          </div>
+          <div class="cc-subject">Temat, który do nas doleci: <b id="cc-subj">[EVENTS] …</b></div>
+          <!-- honeypot anti-bot: pole poza ekranem; bot je wypełnia, człowiek nie → wysyłkę porzucamy -->
+          <input type="text" id="cc-hp" class="cc-hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+          <label class="cc-rodo" id="cc-rodo">
+            <input type="checkbox" id="cc-rodo-in">
+            <span>Zapoznałem się z <a data-policy href="polityka-prywatnosci.html" target="_blank" rel="noopener noreferrer">polityką prywatności</a> i zgadzam się na kontakt w sprawie mojego zapytania.</span>
+          </label>
+          <button class="cc-send" id="cc-send" type="button">WYŚLIJ SYGNAŁ →</button>
+          <p class="cc-status" id="cc-status" role="alert" aria-live="polite"></p>
+        </div>
+
+        <div class="cc-step" id="cc-s4">
+          <div class="cc-done">
+            <div class="mark">◗</div>
+            <h2>Sygnał odebrany</h2>
+            <p id="cc-doneline">Wróci do Ciebie realny człowiek — zwykle w ciągu doby.<br>Odpisujemy z <b>biuro@qubatura.eu</b>.</p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -551,7 +750,7 @@
     });
   </script>
 
-  <script type="module" src="js/main.js?v=mr65b95x"></script>
+  <script type="module" src="js/main.js?v=mr96uf4b"></script>
 
 </body>
 </html>

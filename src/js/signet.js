@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { SVGLoader } from 'three/addons/loaders/SVGLoader.js';
-import { onTick, registerRefraction } from './scene.js?v=mr65b95x';
-import { navFX, loadFX } from './tint.js?v=mr65b95x';
+import { onTick, registerRefraction } from './scene.js?v=mr96uf4b';
+import { navFX, loadFX } from './tint.js?v=mr96uf4b';
 
 const _mouse = { x: -9999, y: -9999 };
 window.addEventListener('mousemove', e => { _mouse.x = e.clientX; _mouse.y = e.clientY; });

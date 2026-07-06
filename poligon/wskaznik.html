@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Poligon — wskaźnik toru</title>
+<style>
+  :root{
+    --events:#9D4EDD; --studio:#1E90FF; --lab:#00E5FF;
+    --bg:#0A0A0F; --ink:#F0EFFF;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Space Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+    padding:44px 28px 80px; -webkit-font-smoothing:antialiased;
+  }
+  h1{font-size:15px; letter-spacing:.24em; text-transform:uppercase; font-weight:700; margin:0 0 6px;}
+  .lead{font-size:11px; letter-spacing:.08em; opacity:.5; margin:0 0 40px; max-width:640px; line-height:1.6;}
+
+  .grid{display:grid; grid-template-columns:repeat(4,1fr); gap:20px; max-width:1180px;}
+  @media (max-width:900px){ .grid{grid-template-columns:repeat(2,1fr);} }
+
+  .variant{
+    border:1px solid rgba(255,255,255,.08); border-radius:16px;
+    background:linear-gradient(180deg, rgba(20,18,34,.5), rgba(10,10,15,.6));
+    padding:20px 18px 22px;
+  }
+  .variant h2{font-size:12px; letter-spacing:.16em; text-transform:uppercase; margin:0 0 4px; font-weight:700;}
+  .variant p{font-size:10px; letter-spacing:.04em; opacity:.45; margin:0 0 18px; line-height:1.5; min-height:44px;}
+
+  /* mock kafelków działów, jak w formularzu */
+  .cards{display:flex; flex-direction:column; gap:12px;}
+  .card{
+    --c:var(--events);
+    position:relative; border-radius:12px; padding:16px 16px 14px;
+    border:1px solid color-mix(in srgb, var(--c) 24%, rgba(255,255,255,.10));
+    background:linear-gradient(135deg, color-mix(in srgb, var(--c) 6%, transparent), rgba(255,255,255,.012));
+  }
+  .card.events{--c:var(--events);} .card.studio{--c:var(--studio);} .card.lab{--c:var(--lab);}
+  .card .name{font-size:12px; letter-spacing:.14em; font-weight:700; margin-top:12px;}
+
+  .ind{height:18px; display:flex; align-items:center;}
+
+  /* ── V1 SYGNAŁ (radar ping) ────────────────── */
+  .ping{position:relative; width:18px; height:18px; display:grid; place-items:center;}
+  .ping .dot{width:6px; height:6px; border-radius:50%; background:var(--c); box-shadow:0 0 8px var(--c);}
+  .ping .r{position:absolute; inset:0; margin:auto; width:6px; height:6px; border-radius:50%;
+    border:1px solid var(--c); animation:ping 2.2s cubic-bezier(.2,.7,.3,1) infinite;}
+  .ping .r:nth-child(3){animation-delay:1.1s;}
+  @keyframes ping{0%{transform:scale(.6); opacity:.85;} 100%{transform:scale(3.2); opacity:0;}}
+
+  /* ── V2 PULS (oddychająca kropka) ──────────── */
+  .pulse .d{width:8px; height:8px; border-radius:50%; background:var(--c);
+    animation:breathe 1.9s ease-in-out infinite;}
+  @keyframes breathe{
+    0%,100%{transform:scale(.7); opacity:.55; box-shadow:0 0 4px var(--c);}
+    50%{transform:scale(1.15); opacity:1; box-shadow:0 0 14px var(--c), 0 0 4px var(--c);}}
+
+  /* ── V3 OBRĘCZ (motyw sygnetu) ─────────────── */
+  .obr{width:16px; height:16px; border-radius:50%;
+    border:1.5px solid var(--c); border-top-color:transparent;
+    box-shadow:0 0 8px color-mix(in srgb, var(--c) 60%, transparent);
+    animation:spin 2.8s linear infinite, obrGlow 1.9s ease-in-out infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  @keyframes obrGlow{0%,100%{opacity:.7;} 50%{opacity:1;}}
+
+  /* ── V4 CELOWNIK HUD (kątowniki) ───────────── */
+  .hud{position:relative; width:18px; height:18px; animation:hudBreath 2.2s ease-in-out infinite;}
+  .hud i{position:absolute; width:6px; height:6px; border:1.5px solid var(--c);
+    filter:drop-shadow(0 0 3px var(--c));}
+  .hud i:nth-child(1){top:0; left:0; border-right:0; border-bottom:0;}
+  .hud i:nth-child(2){top:0; right:0; border-left:0; border-bottom:0;}
+  .hud i:nth-child(3){bottom:0; left:0; border-right:0; border-top:0;}
+  .hud i:nth-child(4){bottom:0; right:0; border-left:0; border-top:0;}
+  @keyframes hudBreath{0%,100%{transform:scale(.82); opacity:.6;} 50%{transform:scale(1); opacity:1;}}
+</style>
+</head>
+<body>
+  <h1>Wskaźnik toru — warianty „coś naszego"</h1>
+  <p class="lead">Zamiast equalizera (waveform). Pulsujące, w kolorze działu. Każdy wariant pokazany na mock-kafelkach Events / Studio / Lab — animacje żyją, oglądaj w ruchu.</p>
+
+  <div class="grid">
+
+    <div class="variant">
+      <h2>1 · Sygnał</h2>
+      <p>Kropka + rozchodzące się pierścienie. Radar-ping — dosłownie „przybywamy z sygnałem”. Najmocniej „nasze”.</p>
+      <div class="cards">
+        <div class="card events"><div class="ind"><span class="ping"><span class="dot"></span><span class="r"></span><span class="r"></span></span></div><div class="name">EVENTS</div></div>
+        <div class="card studio"><div class="ind"><span class="ping"><span class="dot"></span><span class="r"></span><span class="r"></span></span></div><div class="name">STUDIO</div></div>
+        <div class="card lab"><div class="ind"><span class="ping"><span class="dot"></span><span class="r"></span><span class="r"></span></span></div><div class="name">LAB</div></div>
+      </div>
+    </div>
+
+    <div class="variant">
+      <h2>2 · Puls</h2>
+      <p>Pojedyncza oddychająca kropka — minimalizm w czystej postaci. To, co sam podrzuciłeś.</p>
+      <div class="cards">
+        <div class="card events"><div class="ind"><span class="pulse"><span class="d"></span></span></div><div class="name">EVENTS</div></div>
+        <div class="card studio"><div class="ind"><span class="pulse"><span class="d"></span></span></div><div class="name">STUDIO</div></div>
+        <div class="card lab"><div class="ind"><span class="pulse"><span class="d"></span></span></div><div class="name">LAB</div></div>
+      </div>
+    </div>
+
+    <div class="variant">
+      <h2>3 · Obręcz</h2>
+      <p>Cienki pierścień z przerwą, delikatny obrót + puls — echo obręczy sygnetu Q.</p>
+      <div class="cards">
+        <div class="card events"><div class="ind"><span class="obr"></span></div><div class="name">EVENTS</div></div>
+        <div class="card studio"><div class="ind"><span class="obr"></span></div><div class="name">STUDIO</div></div>
+        <div class="card lab"><div class="ind"><span class="obr"></span></div><div class="name">LAB</div></div>
+      </div>
+    </div>
+
+    <div class="variant">
+      <h2>4 · Celownik HUD</h2>
+      <p>Kątowniki jak w galerii (tryb celownika), oddychające. Spójne z językiem HUD strony.</p>
+      <div class="cards">
+        <div class="card events"><div class="ind"><span class="hud"><i></i><i></i><i></i><i></i></span></div><div class="name">EVENTS</div></div>
+        <div class="card studio"><div class="ind"><span class="hud"><i></i><i></i><i></i><i></i></span></div><div class="name">STUDIO</div></div>
+        <div class="card lab"><div class="ind"><span class="hud"><i></i><i></i><i></i><i></i></span></div><div class="name">LAB</div></div>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

@@ -2,10 +2,18 @@
 // Overlay #product-overlay: miejsce na trailer + opis. Zamknięcie: „‹ Wróć", klik w tło, Esc.
 // Docelowo: osobne podstrony per produkt (trailer, opis, kilka pozycji) — teraz jeden placeholder.
 
+// Asset jako ABSOLUTNY URL z URL modulu - ODPORNE na SPA pushState (jak reszta).
+const DOC_ROOT = new URL('../', import.meta.url).href;
+const asset = rel => new URL(rel, DOC_ROOT).href;
+
 export function initLab() {
   const overlay = document.getElementById('product-overlay');
   if (!overlay) return;
   const closeBtn = overlay.querySelector('.prod-close');
+
+  // Screen Event Playera - src z JS (SPA-proof); do tego czasu widac "Screen - wkrotce".
+  const shot = overlay.querySelector('.prod-shot-img');
+  if (shot) shot.src = asset('../assets/lab/event-player.webp');
 
   const open = () => {
     overlay.classList.add('is-open');
@@ -31,4 +39,100 @@ export function initLab() {
   window.addEventListener('keydown', e => {
     if (e.key === 'Escape' && overlay.classList.contains('is-open')) close();
   });
+
+  // ── Showcase „oprogramowanie na zamówienie" (#lab-showcase) ─────────────────────────
+  // Guzik [data-showcase] w hero → overlay z nowym tłem Lab + LATAJĄCA galeria mockupów.
+  // MOCKUPS = rozszerzalna tablica; { src?, cap }. Bez src → placeholder (kropkowana ramka).
+  // Do marquee doklejamy DWIE kopie listy (CSS przesuwa -50% → płynna, bezszwowa pętla).
+  const showcase = document.getElementById('lab-showcase');
+  if (showcase) {
+    const track   = showcase.querySelector('.ls-track');
+    const caseEl  = document.getElementById('lab-case');
+
+    // 5 realnych platform (mockupy HTML). Każda: plik + nazwa + branża + własny akcent.
+    // Karty galerii lecą w swoich barwach; klik → detal z pełnym mockupem (iframe).
+    const MOCKUPS = [
+      { file: '../assets/lab/mockupy/01-warsztat-samochodowy.html', name: 'TORQ',         cap: 'Serwis samochodowy',    accent: '#FF5A1F' },
+      { file: '../assets/lab/mockupy/02-druzyna-pilkarska.html',    name: 'Młode Orły',    cap: 'Klub piłkarski dzieci', accent: '#F2C14E' },
+      { file: '../assets/lab/mockupy/03-salon-kosmetyczny.html',    name: 'Atelier Dłoń',  cap: 'Salon stylizacji',      accent: '#C9A227' },
+      { file: '../assets/lab/mockupy/04-silownia-fitness.html',     name: 'IRON LAB',      cap: 'Klub fitness',          accent: '#C6FF3D' },
+      { file: '../assets/lab/mockupy/05-restauracja.html',          name: 'Stół.',         cap: 'Restauracja',           accent: '#B08D57' },
+    ];
+    const makeCard = (m, i) => {
+      const c = document.createElement('button');
+      c.type = 'button';
+      c.className = 'ls-card ls-plat';
+      c.style.setProperty('--acc', m.accent);
+      c.dataset.case = i;
+      c.setAttribute('aria-label', m.name + ' — ' + m.cap);
+      c.innerHTML = '<span class="ls-name">' + m.name + '</span><span class="ls-cap">' + m.cap + '</span>';
+      return c;
+    };
+    // DWIE kopie (płynna pętla marquee -50%); każda karta pamięta swój indeks platformy.
+    [...MOCKUPS, ...MOCKUPS].forEach((m, k) => track.appendChild(makeCard(m, k % MOCKUPS.length)));
+
+    const openS = () => {
+      showcase.classList.add('is-open');
+      showcase.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('lb-locked');
+    };
+    const closeS = () => {
+      showcase.classList.remove('is-open');
+      showcase.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('lb-locked');
+    };
+    document.addEventListener('click', e => {
+      if (e.target.closest('[data-showcase]')) { e.preventDefault(); openS(); }
+    });
+    showcase.querySelector('.ls-close').addEventListener('click', closeS);
+    showcase.addEventListener('click', e => { if (e.target === showcase) closeS(); });
+    showcase.querySelector('.ls-cta').addEventListener('click', closeS);
+    window.addEventListener('keydown', e => {
+      // Escape zamyka showcase tylko gdy NIE ma nad nim otwartego detalu (ten łapie Escape pierwszy).
+      if (e.key === 'Escape' && showcase.classList.contains('is-open')
+          && !(caseEl && caseEl.classList.contains('is-open'))) closeS();
+    });
+
+    // ── Detal branży (#lab-case) — iframe pełnego mockupu + ‹ › między platformami ──────
+    // Lazy: iframe.src ustawiamy dopiero przy otwarciu; czyścimy przy zamknięciu. Akcent = kolor platformy.
+    if (caseEl) {
+      const frame = caseEl.querySelector('.lc-iframe');
+      const idxEl = caseEl.querySelector('.lc-idx');
+      const pad = n => String(n).padStart(2, '0');
+      let ci = 0;
+      const loadCase = i => {
+        ci = (i + MOCKUPS.length) % MOCKUPS.length;
+        const m = MOCKUPS[ci];
+        frame.src = asset(m.file);
+        idxEl.textContent = pad(ci + 1) + ' / ' + pad(MOCKUPS.length);
+        caseEl.style.setProperty('--acc', m.accent);
+      };
+      const openCase = i => {
+        loadCase(i);
+        caseEl.classList.add('is-open');
+        caseEl.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('lb-locked');
+      };
+      const closeCase = () => {
+        caseEl.classList.remove('is-open');
+        caseEl.setAttribute('aria-hidden', 'true');
+        frame.removeAttribute('src');                       // zwolnij zasób
+        if (!showcase.classList.contains('is-open')) document.body.classList.remove('lb-locked');
+      };
+      track.addEventListener('click', e => {
+        const c = e.target.closest('[data-case]');
+        if (c) openCase(+c.dataset.case);
+      });
+      caseEl.querySelector('.lc-prev').addEventListener('click', () => loadCase(ci - 1));
+      caseEl.querySelector('.lc-next').addEventListener('click', () => loadCase(ci + 1));
+      caseEl.querySelector('.lc-close').addEventListener('click', closeCase);
+      caseEl.addEventListener('click', e => { if (e.target === caseEl) closeCase(); });
+      window.addEventListener('keydown', e => {
+        if (!caseEl.classList.contains('is-open')) return;
+        if (e.key === 'Escape')          closeCase();
+        else if (e.key === 'ArrowRight') loadCase(ci + 1);
+        else if (e.key === 'ArrowLeft')  loadCase(ci - 1);
+      });
+    }
+  }
 }

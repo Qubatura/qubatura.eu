@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<title>Atelier Dłoń — mockup platformy salonu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,600;1,500&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#241521; --panel:#2E1B29; --panel2:#3A2333;
+    --line: rgba(244,238,230,0.12); --line-strong: rgba(244,238,230,0.24);
+    --cream:#F4EEE6; --cream-dim:#B79FB0;
+    --gold:#C9A227; --gold-dim:#5C4A16;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);font-family:'Work Sans',sans-serif;color:var(--cream);padding:48px 24px 80px;}
+  .head{max-width:1180px;margin:0 auto 44px;}
+  .eyebrow{font-size:12px;letter-spacing:.18em;color:var(--gold);text-transform:uppercase;margin:0 0 12px;font-weight:500;}
+  h1{font-family:'Fraunces',serif;font-weight:600;font-style:italic;font-size:42px;margin:0 0 10px;}
+  .sub{color:var(--cream-dim);font-size:15px;max-width:580px;line-height:1.7;}
+  .gallery{max-width:1180px;margin:0 auto;display:flex;gap:28px;flex-wrap:wrap;align-items:flex-start;}
+  .cap{font-size:12px;color:var(--cream-dim);margin:14px 2px 0;}
+  .cap b{color:var(--cream);font-weight:500;}
+
+  .phone{width:320px;background:var(--panel);border:1px solid var(--line-strong);border-radius:28px;overflow:hidden;box-shadow:0 30px 60px rgba(0,0,0,.4);}
+  .phone .bar{height:32px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--line);}
+  .phone .bar::before{content:'';width:60px;height:4px;background:var(--line-strong);border-radius:2px;}
+  .scr{padding:22px 20px 26px;}
+  .brand{font-family:'Fraunces',serif;font-style:italic;font-weight:600;font-size:17px;margin-bottom:22px;}
+
+  .label{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--cream-dim);margin:0 0 12px;}
+  .stylist-row{display:flex;gap:10px;margin-bottom:20px;}
+  .stylist{flex:1;text-align:center;border:1px solid var(--line);border-radius:12px;padding:12px 6px;}
+  .stylist.sel{border-color:var(--gold);background:rgba(201,162,39,0.08);}
+  .stylist .av{width:34px;height:34px;border-radius:50%;background:var(--panel2);margin:0 auto 8px;}
+  .stylist .nm{font-size:11px;}
+
+  .slotgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:22px;}
+  .slot{border:1px solid var(--line);border-radius:8px;text-align:center;padding:9px 0;font-size:12px;}
+  .slot.active{background:var(--gold);color:#2b2003;border-color:var(--gold);font-weight:600;}
+
+  .cta{width:100%;background:var(--gold);color:#2b2003;border:none;padding:15px;font-family:'Fraunces',serif;font-weight:600;font-size:14px;border-radius:10px;cursor:pointer;}
+
+  .handframe{border:1.5px dashed var(--line-strong);border-radius:16px;height:150px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;position:relative;color:var(--cream-dim);font-size:12px;flex-direction:column;gap:8px;}
+  .handframe .corner{position:absolute;width:14px;height:14px;border:2px solid var(--gold);}
+  .handframe .c1{top:10px;left:10px;border-right:none;border-bottom:none;}
+  .handframe .c2{top:10px;right:10px;border-left:none;border-bottom:none;}
+  .handframe .c3{bottom:10px;left:10px;border-right:none;border-top:none;}
+  .handframe .c4{bottom:10px;right:10px;border-left:none;border-top:none;}
+
+  .swatches{display:grid;grid-template-columns:repeat(6,1fr);gap:7px;margin-bottom:18px;}
+  .sw{aspect-ratio:1;border-radius:8px;border:2px solid transparent;}
+  .sw.sel{border-color:var(--cream);}
+
+  .shape-row{display:flex;gap:8px;margin-bottom:6px;}
+  .shape{flex:1;text-align:center;font-size:10.5px;padding:8px 0;border:1px solid var(--line);border-radius:8px;color:var(--cream-dim);}
+  .shape.sel{border-color:var(--gold);color:var(--gold);}
+
+  .desk{width:460px;background:var(--panel);border:1px solid var(--line-strong);border-radius:16px;overflow:hidden;box-shadow:0 30px 60px rgba(0,0,0,.4);}
+  .desk .topbar{background:var(--panel2);padding:16px 22px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line-strong);}
+  .desk .topbar .brand{margin:0;}
+  .desk-body{padding:22px;}
+  .stationline{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--line);}
+  .stationline:last-of-type{border-bottom:none;}
+  .st-name{font-size:14px;}
+  .st-sub{font-size:11.5px;color:var(--cream-dim);}
+  .status{font-size:10px;padding:3px 9px;border-radius:20px;text-transform:uppercase;letter-spacing:.03em;}
+  .status.wip{background:rgba(201,162,39,0.15);color:var(--gold);}
+  .status.wait{background:var(--line);color:var(--cream-dim);}
+  .alertbox{margin-top:16px;border:1px solid var(--gold-dim);border-radius:10px;padding:12px 14px;font-size:12px;color:var(--gold);background:rgba(201,162,39,0.06);}
+</style>
+</head>
+<body>
+  <div class="head">
+    <p class="eyebrow">Qubatura Lab — mockup platformy / branża 3 z 5</p>
+    <h1>Atelier stylizacji paznokci</h1>
+    <p class="sub">Klientka rezerwuje termin, przymierza kolor na zdjęciu własnej dłoni, recepcja widzi cały dzień salonu na jednym ekranie.</p>
+  </div>
+
+  <div class="gallery">
+    <div>
+      <div class="phone">
+        <div class="bar"></div>
+        <div class="scr">
+          <div class="brand">Atelier Dłoń</div>
+          <p class="label">Wybierz stylistkę</p>
+          <div class="stylist-row">
+            <div class="stylist sel"><div class="av"></div><div class="nm">Ola</div></div>
+            <div class="stylist"><div class="av"></div><div class="nm">Iga</div></div>
+            <div class="stylist"><div class="av"></div><div class="nm">Nel</div></div>
+          </div>
+          <p class="label">Wolne terminy — czwartek</p>
+          <div class="slotgrid">
+            <div class="slot">10:00</div>
+            <div class="slot active">12:30</div>
+            <div class="slot">16:00</div>
+          </div>
+          <button class="cta">Zarezerwuj miejsce</button>
+        </div>
+      </div>
+      <p class="cap">Ekran 1 — <b>klientka</b>, rezerwacja miejsca</p>
+    </div>
+
+    <div>
+      <div class="phone">
+        <div class="bar"></div>
+        <div class="scr">
+          <div class="brand">Atelier Dłoń</div>
+          <div class="handframe">
+            <div class="corner c1"></div><div class="corner c2"></div><div class="corner c3"></div><div class="corner c4"></div>
+            📷 Zrób zdjęcie dłoni
+          </div>
+          <p class="label">Kolor</p>
+          <div class="swatches">
+            <div class="sw sel" style="background:#B0233F"></div>
+            <div class="sw" style="background:#C9A227"></div>
+            <div class="sw" style="background:#7A5230"></div>
+            <div class="sw" style="background:#E4D8C8"></div>
+            <div class="sw" style="background:#3A2333"></div>
+            <div class="sw" style="background:#8E7A9C"></div>
+          </div>
+          <p class="label">Kształt</p>
+          <div class="shape-row">
+            <div class="shape sel">Migdał</div>
+            <div class="shape">Kwadrat</div>
+            <div class="shape">Ballerina</div>
+          </div>
+        </div>
+      </div>
+      <p class="cap">Ekran 2 — <b>klientka</b>, przymiarka tipsów</p>
+    </div>
+
+    <div>
+      <div class="desk">
+        <div class="topbar"><div class="brand">Atelier Dłoń — recepcja</div><div class="cap" style="margin:0">Czwartek, 6 stanowisk</div></div>
+        <div class="desk-body">
+          <div class="stationline"><div><div class="st-name">Ola — stanowisko 1</div><div class="st-sub">Kasia W. · hybryda + zdobienie</div></div><span class="status wip">trwa</span></div>
+          <div class="stationline"><div><div class="st-name">Iga — stanowisko 2</div><div class="st-sub">12:30 · przedłużanie tipsów</div></div><span class="status wait">za 20 min</span></div>
+          <div class="stationline"><div><div class="st-name">Nel — stanowisko 3</div><div class="st-sub">Wolne do 15:00</div></div><span class="status wait">wolne</span></div>
+          <div class="alertbox">⚠ Zamów żel bazowy — zostało 2 sztuki na magazynie</div>
+        </div>
+      </div>
+      <p class="cap">Ekran 3 — <b>recepcja / admin</b>, grafik dnia</p>
+    </div>
+  </div>
+</body>
+</html>

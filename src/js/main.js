@@ -9,26 +9,29 @@
 //   Etap 7: navigation.js   — directional nav tint integration
 //   Etap 10: router.js      — SPA History API + GSAP transitions
 
-import { initScene, startLoop } from './scene.js?v=mr65b95x';
-import { initParallax }         from './parallax.js?v=mr65b95x';
-import { initAtmosphere }       from './atmosphere.js?v=mr65b95x';
-import { initFireflies }        from './fireflies.js?v=mr65b95x';
-import { initSignet }           from './signet.js?v=mr65b95x';
-import { initNavigation }       from './navigation.js?v=mr65b95x';
-import { initRouter }           from './router.js?v=mr65b95x';
-import { initPlayers }          from './players.js?v=mr65b95x';   // Część 2: playery audio (Studio)
-import { initCursor }           from './cursor.js?v=mr65b95x';
-import { initContact }          from './contact.js?v=mr65b95x';
-import { initLoader }           from './loader.js?v=mr65b95x';   // Etap 9: loading screen
-import { initPong }             from './pong.js?v=mr65b95x';     // Easter egg: Chwila relaksu
-import { initGallery }          from './gallery.js?v=mr65b95x';              // Events: galeria realizacji + lightbox
-import { initLab }              from './lab.js?v=mr65b95x';                  // Lab: oprogramowanie audio + podstrona produktu
-import { initStudioMonitor }    from './studio.js?v=mr65b95x';               // Studio: „ożywiony monitor" (smaczek)
-import { initPlayer }           from './player.js?v=mr65b95x';               // HOME: mini player muzyczny (rolka)
+import { initScene, startLoop } from './scene.js?v=mr96uf4b';
+import { initParallax }         from './parallax.js?v=mr96uf4b';
+import { initAtmosphere }       from './atmosphere.js?v=mr96uf4b';
+import { initFireflies }        from './fireflies.js?v=mr96uf4b';
+import { initSignet }           from './signet.js?v=mr96uf4b';
+import { initNavigation }       from './navigation.js?v=mr96uf4b';
+import { initRouter }           from './router.js?v=mr96uf4b';
+import { initPlayers }          from './players.js?v=mr96uf4b';   // Część 2: playery audio (Studio)
+import { initCursor }           from './cursor.js?v=mr96uf4b';
+import { initContact }          from './contact.js?v=mr96uf4b';
+import { initContactConsole }   from './contact-console.js?v=mr96uf4b';   // Kontakt: silnik formularza (konsoleta)
+import { initLoader }           from './loader.js?v=mr96uf4b';   // Etap 9: loading screen
+import { initPong }             from './pong.js?v=mr96uf4b';     // Easter egg: Chwila relaksu
+import { initGallery }          from './gallery.js?v=mr96uf4b';              // Events: galeria realizacji + lightbox
+import { initLab }              from './lab.js?v=mr96uf4b';                  // Lab: oprogramowanie audio + podstrona produktu
+import { initStudioMonitor }    from './studio.js?v=mr96uf4b';               // Studio: „ożywiony monitor" (smaczek)
+import { initPlayer }           from './player.js?v=mr96uf4b';               // HOME: mini player muzyczny (rolka)
+import { initCookies }          from './cookie-consent.js?v=mr96uf4b';       // Cookie consent (minimalny, tylko niezbędne)
 
 async function boot() {
   initCursor();                 // własna kulka kursora — od razu aktywna
   initContact();                // contact overlay (trigger: [data-contact])
+  initContactConsole();         // Kontakt: silnik formularza (brama → konsoleta → tor → wyślij)
   const ctx = await initScene();
   initParallax(ctx);
   initAtmosphere(ctx);
@@ -46,6 +49,7 @@ async function boot() {
   initLab();                    // Lab: kafelki oprogramowania + podstrona produktu (overlay)
   initStudioMonitor();          // Studio: pulsujący monitor-smaczek → lightbox realizacji
   initPlayer();                 // HOME: mini player muzyczny (rolka numerów + tytuł, spięty z waveform)
+  initCookies();                // Cookie consent — minimalny baner „tylko niezbędne" (raz, do akceptacji)
 
   // Etap 9 — loading screen: realny tracking zasobów (Promise.all, nie fake timer).
   // fonty + tekstura planety + sygnet (już gotowy) → progres sterujący kolorem sygnetu.
@@ -57,6 +61,7 @@ async function boot() {
     preloadImg('../assets/qubatura.eu-tlo-dep-events.webp'),
     preloadImg('../assets/qubatura.eu-tlo-dep-studio.webp'),
     preloadImg('../assets/qubatura.eu-tlo-dep-lab.webp'),
+    preloadImg('../assets/qubatura.eu-tlo-dep-contact.webp'),   // Kontakt: pokój łączności
   ]);
 
   startLoop();                  // pętla rusza → sygnet renderuje się jako wskaźnik loadingu

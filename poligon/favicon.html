@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Poligon — favicon</title>
+<style>
+  body{ margin:0; font-family:'Space Mono',ui-monospace,Menlo,monospace; background:#15151b; color:#F0EFFF; padding:36px; }
+  h1{ font-size:15px; letter-spacing:.22em; text-transform:uppercase; margin:0 0 4px; }
+  .lead{ font-size:11px; opacity:.5; margin:0 0 32px; }
+  .row{ display:flex; align-items:flex-end; gap:26px; margin-bottom:14px; flex-wrap:wrap; }
+  .cell{ text-align:center; }
+  .cell img{ display:block; image-rendering:auto; }
+  .cap{ font-size:9px; opacity:.5; margin-top:6px; letter-spacing:.06em; }
+  .panel{ padding:22px 24px; border-radius:14px; margin-bottom:22px; }
+  .onlight{ background:#f4f4f7; color:#222; }
+  .ondark{ background:#0a0a0f; border:1px solid rgba(255,255,255,.08); }
+  .tab{ display:inline-flex; align-items:center; gap:7px; padding:7px 12px; border-radius:8px 8px 0 0; font-size:12px; }
+  .tab.l{ background:#dfe1e6; color:#333; }
+  .tab.d{ background:#2a2a30; color:#eee; }
+  .tab img{ width:16px; height:16px; }
+  h2{ font-size:11px; letter-spacing:.18em; text-transform:uppercase; opacity:.6; margin:0 0 14px; }
+</style>
+</head>
+<body>
+  <h1>Favicon — stary vs nowy</h1>
+  <p class="lead">Realne rozmiary favi (16/32/48/64px) + podgląd na „karcie" jasnej i ciemnej. Nowy = biały sygnet na ciemnym (jak Twoja ikona z FB).</p>
+
+  <div class="panel ondark">
+    <h2>NOWY — favicon-dark.svg (biały sygnet / ciemne tło)</h2>
+    <div class="row">
+      <div class="cell"><img src="../assets/favicon-dark.svg" width="16" height="16"><div class="cap">16px</div></div>
+      <div class="cell"><img src="../assets/favicon-dark.svg" width="32" height="32"><div class="cap">32px</div></div>
+      <div class="cell"><img src="../assets/favicon-dark.svg" width="48" height="48"><div class="cap">48px</div></div>
+      <div class="cell"><img src="../assets/favicon-dark.svg" width="64" height="64"><div class="cap">64px</div></div>
+      <div class="cell"><img src="../assets/favicon-dark.svg" width="128" height="128"><div class="cap">128px</div></div>
+    </div>
+    <div class="row" style="margin-top:18px">
+      <span class="tab l"><img src="../assets/favicon-dark.svg"> Qubatura — obsługa techniczna imprez…</span>
+      <span class="tab d"><img src="../assets/favicon-dark.svg"> Qubatura — obsługa techniczna imprez…</span>
+    </div>
+  </div>
+
+  <div class="panel onlight">
+    <h2 style="color:#555">STARY — favicon.svg (fioletowy sygnet / bez tła)</h2>
+    <div class="row">
+      <div class="cell"><img src="../assets/favicon.svg" width="16" height="16"><div class="cap" style="color:#666">16px</div></div>
+      <div class="cell"><img src="../assets/favicon.svg" width="32" height="32"><div class="cap" style="color:#666">32px</div></div>
+      <div class="cell"><img src="../assets/favicon.svg" width="48" height="48"><div class="cap" style="color:#666">48px</div></div>
+      <div class="cell"><img src="../assets/favicon.svg" width="64" height="64"><div class="cap" style="color:#666">64px</div></div>
+      <div class="cell"><img src="../assets/favicon.svg" width="128" height="128"><div class="cap" style="color:#666">128px</div></div>
+    </div>
+    <div class="row" style="margin-top:18px">
+      <span class="tab l"><img src="../assets/favicon.svg"> Qubatura — obsługa techniczna imprez…</span>
+      <span class="tab d"><img src="../assets/favicon.svg"> Qubatura — obsługa techniczna imprez…</span>
+    </div>
+  </div>
+</body>
+</html>

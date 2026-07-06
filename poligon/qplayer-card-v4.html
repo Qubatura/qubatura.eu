@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Qplayer — karta produktu v4 (poligon)</title>
+<style>
+  @font-face{font-family:'Chakra Petch';font-weight:400;font-display:swap;
+    src:url('../assets/fonts/chakra-petch-400-latin-ext.woff2') format('woff2');
+    unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;}
+  @font-face{font-family:'Chakra Petch';font-weight:400;font-display:swap;
+    src:url('../assets/fonts/chakra-petch-400-latin.woff2') format('woff2');
+    unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;}
+  @font-face{font-family:'Chakra Petch';font-weight:600;font-display:swap;
+    src:url('../assets/fonts/chakra-petch-600-latin-ext.woff2') format('woff2');
+    unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;}
+  @font-face{font-family:'Chakra Petch';font-weight:600;font-display:swap;
+    src:url('../assets/fonts/chakra-petch-600-latin.woff2') format('woff2');
+    unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;}
+  @font-face{font-family:'Chakra Petch';font-weight:700;font-display:swap;
+    src:url('../assets/fonts/chakra-petch-700-latin-ext.woff2') format('woff2');
+    unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;}
+  @font-face{font-family:'Chakra Petch';font-weight:700;font-display:swap;
+    src:url('../assets/fonts/chakra-petch-700-latin.woff2') format('woff2');
+    unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;}
+  @font-face{font-family:'Space Mono';font-weight:400;font-display:swap;
+    src:url('../assets/fonts/space-mono-400-latin-ext.woff2') format('woff2');
+    unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;}
+  @font-face{font-family:'Space Mono';font-weight:400;font-display:swap;
+    src:url('../assets/fonts/space-mono-400-latin.woff2') format('woff2');
+    unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;}
+
+  :root{
+    --violet:#8B4FFF;--violet-deep:#6B2FD9;--lab:#00E5FF;--ink:#F3F1FF;
+    --fd:'Chakra Petch',system-ui,sans-serif;--fm:'Space Mono',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{min-height:100vh;font-family:var(--fd);
+    background:linear-gradient(180deg,#0a0812,#060510);
+    display:flex;align-items:center;justify-content:center;padding:40px}
+
+  .prod{position:relative;width:min(1180px,86vw);height:auto;max-height:94vh;
+    background:#0E0B1A;                 /* jaśniej → przejrzyściej */
+    border:1px solid color-mix(in srgb,var(--violet) 28%,transparent);
+    box-shadow:0 44px 130px rgba(0,0,0,.7);
+    display:flex;flex-direction:column}
+  .tick{position:absolute;width:15px;height:15px;z-index:4;pointer-events:none;
+    border-color:color-mix(in srgb,var(--violet) 68%,transparent);border-style:solid;border-width:0}
+  .tick.tl{top:12px;left:12px;border-top-width:1px;border-left-width:1px}
+  .tick.tr{top:12px;right:12px;border-top-width:1px;border-right-width:1px}
+  .tick.bl{bottom:12px;left:12px;border-bottom-width:1px;border-left-width:1px}
+  .tick.br{bottom:12px;right:12px;border-bottom-width:1px;border-right-width:1px}
+  .prod-close{position:absolute;top:22px;left:26px;z-index:5;font-family:var(--fm);font-size:12px;
+    letter-spacing:.14em;text-transform:uppercase;color:rgba(243,241,255,.55);background:none;border:none}
+
+  .top{display:grid;grid-template-columns:1.04fr 1fr}
+
+  /* LEWA — screen + kafle, dużo powietrza */
+  .bay{padding:70px 46px 40px;display:flex;flex-direction:column;gap:26px;
+    border-right:1px solid rgba(139,79,255,.14)}
+  .bay-frame{position:relative;border:1px solid rgba(255,255,255,.1);background:#0b0912;
+    box-shadow:0 26px 60px rgba(0,0,0,.55)}
+  .bay-frame::after{content:"";position:absolute;left:8%;right:8%;bottom:-1px;height:1px;
+    background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--violet) 55%,transparent),transparent)}
+  .bay-frame img{display:block;width:100%;height:auto}
+  .bay-cap{display:flex;justify-content:space-between;font-family:var(--fm);font-size:10px;
+    letter-spacing:.12em;text-transform:uppercase;color:rgba(243,241,255,.42);margin-top:-12px}
+  .bay-cap b{color:color-mix(in srgb,var(--violet) 68%,#fff);font-weight:400}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:2px}
+  .stat{border:1px solid rgba(139,79,255,.20);background:rgba(139,79,255,.05);padding:15px 8px;text-align:center}
+  .stat .v{font-family:var(--fd);font-weight:700;font-size:22px;color:var(--violet);line-height:1}
+  .stat .l{font-family:var(--fm);font-size:9px;letter-spacing:.14em;text-transform:uppercase;
+    color:rgba(243,241,255,.6);margin-top:7px}
+  .offline{display:flex;align-items:center;gap:13px;
+    border:1px solid color-mix(in srgb,var(--violet) 26%,transparent);
+    background:color-mix(in srgb,var(--violet) 6%,transparent);
+    padding:15px 18px;font-family:var(--fd);font-size:14px;color:rgba(243,241,255,.84)}
+  .offline b{color:var(--violet);font-weight:700}
+  .offline .odot{flex:0 0 auto;width:8px;height:8px;border-radius:50%;background:var(--violet);
+    box-shadow:0 0 10px color-mix(in srgb,var(--violet) 90%,transparent)}
+
+  /* PRAWA — pitch */
+  .body{padding:66px 48px 44px;display:flex;flex-direction:column}
+  .crumb{font-family:var(--fm);font-size:11px;letter-spacing:.2em;text-transform:uppercase;margin-bottom:20px}
+  .crumb .lab{color:color-mix(in srgb,var(--lab) 80%,#fff)}
+  .crumb .sep,.crumb .cur{color:rgba(243,241,255,.5)}
+  .title{font-family:var(--fd);font-weight:700;font-size:46px;line-height:.98;color:var(--ink);letter-spacing:.004em}
+  .title .q{color:var(--violet)}
+  .sub{font-family:var(--fd);font-weight:400;font-size:14.5px;line-height:1.5;color:rgba(243,241,255,.8);
+    margin:18px 0 30px;max-width:37ch}
+
+  .sec{font-family:var(--fm);font-size:10px;letter-spacing:.22em;text-transform:uppercase;
+    color:color-mix(in srgb,var(--violet) 62%,#fff);display:flex;align-items:center;gap:12px;margin-bottom:20px}
+  .sec::after{content:"";flex:1;height:1px;background:rgba(139,79,255,.16)}
+
+  .feats{display:flex;flex-direction:column;gap:15px}
+  .feat{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:baseline}
+  .feat .n{font-family:var(--fm);font-size:11px;color:color-mix(in srgb,var(--violet) 64%,#fff);opacity:.9}
+  .feat h3{font-family:var(--fd);font-weight:600;font-size:14px;color:var(--ink);margin-bottom:3px}
+  .feat p{font-family:var(--fm);font-size:10.5px;line-height:1.45;color:rgba(243,241,255,.56)}
+
+  .actions{display:flex;gap:12px;margin-top:34px}
+  .btn{font-family:var(--fm);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;padding:13px 20px;cursor:not-allowed;white-space:nowrap}
+  .btn.primary{color:rgba(243,241,255,.72);background:color-mix(in srgb,var(--violet) 12%,transparent);
+    border:1px solid color-mix(in srgb,var(--violet) 46%,transparent)}
+  .btn.ghost{color:rgba(243,241,255,.55);background:none;border:1px solid rgba(255,255,255,.16)}
+  .btn .soon{color:color-mix(in srgb,var(--violet) 80%,#fff)}
+  .hint{font-family:var(--fm);font-size:10px;color:rgba(243,241,255,.36);margin-top:14px}
+
+  /* DÓŁ — spec-sheet 3 kolumny (Platforma / Wymagania / Formaty) */
+  .specbar{border-top:1px solid rgba(139,79,255,.14);padding:26px 46px 30px}
+  .specbar .sc{font-family:var(--fm);font-size:10px;letter-spacing:.22em;text-transform:uppercase;
+    color:color-mix(in srgb,var(--violet) 60%,#fff);text-align:center;margin-bottom:20px;
+    display:flex;align-items:center;gap:14px;justify-content:center}
+  .specbar .sc::before,.specbar .sc::after{content:"";height:1px;width:56px;background:rgba(139,79,255,.2)}
+  .spec3{display:grid;grid-template-columns:repeat(3,1fr);gap:36px}
+  .spec3 .k{font-family:var(--fm);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+    color:color-mix(in srgb,var(--violet) 68%,#fff);margin-bottom:10px}
+  .spec3 .v{font-family:var(--fm);font-size:11px;line-height:1.6;color:rgba(243,241,255,.72)}
+  .spec3 .v b{color:color-mix(in srgb,var(--violet) 80%,#fff);font-weight:400}
+  .spec3 .v.dim{color:rgba(243,241,255,.42)}
+</style>
+</head>
+<body>
+  <div class="prod">
+    <span class="tick tl"></span><span class="tick tr"></span><span class="tick bl"></span><span class="tick br"></span>
+    <button class="prod-close">‹ Wróć</button>
+
+    <div class="top">
+      <!-- LEWA -->
+      <div class="bay">
+        <div class="bay-frame"><img src="../assets/lab/event-player.webp" alt="Qplayer — interfejs"></div>
+        <div class="bay-cap"><span><b>Qplayer</b> · interfejs</span></div>
+        <div class="stats">
+          <div class="stat"><div class="v">2</div><div class="l">decki</div></div>
+          <div class="stat"><div class="v">∞</div><div class="l">jingle</div></div>
+          <div class="stat"><div class="v">9</div><div class="l">padów</div></div>
+          <div class="stat"><div class="v">∞</div><div class="l">kolejka</div></div>
+        </div>
+        <div class="offline"><span class="odot"></span><span><b>100% offline</b> — gra bez sieci, nigdy nie tnie.</span></div>
+      </div>
+
+      <!-- PRAWA -->
+      <div class="body">
+        <p class="crumb"><span class="lab">Lab</span> <span class="sep">·</span> <span class="cur">Oprogramowanie audio</span></p>
+        <h2 class="title"><span class="q">Q</span>player</h2>
+        <p class="sub">Cały event z jednego okna. Wszystko w jednym miejscu, spokojna głowa — bez trzeciej ręki.</p>
+
+        <p class="sec">Co potrafi</p>
+        <div class="feats">
+          <div class="feat"><span class="n">01</span><div><h3>Automix</h3><p>Kolejka gra sama, z zadanymi fade'ami — bez dziur.</p></div></div>
+          <div class="feat"><span class="n">02</span><div><h3>Dwa dedykowane decki</h3><p>Lista z automatu + drugi z ręki — grasz i szykujesz naraz.</p></div></div>
+          <div class="feat"><span class="n">03</span><div><h3>Jingle i spoty</h3><p>Wchodzą co N utworów, z priorytetami emisji — licznik pilnuje sam.</p></div></div>
+          <div class="feat"><span class="n">04</span><div><h3>Sampler</h3><p>9 padów na klawiszach 1–9, gotowe zawsze.</p></div></div>
+          <div class="feat"><span class="n">05</span><div><h3>Głośność i fade'y na sekcję</h3><p>Każda sekcja ma własną głośność i konfigurowalny fade in/out.</p></div></div>
+          <div class="feat"><span class="n">06</span><div><h3>Mapowanie klawiszy</h3><p>Dowolna funkcja pod dowolny klawisz (MIDI w przyszłości).</p></div></div>
+        </div>
+
+        <div class="actions">
+          <button class="btn primary">Pobierz <span class="soon">· wkrótce</span></button>
+          <button class="btn ghost">Pobierz instrukcję <span class="soon">· wkrótce</span></button>
+        </div>
+        <p class="hint">Wersja komercyjna już wkrótce.</p>
+      </div>
+    </div>
+
+    <!-- DÓŁ: specyfikacja wyśrodkowana -->
+    <div class="specbar">
+      <p class="sc">Specyfikacja</p>
+      <div class="spec3">
+        <div class="col">
+          <p class="k">Platforma</p>
+          <p class="v">macOS 12 Monterey+ — <b>v1.0</b></p>
+          <p class="v">Apple Silicon (M1–M4) / Intel i5+</p>
+          <p class="v dim">Windows 10/11 — wkrótce (v2)</p>
+        </div>
+        <div class="col">
+          <p class="k">Wymagania</p>
+          <p class="v">4 GB RAM · ~150 MB na dysku</p>
+          <p class="v">CoreAudio lub interfejs audio</p>
+          <p class="v dim">Windows: WASAPI / ASIO</p>
+        </div>
+        <div class="col">
+          <p class="k">Formaty — <b>czyta wszystko</b></p>
+          <p class="v">MP3 · MP2 · AAC · M4A · FLAC · ALAC</p>
+          <p class="v">WAV · AIFF · OGG · OPUS · WMA · WebM</p>
+          <p class="v dim">16 / 24 / 32-bit float · auto-resampling</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

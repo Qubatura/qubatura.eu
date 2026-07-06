@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<title>TORQ — mockup platformy warsztatowej</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#151618; --panel:#1d2023; --panel2:#25292c;
+    --line: rgba(237,237,231,0.10); --line-strong: rgba(237,237,231,0.22);
+    --ink:#EDEDE7; --ink-dim:#9A9C96;
+    --accent:#FF5A1F; --accent-dim:#8a3416;
+    --ok:#7DDA8C;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);font-family:'JetBrains Mono',monospace;color:var(--ink);padding:48px 24px 80px;}
+  .head{max-width:1180px;margin:0 auto 44px;}
+  .eyebrow{font-size:12px;letter-spacing:.18em;color:var(--accent);text-transform:uppercase;margin:0 0 10px;}
+  h1{font-family:'Oswald',sans-serif;font-weight:700;font-size:44px;letter-spacing:.01em;margin:0 0 8px;text-transform:uppercase;}
+  .sub{color:var(--ink-dim);font-size:14px;max-width:560px;line-height:1.6;}
+  .gallery{max-width:1180px;margin:0 auto;display:flex;gap:28px;flex-wrap:wrap;align-items:flex-start;}
+  .cap{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-dim);margin:14px 2px 0;}
+  .cap b{color:var(--ink);}
+
+  .phone{width:320px;background:var(--panel);border:1px solid var(--line-strong);border-radius:22px;overflow:hidden;box-shadow:0 30px 60px rgba(0,0,0,.4);}
+  .phone .bar{height:30px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--line);}
+  .phone .bar::before{content:'';width:60px;height:4px;background:var(--line-strong);border-radius:2px;}
+  .scr{padding:20px 18px 24px;}
+  .brand{font-family:'Oswald',sans-serif;font-weight:700;font-size:15px;letter-spacing:.06em;display:flex;align-items:center;gap:8px;margin-bottom:22px;}
+  .brand .dot{width:8px;height:8px;background:var(--accent);}
+
+  .platebox{border:1px dashed var(--line-strong);padding:12px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;}
+  .platebox .plate{font-family:'Oswald',sans-serif;font-size:20px;font-weight:600;letter-spacing:.08em;}
+  .platebox .model{font-size:10px;color:var(--ink-dim);margin-top:2px;}
+  .chip{font-size:10px;border:1px solid var(--line-strong);padding:4px 8px;color:var(--ink-dim);}
+
+  .label{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-dim);margin:0 0 10px;}
+  .slots{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:22px;}
+  .slot{border:1px solid var(--line-strong);text-align:center;padding:8px 0;font-size:12px;}
+  .slot.active{background:var(--accent);color:#1a0d05;border-color:var(--accent);font-weight:700;}
+  .slot .d{font-size:9px;color:var(--ink-dim);display:block;margin-bottom:3px;}
+  .slot.active .d{color:#3a1c0b;}
+
+  .cta{width:100%;background:var(--accent);color:#1a0d05;border:none;padding:14px;font-family:'Oswald',sans-serif;font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:13px;cursor:pointer;}
+
+  .part-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);position:relative;}
+  .part-row:last-of-type{border-bottom:none;}
+  .part-ico{width:36px;height:36px;border:1px solid var(--line-strong);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+  .part-name{font-size:12.5px;flex:1;}
+  .part-name .schema{display:block;font-size:9.5px;color:var(--ink-dim);margin-top:2px;}
+  .part-price{font-size:12.5px;font-weight:500;color:var(--accent);white-space:nowrap;}
+  .dashline{position:absolute;left:48px;right:70px;top:50%;border-top:1px dashed var(--line-strong);z-index:0;}
+
+  .totalbar{display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid var(--line-strong);margin-top:14px;padding-top:14px;}
+  .totalbar .t1{font-size:10px;color:var(--ink-dim);letter-spacing:.08em;text-transform:uppercase;}
+  .totalbar .t2{font-family:'Oswald',sans-serif;font-size:20px;font-weight:700;color:var(--accent);}
+
+  .desk{width:460px;background:var(--panel);border:1px solid var(--line-strong);border-radius:14px;overflow:hidden;box-shadow:0 30px 60px rgba(0,0,0,.4);}
+  .desk .topbar{background:var(--panel2);padding:14px 20px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line-strong);}
+  .desk .topbar .brand{margin:0;}
+  .desk-body{padding:20px;}
+  .stations{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;}
+  .station{border:1px solid var(--line-strong);padding:12px;}
+  .station .st-h{display:flex;justify-content:space-between;font-size:10px;color:var(--ink-dim);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px;}
+  .status{font-size:9px;padding:2px 6px;border:1px solid;text-transform:uppercase;letter-spacing:.05em;}
+  .status.wip{color:var(--accent);border-color:var(--accent-dim);}
+  .status.ok{color:var(--ok);border-color:rgba(125,218,140,.4);}
+  .station .car{font-family:'Oswald',sans-serif;font-size:14px;font-weight:600;}
+  .station .mech{font-size:10px;color:var(--ink-dim);margin-top:6px;display:flex;align-items:center;gap:6px;}
+  .avatar{width:18px;height:18px;background:var(--line-strong);color:var(--ink);font-size:9px;display:flex;align-items:center;justify-content:center;font-weight:700;}
+
+  .queue-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--line);font-size:11.5px;}
+  .queue-row .q-l{display:flex;gap:10px;align-items:center;}
+  .queue-row:last-child{border-bottom:none;}
+</style>
+</head>
+<body>
+  <div class="head">
+    <p class="eyebrow">Qubatura Lab — mockup platformy / branża 1 z 5</p>
+    <h1>Serwis samochodowy</h1>
+    <p class="sub">Rezerwacja online zamiast telefonu, jasny status zlecenia dla klienta, plan stanowisk dla warsztatu. Estetyka: schemat techniczny, nie aplikacja lifestyle'owa.</p>
+  </div>
+
+  <div class="gallery">
+    <div>
+      <div class="phone">
+        <div class="bar"></div>
+        <div class="scr">
+          <div class="brand"><span class="dot"></span>TORQ.</div>
+          <div class="platebox">
+            <div><div class="plate">KA 4R771</div><div class="model">Škoda Octavia III · 2018</div></div>
+            <div class="chip">zmień</div>
+          </div>
+          <p class="label">Najbliższy wolny termin</p>
+          <div class="slots">
+            <div class="slot"><span class="d">WT</span>09:00</div>
+            <div class="slot active"><span class="d">WT</span>11:30</div>
+            <div class="slot"><span class="d">ŚR</span>08:00</div>
+            <div class="slot"><span class="d">ŚR</span>14:00</div>
+          </div>
+          <button class="cta">Zarezerwuj stanowisko →</button>
+        </div>
+      </div>
+      <p class="cap">Ekran 1 — <b>klient</b>, rezerwacja terminu</p>
+    </div>
+
+    <div>
+      <div class="phone">
+        <div class="bar"></div>
+        <div class="scr">
+          <div class="brand"><span class="dot"></span>TORQ.</div>
+          <p class="label">Zakres zlecenia</p>
+          <div class="part-row">
+            <div class="dashline"></div>
+            <div class="part-ico">⛽</div>
+            <div class="part-name">Filtr oleju + olej 5W30<span class="schema">poz. 04A / OEM</span></div>
+            <div class="part-price">210 zł</div>
+          </div>
+          <div class="part-row">
+            <div class="dashline"></div>
+            <div class="part-ico">⊙</div>
+            <div class="part-name">Klocki hamulcowe przód<span class="schema">poz. 11C / zamiennik</span></div>
+            <div class="part-price">340 zł</div>
+          </div>
+          <div class="part-row">
+            <div class="part-ico">↻</div>
+            <div class="part-name">Diagnostyka komputerowa<span class="schema">poz. 00 / robocizna</span></div>
+            <div class="part-price">80 zł</div>
+          </div>
+          <div class="totalbar">
+            <span class="t1">Suma szacunkowa</span>
+            <span class="t2">630 zł</span>
+          </div>
+        </div>
+      </div>
+      <p class="cap">Ekran 2 — <b>klient</b>, wybór usług / części</p>
+    </div>
+
+    <div>
+      <div class="desk">
+        <div class="topbar"><div class="brand"><span class="dot"></span>TORQ. — panel warsztatu</div><div class="chip">WT, 08:42</div></div>
+        <div class="desk-body">
+          <div class="stations">
+            <div class="station">
+              <div class="st-h">Stanowisko 1 <span class="status wip">w trakcie</span></div>
+              <div class="car">Octavia · KA4R771</div>
+              <div class="mech"><div class="avatar">MK</div>Marek K.</div>
+            </div>
+            <div class="station">
+              <div class="st-h">Stanowisko 2 <span class="status ok">gotowe</span></div>
+              <div class="car">Passat · KR2X019</div>
+              <div class="mech"><div class="avatar">TP</div>Tomek P.</div>
+            </div>
+            <div class="station">
+              <div class="st-h">Stanowisko 3 <span class="status">wolne</span></div>
+              <div class="car">—</div>
+              <div class="mech">—</div>
+            </div>
+          </div>
+          <p class="label">Kolejka dnia</p>
+          <div class="queue-row"><div class="q-l"><b>11:30</b> Octavia III — wymiana oleju + klocki</div><span class="status wip">w trakcie</span></div>
+          <div class="queue-row"><div class="q-l"><b>13:00</b> Passat B8 — przegląd okresowy</div><span class="status ok">gotowe</span></div>
+          <div class="queue-row"><div class="q-l"><b>14:30</b> Golf VII — diagnostyka usterki</div><span class="status">oczekuje</span></div>
+        </div>
+      </div>
+      <p class="cap">Ekran 3 — <b>warsztat / admin</b>, plan stanowisk i kolejka</p>
+    </div>
+  </div>
+</body>
+</html>

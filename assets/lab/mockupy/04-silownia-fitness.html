@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<title>IRON LAB — mockup platformy klubu fitness</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0A0A0B; --panel:#141416; --panel2:#1C1C1F;
+    --line: rgba(255,255,255,0.08); --line-strong: rgba(255,255,255,0.18);
+    --ink:#F2F2EF; --ink-dim:#8C8C90;
+    --lime:#C6FF3D; --lime-dim:#5B6B1E;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);font-family:'JetBrains Mono',monospace;color:var(--ink);padding:48px 24px 80px;}
+  .head{max-width:1180px;margin:0 auto 44px;}
+  .eyebrow{font-size:12px;letter-spacing:.18em;color:var(--lime);text-transform:uppercase;margin:0 0 10px;}
+  h1{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:40px;margin:0 0 8px;letter-spacing:-.01em;}
+  .sub{color:var(--ink-dim);font-size:14px;max-width:580px;line-height:1.6;}
+  .gallery{max-width:1180px;margin:0 auto;display:flex;gap:28px;flex-wrap:wrap;align-items:flex-start;}
+  .cap{font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-dim);margin:14px 2px 0;}
+  .cap b{color:var(--ink);}
+
+  .ticks{display:flex;gap:2px;margin:0 0 16px;}
+  .ticks span{width:3px;height:10px;background:var(--line-strong);}
+  .ticks span:nth-child(4n){background:var(--lime);height:14px;}
+
+  .phone{width:320px;background:var(--panel);border:1px solid var(--line-strong);overflow:hidden;box-shadow:0 30px 60px rgba(0,0,0,.5);}
+  .phone .bar{height:30px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--line);}
+  .phone .bar::before{content:'';width:60px;height:4px;background:var(--line-strong);}
+  .scr{padding:20px 18px 24px;}
+  .brand{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;margin-bottom:18px;text-transform:uppercase;}
+
+  .label{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-dim);margin:0 0 10px;}
+  .classrow{display:flex;justify-content:space-between;align-items:center;padding:12px;background:var(--panel2);margin-bottom:8px;}
+  .classrow.full{opacity:.45;}
+  .cl-name{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;}
+  .cl-time{font-size:10.5px;color:var(--ink-dim);}
+  .cl-spots{font-size:12px;color:var(--lime);font-weight:700;}
+  .cl-spots.zero{color:var(--ink-dim);}
+
+  .cta{width:100%;background:var(--lime);color:#141b03;border:none;padding:14px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;text-transform:uppercase;cursor:pointer;margin-top:8px;}
+
+  .ring-wrap{display:flex;align-items:center;gap:16px;background:var(--panel2);padding:16px;margin-bottom:18px;}
+  .ring{width:64px;height:64px;border-radius:50%;background:conic-gradient(var(--lime) 0 65%, var(--line-strong) 65% 100%);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .ring-in{width:48px;height:48px;border-radius:50%;background:var(--panel2);display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;}
+  .ring-txt .rt1{font-size:13px;font-weight:700;font-family:'Space Grotesk',sans-serif;}
+  .ring-txt .rt2{font-size:11px;color:var(--ink-dim);}
+
+  .exrow{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);font-size:12.5px;}
+  .exrow:last-of-type{border-bottom:none;}
+  .exrow .reps{color:var(--lime);font-weight:500;}
+
+  .desk{width:460px;background:var(--panel);border:1px solid var(--line-strong);overflow:hidden;box-shadow:0 30px 60px rgba(0,0,0,.5);}
+  .desk .topbar{background:var(--panel2);padding:14px 20px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line-strong);}
+  .desk .topbar .brand{margin:0;}
+  .desk-body{padding:20px;}
+  .memrow{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);}
+  .memrow:last-of-type{border-bottom:none;}
+  .memav{width:34px;height:34px;background:var(--panel2);border:1px solid var(--line-strong);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;}
+  .memname{flex:1;font-size:13.5px;}
+  .memsub{font-size:10.5px;color:var(--ink-dim);}
+  .trend{font-size:12px;font-weight:700;}
+  .trend.up{color:var(--lime);}
+  .trend.down{color:#E24B4A;}
+</style>
+</head>
+<body>
+  <div class="head">
+    <p class="eyebrow">Qubatura Lab — mockup platformy / branża 4 z 5</p>
+    <h1>Klub fitness</h1>
+    <p class="sub">Zapisy na zajęcia grupowe z limitem miejsc, tygodniowy plan treningowy z progresem, panel trenera z listą podopiecznych i trendem wyników.</p>
+  </div>
+
+  <div class="gallery">
+    <div>
+      <div class="phone">
+        <div class="bar"></div>
+        <div class="scr">
+          <div class="ticks">
+            <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+            <span></span><span></span><span></span><span></span>
+          </div>
+          <div class="brand">Iron Lab</div>
+          <p class="label">Zajęcia — dziś</p>
+          <div class="classrow">
+            <div><div class="cl-name">RPM</div><div class="cl-time">18:00 · sala 2</div></div>
+            <div class="cl-spots">6 / 20</div>
+          </div>
+          <div class="classrow">
+            <div><div class="cl-name">HIIT BURN</div><div class="cl-time">19:00 · sala 1</div></div>
+            <div class="cl-spots">2 / 16</div>
+          </div>
+          <div class="classrow full">
+            <div><div class="cl-name">MOBILITY</div><div class="cl-time">20:00 · sala 3</div></div>
+            <div class="cl-spots zero">pełne</div>
+          </div>
+          <button class="cta">Zapisz się — HIIT BURN</button>
+        </div>
+      </div>
+      <p class="cap">Ekran 1 — <b>klient</b>, zapis na zajęcia</p>
+    </div>
+
+    <div>
+      <div class="phone">
+        <div class="bar"></div>
+        <div class="scr">
+          <div class="brand">Iron Lab</div>
+          <div class="ring-wrap">
+            <div class="ring"><div class="ring-in">65%</div></div>
+            <div class="ring-txt"><div class="rt1">Tydzień 3 / 4</div><div class="rt2">Plan siłowy — góra/dół</div></div>
+          </div>
+          <p class="label">Dziś — dzień push</p>
+          <div class="exrow"><span>Wyciskanie sztangi</span><span class="reps">4×8</span></div>
+          <div class="exrow"><span>Wyciskanie na skos hantle</span><span class="reps">3×10</span></div>
+          <div class="exrow"><span>Dipy na poręczach</span><span class="reps">3×12</span></div>
+          <div class="exrow"><span>Triceps linka</span><span class="reps">3×15</span></div>
+        </div>
+      </div>
+      <p class="cap">Ekran 2 — <b>klient</b>, plan treningowy</p>
+    </div>
+
+    <div>
+      <div class="desk">
+        <div class="topbar"><div class="brand">Iron Lab — panel trenera</div><div class="cap" style="margin:0">12 podopiecznych</div></div>
+        <div class="desk-body">
+          <div class="memrow"><div class="memav">KN</div><div class="memname">Kasia N.<div class="memsub">Ostatnia sesja: wczoraj</div></div><span class="trend up">↑ −2.1 kg</span></div>
+          <div class="memrow"><div class="memav">PW</div><div class="memname">Piotr W.<div class="memsub">Ostatnia sesja: 3 dni temu</div></div><span class="trend down">↓ siła</span></div>
+          <div class="memrow"><div class="memav">AG</div><div class="memname">Ania G.<div class="memsub">Nowy podopieczny</div></div><span class="trend up">start</span></div>
+          <p class="label" style="margin-top:16px">Najbliższe sesje</p>
+          <div class="exrow"><span>17:00 — Kasia N., trening siłowy</span><span class="reps">dziś</span></div>
+          <div class="exrow"><span>18:30 — Piotr W., konsultacja</span><span class="reps">dziś</span></div>
+        </div>
+      </div>
+      <p class="cap">Ekran 3 — <b>trener</b>, panel podopiecznych</p>
+    </div>
+  </div>
+</body>
+</html>

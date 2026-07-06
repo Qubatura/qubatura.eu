@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<title>Młode Orły — mockup platformy klubowej</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Barlow+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0E2318; --panel:#153322; --panel2:#1B3E2A;
+    --line: rgba(245,243,236,0.12); --line-strong: rgba(245,243,236,0.24);
+    --chalk:#F5F3EC; --chalk-dim:#9FB6A6;
+    --gold:#F2C14E; --gold-dim:#7A5F1E;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);font-family:'Barlow Condensed',sans-serif;color:var(--chalk);padding:48px 24px 80px;
+    background-image:repeating-linear-gradient(90deg, transparent 0 78px, rgba(245,243,236,0.03) 78px 80px);}
+  .head{max-width:1180px;margin:0 auto 44px;}
+  .eyebrow{font-size:12px;letter-spacing:.18em;color:var(--gold);text-transform:uppercase;margin:0 0 10px;font-weight:600;}
+  h1{font-family:'Archivo Black',sans-serif;font-size:38px;margin:0 0 8px;text-transform:uppercase;letter-spacing:.01em;}
+  .sub{color:var(--chalk-dim);font-size:16px;max-width:580px;line-height:1.6;font-weight:500;}
+  .gallery{max-width:1180px;margin:0 auto;display:flex;gap:28px;flex-wrap:wrap;align-items:flex-start;}
+  .cap{font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--chalk-dim);margin:14px 2px 0;font-weight:500;}
+  .cap b{color:var(--chalk);}
+
+  .phone{width:320px;background:var(--panel);border:1px solid var(--line-strong);border-radius:22px;overflow:hidden;box-shadow:0 30px 60px rgba(0,0,0,.4);}
+  .phone .bar{height:30px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--line);}
+  .phone .bar::before{content:'';width:60px;height:4px;background:var(--line-strong);border-radius:2px;}
+  .scr{padding:20px 18px 24px;}
+  .brand{font-family:'Archivo Black',sans-serif;font-size:14px;letter-spacing:.02em;display:flex;align-items:center;gap:8px;margin-bottom:20px;text-transform:uppercase;}
+  .badge{width:26px;height:26px;background:var(--gold);color:#2b2003;font-family:'Archivo Black',sans-serif;font-size:11px;display:flex;align-items:center;justify-content:center;border-radius:50%;}
+
+  .pitchline{border:none;border-top:2px dashed var(--line-strong);margin:16px 0;}
+
+  .child-card{display:flex;gap:12px;align-items:center;background:var(--panel2);padding:14px;border-radius:10px;margin-bottom:16px;}
+  .jersey{width:44px;height:44px;border-radius:50%;background:var(--gold);color:#2b2003;font-family:'Archivo Black',sans-serif;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .child-name{font-size:18px;font-weight:600;}
+  .child-meta{font-size:13px;color:var(--chalk-dim);}
+
+  .label{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--chalk-dim);margin:0 0 10px;font-weight:600;}
+  .duesbar{background:var(--panel2);border-radius:10px;padding:14px;margin-bottom:18px;}
+  .dues-top{display:flex;justify-content:space-between;font-size:14px;margin-bottom:8px;}
+  .track{height:8px;background:rgba(245,243,236,0.1);border-radius:4px;overflow:hidden;}
+  .fill{height:100%;width:75%;background:var(--gold);}
+  .dues-sub{font-size:12px;color:var(--chalk-dim);margin-top:8px;}
+
+  .cta{width:100%;background:var(--gold);color:#2b2003;border:none;padding:14px;font-family:'Archivo Black',sans-serif;font-size:13px;text-transform:uppercase;letter-spacing:.03em;border-radius:8px;cursor:pointer;}
+
+  .day-row{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:var(--panel2);border-radius:10px;margin-bottom:10px;}
+  .day-row.today{border:1px solid var(--gold-dim);}
+  .day-name{font-size:13px;color:var(--chalk-dim);width:60px;font-weight:600;}
+  .day-info{flex:1;font-size:15px;font-weight:600;}
+  .day-sub{font-size:11.5px;color:var(--chalk-dim);}
+  .kit{width:30px;height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;}
+  .kit.home{background:var(--gold);color:#2b2003;}
+  .kit.away{background:var(--panel);border:1px solid var(--line-strong);}
+
+  .desk{width:460px;background:var(--panel);border:1px solid var(--line-strong);border-radius:14px;overflow:hidden;box-shadow:0 30px 60px rgba(0,0,0,.4);}
+  .desk .topbar{background:var(--panel2);padding:14px 20px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line-strong);}
+  .desk .topbar .brand{margin:0;}
+  .desk-body{padding:20px;}
+  .roster-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);}
+  .roster-row:last-of-type{border-bottom:none;}
+  .roster-name{flex:1;font-size:15px;font-weight:600;}
+  .roster-pos{font-size:11px;color:var(--chalk-dim);}
+  .attend{width:22px;height:22px;border-radius:5px;border:1px solid var(--line-strong);display:flex;align-items:center;justify-content:center;font-size:12px;}
+  .attend.yes{background:var(--gold);color:#2b2003;border-color:var(--gold);}
+
+  .weekstrip{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:18px;}
+  .wcell{text-align:center;padding:8px 0;border-radius:6px;background:var(--panel2);font-size:11px;color:var(--chalk-dim);}
+  .wcell.on{background:var(--gold);color:#2b2003;font-weight:700;}
+</style>
+</head>
+<body>
+  <div class="head">
+    <p class="eyebrow">Qubatura Lab — mockup platformy / branża 2 z 5</p>
+    <h1>Klub piłkarski dzieci i młodzieży</h1>
+    <p class="sub">Rodzic ma jeden widok na czesne, terminarz i strój na trening. Trener ma listę obecności i plan tygodnia zamiast grupy na Messengerze.</p>
+  </div>
+
+  <div class="gallery">
+    <div>
+      <div class="phone">
+        <div class="bar"></div>
+        <div class="scr">
+          <div class="brand"><span class="badge">MO</span>Młode Orły</div>
+          <div class="child-card">
+            <div class="jersey">9</div>
+            <div><div class="child-name">Antoś Kowalski</div><div class="child-meta">Rocznik 2016 · Żaki</div></div>
+          </div>
+          <p class="label">Czesne — sezon 2026/27</p>
+          <div class="duesbar">
+            <div class="dues-top"><span>Opłacono</span><span>9 / 12</span></div>
+            <div class="track"><div class="fill"></div></div>
+            <div class="dues-sub">Kolejna rata: 80 zł do 10 sierpnia</div>
+          </div>
+          <button class="cta">Opłać ratę →</button>
+        </div>
+      </div>
+      <p class="cap">Ekran 1 — <b>rodzic</b>, zapis i czesne</p>
+    </div>
+
+    <div>
+      <div class="phone">
+        <div class="bar"></div>
+        <div class="scr">
+          <div class="brand"><span class="badge">MO</span>Młode Orły</div>
+          <p class="label">Ten tydzień</p>
+          <div class="weekstrip">
+            <div class="wcell">PN</div><div class="wcell on">WT</div><div class="wcell">ŚR</div>
+            <div class="wcell">CZ</div><div class="wcell">PT</div><div class="wcell">SO</div><div class="wcell">ND</div>
+          </div>
+          <div class="day-row today">
+            <div class="day-name">DZIŚ</div>
+            <div style="flex:1"><div class="day-info">Trening — 17:00</div><div class="day-sub">Boisko Orlik, ul. Sportowa 4</div></div>
+            <div class="kit home">🏠</div>
+          </div>
+          <div class="day-row">
+            <div class="day-name">SOB</div>
+            <div style="flex:1"><div class="day-info">Mecz ligowy — 10:30</div><div class="day-sub">Wyjazd, Sosnowiec</div></div>
+            <div class="kit away">✈</div>
+          </div>
+          <p class="pitchline"></p>
+          <div class="label" style="margin-bottom:6px">Strój na dziś</div>
+          <div class="day-info" style="font-size:14px">Komplet domowy + korki lanki</div>
+        </div>
+      </div>
+      <p class="cap">Ekran 2 — <b>rodzic</b>, terminarz i strój</p>
+    </div>
+
+    <div>
+      <div class="desk">
+        <div class="topbar"><div class="brand"><span class="badge">MO</span>Panel trenera — rocznik 2016</div><div class="cap" style="margin:0">WT, trening 17:00</div></div>
+        <div class="desk-body">
+          <p class="label">Obecność</p>
+          <div class="roster-row"><div class="jersey" style="width:32px;height:32px;font-size:12px">9</div><div class="roster-name">Antoś Kowalski<div class="roster-pos">Napastnik</div></div><div class="attend yes">✓</div></div>
+          <div class="roster-row"><div class="jersey" style="width:32px;height:32px;font-size:12px">4</div><div class="roster-name">Julka Nowak<div class="roster-pos">Obrona</div></div><div class="attend yes">✓</div></div>
+          <div class="roster-row"><div class="jersey" style="width:32px;height:32px;font-size:12px">1</div><div class="roster-name">Bruno Wiśniewski<div class="roster-pos">Bramkarz</div></div><div class="attend">–</div></div>
+          <p class="pitchline"></p>
+          <p class="label">Plan treningu</p>
+          <div class="day-info" style="font-size:14px;margin-bottom:6px">Rozgrzewka → gra 4v4 → strzały na bramkę</div>
+          <div class="cap" style="margin:0">18 / 20 zawodników zapisanych na sezon</div>
+        </div>
+      </div>
+      <p class="cap">Ekran 3 — <b>trener</b>, obecność i plan</p>
+    </div>
+  </div>
+</body>
+</html>

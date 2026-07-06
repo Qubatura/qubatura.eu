@@ -41,6 +41,10 @@ const htmlOut = html
   .replace(
     /(<link\s+rel="stylesheet"\s+href="css\/main\.css)(?:\?v=[^"]*)?(")/,
     `$1?v=${TOKEN}$2`
+  )
+  .replace(
+    /(<link\s+rel="stylesheet"\s+href="css\/fonts\.css)(?:\?v=[^"]*)?(")/,
+    `$1?v=${TOKEN}$2`
   );
 if (htmlOut !== html) { writeFileSync(htmlPath, htmlOut); touched++; }
 

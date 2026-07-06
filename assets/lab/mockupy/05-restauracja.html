@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<title>Stół. — mockup platformy restauracji</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=Work+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#14110F; --panel:#1D1815; --panel2:#26201B;
+    --line: rgba(237,230,216,0.12); --line-strong: rgba(237,230,216,0.24);
+    --parch:#EDE6D8; --parch-dim:#A79C8A;
+    --brass:#B08D57; --brass-dim:#4E3F27;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);font-family:'Work Sans',sans-serif;color:var(--parch);padding:48px 24px 80px;}
+  .head{max-width:1180px;margin:0 auto 44px;}
+  .eyebrow{font-size:12px;letter-spacing:.18em;color:var(--brass);text-transform:uppercase;margin:0 0 12px;}
+  h1{font-family:'Fraunces',serif;font-weight:600;font-size:44px;margin:0 0 10px;}
+  .sub{color:var(--parch-dim);font-size:15px;max-width:580px;line-height:1.7;}
+  .gallery{max-width:1180px;margin:0 auto;display:flex;gap:28px;flex-wrap:wrap;align-items:flex-start;}
+  .cap{font-size:12px;color:var(--parch-dim);margin:14px 2px 0;}
+  .cap b{color:var(--parch);font-weight:500;}
+
+  .phone{width:320px;background:var(--panel);border:1px solid var(--line-strong);overflow:hidden;box-shadow:0 30px 60px rgba(0,0,0,.5);}
+  .phone .bar{height:30px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--line);}
+  .phone .bar::before{content:'';width:60px;height:4px;background:var(--line-strong);}
+  .scr{padding:22px 20px 26px;}
+  .brand{font-family:'Fraunces',serif;font-weight:600;font-size:18px;margin-bottom:20px;letter-spacing:.02em;}
+  .rule{border:none;border-top:1px solid var(--line-strong);margin:16px 0;}
+
+  .label{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--parch-dim);margin:0 0 12px;}
+  .fieldrow{display:flex;gap:8px;margin-bottom:14px;}
+  .field{flex:1;border:1px solid var(--line-strong);padding:10px;text-align:center;}
+  .field .fl{font-size:9.5px;color:var(--parch-dim);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:4px;}
+  .field .fv{font-family:'Fraunces',serif;font-size:15px;}
+
+  .zone-row{display:flex;gap:8px;margin-bottom:20px;}
+  .zone{flex:1;text-align:center;font-size:11px;padding:10px 4px;border:1px solid var(--line-strong);color:var(--parch-dim);}
+  .zone.sel{border-color:var(--brass);color:var(--brass);}
+
+  .cta{width:100%;background:var(--brass);color:#241a0b;border:none;padding:15px;font-family:'Fraunces',serif;font-weight:600;font-size:14px;cursor:pointer;}
+
+  .course-row{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--line);}
+  .course-row:last-of-type{border-bottom:none;}
+  .course-name{font-family:'Fraunces',serif;font-size:15px;}
+  .course-sub{font-size:11.5px;color:var(--parch-dim);margin-top:3px;}
+  .course-price{font-size:13px;color:var(--brass);white-space:nowrap;}
+  .toggle-wine{display:flex;justify-content:space-between;align-items:center;margin-top:16px;padding:12px;border:1px dashed var(--line-strong);font-size:12.5px;}
+  .swtch{width:34px;height:18px;border-radius:10px;background:var(--brass);position:relative;}
+  .swtch::after{content:'';position:absolute;width:14px;height:14px;background:#241a0b;border-radius:50%;right:2px;top:2px;}
+
+  .desk{width:460px;background:var(--panel);border:1px solid var(--line-strong);overflow:hidden;box-shadow:0 30px 60px rgba(0,0,0,.5);}
+  .desk .topbar{background:var(--panel2);padding:16px 22px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line-strong);}
+  .desk .topbar .brand{margin:0;}
+  .desk-body{padding:22px;display:flex;gap:20px;}
+  .floorplan{flex:1;display:grid;grid-template-columns:repeat(4,1fr);gap:10px;align-content:start;}
+  .table{aspect-ratio:1;border-radius:50%;border:1.5px solid var(--line-strong);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--parch-dim);}
+  .table.free{border-color:var(--line-strong);}
+  .table.occ{background:var(--brass-dim);border-color:var(--brass);color:var(--brass);}
+  .table.soon{border-color:var(--brass);border-style:dashed;color:var(--brass);}
+  .side{width:150px;flex-shrink:0;}
+  .res-row{font-size:11.5px;padding:8px 0;border-bottom:1px solid var(--line);}
+  .res-row:last-of-type{border-bottom:none;}
+  .res-time{color:var(--brass);font-weight:500;}
+</style>
+</head>
+<body>
+  <div class="head">
+    <p class="eyebrow">Qubatura Lab — mockup platformy / branża 5 z 5</p>
+    <h1>Restauracja</h1>
+    <p class="sub">Rezerwacja stolika z wyborem strefy sali, menu degustacyjne z parowaniem win, plan sali dla obsługi na żywo zamiast zeszytu rezerwacji.</p>
+  </div>
+
+  <div class="gallery">
+    <div>
+      <div class="phone">
+        <div class="bar"></div>
+        <div class="scr">
+          <div class="brand">Stół.</div>
+          <div class="fieldrow">
+            <div class="field"><span class="fl">Data</span><span class="fv">12 lip</span></div>
+            <div class="field"><span class="fl">Godz.</span><span class="fv">19:30</span></div>
+            <div class="field"><span class="fl">Os.</span><span class="fv">4</span></div>
+          </div>
+          <p class="label">Strefa sali</p>
+          <div class="zone-row">
+            <div class="zone sel">Sala główna</div>
+            <div class="zone">Ogród</div>
+            <div class="zone">Bar</div>
+          </div>
+          <button class="cta">Potwierdź rezerwację</button>
+        </div>
+      </div>
+      <p class="cap">Ekran 1 — <b>gość</b>, rezerwacja stolika</p>
+    </div>
+
+    <div>
+      <div class="phone">
+        <div class="bar"></div>
+        <div class="scr">
+          <div class="brand">Stół.</div>
+          <p class="label">Menu degustacyjne</p>
+          <div class="course-row"><div><div class="course-name">Carpaccio z buraka</div><div class="course-sub">chrzan, orzechy laskowe</div></div><div class="course-price">42 zł</div></div>
+          <div class="course-row"><div><div class="course-name">Policzki wołowe</div><div class="course-sub">puree topinamburowe · zawiera gluten</div></div><div class="course-price">78 zł</div></div>
+          <div class="course-row"><div><div class="course-name">Sorbet z czarnej porzeczki</div><div class="course-sub">deser</div></div><div class="course-price">28 zł</div></div>
+          <div class="toggle-wine"><span>Parowanie win do dań</span><div class="swtch"></div></div>
+        </div>
+      </div>
+      <p class="cap">Ekran 2 — <b>gość</b>, wybór menu</p>
+    </div>
+
+    <div>
+      <div class="desk">
+        <div class="topbar"><div class="brand">Stół. — sala</div><div class="cap" style="margin:0">Pt, 19:12</div></div>
+        <div class="desk-body">
+          <div class="floorplan">
+            <div class="table occ">3</div>
+            <div class="table free">4</div>
+            <div class="table occ">6</div>
+            <div class="table soon">8</div>
+            <div class="table free">5</div>
+            <div class="table occ">2</div>
+            <div class="table free">7</div>
+            <div class="table soon">1</div>
+          </div>
+          <div class="side">
+            <p class="label">Rezerwacje dziś</p>
+            <div class="res-row"><span class="res-time">19:30</span> — stół 8, 4 os.</div>
+            <div class="res-row"><span class="res-time">19:45</span> — stół 1, 2 os.</div>
+            <div class="res-row"><span class="res-time">20:15</span> — stół 4, 6 os.</div>
+          </div>
+        </div>
+      </div>
+      <p class="cap">Ekran 3 — <b>obsługa sali</b>, plan stolików na żywo</p>
+    </div>
+  </div>
+</body>
+</html>

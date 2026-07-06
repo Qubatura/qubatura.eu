@@ -1,0 +1,492 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Poligon — Centrum Sterowania Komunikacją</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@300;400;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0A0A0F; --primary:#5B2EFF; --accent:#E0218A;
+  --events:#9D4EDD; --studio:#1E90FF; --lab:#00E5FF;
+  --white:#FFFFFF;
+  --font-display:'Chakra Petch',sans-serif;
+  --font-mono:'Space Mono',monospace;
+  --tor:var(--primary);           /* aktywny kolor toru — ustawiany JS */
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:var(--bg); color:var(--white);
+  font-family:var(--font-mono);
+  overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+/* atmosfera tła */
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none;transition:background .8s ease}
+.bg::before{
+  content:"";position:absolute;inset:0;
+  background:
+    radial-gradient(60% 55% at 50% 42%, color-mix(in srgb,var(--tor) 16%, transparent), transparent 70%),
+    radial-gradient(40% 40% at 82% 88%, color-mix(in srgb,var(--tor) 10%, transparent), transparent 70%);
+  transition:background .8s ease;
+}
+.grain{position:fixed;inset:0;z-index:1;opacity:.035;pointer-events:none;
+  background-image:radial-gradient(rgba(255,255,255,.6) .5px,transparent .5px);
+  background-size:3px 3px}
+
+/* tła działów — crossfade (dwie warstwy) — pomysł Kuby: nawiązanie do podstron */
+.depbg{position:fixed;inset:0;z-index:0;background-size:cover;background-position:center;
+  opacity:0;transition:opacity 1s ease;pointer-events:none}
+.vig{position:fixed;inset:0;z-index:1;pointer-events:none;
+  background:radial-gradient(72% 72% at 50% 48%, transparent 28%, rgba(10,10,15,.72) 100%)}
+
+/* nagłówek jak na podstronach: logo-lockup + nazwa (kolor działu) — spójne z #page-home */
+.pagehome{position:fixed;top:22px;left:2.6%;z-index:101;display:flex;align-items:center;gap:11px;
+  padding:6px 8px;background:none;border:none;cursor:pointer}
+.home-arrow{color:var(--pg-color,rgba(255,255,255,.5));font-size:16px;transition:transform .3s,color .5s}
+.pagehome:hover .home-arrow{transform:translateX(-3px)}
+.home-lockup{width:95px;height:30px;background:rgba(255,255,255,.92);
+  -webkit-mask:url('../assets/logo-lockup.svg') left center / contain no-repeat;
+          mask:url('../assets/logo-lockup.svg') left center / contain no-repeat;
+  transition:filter .3s;animation:home-glow 4.5s ease-in-out infinite}
+@keyframes home-glow{0%,100%{filter:drop-shadow(0 0 3px rgba(139,79,255,.25))}
+  50%{filter:drop-shadow(0 0 10px rgba(139,79,255,.6))}}
+.home-dept{font-family:var(--font-mono);font-size:13px;letter-spacing:.26em;text-transform:uppercase;
+  line-height:1;color:var(--pg-color,var(--primary));text-shadow:0 0 10px var(--pg-color,var(--primary));
+  padding-left:12px;border-left:1px solid rgba(255,255,255,.18);transition:color .5s,text-shadow .5s}
+.crumb-r{position:fixed;top:24px;right:34px;z-index:101;font-family:var(--font-mono);font-size:11px;
+  letter-spacing:.22em;opacity:.3}
+
+/* ── EKRAN HOME (uproszczony — tylko do przećwiczenia wejścia w Kontakt) ── */
+#home{display:none}
+body.is-home #home{display:grid}
+body.is-home #closed{display:none}
+body.is-home .pagehome,body.is-home .crumb-r{display:none}
+.home-top{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;justify-content:space-between;
+  align-items:center;padding:22px 34px}
+.brand-lg{font-family:var(--font-display);font-weight:700;letter-spacing:.26em;font-size:14px}
+.home-actions{display:flex;gap:22px;align-items:center;font-family:var(--font-mono);font-size:11px;letter-spacing:.2em}
+.home-kontakt{background:none;border:none;color:#fff;cursor:pointer;font-family:var(--font-mono);
+  font-size:11px;letter-spacing:.2em;opacity:.85;transition:color .3s}
+.home-kontakt:hover{color:var(--primary)}
+.home-en{opacity:.4}
+.home-center{text-align:center}
+.home-signet{width:120px;height:120px;margin:0 auto 32px;background:var(--primary);
+  -webkit-mask:url('../assets/signet.svg') center/contain no-repeat;
+          mask:url('../assets/signet.svg') center/contain no-repeat;
+  filter:drop-shadow(0 0 34px var(--primary));animation:breathe 4.2s ease-in-out infinite}
+.home-tag{font-family:var(--font-display);font-weight:300;letter-spacing:.34em;opacity:.55;
+  text-transform:uppercase;font-size:13px;margin-bottom:44px}
+.home-nav{display:flex;gap:44px;justify-content:center;font-family:var(--font-mono);font-size:12px;
+  letter-spacing:.22em;opacity:.42}
+/* home = czysta czerń (bez „smugi" po zdjętym sygnecie) */
+body.is-home .bg,body.is-home .vig{opacity:0}
+body.is-home .home-tag{opacity:.5}
+
+/* wspólny wrapper etapów */
+.stage{position:fixed;inset:0;z-index:3;display:grid;place-items:center;padding:24px}
+.panel{width:min(920px,94vw);position:relative}
+
+/* ── ETAP 0: minimalistyczny Kontakt (współrzędne/QR/socjale) + frost-brama ── */
+@keyframes breathe{0%,100%{opacity:.25;box-shadow:0 0 40px -18px var(--primary) inset}
+  50%{opacity:.75;box-shadow:0 0 70px -14px var(--primary) inset}}
+.contact-min{width:min(540px,92vw);margin:0 auto;text-align:center;display:flex;
+  flex-direction:column;align-items:center;gap:32px}
+.c-coords h2{font-family:var(--font-mono);font-size:clamp(19px,2.5vw,26px);font-weight:700;letter-spacing:.06em}
+.c-coords p{font-family:var(--font-mono);font-size:10px;letter-spacing:.3em;text-transform:uppercase;opacity:.4;margin-top:9px}
+
+.frost-tile{position:relative;width:100%;cursor:pointer;border:1px solid rgba(255,255,255,.12);
+  border-radius:16px;padding:32px 30px;background:rgba(255,255,255,.035);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);overflow:hidden;
+  display:flex;flex-direction:column;align-items:center;gap:9px;color:#fff;
+  transition:border-color .5s,transform .5s cubic-bezier(.2,.8,.2,1),box-shadow .5s}
+.frost-tile::after{content:"";position:absolute;inset:0;border-radius:16px;pointer-events:none;
+  animation:breathe 4.2s ease-in-out infinite}
+.frost-tile:hover{border-color:rgba(91,46,255,.5);transform:translateY(-3px);
+  box-shadow:0 30px 80px -40px rgba(91,46,255,.6)}
+.ft-glyph{font-family:var(--font-display);font-weight:700;font-size:10px;letter-spacing:.3em;color:var(--primary);opacity:.9}
+.ft-title{font-family:var(--font-display);font-weight:700;font-size:clamp(20px,2.6vw,26px)}
+.ft-sub{font-family:var(--font-mono);font-size:10px;letter-spacing:.24em;text-transform:uppercase;opacity:.42}
+
+.c-cols{display:flex;align-items:center;justify-content:center;gap:36px;flex-wrap:wrap}
+.c-data{display:flex;flex-direction:column;gap:8px;text-align:left}
+.c-data a{font-family:var(--font-mono);font-size:13px;color:#fff;text-decoration:none;opacity:.7;
+  letter-spacing:.04em;transition:.3s}
+.c-data a:hover{opacity:1;color:var(--primary)}
+.c-qr{position:relative;width:62px;height:62px;display:grid;place-items:center}
+.qc{position:absolute;width:10px;height:10px;border:1px solid rgba(255,255,255,.4)}
+.qc.tl{top:0;left:0;border-right:0;border-bottom:0}.qc.tr{top:0;right:0;border-left:0;border-bottom:0}
+.qc.bl{bottom:0;left:0;border-right:0;border-top:0}.qc.br{bottom:0;right:0;border-left:0;border-top:0}
+.qr-label{font-family:var(--font-mono);font-size:9px;letter-spacing:.14em;opacity:.4}
+
+.c-social{display:flex;gap:22px;font-family:var(--font-mono);font-size:10px;letter-spacing:.22em;text-transform:uppercase}
+.c-social span{opacity:.55;cursor:pointer;transition:.3s}
+.c-social span:hover{opacity:1;color:var(--primary)}
+.c-social span.soon{opacity:.22;cursor:default}
+
+/* ── KONSOLETA (etapy 1-3) ──────────────────────────────────── */
+#console{display:none}
+#console.on{display:grid}
+.console-wrap{width:min(920px,94vw);position:relative;
+  border:1px solid rgba(255,255,255,.08);border-radius:18px;
+  background:linear-gradient(180deg,rgba(20,18,34,.66),rgba(10,10,15,.72));
+  backdrop-filter:blur(14px);
+  box-shadow:0 40px 120px -50px color-mix(in srgb,var(--tor) 60%, black);
+  padding:30px 34px 34px;overflow:hidden;
+  transition:box-shadow .6s ease}
+.console-wrap::before{content:"";position:absolute;left:0;right:0;top:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--tor),transparent);opacity:.8}
+
+/* nagłówek konsolety + progres */
+.chead{display:flex;align-items:center;justify-content:space-between;margin-bottom:26px}
+.chead .name{font-family:var(--font-display);font-weight:700;font-size:12px;letter-spacing:.28em}
+.chead .name b{color:var(--tor)}
+.rail{display:flex;gap:8px;align-items:center}
+.rail .seg{width:34px;height:3px;border-radius:2px;background:rgba(255,255,255,.12);transition:background .4s}
+.rail .seg.on{background:var(--tor)}
+.back{background:none;border:1px solid rgba(255,255,255,.14);color:#fff;cursor:pointer;
+  font-family:var(--font-mono);font-size:10px;letter-spacing:.2em;padding:7px 12px;border-radius:8px;
+  opacity:.6;transition:.3s}
+.back:hover{opacity:1;border-color:var(--tor)}
+
+/* step container */
+.step{display:none;animation:rise .5s cubic-bezier(.2,.8,.2,1)}
+.step.on{display:block}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.q{font-family:var(--font-display);font-weight:700;font-size:clamp(19px,2.4vw,26px);margin-bottom:6px}
+.q .cursor{color:var(--tor);animation:blink 1.1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.sub{font-size:11px;letter-spacing:.14em;opacity:.42;margin-bottom:24px}
+
+/* STEP 1 — tory */
+.tory{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.tor{position:relative;cursor:pointer;border:1px solid rgba(255,255,255,.10);border-radius:14px;
+  padding:26px 20px;background:rgba(255,255,255,.015);overflow:hidden;
+  transition:border-color .35s,transform .35s,background .35s}
+.tor:hover{transform:translateY(-4px);border-color:var(--c);
+  background:color-mix(in srgb,var(--c) 12%, transparent);
+  box-shadow:0 24px 60px -34px var(--c)}
+.tor .dot{width:9px;height:9px;border-radius:50%;background:var(--c);
+  box-shadow:0 0 14px var(--c);margin-bottom:18px}
+.tor h3{font-family:var(--font-display);font-weight:700;font-size:16px;letter-spacing:.14em;margin-bottom:8px}
+.tor p{font-size:10.5px;letter-spacing:.06em;opacity:.5;line-height:1.5}
+
+/* STEP 2 — podpowiedzi */
+.chips{display:flex;flex-wrap:wrap;gap:10px}
+.chip{cursor:pointer;border:1px solid rgba(255,255,255,.14);border-radius:999px;
+  padding:11px 18px;font-size:12px;letter-spacing:.04em;background:rgba(255,255,255,.02);
+  transition:.3s;color:#fff}
+.chip:hover{border-color:var(--tor);background:color-mix(in srgb,var(--tor) 16%, transparent);
+  transform:translateY(-2px)}
+.chip.soft{opacity:.55;font-style:italic}
+
+/* STEP 3 — opis + kontakt */
+.field{margin-bottom:16px}
+.field label{display:block;font-size:10px;letter-spacing:.24em;text-transform:uppercase;opacity:.45;margin-bottom:8px}
+textarea,input{width:100%;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.12);
+  border-radius:10px;color:#fff;font-family:var(--font-mono);font-size:13px;padding:13px 14px;resize:none;
+  transition:border-color .3s,box-shadow .3s}
+textarea{min-height:120px;line-height:1.6}
+textarea:focus,input:focus{outline:none;border-color:var(--tor);
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--tor) 20%, transparent)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.subject{margin:8px 0 20px;font-size:11px;letter-spacing:.06em;opacity:.55}
+.subject b{color:var(--tor);font-weight:700}
+.send{width:100%;cursor:pointer;border:none;border-radius:12px;padding:16px;
+  font-family:var(--font-display);font-weight:700;font-size:13px;letter-spacing:.22em;color:#fff;
+  background:linear-gradient(135deg,var(--tor),color-mix(in srgb,var(--tor) 50%, var(--primary)));
+  box-shadow:0 20px 50px -24px var(--tor);transition:transform .3s,box-shadow .3s}
+.send:hover{transform:translateY(-2px);box-shadow:0 28px 60px -22px var(--tor)}
+
+/* STEP 4 — sukces */
+.done{text-align:center;padding:20px 0}
+.done .mark{width:64px;height:64px;border-radius:50%;margin:0 auto 22px;display:grid;place-items:center;
+  border:2px solid var(--tor);box-shadow:0 0 40px -8px var(--tor);font-size:26px;color:var(--tor)}
+.done h2{font-family:var(--font-display);font-weight:700;font-size:24px;margin-bottom:10px}
+.done p{font-size:12px;letter-spacing:.1em;opacity:.55;line-height:1.7}
+.done .again{margin-top:26px}
+
+/* helper: reveal animacja obudzenia */
+.fade-out{opacity:0!important;transform:scale(.96)!important;transition:.45s ease!important;pointer-events:none}
+.fade-in{animation:wake .6s cubic-bezier(.2,.8,.2,1)}
+@keyframes wake{from{opacity:0;transform:scale(.97) translateY(18px)}to{opacity:1;transform:none}}
+
+@media(max-width:640px){
+  .tory{grid-template-columns:1fr}
+  .row{grid-template-columns:1fr}
+  .console-wrap{padding:24px 20px 26px}
+}
+</style>
+</head>
+<body>
+<div class="depbg" id="depbgA"></div>
+<div class="depbg" id="depbgB"></div>
+<div class="bg"></div>
+<div class="vig"></div>
+<div class="grain"></div>
+
+<button class="pagehome" id="pagehome" onclick="reset()">
+  <span class="home-arrow">‹</span>
+  <span class="home-lockup"></span>
+  <span class="home-dept" id="dept">Kontakt</span>
+</button>
+<div class="crumb-r">SOSNOWIEC · PL</div>
+
+<!-- EKRAN HOME (poligonowy) -->
+<div class="stage" id="home">
+  <div class="home-top">
+    <span class="home-lockup" aria-hidden="true"></span>
+    <div class="home-actions">
+      <button class="home-kontakt" onclick="goContact()">Kontakt</button>
+      <span class="home-en">EN</span>
+    </div>
+  </div>
+  <div class="home-center">
+    <div class="home-tag">Przybywamy z sygnałem</div>
+    <div class="home-nav"><span>← Events</span><span>Studio →</span><span>Lab</span></div>
+  </div>
+</div>
+
+<!-- ETAP 0 — minimalistyczny Kontakt: współrzędne / dane / QR / socjale + frost-brama -->
+<div class="stage" id="closed">
+  <div class="contact-min" id="contactMin">
+    <div class="c-coords">
+      <h2>50°17'N · 19°08'E</h2>
+      <p>Śląsk · Polska</p>
+    </div>
+
+    <button class="frost-tile" id="tile" onclick="wake()">
+      <span class="ft-glyph">◗ ◗ ◗</span>
+      <span class="ft-title">Porozmawiajmy</span>
+      <span class="ft-sub">otwórz centrum komunikacji →</span>
+    </button>
+
+    <div class="c-cols">
+      <div class="c-data">
+        <a href="mailto:biuro@qubatura.eu">biuro@qubatura.eu</a>
+        <a href="tel:+48505512305">505 512 305</a>
+      </div>
+      <div class="c-qr" aria-hidden="true">
+        <span class="qc tl"></span><span class="qc tr"></span>
+        <span class="qc bl"></span><span class="qc br"></span>
+        <span class="qr-label">[ QR ]</span>
+      </div>
+    </div>
+
+    <div class="c-social">
+      <span>Facebook</span><span>LinkedIn</span>
+      <span class="soon">TikTok</span><span class="soon">Instagram</span>
+    </div>
+  </div>
+</div>
+
+<!-- KONSOLETA -->
+<div class="stage" id="console">
+  <div class="console-wrap" id="cwrap">
+    <div class="chead">
+      <div class="name">CENTRUM STEROWANIA <b>KOMUNIKACJĄ</b></div>
+      <div style="display:flex;gap:14px;align-items:center">
+        <div class="rail">
+          <span class="seg" data-s="1"></span>
+          <span class="seg" data-s="2"></span>
+          <span class="seg" data-s="3"></span>
+        </div>
+        <button class="back" id="back" onclick="back()">‹ WSTECZ</button>
+      </div>
+    </div>
+
+    <!-- STEP 1 -->
+    <div class="step" id="s1">
+      <div class="q">Z czym przychodzisz?<span class="cursor">_</span></div>
+      <div class="sub">Wybierz tor — resztę poprowadzimy podpowiedziami.</div>
+      <div class="tory">
+        <div class="tor" style="--c:var(--events)" onclick="pickTor('events')">
+          <div class="dot"></div><h3>EVENTS</h3>
+          <p>Nagłośnienie, światło, multimedia, streaming.</p>
+        </div>
+        <div class="tor" style="--c:var(--studio)" onclick="pickTor('studio')">
+          <div class="dot"></div><h3>STUDIO Q</h3>
+          <p>Produkcja audio, reklama, lektor, sound design.</p>
+        </div>
+        <div class="tor" style="--c:var(--lab)" onclick="pickTor('lab')">
+          <div class="dot"></div><h3>QLAB</h3>
+          <p>Strony www, platformy, druk 3D, IoT.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="step" id="s2">
+      <div class="q" id="s2q">Doprecyzuj<span class="cursor">_</span></div>
+      <div class="sub">Kliknij najbliższe — a my podstawimy Ci gotowy szkielet wiadomości.</div>
+      <div class="chips" id="chips"></div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="step" id="s3">
+      <div class="q">Opowiedz krótko<span class="cursor">_</span></div>
+      <div class="sub">Uzupełnij luki — im więcej wiemy, tym celniej odpowiemy.</div>
+      <div class="field">
+        <label>Twoja sprawa</label>
+        <textarea id="msg"></textarea>
+      </div>
+      <div class="row">
+        <div class="field"><label>Imię</label><input id="name" placeholder="Jak masz na imię?"></div>
+        <div class="field"><label>Mail lub telefon</label><input id="contact" placeholder="Jak oddzwonić?"></div>
+      </div>
+      <div class="subject">Temat, który do nas doleci: <b id="subj">[EVENTS] …</b></div>
+      <button class="send" onclick="send()">WYŚLIJ SYGNAŁ →</button>
+    </div>
+
+    <!-- STEP 4 -->
+    <div class="step" id="s4">
+      <div class="done">
+        <div class="mark">◗</div>
+        <h2>Sygnał odebrany</h2>
+        <p id="doneline">Wróci do Ciebie realny człowiek — zwykle w ciągu doby.<br>Odpisujemy z <b>biuro@qubatura.eu</b>.</p>
+        <div class="again"><button class="back" onclick="reset()">‹ OD NOWA (poligon)</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const DATA={
+  events:{color:'var(--events)',label:'EVENTS',q:'Czego potrzebuje Twój event?',
+    items:[
+      {t:'Wyceń wydarzenie',p:'Chcę wycenić wydarzenie.\n• Data i miejsce: \n• Liczba gości: \n• Czego potrzebuję (nagłośnienie / światło / ekran / streaming): '},
+      {t:'Wypożycz sprzęt',p:'Chcę wypożyczyć sprzęt.\n• Co: \n• Na kiedy (od–do): \n• Odbiór własny czy z obsługą: '},
+      {t:'Scenariusz imprezy',p:'Chcę pogadać o scenariuszu imprezy.\n• Charakter wydarzenia: \n• Co ma się wydarzyć: '},
+      {t:'Streaming / live',p:'Interesuje mnie realizacja live / streaming.\n• Gdzie i kiedy: \n• Ile kamer / platforma docelowa: '},
+      {t:'Nie wiem, doradźcie',p:'Mam wydarzenie, ale nie wiem od czego zacząć.\n• Opowiem w skrócie: ',soft:1},
+    ]},
+  studio:{color:'var(--studio)',label:'STUDIO',q:'Co produkujemy?',
+    items:[
+      {t:'Reklama / spot',p:'Potrzebuję reklamy / spotu.\n• Gdzie poleci (radio / social / instore): \n• Długość: \n• Termin: '},
+      {t:'Produkcja audio',p:'Chcę zamówić produkcję audio (audiobook / słuchowisko).\n• Materiał / objętość: \n• Termin: '},
+      {t:'Sound design',p:'Szukam sound designu.\n• Do czego (gra / film / instalacja): \n• Zakres: '},
+      {t:'Nagranie lektora',p:'Potrzebuję lektora.\n• Język i płeć głosu: \n• Długość tekstu: \n• Termin: '},
+      {t:'Coś innego',p:'Mam pomysł audio, nie do końca pasuje do szufladek.\n• W skrócie: ',soft:1},
+    ]},
+  lab:{color:'var(--lab)',label:'LAB',q:'Co budujemy?',
+    items:[
+      {t:'Strona www / redesign',p:'Chcę stronę www lub redesign.\n• Dla kogo / jaka działalność: \n• Mam już coś czy od zera: \n• Termin: '},
+      {t:'Platforma / system',p:'Potrzebuję platformy / systemu (np. obsługa kawiarni).\n• Co ma robić: \n• Kto będzie używał: '},
+      {t:'Druk 3D / prototyp',p:'Interesuje mnie druk 3D / prototyp.\n• Co to za obiekt: \n• Mam model czy trzeba zaprojektować: '},
+      {t:'IoT / projekt techniczny',p:'Mam pomysł na urządzenie / IoT.\n• Co ma robić: \n• Na jakim etapie jestem: '},
+      {t:'Mam luźny pomysł',p:'Mam luźny pomysł i chcę pogadać, czy da się zrobić.\n• Pomysł: ',soft:1},
+    ]},
+};
+let cur=null;
+const $=s=>document.querySelector(s);
+function setStep(n){
+  ['s1','s2','s3','s4'].forEach((id,i)=>$('#'+id).classList.toggle('on',i===n-1));
+  document.querySelectorAll('.rail .seg').forEach((seg,i)=>seg.classList.toggle('on',i<n && n<4));
+  $('#back').style.visibility = (n===1||n===4)?'hidden':'visible';
+}
+document.body.classList.add('is-home');
+function goContact(){
+  document.body.classList.remove('is-home');
+  $('#home').classList.add('fade-out');
+  setTimeout(()=>{
+    $('#home').style.display='none';
+    $('#closed').style.display='grid';
+    $('#closed').classList.add('fade-in');
+  },380);
+}
+function wake(){
+  $('#contactMin').classList.add('fade-out');
+  setTimeout(()=>{
+    $('#closed').style.display='none';
+    const c=$('#console');c.classList.add('on');
+    $('#cwrap').classList.add('fade-in');
+    setDepBg('contact');   // pokój „centrum łączności" zapala się TU (reveal)
+    setStep(1);
+  },380);
+}
+let depActive=null;
+function setDepBg(key){
+  const a=$('#depbgA'),b=$('#depbgB');
+  if(!key){a.style.opacity=0;b.style.opacity=0;depActive=null;return;}
+  const show=depActive==='A'?b:a, hide=depActive==='A'?a:b;
+  show.style.backgroundImage="url('../assets/qubatura.eu-tlo-dep-"+key+".webp')";
+  show.style.opacity=.34; hide.style.opacity=0;
+  depActive=depActive==='A'?'B':'A';
+}
+function pickTor(key){
+  cur=key;const d=DATA[key];
+  document.documentElement.style.setProperty('--tor',d.color);
+  document.documentElement.style.setProperty('--pg-color',d.color);
+  setDepBg(key);
+  $('#s2q').firstChild.textContent=d.q;
+  const wrap=$('#chips');wrap.innerHTML='';
+  d.items.forEach(it=>{
+    const b=document.createElement('div');
+    b.className='chip'+(it.soft?' soft':'');
+    b.textContent=it.t;
+    b.onclick=()=>pickItem(it);
+    wrap.appendChild(b);
+  });
+  setStep(2);
+}
+function pickItem(it){
+  $('#msg').value=it.p;
+  $('#subj').textContent='['+DATA[cur].label+'] '+it.t;
+  setStep(3);
+  setTimeout(()=>{const t=$('#msg');t.focus();t.setSelectionRange(t.value.length,t.value.length)},350);
+}
+function send(){
+  const nm=$('#name').value.trim();
+  $('#doneline').innerHTML=(nm?nm+', dziękujemy. ':'')+'Wróci do Ciebie realny człowiek — zwykle w ciągu doby.<br>Odpisujemy z <b>biuro@qubatura.eu</b>.';
+  setStep(4);
+}
+function neutral(){
+  document.documentElement.style.setProperty('--tor','var(--primary)');
+  document.documentElement.style.removeProperty('--pg-color');
+  setDepBg('contact');   // powrót do kroku 1 = wracamy do pokoju łączności (nie czerń)
+}
+function back(){
+  const on=['s1','s2','s3','s4'].findIndex(id=>$('#'+id).classList.contains('on'))+1;
+  if(on<=2){neutral();setStep(1);}
+  else setStep(on-1);
+}
+function reset(){
+  neutral();
+  setDepBg(null);   // home = brak tła pokoju
+  $('#console').classList.remove('on');
+  $('#cwrap').classList.remove('fade-in');
+  $('#contactMin').classList.remove('fade-out');
+  $('#closed').classList.remove('fade-in');
+  $('#closed').style.display='';
+  $('#home').classList.remove('fade-out');
+  $('#home').style.display='';
+  document.body.classList.add('is-home');
+  $('#msg').value='';$('#name').value='';$('#contact').value='';
+  setStep(1);
+}
+setStep(1);
+
+/* auto-driver tylko do screenshotów: ?shot=tile|s1|events2|events3|studio2|lab2|done */
+(function(){
+  const s=new URLSearchParams(location.search).get('shot');
+  if(!s)return;
+  if(s!=='home'){document.body.classList.remove('is-home');$('#home').style.display='none';}
+  const go={
+    home:()=>{},
+    tile:()=>{$('#closed').style.display='grid';},
+    s1:()=>{$('#closed').style.display='none';$('#console').classList.add('on');setDepBg('contact');setStep(1);},
+    events2:()=>{s1skip();pickTor('events');},
+    events3:()=>{s1skip();pickTor('events');pickItem(DATA.events.items[0]);},
+    studio2:()=>{s1skip();pickTor('studio');},
+    lab2:()=>{s1skip();pickTor('lab');},
+    done:()=>{s1skip();pickTor('lab');pickItem(DATA.lab.items[0]);$('#name').value='Kuba';send();},
+  };
+  function s1skip(){$('#closed').style.display='none';$('#console').classList.add('on');}
+  (go[s]||go.tile)();
+})();
+</script>
+</body>
+</html>

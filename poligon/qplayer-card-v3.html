@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Qplayer — karta produktu v3 (poligon)</title>
+<style>
+  @font-face{font-family:'Chakra Petch';font-weight:400;font-display:swap;
+    src:url('../assets/fonts/chakra-petch-400-latin-ext.woff2') format('woff2');
+    unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;}
+  @font-face{font-family:'Chakra Petch';font-weight:400;font-display:swap;
+    src:url('../assets/fonts/chakra-petch-400-latin.woff2') format('woff2');
+    unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;}
+  @font-face{font-family:'Chakra Petch';font-weight:600;font-display:swap;
+    src:url('../assets/fonts/chakra-petch-600-latin-ext.woff2') format('woff2');
+    unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;}
+  @font-face{font-family:'Chakra Petch';font-weight:600;font-display:swap;
+    src:url('../assets/fonts/chakra-petch-600-latin.woff2') format('woff2');
+    unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;}
+  @font-face{font-family:'Chakra Petch';font-weight:700;font-display:swap;
+    src:url('../assets/fonts/chakra-petch-700-latin-ext.woff2') format('woff2');
+    unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;}
+  @font-face{font-family:'Chakra Petch';font-weight:700;font-display:swap;
+    src:url('../assets/fonts/chakra-petch-700-latin.woff2') format('woff2');
+    unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;}
+  @font-face{font-family:'Space Mono';font-weight:400;font-display:swap;
+    src:url('../assets/fonts/space-mono-400-latin-ext.woff2') format('woff2');
+    unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;}
+  @font-face{font-family:'Space Mono';font-weight:400;font-display:swap;
+    src:url('../assets/fonts/space-mono-400-latin.woff2') format('woff2');
+    unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;}
+
+  :root{
+    --violet:#8B4FFF;
+    --violet-deep:#6B2FD9;
+    --lab:#00E5FF;
+    --ink:#F3F1FF;
+    --fd:'Chakra Petch',system-ui,sans-serif;
+    --fm:'Space Mono',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    min-height:100vh;font-family:var(--fd);
+    background:linear-gradient(180deg,#0a0812,#060510);
+    display:flex;align-items:center;justify-content:center;padding:40px;
+  }
+
+  .prod{
+    position:relative;
+    width:min(1180px,86vw);
+    height:auto;max-height:94vh;
+    background:#0C0A16;                 /* ciut jaśniej niż wcześniej — czytelniej */
+    border:1px solid color-mix(in srgb,var(--violet) 30%,transparent);
+    box-shadow:0 44px 130px rgba(0,0,0,.7);
+    display:grid;grid-template-columns:1.04fr 1fr;
+  }
+  .tick{position:absolute;width:15px;height:15px;z-index:4;pointer-events:none;
+    border-color:color-mix(in srgb,var(--violet) 70%,transparent);border-style:solid;border-width:0}
+  .tick.tl{top:12px;left:12px;border-top-width:1px;border-left-width:1px}
+  .tick.tr{top:12px;right:12px;border-top-width:1px;border-right-width:1px}
+  .tick.bl{bottom:12px;left:12px;border-bottom-width:1px;border-left-width:1px}
+  .tick.br{bottom:12px;right:12px;border-bottom-width:1px;border-right-width:1px}
+
+  .prod-close{position:absolute;top:22px;left:26px;z-index:5;
+    font-family:var(--fm);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    color:rgba(243,241,255,.5);background:none;border:none}
+
+  /* ── LEWA: screen + kafle-liczby + specyfikacja ── */
+  .bay{background:linear-gradient(180deg,#080611,#0A0814);
+    border-right:1px solid rgba(139,79,255,.16);
+    padding:62px 38px 34px;display:flex;flex-direction:column;gap:20px}
+  .bay-frame{position:relative;border:1px solid rgba(255,255,255,.1);background:#0b0912;
+    box-shadow:0 26px 60px rgba(0,0,0,.6)}
+  .bay-frame::after{content:"";position:absolute;left:8%;right:8%;bottom:-1px;height:1px;
+    background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--violet) 60%,transparent),transparent)}
+  .bay-frame img{display:block;width:100%;height:auto}
+  .bay-cap{display:flex;justify-content:space-between;font-family:var(--fm);font-size:10px;
+    letter-spacing:.12em;text-transform:uppercase;color:rgba(243,241,255,.34);margin-top:-6px}
+  .bay-cap b{color:color-mix(in srgb,var(--violet) 66%,#fff);font-weight:400}
+
+  /* kafle-liczby */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+  .stat{border:1px solid rgba(139,79,255,.20);background:rgba(139,79,255,.05);
+    padding:12px 8px;text-align:center}
+  .stat .v{font-family:var(--fd);font-weight:700;font-size:24px;color:var(--violet);line-height:1}
+  .stat .l{font-family:var(--fm);font-size:9px;letter-spacing:.14em;text-transform:uppercase;
+    color:rgba(243,241,255,.5);margin-top:6px}
+
+  /* specyfikacja */
+  .sec{font-family:var(--fm);font-size:10px;letter-spacing:.22em;text-transform:uppercase;
+    color:color-mix(in srgb,var(--violet) 60%,#fff);display:flex;align-items:center;gap:12px;margin-bottom:2px}
+  .sec::after{content:"";flex:1;height:1px;background:rgba(139,79,255,.18)}
+  .spec{display:flex;flex-direction:column;gap:9px;margin-top:4px}
+  .spec-row{display:grid;grid-template-columns:74px 1fr;gap:12px;font-family:var(--fm);font-size:11px;line-height:1.35}
+  .spec-row .k{color:rgba(243,241,255,.4);letter-spacing:.06em}
+  .spec-row .val{color:rgba(243,241,255,.78)}
+
+  /* ── PRAWA: pitch ── */
+  .body{padding:56px 46px 40px;display:flex;flex-direction:column;overflow:hidden}
+  .crumb{font-family:var(--fm);font-size:11px;letter-spacing:.2em;text-transform:uppercase;margin-bottom:16px}
+  .crumb .lab{color:color-mix(in srgb,var(--lab) 78%,#fff)}
+  .crumb .sep,.crumb .cur{color:rgba(243,241,255,.42)}
+  .title{font-family:var(--fd);font-weight:700;font-size:52px;line-height:.96;color:var(--ink);letter-spacing:.004em}
+  .title .q{color:var(--violet)}
+  .sub{font-family:var(--fd);font-weight:400;font-size:15.5px;line-height:1.45;color:rgba(243,241,255,.72);margin:16px 0 26px;max-width:36ch}
+
+  .feats{display:flex;flex-direction:column;gap:13px;margin-bottom:26px}
+  .feat{display:grid;grid-template-columns:auto 1fr;gap:15px;align-items:baseline}
+  .feat .n{font-family:var(--fm);font-size:11px;color:color-mix(in srgb,var(--violet) 62%,#fff);opacity:.85}
+  .feat h3{font-family:var(--fd);font-weight:600;font-size:14.5px;color:var(--ink);margin-bottom:2px}
+  .feat p{font-family:var(--fm);font-size:11px;line-height:1.38;color:rgba(243,241,255,.48)}
+
+  .actions{display:flex;gap:12px;margin-top:24px}
+  .btn{font-family:var(--fm);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;
+    padding:13px 20px;cursor:not-allowed;white-space:nowrap}
+  .btn.primary{color:rgba(243,241,255,.66);background:color-mix(in srgb,var(--violet) 12%,transparent);
+    border:1px solid color-mix(in srgb,var(--violet) 46%,transparent)}
+  .btn.ghost{color:rgba(243,241,255,.5);background:none;border:1px solid rgba(255,255,255,.14)}
+  .btn .soon{color:color-mix(in srgb,var(--violet) 78%,#fff)}
+  .hint{font-family:var(--fm);font-size:10px;color:rgba(243,241,255,.3);margin-top:12px}
+</style>
+</head>
+<body>
+  <div class="prod">
+    <span class="tick tl"></span><span class="tick tr"></span><span class="tick bl"></span><span class="tick br"></span>
+    <button class="prod-close">‹ Wróć</button>
+
+    <!-- LEWA -->
+    <div class="bay">
+      <div class="bay-frame"><img src="../assets/lab/event-player.webp" alt="Qplayer — interfejs"></div>
+      <div class="bay-cap"><span><b>Qplayer</b> · interfejs</span><span>v1 — robocze</span></div>
+
+      <div class="stats">
+        <div class="stat"><div class="v">2</div><div class="l">decki</div></div>
+        <div class="stat"><div class="v">9</div><div class="l">padów</div></div>
+        <div class="stat"><div class="v">3</div><div class="l">dżingle</div></div>
+        <div class="stat"><div class="v">∞</div><div class="l">kolejka</div></div>
+      </div>
+
+      <div>
+        <p class="sec">Specyfikacja</p>
+        <div class="spec">
+          <div class="spec-row"><span class="k">Formaty</span><span class="val">Czyta wszystko — WAV · MP3 · FLAC · AIFF · M4A · OGG</span></div>
+          <div class="spec-row"><span class="k">System</span><span class="val">Windows 10/11 · macOS 12+</span></div>
+          <div class="spec-row"><span class="k">Pamięć</span><span class="val">4 GB RAM (8 GB zalecane)</span></div>
+          <div class="spec-row"><span class="k">Silnik</span><span class="val">Web Audio API · niskie opóźnienia</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRAWA -->
+    <div class="body">
+      <p class="crumb"><span class="lab">Lab</span> <span class="sep">·</span> <span class="cur">Oprogramowanie audio</span></p>
+      <h2 class="title"><span class="q">Q</span>player</h2>
+      <p class="sub">Cały event z jednego okna. Wszystko w jednym miejscu, spokojna głowa — bez trzeciej ręki.</p>
+
+      <p class="sec" style="margin-bottom:14px">Co potrafi</p>
+      <div class="feats">
+        <div class="feat"><span class="n">01</span><div><h3>Automix</h3><p>Kolejka gra sama, z zadanymi fade'ami — bez dziur.</p></div></div>
+        <div class="feat"><span class="n">02</span><div><h3>Dżingle i spoty</h3><p>Wchodzą co N utworów — licznik pilnuje sam.</p></div></div>
+        <div class="feat"><span class="n">03</span><div><h3>Podkład z duckingiem</h3><p>F1–F3 pod rękę, główna sama się ścisza.</p></div></div>
+        <div class="feat"><span class="n">04</span><div><h3>Sampler</h3><p>9 padów na klawiszach 1–9, gotowe zawsze.</p></div></div>
+        <div class="feat"><span class="n">05</span><div><h3>Dwa niezależne decki</h3><p>Grasz z jednego, drugie szykujesz na spokojnie.</p></div></div>
+      </div>
+
+      <div class="actions">
+        <button class="btn primary">Pobierz <span class="soon">· wkrótce</span></button>
+        <button class="btn ghost">Pobierz instrukcję <span class="soon">· wkrótce</span></button>
+      </div>
+      <p class="hint">Wersja komercyjna w drodze — po sezonie eventowym.</p>
+    </div>
+  </div>
+</body>
+</html>

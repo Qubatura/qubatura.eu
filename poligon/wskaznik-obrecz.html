@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Poligon — obręcz, warianty ruchu</title>
+<style>
+  @property --a { syntax:'<angle>'; inherits:false; initial-value:0deg; }
+  :root{ --events:#9D4EDD; --studio:#1E90FF; --lab:#00E5FF; --bg:#0A0A0F; --ink:#F0EFFF; }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Space Mono",ui-monospace,Menlo,monospace; padding:44px 28px 80px;}
+  h1{font-size:15px; letter-spacing:.24em; text-transform:uppercase; font-weight:700; margin:0 0 6px;}
+  .lead{font-size:11px; letter-spacing:.08em; opacity:.5; margin:0 0 40px; max-width:680px; line-height:1.6;}
+  .grid{display:grid; grid-template-columns:repeat(4,1fr); gap:20px; max-width:1180px;}
+  @media (max-width:900px){ .grid{grid-template-columns:repeat(2,1fr);} }
+  .variant{border:1px solid rgba(255,255,255,.08); border-radius:16px;
+    background:linear-gradient(180deg, rgba(20,18,34,.5), rgba(10,10,15,.6)); padding:20px 18px 22px;}
+  .variant h2{font-size:12px; letter-spacing:.16em; text-transform:uppercase; margin:0 0 4px; font-weight:700;}
+  .variant p{font-size:10px; letter-spacing:.04em; opacity:.45; margin:0 0 18px; line-height:1.5; min-height:58px;}
+  .cards{display:flex; flex-direction:column; gap:12px;}
+  .card{--c:var(--events); position:relative; border-radius:6px; padding:16px 16px 14px; overflow:hidden;
+    border:1px solid color-mix(in srgb, var(--c) 24%, rgba(255,255,255,.10));
+    background:linear-gradient(135deg, color-mix(in srgb, var(--c) 6%, transparent), rgba(255,255,255,.012));}
+  .card.events{--c:var(--events);} .card.studio{--c:var(--studio);} .card.lab{--c:var(--lab);}
+  .card .name{font-size:12px; letter-spacing:.14em; font-weight:700; margin-top:12px;}
+  .ind{height:18px; display:flex; align-items:center;}
+
+  /* A · ODDECH — spokojny puls pierścienia, zero rotacji */
+  .oddech{width:15px; height:15px; border-radius:50%; border:1.5px solid var(--c);
+    box-shadow:0 0 8px color-mix(in srgb, var(--c) 55%, transparent);
+    animation:oddech 2.9s ease-in-out infinite;}
+  @keyframes oddech{0%,100%{transform:scale(.8); opacity:.5;} 50%{transform:scale(1.06); opacity:1;}}
+
+  /* B · DOMKNIĘCIE — łuk domyka obręcz, przystaje pełny, znika, znów (nie „ładuje” bo wolno + hold) */
+  .domk{width:16px; height:16px; border-radius:50%;
+    background:conic-gradient(from -90deg, var(--c) var(--a), transparent 0);
+    -webkit-mask:radial-gradient(farthest-side, transparent calc(100% - 1.6px), #000 calc(100% - 1.5px));
+            mask:radial-gradient(farthest-side, transparent calc(100% - 1.6px), #000 calc(100% - 1.5px));
+    filter:drop-shadow(0 0 4px color-mix(in srgb, var(--c) 60%, transparent));
+    animation:domk 3.4s ease-in-out infinite;}
+  @keyframes domk{0%{--a:0deg; opacity:.55;} 42%{--a:360deg; opacity:1;} 66%{--a:360deg; opacity:1;} 100%{--a:360deg; opacity:0;}}
+
+  /* C · DWA ŁUKI DO ŚRODKA — dwie połówki schodzą się i domykają obręcz */
+  .dwa{position:relative; width:16px; height:16px;}
+  .dwa i{position:absolute; inset:0; border-radius:50%; border:1.5px solid transparent;
+    filter:drop-shadow(0 0 3px color-mix(in srgb, var(--c) 55%, transparent));}
+  .dwa i:nth-child(1){border-top-color:var(--c); border-right-color:var(--c);
+    animation:dwaTop 3.2s ease-in-out infinite;}
+  .dwa i:nth-child(2){border-bottom-color:var(--c); border-left-color:var(--c);
+    animation:dwaBot 3.2s ease-in-out infinite;}
+  @keyframes dwaTop{0%{transform:rotate(-140deg); opacity:.3;} 45%{transform:rotate(0deg); opacity:1;} 70%{transform:rotate(0deg); opacity:1;} 100%{transform:rotate(0deg); opacity:0;}}
+  @keyframes dwaBot{0%{transform:rotate(140deg); opacity:.3;} 45%{transform:rotate(0deg); opacity:1;} 70%{transform:rotate(0deg); opacity:1;} 100%{transform:rotate(0deg); opacity:0;}}
+
+  /* D · OPAD — pierścień delikatnie osiada w dół, ku kafelkowi */
+  .opad{width:15px; height:15px; border-radius:50%; border:1.5px solid var(--c);
+    box-shadow:0 0 8px color-mix(in srgb, var(--c) 55%, transparent);
+    animation:opad 3s ease-in-out infinite;}
+  @keyframes opad{0%{transform:translateY(-4px) scale(.9); opacity:0;} 35%{opacity:1;} 70%{transform:translateY(2px) scale(1); opacity:1;} 100%{transform:translateY(4px) scale(1); opacity:0;}}
+</style>
+</head>
+<body>
+  <h1>Obręcz — warianty ruchu (wolno, „coś się dzieje”, nie „ładuje”)</h1>
+  <p class="lead">Forma ustalona: pierścień (rym z playerami + sygnetem). Tu wybieramy RUCH. Wszystko wolne. Oglądaj w ruchu — kolory działów Events / Studio / Lab.</p>
+
+  <div class="grid">
+    <div class="variant">
+      <h2>A · Oddech</h2>
+      <p>Spokojny puls pierścienia, zero rotacji. Najbardziej „żyje i nic nie robi” — czysty spokój.</p>
+      <div class="cards">
+        <div class="card events"><div class="ind"><span class="oddech"></span></div><div class="name">EVENTS</div></div>
+        <div class="card studio"><div class="ind"><span class="oddech"></span></div><div class="name">STUDIO</div></div>
+        <div class="card lab"><div class="ind"><span class="oddech"></span></div><div class="name">LAB</div></div>
+      </div>
+    </div>
+
+    <div class="variant">
+      <h2>B · Domknięcie</h2>
+      <p>Łuk domyka obręcz, przystaje jako pełne koło, gaśnie. Wolno + „hold” = czyta się jako „spięcie sygnału”, nie loading.</p>
+      <div class="cards">
+        <div class="card events"><div class="ind"><span class="domk"></span></div><div class="name">EVENTS</div></div>
+        <div class="card studio"><div class="ind"><span class="domk"></span></div><div class="name">STUDIO</div></div>
+        <div class="card lab"><div class="ind"><span class="domk"></span></div><div class="name">LAB</div></div>
+      </div>
+    </div>
+
+    <div class="variant">
+      <h2>C · Dwa łuki do środka</h2>
+      <p>Dwie połówki schodzą się z dwóch stron i domykają obręcz. Twój pomysł „z dwóch stron do środka”.</p>
+      <div class="cards">
+        <div class="card events"><div class="ind"><span class="dwa"><i></i><i></i></span></div><div class="name">EVENTS</div></div>
+        <div class="card studio"><div class="ind"><span class="dwa"><i></i><i></i></span></div><div class="name">STUDIO</div></div>
+        <div class="card lab"><div class="ind"><span class="dwa"><i></i><i></i></span></div><div class="name">LAB</div></div>
+      </div>
+    </div>
+
+    <div class="variant">
+      <h2>D · Opad</h2>
+      <p>Pierścień delikatnie osiada w dół, ku kafelkowi — „sygnał siada na kaflu”. Twój pomysł „na dół, w stronę kafelka”.</p>
+      <div class="cards">
+        <div class="card events"><div class="ind"><span class="opad"></span></div><div class="name">EVENTS</div></div>
+        <div class="card studio"><div class="ind"><span class="opad"></span></div><div class="name">STUDIO</div></div>
+        <div class="card lab"><div class="ind"><span class="opad"></span></div><div class="name">LAB</div></div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
