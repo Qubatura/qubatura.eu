@@ -9,24 +9,25 @@
 //   Etap 7: navigation.js   — directional nav tint integration
 //   Etap 10: router.js      — SPA History API + GSAP transitions
 
-import { initScene, startLoop } from './scene.js?v=mr98mf94';
-import { initParallax }         from './parallax.js?v=mr98mf94';
-import { initAtmosphere }       from './atmosphere.js?v=mr98mf94';
-import { initFireflies }        from './fireflies.js?v=mr98mf94';
-import { initSignet }           from './signet.js?v=mr98mf94';
-import { initNavigation }       from './navigation.js?v=mr98mf94';
-import { initRouter }           from './router.js?v=mr98mf94';
-import { initPlayers }          from './players.js?v=mr98mf94';   // Część 2: playery audio (Studio)
-import { initCursor }           from './cursor.js?v=mr98mf94';
-import { initContact }          from './contact.js?v=mr98mf94';
-import { initContactConsole }   from './contact-console.js?v=mr98mf94';   // Kontakt: silnik formularza (konsoleta)
-import { initLoader }           from './loader.js?v=mr98mf94';   // Etap 9: loading screen
-import { initPong }             from './pong.js?v=mr98mf94';     // Easter egg: Chwila relaksu
-import { initGallery }          from './gallery.js?v=mr98mf94';              // Events: galeria realizacji + lightbox
-import { initLab }              from './lab.js?v=mr98mf94';                  // Lab: oprogramowanie audio + podstrona produktu
-import { initStudioMonitor }    from './studio.js?v=mr98mf94';               // Studio: „ożywiony monitor" (smaczek)
-import { initPlayer }           from './player.js?v=mr98mf94';               // HOME: mini player muzyczny (rolka)
-import { initCookies }          from './cookie-consent.js?v=mr98mf94';       // Cookie consent (minimalny, tylko niezbędne)
+import { initScene, startLoop } from './scene.js?v=mr9elqtq';
+import { initParallax }         from './parallax.js?v=mr9elqtq';
+import { initAtmosphere }       from './atmosphere.js?v=mr9elqtq';
+import { initFireflies }        from './fireflies.js?v=mr9elqtq';
+import { initSignet }           from './signet.js?v=mr9elqtq';
+import { initNavigation }       from './navigation.js?v=mr9elqtq';
+import { initRouter }           from './router.js?v=mr9elqtq';
+import { initPlayers }          from './players.js?v=mr9elqtq';   // Część 2: playery audio (Studio)
+import { initCursor }           from './cursor.js?v=mr9elqtq';
+import { initContact }          from './contact.js?v=mr9elqtq';
+import { initContactConsole }   from './contact-console.js?v=mr9elqtq';   // Kontakt: silnik formularza (konsoleta)
+import { initLoader }           from './loader.js?v=mr9elqtq';   // Etap 9: loading screen
+import { initPong }             from './pong.js?v=mr9elqtq';     // Easter egg: Chwila relaksu
+import { initGallery }          from './gallery.js?v=mr9elqtq';              // Events: galeria realizacji + lightbox
+import { initLab }              from './lab.js?v=mr9elqtq';                  // Lab: oprogramowanie audio + podstrona produktu
+import { initStudioMonitor }    from './studio.js?v=mr9elqtq';               // Studio: „ożywiony monitor" (smaczek)
+import { initPlayer }           from './player.js?v=mr9elqtq';               // HOME: mini player muzyczny (rolka)
+import { initCookies }          from './cookie-consent.js?v=mr9elqtq';       // Cookie consent (minimalny, tylko niezbędne)
+import { initColophon }         from './colophon.js?v=mr9elqtq';             // Colophon „tę stronę zrobiliśmy sami" (tagline)
 
 async function boot() {
   initCursor();                 // własna kulka kursora — od razu aktywna
@@ -50,6 +51,7 @@ async function boot() {
   initStudioMonitor();          // Studio: pulsujący monitor-smaczek → lightbox realizacji
   initPlayer();                 // HOME: mini player muzyczny (rolka numerów + tytuł, spięty z waveform)
   initCookies();                // Cookie consent — minimalny baner „tylko niezbędne" (raz, do akceptacji)
+  initColophon();               // Colophon — klik taglinu „Przybywamy z sygnałem" → o tej stronie + stack
 
   // Etap 9 — loading screen: realny tracking zasobów (Promise.all, nie fake timer).
   // fonty + tekstura planety + sygnet (już gotowy) → progres sterujący kolorem sygnetu.

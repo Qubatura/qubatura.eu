@@ -3,7 +3,7 @@
 // Po zwycięstwie: cytat losowej postaci historycznej nad polem → powrót HOME.
 
 import * as GSAPmod from 'gsap';
-import { navFX } from './tint.js?v=mr98mf94';
+import { navFX } from './tint.js?v=mr9elqtq';
 
 const gsap = GSAPmod.gsap || GSAPmod.default || GSAPmod;
 

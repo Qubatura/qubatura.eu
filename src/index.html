@@ -30,7 +30,7 @@
   <meta name="twitter:image"       content="https://qubatura.eu/assets/og-image.png">
 
   <!-- Fonts — self-hosted (Chakra Petch + Space Mono + Press Start 2P), zero zależności od Google -->
-  <link rel="stylesheet" href="css/fonts.css?v=mr98mf94">
+  <link rel="stylesheet" href="css/fonts.css?v=mr9elqtq">
 
   <!-- Favicon — sygnet Q (violet) -->
   <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
@@ -40,7 +40,7 @@
         referrerpolicy="no-referrer">
 
   <!-- CSS -->
-  <link rel="stylesheet" href="css/main.css?v=mr98mf94">
+  <link rel="stylesheet" href="css/main.css?v=mr9elqtq">
 
   <!-- Three.js via CDN importmap -->
   <script type="importmap">
@@ -574,6 +574,26 @@
     <p class="lc-meta"><span class="lc-idx">01 / 05</span> &nbsp;·&nbsp; przeglądaj branże: ‹ › lub strzałki</p>
   </div>
 
+  <!-- Colophon „tę stronę zrobiliśmy sami" — trigger: tagline [data-colophon]. Portfolio + flex
+       techniczny (pod aplikacje/rekruterów). Copy robocze. Sterowanie: colophon.js. -->
+  <div id="colophon" class="colophon" role="dialog" aria-modal="true"
+       aria-label="O tej stronie" aria-hidden="true">
+    <button class="cph-close" type="button" aria-label="Zamknij">‹ Wróć</button>
+    <div class="cph-inner">
+      <p class="cph-kicker">O tej stronie</p>
+      <h2 class="cph-title">Tę stronę zrobiliśmy sami.</h2>
+      <p class="cph-lead">Całą — projekt i kod. Bez szablonu, bez frameworka. Podoba Ci się? Taką samą
+        (albo skrojoną pod Ciebie) zbudujemy Tobie, w tej samej technologii.</p>
+      <div class="cph-stack" aria-label="Zastosowane technologie">
+        <span>Three.js · WebGL</span><span>vanilla JS · ES modules</span><span>zero frameworku · bez bundlera</span>
+        <span>custom shadery</span><span>GSAP</span><span>SPA · History API</span>
+        <span>Web Audio API</span><span>parallax</span><span>CSS color-mix · frost</span>
+      </div>
+      <p class="cph-credit">Web design &amp; development — <b>Kuba Hyrja</b>, CEO Qubatura Group</p>
+      <a class="cph-cta" data-contact data-contact-tor="lab" role="button" tabindex="0">Chcesz taką stronę? Opisz projekt →</a>
+    </div>
+  </div>
+
   <!-- Pong easter egg overlay — canvas 2D nad sceną Three.js -->
   <div id="pong-overlay" aria-hidden="true">
     <div id="pong-header">Q-PONG</div>
@@ -597,8 +617,8 @@
     </div>
   </div>
 
-  <!-- Tagline -->
-  <p id="tagline">Przybywamy z sygnałem</p>
+  <!-- Tagline (klik → colophon „tę stronę zrobiliśmy sami") -->
+  <p id="tagline" data-colophon role="button" tabindex="0" aria-haspopup="dialog">Przybywamy z sygnałem</p>
 
   <!-- Motion invite / touch hint (mobile) — sterowany przez parallax.js (B4 — Opcja A).
        Invite (iOS): nieblokujący pill; tap JEST gestem do requestPermission(), ale opcjonalny —
@@ -750,7 +770,7 @@
     });
   </script>
 
-  <script type="module" src="js/main.js?v=mr98mf94"></script>
+  <script type="module" src="js/main.js?v=mr9elqtq"></script>
 
 </body>
 </html>
