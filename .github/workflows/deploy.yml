@@ -1,0 +1,34 @@
+name: Deploy → IQ Host (FTP)
+
+# Auto-deploy na qubatura.eu przy każdym pushu na dev (+ ręcznie).
+# Build: tools/build-prod.mjs robi dist/ serwowalny z ROOTA domeny; FTP wgrywa dist/ → public_html.
+# Sekrety: FTP_SERVER, FTP_USERNAME, FTP_PASSWORD, FTP_SERVER_DIR.
+
+on:
+  push:
+    branches: [dev]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: ftp-deploy
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Build (root-servable dist/)
+        run: node tools/build-prod.mjs
+      - name: FTP deploy → public_html
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: ${{ secrets.FTP_SERVER_DIR }}
+          local-dir: ./dist/
+          protocol: ftp
+          port: 21

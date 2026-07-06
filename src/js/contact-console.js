@@ -7,10 +7,9 @@
 const DOC_ROOT = new URL('../', import.meta.url).href;
 const asset = rel => new URL(rel, DOC_ROOT).href;
 
-// Web3Forms — wklej access key z web3forms.com (rejestracja na biuro@qubatura.eu).
-// PUSTY = tryb podglądu: formularz pokazuje „Sygnał odebrany", ale NIE wysyła (dev/preview).
-// Po wklejeniu klucza wysyłka działa realnie — mail leci na biuro@ z tematem [DZIAŁ] …
-const WEB3FORMS_KEY = '';   // ← TODO premiera: wklej klucz
+// Wysyłka: PHP na IQ Host (send.php → mail na biuro@qubatura.eu; dane zostają na serwerze, RODO-czysto).
+// Poza domeną (localhost / GitHub Pages) NIE ma PHP → tryb podglądu: pokaż sukces, nie wysyłaj realnie.
+const IS_LIVE = /(^|\.)qubatura\.eu$/i.test(location.hostname);
 
 // Tory + podpowiedzi + gotowe szkielety wiadomości (klik podpowiedzi = auto-wypełnienie opisu).
 const DATA = {
@@ -158,31 +157,29 @@ export function initContactConsole() {
     const status = document.getElementById('cc-status');
     if (status) status.textContent = '';
 
-    // Tryb podglądu (brak klucza) — pokaż sukces bez realnej wysyłki
-    if (!WEB3FORMS_KEY) { showSuccess(); return; }
+    // Poza domeną (localhost / Pages) brak PHP → tryb podglądu: sukces bez realnej wysyłki.
+    if (!IS_LIVE) { showSuccess(); return; }
 
     const btn = document.getElementById('cc-send');
     const label = btn ? btn.textContent : '';
     if (btn) { btn.disabled = true; btn.textContent = 'WYSYŁAM…'; }
     try {
-      const res = await fetch('https://api.web3forms.com/submit', {
+      const res = await fetch('send.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify({
-          access_key: WEB3FORMS_KEY,
           subject: (subj.textContent || 'Nowy sygnał — qubatura.eu').trim(),
-          from_name: 'qubatura.eu',
-          name: (nameIn.value || '').trim() || '(brak imienia)',
+          name: (nameIn.value || '').trim(),
           kontakt: (contactIn.value || '').trim(),
           message: (msg.value || '').trim(),
-          botcheck: (hp && hp.value) || '',           // honeypot Web3Forms
+          botcheck: (hp && hp.value) || '',           // honeypot
         }),
       });
       const data = await res.json().catch(() => ({}));
-      if (res.ok && data.success !== false) {
+      if (res.ok && data.ok) {
         showSuccess();
       } else {
-        throw new Error(data.message || 'send failed');
+        throw new Error('send failed');
       }
     } catch (err) {
       if (btn) { btn.disabled = false; btn.textContent = label || 'WYŚLIJ SYGNAŁ →'; }
