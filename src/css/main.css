@@ -1598,16 +1598,19 @@ body.lb-locked { overflow: hidden; }
 }
 .colophon.is-open { opacity:1; visibility:visible; pointer-events:auto; }
 
-/* Plakietka — PROSTY frost-szkiełko (nasze), lekko przezroczyste + miękki glow primary,
-   wjeżdża Z DOŁU. Mniejsza, spokojna. */
+/* Plakietka — frost 1:1 z kafelkami playera (.pl-card): OSTRE rogi (nasze, bez „obłości"),
+   ta sama receptura (gradient 135°, border 22%, poświata obrysu, blur 6px). Wjeżdża Z DOŁU. */
 .cph-plate {
+  --pg-color: var(--color-primary);       /* zasila color-mix jak na podstronach (spójność) */
   position:relative; width:min(560px,92vw); max-height:88vh; overflow:hidden;
   margin:0 0 max(20px,4vh); padding:34px 32px 28px;
-  border:1px solid color-mix(in srgb, var(--color-primary) 26%, transparent); border-radius:20px;
-  background:linear-gradient(180deg, rgba(28,22,54,.44), rgba(12,10,26,.55));
-  backdrop-filter:blur(22px) saturate(1.25); -webkit-backdrop-filter:blur(22px) saturate(1.25);
-  box-shadow:0 0 50px -10px color-mix(in srgb, var(--color-primary) 34%, transparent),
-             0 26px 64px -24px rgba(0,0,0,.68), inset 0 1px 0 rgba(255,255,255,.08);
+  border:1px solid color-mix(in srgb, var(--pg-color) 22%, transparent);
+  background:linear-gradient(135deg, color-mix(in srgb, var(--pg-color) 7%, transparent), rgba(6,5,15,.20));
+  box-shadow:
+    0 0 24px color-mix(in srgb, var(--pg-color) 12%, transparent),
+    inset 0 0 22px color-mix(in srgb, var(--pg-color) 5%, transparent),
+    0 26px 60px -26px rgba(0,0,0,.6);      /* uniesienie modala nad sceną */
+  backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
   transform:translateY(115%); transition:transform .62s cubic-bezier(.16,.84,.34,1);
 }
 .colophon.is-open .cph-plate { transform:translateY(0); }
@@ -1662,14 +1665,13 @@ body.lb-locked { overflow: hidden; }
 .colophon.is-open .cph-stack span:nth-child(7){transition-delay:1.18s}
 .colophon.is-open .cph-stack span:nth-child(8){transition-delay:1.24s}
 .colophon.is-open .cph-stack span:nth-child(9){transition-delay:1.3s}
+/* kredyt: dwie linie z lekką przerwą, ta sama sekcja (tech od zera / autor) */
 .cph-credit { font-family:var(--font-mono); font-size:11.5px; letter-spacing:.03em; color:rgba(243,241,255,.6); margin:0 0 20px; }
+.cph-credit p { margin:0; }
+.cph-cr-people { margin-top:7px; }
 .cph-credit b { color:#fff; font-weight:400; }
-.cph-cta { display:inline-block; font-family:var(--font-mono); font-size:12px; letter-spacing:.12em;
-  text-transform:uppercase; color:color-mix(in srgb, var(--color-primary) 55%, #fff); text-decoration:none; cursor:pointer;
-  border:1px solid color-mix(in srgb, var(--color-primary) 50%, transparent); padding:14px 22px;
-  transition:background .3s ease, box-shadow .3s ease, color .3s ease; }
-.cph-cta:hover { color:#fff; background:color-mix(in srgb, var(--color-primary) 16%, transparent);
-  box-shadow:0 0 24px -6px color-mix(in srgb, var(--color-primary) 55%, transparent); }
+/* guzik „Opisz projekt" = klasa .page-cta (1:1 z guzikami podstron); .cph-cta zostaje tylko
+   jako hook opóźnienia reveal. Kolor bierze z --pg-color ustawionego na .cph-plate. */
 
 /* ── Studio: „ożywiony monitor" — pulsujący hotspot (pozycja z studio.js) ──────── */
 .studio-hotspot {
