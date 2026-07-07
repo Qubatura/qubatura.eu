@@ -29,7 +29,7 @@ const DATA = {
       { t: 'Nagranie lektora',  p: 'Potrzebuję lektora.\n• Język i płeć głosu: \n• Długość tekstu: \n• Termin: ' },
       { t: 'Coś innego',        p: 'Mam pomysł audio, nie do końca pasuje do szufladek.\n• W skrócie: ', soft: 1 },
     ] },
-  lab: { color: 'var(--color-lab)', label: 'LAB', q: 'Co budujemy?',
+  lab: { color: 'var(--color-lab)', label: 'Qlab', q: 'Co budujemy?',
     items: [
       { t: 'Strona www / redesign', p: 'Chcę stronę www lub redesign.\n• Dla kogo / jaka działalność: \n• Mam już coś czy od zera: \n• Termin: ' },
       { t: 'Aplikacja / platforma', p: 'Potrzebuję aplikacji / platformy (np. obsługa kawiarni).\n• Co ma robić: \n• Kto będzie używał: ' },

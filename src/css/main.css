@@ -795,7 +795,7 @@ body.pong-active #pong-speed {
 /* Nazwa działu w lockupie — treść z data-division (jeden współdzielony element). */
 #page[data-division="events"] .home-dept::after { content: "Events"; }
 #page[data-division="studio"] .home-dept::after { content: "Studio"; }
-#page[data-division="lab"]    .home-dept::after { content: "Lab"; }
+#page[data-division="lab"]    .home-dept::after { content: "Qlab"; }
 
 .page-title {
   font-family: var(--font-display);   /* Chakra Petch */
@@ -1442,6 +1442,21 @@ body.lb-locked { overflow: hidden; }
   .pc-body { padding-top:34px; }
   .pc-spec3 { grid-template-columns:1fr; gap:20px; }
   .pc-title { font-size:38px; }
+}
+/* Qplayer overlay MOBILE — było za duże i scrollowało też w PRAWO. Węższe paddingi, mniejszy
+   opis, mockupy i staty 2-kol → mieści się w szerokości → scroll tylko w DÓŁ (życzenie Kuby). */
+@media (max-width: 600px) {
+  .product-overlay { padding: 12px; overflow-x: hidden; }
+  .pcard { width: 100%; }
+  .pc-bay { padding: 50px 16px 22px; gap: 16px; }
+  .pc-body { padding: 22px 16px 28px; }
+  .pc-specbar { padding: 20px 16px 24px; }
+  .pcard .prod-close { top: 14px; left: 14px; }
+  .pc-title { font-size: 28px; }
+  .pc-sub { font-size: 13px; }
+  .pc-stats { grid-template-columns: repeat(2, 1fr); }
+  .pc-stat .v { font-size: 18px; }
+  .pc-actions { flex-wrap: wrap; }
 }
 
 /* ── Lab: guzik-showcase w hero (secondary, cyjan) + overlay „na zamówienie" ───────── */
@@ -2300,6 +2315,23 @@ body.page-active #tagline {
 }
 .contact-policy:hover { color: rgba(255, 255, 255, 0.7); }
 
+/* ─── Kontakt MOBILE — fix overflow: współrzędne ucięte (wyglądały jak „błędny napis"),
+   QR/kafelek uciekały w prawo. Coords ↓, stack w górnej połowie, QR mniejszy, brak scrolla-x. */
+@media (max-width: 768px) {
+  #contact-overlay { overflow-x: hidden; }
+  .contact-inner { justify-content: flex-start; align-items: center; padding: 19vh 6vw 118px; overflow-x: hidden; }
+  .coords-line { font-size: clamp(22px, 7vw, 32px); max-width: 100%; }
+  .coords-city { font-size: 11px; margin-top: 12px; letter-spacing: 0.24em; }
+  /* 2× ID → bije base #cc-gate; zwężony, wycentrowany, mieści się na wąskich ekranach */
+  #contact-overlay #cc-gate { margin-top: 4vh; width: min(330px, 88vw); max-width: 100%; align-self: center; }
+  /* email + QR → pionowy stack wyśrodkowany (koniec absolutnego QR przy krawędzi = zero overflow-x) */
+  .contact-cols { position: static; margin: 6vh auto 0; width: auto;
+    flex-direction: column; align-items: center; gap: 20px; }
+  .contact-data { align-items: center; text-align: center; }
+  .contact-data a { font-size: 15px; }
+  .contact-qr { width: 96px; height: 96px; }
+}
+
 /* ═══════════════════════════════════════════════════════════════════
    KONTAKT — konsoleta „centrum sterowania komunikacją" (silnik formularza)
    Brama (frost) na minimalistycznym Kontakcie → klik → konsoleta w „pokoju
@@ -2560,8 +2592,14 @@ body.page-active #tagline {
   }
   #top-right { opacity: 1; }
 
+  /* Tagline WIDOCZNY na mobile — pod sygnetem, nad kartami działów (życzenie Kuby).
+     Pozycja mid-lower (nie zależy od wysokości nav); klikalny → colophon. */
   #tagline {
-    display: none;                          /* za mało miejsca na mobile */
+    display: block;
+    bottom: auto; top: 61%; left: 0; right: 0;
+    text-align: center; white-space: normal;
+    font-size: 11px; letter-spacing: 0.26em;
+    padding: 0 24px; z-index: 16;
   }
 
   /* ─── Nav: transparentny kontener — scena prześwituje między kartami ─── */
