@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { sceneFX } from './tint.js?v=mrab36sg';
+import { sceneFX } from './tint.js?v=mraex9ru';
 
 let renderer, scene, camera, clock, renderTarget;
 const tickCallbacks = [];
@@ -44,18 +44,43 @@ export async function initScene() {
   // błędzie, żeby nie blokować progresu.
   let _resolvePlanet;
   const planetReady = new Promise(res => { _resolvePlanet = res; });
-  const planetTexture = new THREE.TextureLoader().load(
-    '../assets/planet-bg.webp',   // 18.8MB PNG → 222KB WebP (2560w) — tło home ładuje się na czas loadingu
-    () => _resolvePlanet(),
-    undefined,
-    () => _resolvePlanet(),
-  );
-  planetTexture.colorSpace = THREE.SRGBColorSpace;
+  const _mobile  = window.innerWidth <= 768;
+
+  // Desktop: tło = WIDEO (THREE.VideoTexture, żywy kadr). Mobile: statyczny WebP
+  // (autoplay-restrictions + perf + bateria). Materiał/opacity/pozycja BEZ zmian → 1:1.
+  const _loadWebp = () => {
+    const t = new THREE.TextureLoader().load(
+      '../assets/planet-bg.webp',   // 18.8MB PNG → 222KB WebP (2560w) — ładuje się na czas loadingu
+      () => _resolvePlanet(), undefined, () => _resolvePlanet(),
+    );
+    t.colorSpace = THREE.SRGBColorSpace;
+    return t;
+  };
+
+  let planetTexture;
+  if (_mobile) {
+    planetTexture = _loadWebp();
+  } else {
+    const video = document.createElement('video');
+    video.src = '../assets/planet-bg-web.mp4';
+    video.loop = true; video.muted = true; video.playsInline = true;
+    video.autoplay = true; video.preload = 'auto';
+    planetTexture = new THREE.VideoTexture(video);
+    planetTexture.colorSpace = THREE.SRGBColorSpace;
+    video.addEventListener('loadeddata', () => _resolvePlanet(), { once: true });
+    video.addEventListener('error', () => {                 // fallback → webp
+      const fb = _loadWebp();
+      if (planetMat) { planetMat.map = fb; planetMat.needsUpdate = true; }
+    }, { once: true });
+    video.play().catch(() => {});                           // niektóre silniki wymagają jawnego play
+    document.addEventListener('visibilitychange', () => {   // pauza gdy karta w tle
+      if (document.hidden) video.pause(); else video.play().catch(() => {});
+    });
+  }
   planetMat = new THREE.MeshBasicMaterial({
     map: planetTexture, transparent: true, opacity: PLANET_OPACITY_VISIBLE, depthWrite: false,
   });
 
-  const _mobile  = window.innerWidth <= 768;
   const PLANET_Z = -500;
   // Mobile: ZOOM tła — obraz wypełnia kadr SWOJĄ treścią (niebo z księżycami u góry, jak na
   // desktopie). Wcześniejsze doklejanie sztucznego nieba (klamr/gradient/alpha) za każdym razem

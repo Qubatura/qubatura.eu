@@ -1592,29 +1592,66 @@ body.lb-locked { overflow: hidden; }
 #tagline[data-colophon] { cursor:pointer; transition:color .3s ease, text-shadow .3s ease; }
 #tagline[data-colophon]:hover { color:#fff; text-shadow:0 0 18px color-mix(in srgb, var(--color-primary) 55%, transparent); }
 .colophon {
-  position:fixed; inset:0; z-index:1058; display:flex; overflow-y:auto; padding:32px;
-  background:rgba(6,5,15,.93); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
-  opacity:0; visibility:hidden; pointer-events:none; transition:opacity .35s ease, visibility .35s;
+  position:fixed; inset:0; z-index:1058; display:flex; align-items:flex-end; justify-content:center; padding:0;
+  background:rgba(6,5,15,.6); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+  opacity:0; visibility:hidden; pointer-events:none; transition:opacity .4s ease, visibility .4s;
 }
 .colophon.is-open { opacity:1; visibility:visible; pointer-events:auto; }
-.cph-close { position:absolute; top:20px; left:24px; z-index:2; font-family:var(--font-mono);
-  font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:rgba(240,239,255,.6);
+
+/* Plakietka — frost-szkiełko wyjeżdżające Z DOŁU (nasza tafla, mniejsza niż fullscreen) */
+.cph-plate {
+  position:relative; width:min(680px,94vw); max-height:88vh; overflow:hidden;
+  margin:0 0 max(18px,3vh); padding:40px 34px 30px;
+  border:1px solid color-mix(in srgb, var(--color-primary) 32%, transparent); border-radius:18px;
+  background:linear-gradient(180deg, rgba(22,17,44,.72), rgba(9,7,20,.84));
+  backdrop-filter:blur(20px) saturate(1.2); -webkit-backdrop-filter:blur(20px) saturate(1.2);
+  box-shadow:0 -12px 60px -14px color-mix(in srgb, var(--color-primary) 42%, transparent),
+             0 28px 70px -22px rgba(0,0,0,.72), inset 0 1px 0 rgba(255,255,255,.06);
+  transform:translateY(115%); transition:transform .62s cubic-bezier(.16,.84,.34,1);
+}
+.colophon.is-open .cph-plate { transform:translateY(0); }
+
+/* fireflies (canvas) + samo-rysująca linia (SVG) — warstwy pod treścią */
+.cph-fireflies { position:absolute; inset:0; width:100%; height:100%; z-index:0; pointer-events:none; opacity:.9; }
+.cph-line { position:absolute; inset:0; width:100%; height:100%; z-index:1; pointer-events:none; }
+.cph-line path { fill:none; stroke:color-mix(in srgb, var(--color-primary) 72%, #fff); stroke-width:1.4;
+  vector-effect:non-scaling-stroke; stroke-dasharray:1; stroke-dashoffset:1;
+  filter:drop-shadow(0 0 4px color-mix(in srgb, var(--color-primary) 60%, transparent));
+  transition:stroke-dashoffset 1.5s ease .3s; }
+.colophon.is-open .cph-line path { stroke-dashoffset:0; }
+
+.cph-close { position:absolute; top:16px; right:18px; z-index:3; font-family:var(--font-mono);
+  font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:rgba(240,239,255,.55);
   background:none; border:none; cursor:pointer; transition:color .3s ease; }
 .cph-close:hover { color:#fff; }
-.cph-inner { margin:auto; width:min(720px,100%); padding:56px 8px 56px 32px;
-  border-left:2px solid color-mix(in srgb, var(--color-primary) 55%, transparent); }
+.cph-inner { position:relative; z-index:2; }
 .cph-kicker { font-family:var(--font-mono); font-size:11px; letter-spacing:.24em; text-transform:uppercase;
-  color:color-mix(in srgb, var(--color-primary) 78%, #fff); margin:0 0 14px; }
-.cph-title { font-family:var(--font-display); font-weight:700; font-size:clamp(28px,4vw,44px);
-  line-height:1.04; color:#F3F1FF; margin:0 0 16px; }
-.cph-lead { font-family:var(--font-display); font-weight:400; font-size:16px; line-height:1.55;
-  color:rgba(243,241,255,.8); max-width:52ch; margin:0 0 28px; }
-.cph-stack { display:flex; flex-wrap:wrap; gap:8px; margin:0 0 28px; }
+  color:color-mix(in srgb, var(--color-primary) 78%, #fff); margin:0 0 12px; }
+.cph-title { font-family:var(--font-display); font-weight:700; font-size:clamp(26px,3.6vw,40px);
+  line-height:1.04; color:#F3F1FF; margin:0 0 14px; }
+.cph-lead { font-family:var(--font-display); font-weight:400; font-size:15.5px; line-height:1.55;
+  color:rgba(243,241,255,.8); max-width:56ch; margin:0 0 24px; }
+/* teksty startują niewidoczne — colophon.js dekoduje je po otwarciu (scramble → treść) */
+.colophon .cph-title[data-decode], .colophon .cph-lead[data-decode], .colophon .cph-kicker[data-decode] { opacity:.001; }
+.colophon.is-open .cph-kicker[data-decode], .colophon.is-open .cph-title[data-decode],
+.colophon.is-open .cph-lead[data-decode] { opacity:1; transition:opacity .3s ease; }
+.cph-stack { display:flex; flex-wrap:wrap; gap:8px; margin:0 0 24px; }
 .cph-stack span { font-family:var(--font-mono); font-size:10.5px; letter-spacing:.04em;
   color:color-mix(in srgb, var(--color-primary) 72%, #fff);
   border:1px solid color-mix(in srgb, var(--color-primary) 30%, transparent);
-  background:color-mix(in srgb, var(--color-primary) 7%, transparent); padding:6px 11px; }
-.cph-credit { font-family:var(--font-mono); font-size:12px; letter-spacing:.03em; color:rgba(243,241,255,.62); margin:0 0 26px; }
+  background:color-mix(in srgb, var(--color-primary) 7%, transparent); padding:6px 11px;
+  opacity:0; transform:translateY(6px); transition:opacity .4s ease, transform .4s ease; }
+.colophon.is-open .cph-stack span { opacity:1; transform:none; }
+.colophon.is-open .cph-stack span:nth-child(1){transition-delay:.9s}
+.colophon.is-open .cph-stack span:nth-child(2){transition-delay:.98s}
+.colophon.is-open .cph-stack span:nth-child(3){transition-delay:1.06s}
+.colophon.is-open .cph-stack span:nth-child(4){transition-delay:1.14s}
+.colophon.is-open .cph-stack span:nth-child(5){transition-delay:1.22s}
+.colophon.is-open .cph-stack span:nth-child(6){transition-delay:1.3s}
+.colophon.is-open .cph-stack span:nth-child(7){transition-delay:1.38s}
+.colophon.is-open .cph-stack span:nth-child(8){transition-delay:1.46s}
+.colophon.is-open .cph-stack span:nth-child(9){transition-delay:1.54s}
+.cph-credit { font-family:var(--font-mono); font-size:12px; letter-spacing:.03em; color:rgba(243,241,255,.62); margin:0 0 22px; }
 .cph-credit b { color:#fff; font-weight:400; }
 .cph-cta { display:inline-block; font-family:var(--font-mono); font-size:12px; letter-spacing:.12em;
   text-transform:uppercase; color:color-mix(in srgb, var(--color-primary) 55%, #fff); text-decoration:none; cursor:pointer;
@@ -2371,6 +2408,17 @@ body.page-active #tagline {
   font-family:var(--font-mono); font-size:12px; letter-spacing:.04em; background: rgba(255,255,255,.02); color:#fff; transition:.3s; }
 .cc-chip:hover { border-color: var(--cc); background: color-mix(in srgb, var(--cc) 16%, transparent); transform: translateY(-2px); }
 .cc-chip.soft { opacity:.55; font-style:italic; }
+/* zaznaczony (toggle) — podświetlony kolorem działu + znacznik ✓; klient komponuje wiadomość klikami */
+.cc-chip.on { border-color: var(--cc); color:#fff; opacity:1; font-style:normal;
+  background: color-mix(in srgb, var(--cc) 22%, transparent);
+  box-shadow: 0 0 0 1px var(--cc), 0 6px 18px color-mix(in srgb, var(--cc) 26%, transparent); }
+.cc-chip.on::before { content:'✓ '; color: var(--cc); font-weight:700; }
+/* DALEJ — pojawia się gdy ≥1 chip zaznaczony (JS: disabled) */
+.cc-next { display:inline-block; margin-top:22px; cursor:pointer; border:1px solid var(--cc);
+  border-radius:999px; padding:12px 26px; font-family:var(--font-mono); font-size:12px; letter-spacing:.14em;
+  color:#fff; background: color-mix(in srgb, var(--cc) 16%, transparent); transition:.3s; }
+.cc-next:hover:not(:disabled) { background: color-mix(in srgb, var(--cc) 30%, transparent); transform: translateY(-2px); }
+.cc-next:disabled { opacity:.3; cursor:not-allowed; border-color: rgba(255,255,255,.14); background: transparent; }
 .cc-field { margin-bottom:16px; }
 .cc-field label { display:block; font-family:var(--font-mono); font-size:10px; letter-spacing:.24em; text-transform:uppercase; opacity:.45; margin-bottom:8px; }
 .cc-field textarea, .cc-field input { width:100%; background: rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.12);

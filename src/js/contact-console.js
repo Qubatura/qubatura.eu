@@ -49,6 +49,7 @@ export function initContactConsole() {
   const closeBtn = document.getElementById('contact-close');
   const backBtn  = document.getElementById('cc-back');
   const chips    = document.getElementById('cc-chips');
+  const nextBtn  = document.getElementById('cc-next');
   const s2q      = document.getElementById('cc-s2q');
   const msg      = document.getElementById('cc-msg');
   const subj     = document.getElementById('cc-subj');
@@ -70,6 +71,7 @@ export function initContactConsole() {
 
   let cur = null;        // aktywny tor
   let depActive = null;  // która warstwa tła aktywna (crossfade)
+  let selected = [];     // zaznaczone chipy (multi-select) — komponują wiadomość/temat
 
   function setStep(n) {
     steps.forEach((el, i) => el.classList.toggle('on', i === n - 1));
@@ -108,6 +110,8 @@ export function initContactConsole() {
   function resetConsole() {        // pełny reset (przy zamknięciu całego overlaya)
     closeConsole();
     cur = null;
+    selected = [];
+    if (nextBtn) nextBtn.disabled = true;
     if (msg) msg.value = '';
     if (nameIn) nameIn.value = '';
     if (contactIn) contactIn.value = '';
@@ -119,6 +123,7 @@ export function initContactConsole() {
   }
   function pickTor(key) {
     cur = key;
+    selected = [];                 // nowy tor → czyste zaznaczenie
     const d = DATA[key];
     wrap.style.setProperty('--cc', d.color);
     s2q.firstChild.textContent = d.q;
@@ -128,15 +133,26 @@ export function initContactConsole() {
       b.type = 'button';
       b.className = 'cc-chip' + (it.soft ? ' soft' : '');
       b.textContent = it.t;
-      b.addEventListener('click', () => pickItem(it));
+      b.setAttribute('aria-pressed', 'false');
+      b.addEventListener('click', () => toggleChip(it, b));
       chips.appendChild(b);
     });
+    if (nextBtn) nextBtn.disabled = true;
     setDepBg(key, OP_FORM);   // morfing tła w scenę działu
     setStep(2);
   }
-  function pickItem(it) {
-    msg.value = it.p;
-    subj.textContent = '[' + DATA[cur].label + '] ' + it.t;
+  // Toggle-select: klient zaznacza chipy (multi), nic nie pisze. Zaznaczone złożą wiadomość+temat.
+  function toggleChip(it, b) {
+    const i = selected.indexOf(it);
+    if (i >= 0) { selected.splice(i, 1); b.classList.remove('on'); b.setAttribute('aria-pressed', 'false'); }
+    else        { selected.push(it);     b.classList.add('on');    b.setAttribute('aria-pressed', 'true'); }
+    if (nextBtn) nextBtn.disabled = selected.length === 0;
+  }
+  // DALEJ → komponuje z zaznaczonych: temat = tytuły przez „ + ", opis = szkielety pól sklejone.
+  function composeAndAdvance() {
+    if (!selected.length) return;
+    msg.value  = selected.map(it => it.p).join('\n\n');
+    subj.textContent = '[' + DATA[cur].label + '] ' + selected.map(it => it.t).join(' + ');
     setStep(3);
     setTimeout(() => { msg.focus(); msg.setSelectionRange(msg.value.length, msg.value.length); }, 350);
   }
@@ -212,6 +228,7 @@ export function initContactConsole() {
   });
 
   gate.addEventListener('click', openConsole);
+  if (nextBtn) nextBtn.addEventListener('click', composeAndAdvance);
   backBtn.addEventListener('click', back);
   document.getElementById('cc-send').addEventListener('click', send);
   overlay.querySelectorAll('.cc-tor').forEach(t => t.addEventListener('click', () => pickTor(t.dataset.tor)));

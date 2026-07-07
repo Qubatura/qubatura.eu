@@ -30,7 +30,7 @@
   <meta name="twitter:image"       content="https://qubatura.eu/assets/og-image.png">
 
   <!-- Fonts — self-hosted (Chakra Petch + Space Mono + Press Start 2P), zero zależności od Google -->
-  <link rel="stylesheet" href="css/fonts.css?v=mrab36sg">
+  <link rel="stylesheet" href="css/fonts.css?v=mraex9ru">
 
   <!-- Favicon — sygnet Q (violet) -->
   <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
@@ -40,7 +40,7 @@
         referrerpolicy="no-referrer">
 
   <!-- CSS -->
-  <link rel="stylesheet" href="css/main.css?v=mrab36sg">
+  <link rel="stylesheet" href="css/main.css?v=mraex9ru">
 
   <!-- Three.js via CDN importmap -->
   <script type="importmap">
@@ -578,20 +578,26 @@
        techniczny (pod aplikacje/rekruterów). Copy robocze. Sterowanie: colophon.js. -->
   <div id="colophon" class="colophon" role="dialog" aria-modal="true"
        aria-label="O tej stronie" aria-hidden="true">
-    <button class="cph-close" type="button" aria-label="Zamknij">‹ Wróć</button>
-    <div class="cph-inner">
-      <p class="cph-kicker">O tej stronie</p>
-      <h2 class="cph-title">Pod maską.</h2>
-      <p class="cph-lead">Trójwymiarowy sygnet, żywa scena, własne shadery — zero szablonu i frameworka.
-        Całość zaprojektował i napisał zespół Qubatura Lab. Podoba Ci się? Zbudujemy Ci taką — albo
-        skrojoną pod Ciebie — w tej samej technologii.</p>
-      <div class="cph-stack" aria-label="Zastosowane technologie">
-        <span>Three.js · WebGL</span><span>vanilla JS · ES modules</span><span>zero frameworku · bez bundlera</span>
-        <span>custom shadery</span><span>GSAP</span><span>SPA · History API</span>
-        <span>Web Audio API</span><span>parallax</span><span>CSS color-mix · frost</span>
+    <!-- Plakietka frost wyjeżdżająca Z DOŁU: linia rysuje się po froscie (SVG stroke),
+         teksty dekodują się z losowych znaków (colophon.js), fireflies dryfują po tafli. -->
+    <div class="cph-plate">
+      <button class="cph-close" type="button" aria-label="Zamknij">‹ Wróć</button>
+      <canvas class="cph-fireflies" aria-hidden="true"></canvas>
+      <svg class="cph-line" viewBox="0 0 680 320" preserveAspectRatio="none" aria-hidden="true">
+        <path pathLength="1" d="M14,30 H150 l16,16 H430 l12,-12 H666" />
+      </svg>
+      <div class="cph-inner">
+        <p class="cph-kicker" data-decode>Pod maską</p>
+        <h2 class="cph-title" data-decode>Zero gotowca.</h2>
+        <p class="cph-lead" data-decode>Ta strona nie stoi na szablonie. Parallax, vanilla JS, Three.js i własne shadery — napisane od zera. Zero WordPressa, zero motywu z półki. Każda grafika, efekt i kolor są nasze, robione pod tę jedną stronę.</p>
+        <div class="cph-stack" aria-label="Zastosowane technologie">
+          <span>parallax</span><span>vanilla JS · ES modules</span><span>Three.js · WebGL</span>
+          <span>custom shadery</span><span>zero frameworku · bez bundlera</span><span>zero WordPressa</span>
+          <span>GSAP</span><span>SPA · History API</span><span>Web Audio API</span>
+        </div>
+        <p class="cph-credit">Projekt i kod — zespół <b>Qubatura Lab</b> · Kuba Hyrja, CEO Qubatura Group</p>
+        <a class="cph-cta" data-contact data-contact-tor="lab" role="button" tabindex="0">Chcesz taką stronę? Opisz projekt →</a>
       </div>
-      <p class="cph-credit">Projekt i kod — zespół <b>Qubatura Lab</b> · Kuba Hyrja, CEO Qubatura Group</p>
-      <a class="cph-cta" data-contact data-contact-tor="lab" role="button" tabindex="0">Chcesz taką stronę? Opisz projekt →</a>
     </div>
   </div>
 
@@ -708,8 +714,9 @@
 
         <div class="cc-step" id="cc-s2">
           <div class="cc-q" id="cc-s2q">Doprecyzuj<span class="cur">_</span></div>
-          <div class="cc-sub">Kliknij najbliższe — a my podstawimy Ci gotowy szkielet wiadomości.</div>
+          <div class="cc-sub">Zaznacz wszystko, co pasuje — z tego złożymy Twoją wiadomość.</div>
           <div class="cc-chips" id="cc-chips"></div>
+          <button class="cc-next" id="cc-next" type="button" disabled>DALEJ →</button>
         </div>
 
         <div class="cc-step" id="cc-s3">
@@ -771,7 +778,7 @@
     });
   </script>
 
-  <script type="module" src="js/main.js?v=mrab36sg"></script>
+  <script type="module" src="js/main.js?v=mraex9ru"></script>
 
 </body>
 </html>
