@@ -1624,14 +1624,14 @@ body.lb-locked { overflow: hidden; }
   position:relative; width:min(560px,92vw); max-height:88vh; overflow:hidden;
   margin:0 0 max(20px,4vh); padding:44px 32px 28px;   /* padding-top większy → „Wróć" (lewy górny) nie dotyka kickera */
   border:1px solid color-mix(in srgb, var(--pg-color) 22%, transparent);
-  background:linear-gradient(135deg, color-mix(in srgb, var(--pg-color) 7%, transparent), rgba(6,5,15,.20));
+  /* PRAWIE-KRYTE szkło (bez backdrop-filter!) — na iOS Safari backdrop-filter dryfuje w bok
+     za sceną w tle. Tafla ma własny ciemny fill zamiast blura → legible + zero dryfu. */
+  background:linear-gradient(135deg, color-mix(in srgb, var(--pg-color) 16%, rgba(11,9,24,.95)), rgba(6,5,15,.965));
   box-shadow:
     0 0 24px color-mix(in srgb, var(--pg-color) 12%, transparent),
     inset 0 0 22px color-mix(in srgb, var(--pg-color) 5%, transparent),
     0 26px 60px -26px rgba(0,0,0,.6);      /* uniesienie modala nad sceną */
-  backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
   transform:translateY(115%); transition:transform .62s cubic-bezier(.16,.84,.34,1);
-  will-change:transform; backface-visibility:hidden; -webkit-backface-visibility:hidden;  /* stabilna warstwa na iOS — bez dryfu po animacji */
 }
 .colophon.is-open .cph-plate { transform:translateY(0); }
 
