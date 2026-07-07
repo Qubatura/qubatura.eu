@@ -1603,7 +1603,7 @@ body.lb-locked { overflow: hidden; }
 .cph-plate {
   --pg-color: var(--color-primary);       /* zasila color-mix jak na podstronach (spójność) */
   position:relative; width:min(560px,92vw); max-height:88vh; overflow:hidden;
-  margin:0 0 max(20px,4vh); padding:34px 32px 28px;
+  margin:0 0 max(20px,4vh); padding:44px 32px 28px;   /* padding-top większy → „Wróć" (lewy górny) nie dotyka kickera */
   border:1px solid color-mix(in srgb, var(--pg-color) 22%, transparent);
   background:linear-gradient(135deg, color-mix(in srgb, var(--pg-color) 7%, transparent), rgba(6,5,15,.20));
   box-shadow:
@@ -1629,7 +1629,7 @@ body.lb-locked { overflow: hidden; }
   100% { opacity:0; transform:skewX(-16deg) translateX(360%); }
 }
 
-.cph-close { position:absolute; top:14px; right:16px; z-index:3; font-family:var(--font-mono);
+.cph-close { position:absolute; top:14px; left:16px; z-index:3; font-family:var(--font-mono);
   font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:rgba(240,239,255,.55);
   background:none; border:none; cursor:pointer; transition:color .3s ease; }
 .cph-close:hover { color:#fff; }
@@ -1640,6 +1640,7 @@ body.lb-locked { overflow: hidden; }
   line-height:1.1; color:#F3F1FF; margin:0 0 12px; }
 .cph-lead { font-family:var(--font-display); font-weight:400; font-size:14.5px; line-height:1.55;
   color:rgba(243,241,255,.78); max-width:52ch; margin:0 0 22px; }
+.cph-lead b { color:#F3F1FF; font-weight:700; }   /* „Full custom." — pieczątka na końcu opisu */
 /* treść wyłania się Z SZYBY: blur→ostrość + fade + lekki dojazd; stagger przez transition-delay */
 .colophon [data-reveal] { opacity:0; filter:blur(9px); transform:translateY(8px);
   transition:opacity .7s ease, filter .7s ease, transform .7s ease; }
@@ -1671,7 +1672,9 @@ body.lb-locked { overflow: hidden; }
 .cph-cr-people { margin-top:7px; }
 .cph-credit b { color:#fff; font-weight:400; }
 /* guzik „Opisz projekt" = klasa .page-cta (1:1 z guzikami podstron); .cph-cta zostaje tylko
-   jako hook opóźnienia reveal. Kolor bierze z --pg-color ustawionego na .cph-plate. */
+   jako hook opóźnienia reveal. Kolor bierze z --pg-color ustawionego na .cph-plate.
+   Tu: obrys wyciągnięty na pełną szerokość symetrycznie, napis na środku (życzenie Kuby). */
+.cph-cta { display:block; width:100%; box-sizing:border-box; text-align:center; }
 
 /* ── Studio: „ożywiony monitor" — pulsujący hotspot (pozycja z studio.js) ──────── */
 .studio-hotspot {
