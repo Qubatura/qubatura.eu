@@ -1598,60 +1598,71 @@ body.lb-locked { overflow: hidden; }
 }
 .colophon.is-open { opacity:1; visibility:visible; pointer-events:auto; }
 
-/* Plakietka — frost-szkiełko wyjeżdżające Z DOŁU (nasza tafla, mniejsza niż fullscreen) */
+/* Plakietka — PROSTY frost-szkiełko (nasze), lekko przezroczyste + miękki glow primary,
+   wjeżdża Z DOŁU. Mniejsza, spokojna. */
 .cph-plate {
-  position:relative; width:min(680px,94vw); max-height:88vh; overflow:hidden;
-  margin:0 0 max(18px,3vh); padding:40px 34px 30px;
-  border:1px solid color-mix(in srgb, var(--color-primary) 32%, transparent); border-radius:18px;
-  background:linear-gradient(180deg, rgba(22,17,44,.72), rgba(9,7,20,.84));
-  backdrop-filter:blur(20px) saturate(1.2); -webkit-backdrop-filter:blur(20px) saturate(1.2);
-  box-shadow:0 -12px 60px -14px color-mix(in srgb, var(--color-primary) 42%, transparent),
-             0 28px 70px -22px rgba(0,0,0,.72), inset 0 1px 0 rgba(255,255,255,.06);
+  position:relative; width:min(560px,92vw); max-height:88vh; overflow:hidden;
+  margin:0 0 max(20px,4vh); padding:34px 32px 28px;
+  border:1px solid color-mix(in srgb, var(--color-primary) 26%, transparent); border-radius:20px;
+  background:linear-gradient(180deg, rgba(28,22,54,.44), rgba(12,10,26,.55));
+  backdrop-filter:blur(22px) saturate(1.25); -webkit-backdrop-filter:blur(22px) saturate(1.25);
+  box-shadow:0 0 50px -10px color-mix(in srgb, var(--color-primary) 34%, transparent),
+             0 26px 64px -24px rgba(0,0,0,.68), inset 0 1px 0 rgba(255,255,255,.08);
   transform:translateY(115%); transition:transform .62s cubic-bezier(.16,.84,.34,1);
 }
 .colophon.is-open .cph-plate { transform:translateY(0); }
 
-/* fireflies (canvas) + samo-rysująca linia (SVG) — warstwy pod treścią */
-.cph-fireflies { position:absolute; inset:0; width:100%; height:100%; z-index:0; pointer-events:none; opacity:.9; }
-.cph-line { position:absolute; inset:0; width:100%; height:100%; z-index:1; pointer-events:none; }
-.cph-line path { fill:none; stroke:color-mix(in srgb, var(--color-primary) 72%, #fff); stroke-width:1.4;
-  vector-effect:non-scaling-stroke; stroke-dasharray:1; stroke-dashoffset:1;
-  filter:drop-shadow(0 0 4px color-mix(in srgb, var(--color-primary) 60%, transparent));
-  transition:stroke-dashoffset 1.5s ease .3s; }
-.colophon.is-open .cph-line path { stroke-dashoffset:0; }
+/* fireflies (canvas) — bardzo subtelne, pod treścią */
+.cph-fireflies { position:absolute; inset:0; width:100%; height:100%; z-index:0; pointer-events:none; opacity:.7; }
+/* WOW-bajer: przejazd światła po szkle raz przy otwarciu (glint) */
+.cph-sheen { position:absolute; top:0; bottom:0; left:0; z-index:1; width:55%; pointer-events:none; opacity:0;
+  transform:skewX(-16deg) translateX(-120%);
+  background:linear-gradient(90deg, transparent, color-mix(in srgb, var(--color-primary) 26%, #fff 6%), transparent);
+  mix-blend-mode:screen; filter:blur(6px); }
+.colophon.is-open .cph-sheen { animation:cph-sweep 1.5s cubic-bezier(.4,0,.2,1) .35s 1 both; }
+@keyframes cph-sweep {
+  0% { opacity:0; transform:skewX(-16deg) translateX(-120%); }
+  22% { opacity:.9; }
+  100% { opacity:0; transform:skewX(-16deg) translateX(360%); }
+}
 
-.cph-close { position:absolute; top:16px; right:18px; z-index:3; font-family:var(--font-mono);
+.cph-close { position:absolute; top:14px; right:16px; z-index:3; font-family:var(--font-mono);
   font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:rgba(240,239,255,.55);
   background:none; border:none; cursor:pointer; transition:color .3s ease; }
 .cph-close:hover { color:#fff; }
 .cph-inner { position:relative; z-index:2; }
-.cph-kicker { font-family:var(--font-mono); font-size:11px; letter-spacing:.24em; text-transform:uppercase;
-  color:color-mix(in srgb, var(--color-primary) 78%, #fff); margin:0 0 12px; }
-.cph-title { font-family:var(--font-display); font-weight:700; font-size:clamp(26px,3.6vw,40px);
-  line-height:1.04; color:#F3F1FF; margin:0 0 14px; }
-.cph-lead { font-family:var(--font-display); font-weight:400; font-size:15.5px; line-height:1.55;
-  color:rgba(243,241,255,.8); max-width:56ch; margin:0 0 24px; }
-/* teksty startują niewidoczne — colophon.js dekoduje je po otwarciu (scramble → treść) */
-.colophon .cph-title[data-decode], .colophon .cph-lead[data-decode], .colophon .cph-kicker[data-decode] { opacity:.001; }
-.colophon.is-open .cph-kicker[data-decode], .colophon.is-open .cph-title[data-decode],
-.colophon.is-open .cph-lead[data-decode] { opacity:1; transition:opacity .3s ease; }
-.cph-stack { display:flex; flex-wrap:wrap; gap:8px; margin:0 0 24px; }
-.cph-stack span { font-family:var(--font-mono); font-size:10.5px; letter-spacing:.04em;
+.cph-kicker { font-family:var(--font-mono); font-size:10px; letter-spacing:.26em; text-transform:uppercase;
+  color:color-mix(in srgb, var(--color-primary) 74%, #fff); margin:0 0 10px; }
+.cph-title { font-family:var(--font-display); font-weight:700; font-size:clamp(20px,2.4vw,26px);
+  line-height:1.1; color:#F3F1FF; margin:0 0 12px; }
+.cph-lead { font-family:var(--font-display); font-weight:400; font-size:14.5px; line-height:1.55;
+  color:rgba(243,241,255,.78); max-width:52ch; margin:0 0 22px; }
+/* treść wyłania się Z SZYBY: blur→ostrość + fade + lekki dojazd; stagger przez transition-delay */
+.colophon [data-reveal] { opacity:0; filter:blur(9px); transform:translateY(8px);
+  transition:opacity .7s ease, filter .7s ease, transform .7s ease; }
+.colophon.is-open [data-reveal] { opacity:1; filter:blur(0); transform:none; }
+.colophon.is-open .cph-kicker[data-reveal]{transition-delay:.42s}
+.colophon.is-open .cph-title[data-reveal]{transition-delay:.54s}
+.colophon.is-open .cph-lead[data-reveal]{transition-delay:.68s}
+.colophon.is-open .cph-credit[data-reveal]{transition-delay:1.3s}
+.colophon.is-open .cph-cta[data-reveal]{transition-delay:1.42s}
+.cph-stack { display:flex; flex-wrap:wrap; gap:7px; margin:0 0 22px; }
+.cph-stack span { font-family:var(--font-mono); font-size:10px; letter-spacing:.04em;
   color:color-mix(in srgb, var(--color-primary) 72%, #fff);
-  border:1px solid color-mix(in srgb, var(--color-primary) 30%, transparent);
-  background:color-mix(in srgb, var(--color-primary) 7%, transparent); padding:6px 11px;
-  opacity:0; transform:translateY(6px); transition:opacity .4s ease, transform .4s ease; }
-.colophon.is-open .cph-stack span { opacity:1; transform:none; }
-.colophon.is-open .cph-stack span:nth-child(1){transition-delay:.9s}
-.colophon.is-open .cph-stack span:nth-child(2){transition-delay:.98s}
-.colophon.is-open .cph-stack span:nth-child(3){transition-delay:1.06s}
-.colophon.is-open .cph-stack span:nth-child(4){transition-delay:1.14s}
-.colophon.is-open .cph-stack span:nth-child(5){transition-delay:1.22s}
-.colophon.is-open .cph-stack span:nth-child(6){transition-delay:1.3s}
-.colophon.is-open .cph-stack span:nth-child(7){transition-delay:1.38s}
-.colophon.is-open .cph-stack span:nth-child(8){transition-delay:1.46s}
-.colophon.is-open .cph-stack span:nth-child(9){transition-delay:1.54s}
-.cph-credit { font-family:var(--font-mono); font-size:12px; letter-spacing:.03em; color:rgba(243,241,255,.62); margin:0 0 22px; }
+  border:1px solid color-mix(in srgb, var(--color-primary) 28%, transparent);
+  background:color-mix(in srgb, var(--color-primary) 7%, transparent); padding:5px 10px;
+  opacity:0; filter:blur(6px); transform:translateY(5px); transition:opacity .5s ease, filter .5s ease, transform .5s ease; }
+.colophon.is-open .cph-stack span { opacity:1; filter:blur(0); transform:none; }
+.colophon.is-open .cph-stack span:nth-child(1){transition-delay:.82s}
+.colophon.is-open .cph-stack span:nth-child(2){transition-delay:.88s}
+.colophon.is-open .cph-stack span:nth-child(3){transition-delay:.94s}
+.colophon.is-open .cph-stack span:nth-child(4){transition-delay:1.0s}
+.colophon.is-open .cph-stack span:nth-child(5){transition-delay:1.06s}
+.colophon.is-open .cph-stack span:nth-child(6){transition-delay:1.12s}
+.colophon.is-open .cph-stack span:nth-child(7){transition-delay:1.18s}
+.colophon.is-open .cph-stack span:nth-child(8){transition-delay:1.24s}
+.colophon.is-open .cph-stack span:nth-child(9){transition-delay:1.3s}
+.cph-credit { font-family:var(--font-mono); font-size:11.5px; letter-spacing:.03em; color:rgba(243,241,255,.6); margin:0 0 20px; }
 .cph-credit b { color:#fff; font-weight:400; }
 .cph-cta { display:inline-block; font-family:var(--font-mono); font-size:12px; letter-spacing:.12em;
   text-transform:uppercase; color:color-mix(in srgb, var(--color-primary) 55%, #fff); text-decoration:none; cursor:pointer;

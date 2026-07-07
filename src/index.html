@@ -30,7 +30,7 @@
   <meta name="twitter:image"       content="https://qubatura.eu/assets/og-image.png">
 
   <!-- Fonts — self-hosted (Chakra Petch + Space Mono + Press Start 2P), zero zależności od Google -->
-  <link rel="stylesheet" href="css/fonts.css?v=mraex9ru">
+  <link rel="stylesheet" href="css/fonts.css?v=mraggfjo">
 
   <!-- Favicon — sygnet Q (violet) -->
   <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
@@ -40,7 +40,7 @@
         referrerpolicy="no-referrer">
 
   <!-- CSS -->
-  <link rel="stylesheet" href="css/main.css?v=mraex9ru">
+  <link rel="stylesheet" href="css/main.css?v=mraggfjo">
 
   <!-- Three.js via CDN importmap -->
   <script type="importmap">
@@ -578,25 +578,24 @@
        techniczny (pod aplikacje/rekruterów). Copy robocze. Sterowanie: colophon.js. -->
   <div id="colophon" class="colophon" role="dialog" aria-modal="true"
        aria-label="O tej stronie" aria-hidden="true">
-    <!-- Plakietka frost wyjeżdżająca Z DOŁU: linia rysuje się po froscie (SVG stroke),
-         teksty dekodują się z losowych znaków (colophon.js), fireflies dryfują po tafli. -->
+    <!-- Plakietka = prosty frost-szkiełko (nasze), lekko przezroczyste + glow primary, wjeżdża Z DOŁU.
+         Wow-bajer: przejazd światła po szkle (.cph-sheen) na otwarciu. Treść wyłania się Z SZYBY
+         fadem (blur→ostrość, [data-reveal], stagger). Minimalizm. Sterowanie: colophon.js. -->
     <div class="cph-plate">
       <button class="cph-close" type="button" aria-label="Zamknij">‹ Wróć</button>
       <canvas class="cph-fireflies" aria-hidden="true"></canvas>
-      <svg class="cph-line" viewBox="0 0 680 320" preserveAspectRatio="none" aria-hidden="true">
-        <path pathLength="1" d="M14,30 H150 l16,16 H430 l12,-12 H666" />
-      </svg>
+      <span class="cph-sheen" aria-hidden="true"></span>
       <div class="cph-inner">
-        <p class="cph-kicker" data-decode>Pod maską</p>
-        <h2 class="cph-title" data-decode>Zero gotowca.</h2>
-        <p class="cph-lead" data-decode>Ta strona nie stoi na szablonie. Parallax, vanilla JS, Three.js i własne shadery — napisane od zera. Zero WordPressa, zero motywu z półki. Każda grafika, efekt i kolor są nasze, robione pod tę jedną stronę.</p>
+        <p class="cph-kicker" data-reveal>O tej stronie</p>
+        <h2 class="cph-title" data-reveal>Technologia tej strony</h2>
+        <p class="cph-lead" data-reveal>Wszystko, co widzisz, działa na parallaksie, vanilla JS, Three.js i własnych shaderach — napisane od zera. Bez szablonu, bez WordPressa. Grafiki, efekty i kolory są nasze.</p>
         <div class="cph-stack" aria-label="Zastosowane technologie">
           <span>parallax</span><span>vanilla JS · ES modules</span><span>Three.js · WebGL</span>
           <span>custom shadery</span><span>zero frameworku · bez bundlera</span><span>zero WordPressa</span>
           <span>GSAP</span><span>SPA · History API</span><span>Web Audio API</span>
         </div>
-        <p class="cph-credit">Projekt i kod — zespół <b>Qubatura Lab</b> · Kuba Hyrja, CEO Qubatura Group</p>
-        <a class="cph-cta" data-contact data-contact-tor="lab" role="button" tabindex="0">Chcesz taką stronę? Opisz projekt →</a>
+        <p class="cph-credit" data-reveal>Projekt i kod — zespół <b>Qubatura Lab</b> · Kuba Hyrja, CEO Qubatura Group</p>
+        <a class="cph-cta" data-reveal data-contact data-contact-tor="lab" role="button" tabindex="0">Chcesz taką stronę? Opisz projekt →</a>
       </div>
     </div>
   </div>
@@ -778,7 +777,7 @@
     });
   </script>
 
-  <script type="module" src="js/main.js?v=mraex9ru"></script>
+  <script type="module" src="js/main.js?v=mraggfjo"></script>
 
 </body>
 </html>

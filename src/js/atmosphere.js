@@ -12,9 +12,9 @@
 // w ciemnych miejscach, dzięki czemu CSS #planet-bg dalej prześwituje.
 
 import * as THREE from 'three';
-import { onTick } from './scene.js?v=mraex9ru';
-import { navFX, BASE_TINT, DIVISION_COLORS, sceneFX } from './tint.js?v=mraex9ru';
-import { px } from './parallax.js?v=mraex9ru';
+import { onTick } from './scene.js?v=mraggfjo';
+import { navFX, BASE_TINT, DIVISION_COLORS, sceneFX } from './tint.js?v=mraggfjo';
+import { px } from './parallax.js?v=mraggfjo';
 
 // ─── Konfiguracja ───────────────────────────────────────────────────────────
 const CLOUD_DEFS = [

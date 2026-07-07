@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { sceneFX } from './tint.js?v=mraex9ru';
+import { sceneFX } from './tint.js?v=mraggfjo';
 
 let renderer, scene, camera, clock, renderTarget;
 const tickCallbacks = [];
@@ -65,6 +65,7 @@ export async function initScene() {
     video.src = '../assets/planet-bg-web.mp4';
     video.loop = true; video.muted = true; video.playsInline = true;
     video.autoplay = true; video.preload = 'auto';
+    video.playbackRate = 0.8;                                // odrobinę wolniej (knob: 1.0 = natywnie)
     planetTexture = new THREE.VideoTexture(video);
     planetTexture.colorSpace = THREE.SRGBColorSpace;
     video.addEventListener('loadeddata', () => _resolvePlanet(), { once: true });
