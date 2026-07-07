@@ -144,7 +144,7 @@ export function initContactConsole() {
     const nm = (nameIn.value || '').trim();
     document.getElementById('cc-doneline').innerHTML =
       (nm ? nm + ', dziękujemy. ' : '') +
-      'Wróci do Ciebie realny człowiek — zwykle w ciągu doby.<br>Odpisujemy z <b>biuro@qubatura.eu</b>.';
+      'Wrócimy z odpowiedzią — zwykle w ciągu doby.<br>Odpisujemy z <b>biuro@qubatura.eu</b>.';
     setStep(4);
   }
 
