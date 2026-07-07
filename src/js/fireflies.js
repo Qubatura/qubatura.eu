@@ -2,8 +2,8 @@
 // Glow sprite, 3D lot (z głębią), puls 50-100%, nieregularna prędkość, cel = etykieta działu.
 
 import * as THREE from 'three';
-import { onTick } from './scene.js?v=mrarlhdl';
-import { navFX, DIVISION_COLORS, loadFX } from './tint.js?v=mrarlhdl';
+import { onTick } from './scene.js?v=mrarmef6';
+import { navFX, DIVISION_COLORS, loadFX } from './tint.js?v=mrarmef6';
 
 // ── Konfiguracja ──────────────────────────────────────────────────────────────
 const MAX_SPD   = 58;    // wu/s XY

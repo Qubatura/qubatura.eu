@@ -190,8 +190,9 @@ body.is-loading #tagline {
 
 #top-contact,
 #lang-toggle {
-  color: rgba(255, 255, 255, 0.62);   /* +czytelność: 0.45→0.62 (Kuba: było za ciemne), nadal subtelne */
-  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.7);   /* legibility nad ruchomą sceną, bez rozjaśniania na siłę */
+  color: rgba(255, 255, 255, 0.85);   /* czytelność: 0.62→0.85 (Kuba: słabo widać na jasnych kadrach sceny) */
+  /* twarda ciemna otoczka → litery czytelne też na jasnych klatkach wideo/sceny */
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9), 0 0 10px rgba(0, 0, 0, 0.55);
   text-decoration: none;
   background: none;
   border: none;
