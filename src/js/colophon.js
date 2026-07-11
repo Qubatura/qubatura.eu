@@ -94,24 +94,27 @@ export function initColophon() {
     const lR = lead ? lead.getBoundingClientRect() : null;
     const inner = overlay.querySelector('.cph-inner');
     const iR = inner ? inner.getBoundingClientRect() : null;
-    const bs = plate ? getComputedStyle(plate).boxSizing : '?';
+    const cs = plate ? getComputedStyle(plate) : null;
     dbg.textContent =
       'iw=' + window.innerWidth + ' ih=' + window.innerHeight +
       '\nvv=' + (vv ? (Math.round(vv.width) + 'x' + Math.round(vv.height) +
         ' scale=' + (vv.scale || 1).toFixed(2)) : 'BRAK') +
       '\noverlay L=' + Math.round(oR.left) + ' R=' + Math.round(oR.right) + ' W=' + Math.round(oR.width) + ' H=' + Math.round(oR.height) +
-      '\nplate L=' + (pR ? Math.round(pR.left) : '?') + ' R=' + (pR ? Math.round(pR.right) : '?') + ' W=' + (pR ? Math.round(pR.width) : '?') + ' H=' + (pR ? Math.round(pR.height) : '?') + ' box=' + bs +
-      '\ninner W=' + (iR ? Math.round(iR.width) : '?') +
+      '\nplate L=' + (pR ? Math.round(pR.left) : '?') + ' R=' + (pR ? Math.round(pR.right) : '?') + ' W=' + (pR ? Math.round(pR.width) : '?') + ' H=' + (pR ? Math.round(pR.height) : '?') +
+      '\nplate maxH=' + (cs ? cs.maxHeight : '?') + ' scrollH=' + (plate ? plate.scrollHeight : '?') + ' clientH=' + (plate ? plate.clientHeight : '?') +
+      '\ninner L=' + (iR ? Math.round(iR.left) : '?') + ' W=' + (iR ? Math.round(iR.width) : '?') +
       '\nlead  L=' + (lR ? Math.round(lR.left) : '?') + ' R=' + (lR ? Math.round(lR.right) : '?') + ' W=' + (lR ? Math.round(lR.width) : '?') +
       '\nwroc  L=' + (cbR ? Math.round(cbR.left) : '?') + ' T=' + (cbR ? Math.round(cbR.top) : '?') +
       ' onScreen=' + (cbR ? (cbR.top >= 0 && cbR.top <= window.innerHeight) : '?');
   };
   const hideDiag = () => { if (dbg) { dbg.remove(); dbg = null; } };
 
+  const DIAG = /[?&]diag/.test(location.search);   // panel tylko na qubatura.eu/?diag (goście NIE widzą)
+
   const open = () => {
     syncVV();
     if (vv) { vv.addEventListener('resize', syncVV); vv.addEventListener('scroll', syncVV); }
-    setTimeout(showDiag, 750);   // po animacji wjazdu — plakietka w spoczynku
+    if (DIAG) setTimeout(showDiag, 750);   // po animacji wjazdu — plakietka w spoczynku
     overlay.classList.add('is-open');
     overlay.setAttribute('aria-hidden', 'false');
     document.body.classList.add('lb-locked');
