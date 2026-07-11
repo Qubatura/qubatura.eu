@@ -51,17 +51,41 @@ export function initColophon() {
   const canvas = overlay.querySelector('.cph-fireflies');
   const ff = canvas ? fireflies(canvas) : null;
 
+  // ─── iOS FIX: przypięcie overlayu do VISUAL viewportu ────────────────────────────
+  // Na iOS Safari `position:fixed; inset:0` odnosi się do LAYOUT-viewportu, który bywa
+  // szerszy niż widzialny obszar → wycentrowana plakietka „ucieka w prawo" i guzik „Wróć"
+  // ląduje poza trafialną strefą. Chrome tego nie reprodukuje (headless zawsze wyśrodkowany),
+  // dlatego CSS-owe podejścia (sr-only, 92vw) nie pomagały. Tu twardo ustawiamy overlay na
+  // dokładny prostokąt window.visualViewport → plakietka liczy szerokość od NIEGO, nie od vw.
+  const vv = window.visualViewport;
+  const syncVV = () => {
+    if (!vv) return;
+    overlay.style.left  = vv.offsetLeft + 'px';
+    overlay.style.top   = vv.offsetTop + 'px';
+    overlay.style.width = vv.width + 'px';
+    overlay.style.height = vv.height + 'px';
+    overlay.style.right = 'auto';
+    overlay.style.bottom = 'auto';
+  };
+  const clearVV = () => {
+    for (const p of ['left', 'top', 'width', 'height', 'right', 'bottom']) overlay.style[p] = '';
+  };
+
   const open = () => {
+    syncVV();
+    if (vv) { vv.addEventListener('resize', syncVV); vv.addEventListener('scroll', syncVV); }
     overlay.classList.add('is-open');
     overlay.setAttribute('aria-hidden', 'false');
     document.body.classList.add('lb-locked');
     if (ff) ff.start();
   };
   const close = () => {
+    if (vv) { vv.removeEventListener('resize', syncVV); vv.removeEventListener('scroll', syncVV); }
     overlay.classList.remove('is-open');
     overlay.setAttribute('aria-hidden', 'true');
     document.body.classList.remove('lb-locked');
     if (ff) ff.stop();
+    clearVV();
   };
 
   document.addEventListener('click', e => {

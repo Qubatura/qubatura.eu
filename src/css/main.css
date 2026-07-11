@@ -2619,6 +2619,12 @@ body.page-active #tagline {
     padding: 0 24px; z-index: 21;
   }
 
+  /* Colophon iOS: overlay jest PRZYPIĘTY do visualViewportu przez colophon.js (inline left/width).
+     Tu plakietka liczy szerokość od overlayu (100%), NIE od vw — koniec „ucieczki w prawo".
+     box-sizing pewny, żeby padding plakietki nie rozpychał poza widzialny obszar. */
+  .colophon { padding-left: 14px; padding-right: 14px; }
+  .cph-plate { width: 100%; max-width: 430px; box-sizing: border-box; }
+
   /* Colophon: podpis dwuliniowy (Qubatura Lab / Kuba Hyrja) — symetryczny, wyśrodkowany,
      zbalansowane łamanie zamiast ragged; obie linie równo się czytają. */
   .cph-credit {
