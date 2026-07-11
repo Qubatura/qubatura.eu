@@ -71,9 +71,42 @@ export function initColophon() {
     for (const p of ['left', 'top', 'width', 'height', 'right', 'bottom']) overlay.style[p] = '';
   };
 
+  // ─── TEMP DIAGNOSTYKA (usunąć po namierzeniu dryfu iOS) ──────────────────────────
+  // Wpisuje realne pomiary z urządzenia na ekran — Kuba robi screena, my widzimy prawdę.
+  let dbg = null;
+  const showDiag = () => {
+    if (!dbg) {
+      dbg = document.createElement('div');
+      dbg.setAttribute('style', [
+        'position:fixed', 'top:0', 'left:0', 'right:0', 'z-index:99999',
+        'background:rgba(255,40,120,.92)', 'color:#fff', 'font:11px/1.45 monospace',
+        'padding:6px 8px', 'white-space:pre-wrap', 'pointer-events:none', 'text-align:left',
+      ].join(';'));
+      document.body.appendChild(dbg);
+    }
+    const de = document.documentElement;
+    const oR = overlay.getBoundingClientRect();
+    const plate = overlay.querySelector('.cph-plate');
+    const pR = plate ? plate.getBoundingClientRect() : null;
+    const cb = overlay.querySelector('.cph-close');
+    const cbR = cb ? cb.getBoundingClientRect() : null;
+    dbg.textContent =
+      'iw=' + window.innerWidth + ' ih=' + window.innerHeight +
+      '\ndeClientW=' + de.clientWidth + ' scrollW=' + de.scrollWidth +
+      '\nvv=' + (vv ? (Math.round(vv.width) + 'x' + Math.round(vv.height) +
+        ' offL=' + Math.round(vv.offsetLeft) + ' pageL=' + Math.round(vv.pageLeft) +
+        ' scale=' + (vv.scale || 1).toFixed(2)) : 'BRAK') +
+      '\noverlay L=' + Math.round(oR.left) + ' R=' + Math.round(oR.right) + ' W=' + Math.round(oR.width) +
+      '\nplate  L=' + (pR ? Math.round(pR.left) : '?') + ' R=' + (pR ? Math.round(pR.right) : '?') + ' W=' + (pR ? Math.round(pR.width) : '?') +
+      '\nwrocBtn L=' + (cbR ? Math.round(cbR.left) : '?') + ' T=' + (cbR ? Math.round(cbR.top) : '?') +
+      ' onScreen=' + (cbR ? (cbR.left >= 0 && cbR.right <= window.innerWidth && cbR.top >= 0) : '?');
+  };
+  const hideDiag = () => { if (dbg) { dbg.remove(); dbg = null; } };
+
   const open = () => {
     syncVV();
     if (vv) { vv.addEventListener('resize', syncVV); vv.addEventListener('scroll', syncVV); }
+    setTimeout(showDiag, 750);   // po animacji wjazdu — plakietka w spoczynku
     overlay.classList.add('is-open');
     overlay.setAttribute('aria-hidden', 'false');
     document.body.classList.add('lb-locked');
@@ -86,6 +119,7 @@ export function initColophon() {
     document.body.classList.remove('lb-locked');
     if (ff) ff.stop();
     clearVV();
+    hideDiag();
   };
 
   document.addEventListener('click', e => {

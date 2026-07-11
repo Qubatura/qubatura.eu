@@ -16,7 +16,7 @@ const asset = rel => new URL(rel, DOC_ROOT).href;
 // Sloty — Kuba dostarczy pliki + tytuły. Tytuł = JEDEN wyraz po angielsku (nazwa stylu/klimatu).
 // Numer 1 = „bezpieczny organiczny" starter na home. Poniżej placeholdery do podmiany.
 const TRACKS = [
-  { src: '../assets/audio/Qubatura.eu-main.mp3', title: 'KANAREK' },     // ← TYMCZASOWY KANAREK diagnostyczny (revert do 'Main' po teście)
+  { src: '../assets/audio/Qubatura.eu-main.mp3', title: 'Main' },     // ← nowa koncepcja: „main" na jedynce (Theme schowany)
   { src: '../assets/audio/Qubatura.eu-pulse.mp3', title: 'Pulse' },
   { src: '../assets/audio/Qubatura.eu-relax.mp3', title: 'Relax' },   // ← wrzuć plik pod TĄ nazwą, zagra sam
 ];
