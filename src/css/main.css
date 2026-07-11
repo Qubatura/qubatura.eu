@@ -2551,14 +2551,26 @@ body.page-active #tagline {
 /* ── Screen reader only ──────────────────────────────────────────── */
 .sr-only {
   position: absolute;
+  top: 0;
+  left: 0;                 /* zakotwiczone w origin — bez „ucieczki" w bok */
   width: 1px;
   height: 1px;
   padding: 0;
   margin: -1px;
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
   white-space: nowrap;
   border: 0;
+}
+/* KRYTYCZNE (iOS): każdy link sr-only MUSI być zero-footprint. Bez tego linki z
+   white-space:nowrap układają się w jedną linię ~1000px i rozpychają layout-viewport
+   iOS Safari (mimo overflow:hidden rodzica) → fixed overlaye (colophon) uciekają w prawo. */
+.sr-only a {
+  display: block;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
 }
 
 /* ── Responsive ─────────────────────────────────────────────────── */
@@ -2614,6 +2626,9 @@ body.page-active #tagline {
     line-height: 1.55;
     text-wrap: balance;
   }
+  /* nazwy własne (Kuba Hyrja, Qubatura Lab/Group) NIE łamią się w środku — łamanie tylko
+     na granicy słów, nazwy zostają w całości → koniec „rozjechanego" podpisu na mobile */
+  .cph-credit b { white-space: nowrap; }
   .cph-cr-people { margin-top: 5px; }
 
   /* ─── Nav: transparentny kontener — scena prześwituje między kartami ─── */

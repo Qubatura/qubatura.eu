@@ -16,7 +16,7 @@ const asset = rel => new URL(rel, DOC_ROOT).href;
 // Sloty — Kuba dostarczy pliki + tytuły. Tytuł = JEDEN wyraz po angielsku (nazwa stylu/klimatu).
 // Numer 1 = „bezpieczny organiczny" starter na home. Poniżej placeholdery do podmiany.
 const TRACKS = [
-  { src: '../assets/audio/Qubatura.eu-theme.mp3', title: 'Theme' },
+  { src: '../assets/audio/Qubatura.eu-main.mp3', title: 'Main' },     // ← nowa koncepcja: „main" na jedynce (Theme schowany)
   { src: '../assets/audio/Qubatura.eu-pulse.mp3', title: 'Pulse' },
   { src: '../assets/audio/Qubatura.eu-relax.mp3', title: 'Relax' },   // ← wrzuć plik pod TĄ nazwą, zagra sam
 ];
@@ -94,4 +94,26 @@ export function initPlayer() {
   }
 
   render();
+
+  // ─── Autoplay „zaraz po załadowaniu" (życzenie Kuby, „na moje ryzyko") ───────────
+  // Przeglądarki blokują autoplay Z DŹWIĘKIEM bez gestu usera → próbujemy od razu, a jak
+  // polityka zablokuje, uzbrajamy JEDNORAZOWY start przy pierwszym dowolnym geście (poza
+  // samym #sound-toggle — on ma własną logikę graj/stop, nie chcemy podwójnego przełączenia).
+  function armPlaying() {
+    playing = true;
+    if (toggle) toggle.dataset.active = 'true';
+    root.dataset.playing = 'true';
+  }
+  loadedIdx = cur;
+  audio.src = asset(TRACKS[cur].src);
+  audio.play().then(armPlaying).catch(() => {
+    const kick = (e) => {
+      if (toggle && e && e.target && toggle.contains(e.target)) return;  // niech toggle sam steruje
+      window.removeEventListener('pointerdown', kick);
+      window.removeEventListener('keydown', kick);
+      audio.play().then(armPlaying).catch(() => {});
+    };
+    window.addEventListener('pointerdown', kick);
+    window.addEventListener('keydown', kick);
+  });
 }

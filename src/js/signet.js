@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { SVGLoader } from 'three/addons/loaders/SVGLoader.js';
-import { onTick, registerRefraction } from './scene.js?v=mrb1p3ye';
-import { navFX, loadFX } from './tint.js?v=mrb1p3ye';
+import { onTick, registerRefraction } from './scene.js?v=mrg4wxt2';
+import { navFX, loadFX } from './tint.js?v=mrg4wxt2';
 
 const _mouse = { x: -9999, y: -9999 };
 window.addEventListener('mousemove', e => { _mouse.x = e.clientX; _mouse.y = e.clientY; });
@@ -82,10 +82,10 @@ export async function initSignet(ctx) {
 
   const uniforms = {
     tBackground:        { value: null },   // wstrzykiwane co klatkę przez scene.js
-    // 2026-07-02: mobile PODBITE (0.06→0.13). Na desktopie refrakcja zagina jasną wieżę = błyski
-    // szkła; na mobile za sygnetem CIEMNE niebo → 0.06 zaginało ciemne→ciemne = niewidoczne = mat.
-    // Większe zagięcie na mobile łapie choć trochę jaśniejszych smug drogi/nieba = więcej życia.
-    refractionStrength: { value: isMobile ? 0.13 : 0.06 },   // siła zagięcia planety (do tuningu)
+    // 2026-07-11: mobile UJEDNOLICONE do desktopu (0.13→0.06). Kuba: mobile miał „białe mleko"
+    // i płaskie wypełnienie ≠ szklisty desktop. Tło za sygnetem jest dziś jaśniejsze (VideoTexture/
+    // webp planety) niż gdy 0.06 dawało mat, więc refrakcja znów ma co zaginać → glass jak na desktopie.
+    refractionStrength: { value: 0.06 },   // 1:1 desktop (było mobile 0.13)
     time:               { value: 0 },
     uColorMix:          { value: 0 },      // 0 = primary, 1 = magenta (sterowane kątem)
     uGlass:             { value: 0 },      // 0 = normalny tint, 1 = czyste szkło (hover sygnetu, brak działu)
@@ -105,12 +105,12 @@ export async function initSignet(ctx) {
     // Mobile ŚCIĘTY (0.52→0.38, 2026-06-30): glassFloor napędzał szeroki sheen czoła + jasny
     // pryzmatyczny rant = GŁÓWNE źródło „mleczności"/matu na iOS. Mniej = mniej białej tafli,
     // więcej czytelnego szkła. Część roboty wypełnienia przejmuje uFillDensity (płyn).
-    // 2026-07-02: PRZYWRÓCONE dla mobile (0.0→0.28). To ono daje „glass" niezależny od tła:
-    // szeroki sheen na froncie (pow N·H 8), pryzmat na krawędzi (+0.50) i CA rantu. Przy 1:1
-    // zeszło do 0 → mobile zmatowiał (ciemne tło nie daje refrakcyjnych błysków jak wieża na
-    // desktopie). Mleczności NIE wróci: kolory są już zimne (0x8288FF, uEdgeWarm 0.66,0.66,1.0,
-    // uPrimaryShift 0.90). Niżej niż stare 0.38 — sam sheen, bez mlecznej tafli. Desktop=0.
-    uGlassFloor:        { value: isMobile ? 0.28 : 0.0 },   // front-szkło + rant (mobile); desktop robi uFrontGlass
+    // 2026-07-11: mobile ZDJĘTE do 0 (0.28→0.0) = pełne 1:1 z desktopem. uGlassFloor kładł stały,
+    // SZEROKI sheen na całym froncie niezależnie od tła (pow N·H 8) — to było źródło „białego mleka"/
+    // matu, na który Kuba zwrócił uwagę. Desktop szklistość bierze z wąskiej smugi uFrontGlass (0.85)
+    // + refrakcji jasnego tła; przy dzisiejszym jaśniejszym tle mobile robi to samo → glass zamiast mleka.
+    // SAFETY VALVE: jeśli na realnym iPhonie sygnet zrobi się za ciemny/matowy, podbić do ~0.12 (nie 0.28).
+    uGlassFloor:        { value: 0.0 },   // 1:1 desktop (było mobile 0.28) — koniec floor-sheenu/mleka
     // Mnożnik opalizującego płynu (A2/B2): mobile mocniej — matowy sygnet nad ciemnym tłem
     // potrzebuje więcej „mienienia się"; desktop refraktuje jasną wieżę i ma dość naturalnie.
     // PODBITY (1.9→2.2, C6): żywa opalescencja zastępuje ścięty flat fill (uBaseFill↓) —

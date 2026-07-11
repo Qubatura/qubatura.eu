@@ -7,7 +7,7 @@
 // Wszystko czyta navFX, który tu płynnie tweenujemy.
 
 import * as GSAPmod from 'gsap';
-import { DIVISION_COLORS, DIVISION_DIR, BASE_TINT, navFX } from './tint.js?v=mrb1p3ye';
+import { DIVISION_COLORS, DIVISION_DIR, BASE_TINT, navFX } from './tint.js?v=mrg4wxt2';
 
 // +esm bywa default albo named — bądź odporny na obie postacie
 const gsap = GSAPmod.gsap || GSAPmod.default || GSAPmod;
