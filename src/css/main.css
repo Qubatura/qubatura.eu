@@ -2622,8 +2622,24 @@ body.page-active #tagline {
   /* Colophon iOS: overlay jest PRZYPIĘTY do visualViewportu przez colophon.js (inline left/width).
      Tu plakietka liczy szerokość od overlayu (100%), NIE od vw — koniec „ucieczki w prawo".
      box-sizing pewny, żeby padding plakietki nie rozpychał poza widzialny obszar. */
-  .colophon { padding-left: 14px; padding-right: 14px; }
-  .cph-plate { width: 100%; max-width: 430px; box-sizing: border-box; }
+  .colophon { padding: 12px 14px; }
+  .cph-plate {
+    width: 100%; max-width: 430px; box-sizing: border-box;
+    /* KLUCZ (iOS): wysokość liczona od PRZYPIĘTEGO overlayu (realna widoczna wysokość,
+       colophon.js), NIE od 88vh — bo `vh` na iOS bierze DUŻY viewport (bez paska adresu),
+       przez co plakietka była wyższa niż ekran, a przyklejona do dołu wypychała górę
+       (guzik „Wróć", Y=-8) ponad ekran = nieklikalny. Teraz mieści się + scroll wewnątrz. */
+    max-height: 100%;
+    margin: 0 auto;
+    padding: 12px 22px 22px;      /* mniejszy top: „Wróć" jest teraz w przepływie (sticky), nie absolute */
+    overflow-y: auto; overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+  /* „Wróć" przyklejony do góry przewijanej plakietki (nie ucieka przy scrollu, zawsze klikalny). */
+  .cph-close {
+    position: sticky; top: 0; z-index: 5;
+    display: inline-block; padding: 2px 10px 8px 0;
+  }
 
   /* Colophon: podpis dwuliniowy (Qubatura Lab / Kuba Hyrja) — symetryczny, wyśrodkowany,
      zbalansowane łamanie zamiast ragged; obie linie równo się czytają. */

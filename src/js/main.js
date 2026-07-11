@@ -9,25 +9,25 @@
 //   Etap 7: navigation.js   — directional nav tint integration
 //   Etap 10: router.js      — SPA History API + GSAP transitions
 
-import { initScene, startLoop } from './scene.js?v=mrg9ukvb';
-import { initParallax }         from './parallax.js?v=mrg9ukvb';
-import { initAtmosphere }       from './atmosphere.js?v=mrg9ukvb';
-import { initFireflies }        from './fireflies.js?v=mrg9ukvb';
-import { initSignet }           from './signet.js?v=mrg9ukvb';
-import { initNavigation }       from './navigation.js?v=mrg9ukvb';
-import { initRouter }           from './router.js?v=mrg9ukvb';
-import { initPlayers }          from './players.js?v=mrg9ukvb';   // Część 2: playery audio (Studio)
-import { initCursor }           from './cursor.js?v=mrg9ukvb';
-import { initContact }          from './contact.js?v=mrg9ukvb';
-import { initContactConsole }   from './contact-console.js?v=mrg9ukvb';   // Kontakt: silnik formularza (konsoleta)
-import { initLoader }           from './loader.js?v=mrg9ukvb';   // Etap 9: loading screen
-import { initPong }             from './pong.js?v=mrg9ukvb';     // Easter egg: Chwila relaksu
-import { initGallery }          from './gallery.js?v=mrg9ukvb';              // Events: galeria realizacji + lightbox
-import { initLab }              from './lab.js?v=mrg9ukvb';                  // Lab: oprogramowanie audio + podstrona produktu
-import { initStudioMonitor }    from './studio.js?v=mrg9ukvb';               // Studio: „ożywiony monitor" (smaczek)
-import { initPlayer }           from './player.js?v=mrg9ukvb';               // HOME: mini player muzyczny (rolka)
-import { initCookies }          from './cookie-consent.js?v=mrg9ukvb';       // Cookie consent (minimalny, tylko niezbędne)
-import { initColophon }         from './colophon.js?v=mrg9ukvb';             // Colophon „tę stronę zrobiliśmy sami" (tagline)
+import { initScene, startLoop } from './scene.js?v=mrgahdhe';
+import { initParallax }         from './parallax.js?v=mrgahdhe';
+import { initAtmosphere }       from './atmosphere.js?v=mrgahdhe';
+import { initFireflies }        from './fireflies.js?v=mrgahdhe';
+import { initSignet }           from './signet.js?v=mrgahdhe';
+import { initNavigation }       from './navigation.js?v=mrgahdhe';
+import { initRouter }           from './router.js?v=mrgahdhe';
+import { initPlayers }          from './players.js?v=mrgahdhe';   // Część 2: playery audio (Studio)
+import { initCursor }           from './cursor.js?v=mrgahdhe';
+import { initContact }          from './contact.js?v=mrgahdhe';
+import { initContactConsole }   from './contact-console.js?v=mrgahdhe';   // Kontakt: silnik formularza (konsoleta)
+import { initLoader }           from './loader.js?v=mrgahdhe';   // Etap 9: loading screen
+import { initPong }             from './pong.js?v=mrgahdhe';     // Easter egg: Chwila relaksu
+import { initGallery }          from './gallery.js?v=mrgahdhe';              // Events: galeria realizacji + lightbox
+import { initLab }              from './lab.js?v=mrgahdhe';                  // Lab: oprogramowanie audio + podstrona produktu
+import { initStudioMonitor }    from './studio.js?v=mrgahdhe';               // Studio: „ożywiony monitor" (smaczek)
+import { initPlayer }           from './player.js?v=mrgahdhe';               // HOME: mini player muzyczny (rolka)
+import { initCookies }          from './cookie-consent.js?v=mrgahdhe';       // Cookie consent (minimalny, tylko niezbędne)
+import { initColophon }         from './colophon.js?v=mrgahdhe';             // Colophon „tę stronę zrobiliśmy sami" (tagline)
 
 async function boot() {
   initCursor();                 // własna kulka kursora — od razu aktywna

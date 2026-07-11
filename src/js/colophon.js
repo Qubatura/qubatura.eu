@@ -78,7 +78,7 @@ export function initColophon() {
     if (!dbg) {
       dbg = document.createElement('div');
       dbg.setAttribute('style', [
-        'position:fixed', 'top:0', 'left:0', 'right:0', 'z-index:99999',
+        'position:fixed', 'bottom:0', 'left:0', 'right:0', 'z-index:99999',
         'background:rgba(255,40,120,.92)', 'color:#fff', 'font:11px/1.45 monospace',
         'padding:6px 8px', 'white-space:pre-wrap', 'pointer-events:none', 'text-align:left',
       ].join(';'));
@@ -90,16 +90,21 @@ export function initColophon() {
     const pR = plate ? plate.getBoundingClientRect() : null;
     const cb = overlay.querySelector('.cph-close');
     const cbR = cb ? cb.getBoundingClientRect() : null;
+    const lead = overlay.querySelector('.cph-lead');
+    const lR = lead ? lead.getBoundingClientRect() : null;
+    const inner = overlay.querySelector('.cph-inner');
+    const iR = inner ? inner.getBoundingClientRect() : null;
+    const bs = plate ? getComputedStyle(plate).boxSizing : '?';
     dbg.textContent =
       'iw=' + window.innerWidth + ' ih=' + window.innerHeight +
-      '\ndeClientW=' + de.clientWidth + ' scrollW=' + de.scrollWidth +
       '\nvv=' + (vv ? (Math.round(vv.width) + 'x' + Math.round(vv.height) +
-        ' offL=' + Math.round(vv.offsetLeft) + ' pageL=' + Math.round(vv.pageLeft) +
         ' scale=' + (vv.scale || 1).toFixed(2)) : 'BRAK') +
-      '\noverlay L=' + Math.round(oR.left) + ' R=' + Math.round(oR.right) + ' W=' + Math.round(oR.width) +
-      '\nplate  L=' + (pR ? Math.round(pR.left) : '?') + ' R=' + (pR ? Math.round(pR.right) : '?') + ' W=' + (pR ? Math.round(pR.width) : '?') +
-      '\nwrocBtn L=' + (cbR ? Math.round(cbR.left) : '?') + ' T=' + (cbR ? Math.round(cbR.top) : '?') +
-      ' onScreen=' + (cbR ? (cbR.left >= 0 && cbR.right <= window.innerWidth && cbR.top >= 0) : '?');
+      '\noverlay L=' + Math.round(oR.left) + ' R=' + Math.round(oR.right) + ' W=' + Math.round(oR.width) + ' H=' + Math.round(oR.height) +
+      '\nplate L=' + (pR ? Math.round(pR.left) : '?') + ' R=' + (pR ? Math.round(pR.right) : '?') + ' W=' + (pR ? Math.round(pR.width) : '?') + ' H=' + (pR ? Math.round(pR.height) : '?') + ' box=' + bs +
+      '\ninner W=' + (iR ? Math.round(iR.width) : '?') +
+      '\nlead  L=' + (lR ? Math.round(lR.left) : '?') + ' R=' + (lR ? Math.round(lR.right) : '?') + ' W=' + (lR ? Math.round(lR.width) : '?') +
+      '\nwroc  L=' + (cbR ? Math.round(cbR.left) : '?') + ' T=' + (cbR ? Math.round(cbR.top) : '?') +
+      ' onScreen=' + (cbR ? (cbR.top >= 0 && cbR.top <= window.innerHeight) : '?');
   };
   const hideDiag = () => { if (dbg) { dbg.remove(); dbg = null; } };
 
