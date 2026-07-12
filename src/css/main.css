@@ -1782,6 +1782,7 @@ body.lb-locked { overflow: hidden; }
     align-items: stretch;
     justify-content: flex-start;
     overflow-y: auto;
+    overflow-x: hidden;                 /* poświata galerii (::before inset -16% + blur) nie robi H-scrolla */
     -webkit-overflow-scrolling: touch;
   }
   #page[data-division="events"] .page-view {
@@ -1789,6 +1790,10 @@ body.lb-locked { overflow: hidden; }
     padding-top: calc(env(safe-area-inset-top, 0px) + 88px);
     padding-bottom: 16px;
   }
+  /* „Iluminator" — to samo okno-apparition co na desktopie, przeskalowane w flow kolumny Events,
+     tuż pod CTA „Porozmawiajmy o evencie". Autoplay + kropki grają jak na desktopie; bez hovera
+     (mobile) barwa kondensuje się dopiero po TAPnięciu (lightbox). Aspect 4/3 = pełniejsze okno
+     w wąskiej kolumnie niż desktopowe 16/9. Margines dolny = oddech nad końcem przewijania. */
   #page[data-division="events"] .page-gallery {
     display: block;
     position: relative;
@@ -1796,8 +1801,13 @@ body.lb-locked { overflow: hidden; }
     right: auto;
     transform: none;                    /* reset desktopowego translateY(-50%) */
     width: auto;
-    margin: 0 6vw calc(env(safe-area-inset-bottom, 0px) + 236px);
+    aspect-ratio: 4 / 3;                /* było dziedziczone 16/9 — za płaskie na mobile */
+    margin: 10px 6vw calc(env(safe-area-inset-bottom, 0px) + 48px);
   }
+  /* Bez myszki na mobile: afordancje, które na desktopie są hover-only, pokazujemy na stałe —
+     ⊕ (dotknij = powiększ) i strzałki ‹ › (ręczne przewijanie). Subtelnie, nie krzykliwie. */
+  #page[data-division="events"] .page-gallery .gal-cta { opacity: 0.55; }
+  #page[data-division="events"] .page-gallery .gal-nav { opacity: 0.7; }
 
   /* Lab mobile: hero + „Oprogramowanie audio" w przewijanej kolumnie (jak Studio/Events) */
   #page[data-division="lab"] {
@@ -2850,9 +2860,10 @@ body.page-active #tagline {
     grid-template-columns: 1fr;
   }
 
-  .page-gallery {
-    display: none !important;
-  }
+  /* 2026-07-12: galeria Events NA MOBILE — „Iluminator" (jedno okno, autoplay, tap→lightbox).
+     Wcześniej `display:none !important` chowało ją całkiem; teraz pokazujemy dla Events (reguła
+     `#page[data-division="events"] .page-gallery` wyżej w tym samym breakpoincie). Na home/innych
+     działach bazowe `.page-gallery{display:none}` i tak ją trzyma schowaną — kill globalny zbędny. */
 
   #page-home,
   #contact-close {
