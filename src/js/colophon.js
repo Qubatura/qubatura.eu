@@ -57,11 +57,20 @@ export function initColophon() {
   // ląduje poza trafialną strefą. Chrome tego nie reprodukuje (headless zawsze wyśrodkowany),
   // dlatego CSS-owe podejścia (sr-only, 92vw) nie pomagały. Tu twardo ustawiamy overlay na
   // dokładny prostokąt window.visualViewport → plakietka liczy szerokość od NIEGO, nie od vw.
+  //
+  // 2026-07-12 (Kuba, 3 telefony): plakietka ładowała się DOBRZE wyśrodkowana, a po 1-2s „uciekała
+  // w prawo i w dół". Przyczyna: przypinaliśmy overlay na KAŻDE `resize`/`scroll` visualViewportu.
+  // Na iOS chwilę po otwarciu (pasek adresu chowa się / `lb-locked` przestawia body) leci takie
+  // zdarzenie → syncVV nadpisywał left/top wartościami, które w tym momencie robiły się niezerowe
+  // → SKOK. Fix: przypinamy overlay TYLKO RAZ przy otwarciu (wtedy jest dobrze), bez żywych listenerów.
+  // Dodatkowo: offsetLeft/Top stosujemy WYŁĄCZNIE przy realnym pinch-zoomie (scale>1) — w spoczynku
+  // twarde 0, żeby żaden spurious offset iOS nie zepchnął plakietki.
   const vv = window.visualViewport;
   const syncVV = () => {
     if (!vv) return;
-    overlay.style.left  = vv.offsetLeft + 'px';
-    overlay.style.top   = vv.offsetTop + 'px';
+    const zoomed = vv.scale > 1.01;   // realny pinch → trackuj offset; spoczynek → 0 (koniec dryfu)
+    overlay.style.left  = (zoomed ? vv.offsetLeft : 0) + 'px';
+    overlay.style.top   = (zoomed ? vv.offsetTop : 0) + 'px';
     overlay.style.width = vv.width + 'px';
     overlay.style.height = vv.height + 'px';
     overlay.style.right = 'auto';
@@ -71,63 +80,19 @@ export function initColophon() {
     for (const p of ['left', 'top', 'width', 'height', 'right', 'bottom']) overlay.style[p] = '';
   };
 
-  // ─── TEMP DIAGNOSTYKA (usunąć po namierzeniu dryfu iOS) ──────────────────────────
-  // Wpisuje realne pomiary z urządzenia na ekran — Kuba robi screena, my widzimy prawdę.
-  let dbg = null;
-  const showDiag = () => {
-    if (!dbg) {
-      dbg = document.createElement('div');
-      dbg.setAttribute('style', [
-        'position:fixed', 'bottom:0', 'left:0', 'right:0', 'z-index:99999',
-        'background:rgba(255,40,120,.92)', 'color:#fff', 'font:11px/1.45 monospace',
-        'padding:6px 8px', 'white-space:pre-wrap', 'pointer-events:none', 'text-align:left',
-      ].join(';'));
-      document.body.appendChild(dbg);
-    }
-    const de = document.documentElement;
-    const oR = overlay.getBoundingClientRect();
-    const plate = overlay.querySelector('.cph-plate');
-    const pR = plate ? plate.getBoundingClientRect() : null;
-    const cb = overlay.querySelector('.cph-close');
-    const cbR = cb ? cb.getBoundingClientRect() : null;
-    const lead = overlay.querySelector('.cph-lead');
-    const lR = lead ? lead.getBoundingClientRect() : null;
-    const inner = overlay.querySelector('.cph-inner');
-    const iR = inner ? inner.getBoundingClientRect() : null;
-    const cs = plate ? getComputedStyle(plate) : null;
-    dbg.textContent =
-      'iw=' + window.innerWidth + ' ih=' + window.innerHeight +
-      '\nvv=' + (vv ? (Math.round(vv.width) + 'x' + Math.round(vv.height) +
-        ' scale=' + (vv.scale || 1).toFixed(2)) : 'BRAK') +
-      '\noverlay L=' + Math.round(oR.left) + ' R=' + Math.round(oR.right) + ' W=' + Math.round(oR.width) + ' H=' + Math.round(oR.height) +
-      '\nplate L=' + (pR ? Math.round(pR.left) : '?') + ' R=' + (pR ? Math.round(pR.right) : '?') + ' W=' + (pR ? Math.round(pR.width) : '?') + ' H=' + (pR ? Math.round(pR.height) : '?') +
-      '\nplate maxH=' + (cs ? cs.maxHeight : '?') + ' scrollH=' + (plate ? plate.scrollHeight : '?') + ' clientH=' + (plate ? plate.clientHeight : '?') +
-      '\ninner L=' + (iR ? Math.round(iR.left) : '?') + ' W=' + (iR ? Math.round(iR.width) : '?') +
-      '\nlead  L=' + (lR ? Math.round(lR.left) : '?') + ' R=' + (lR ? Math.round(lR.right) : '?') + ' W=' + (lR ? Math.round(lR.width) : '?') +
-      '\nwroc  L=' + (cbR ? Math.round(cbR.left) : '?') + ' T=' + (cbR ? Math.round(cbR.top) : '?') +
-      ' onScreen=' + (cbR ? (cbR.top >= 0 && cbR.top <= window.innerHeight) : '?');
-  };
-  const hideDiag = () => { if (dbg) { dbg.remove(); dbg = null; } };
-
-  const DIAG = /[?&]diag/.test(location.search);   // panel tylko na qubatura.eu/?diag (goście NIE widzą)
-
   const open = () => {
-    syncVV();
-    if (vv) { vv.addEventListener('resize', syncVV); vv.addEventListener('scroll', syncVV); }
-    if (DIAG) setTimeout(showDiag, 750);   // po animacji wjazdu — plakietka w spoczynku
+    syncVV();                          // przypięcie RAZ (bez listenerów — inaczej dryf po 1-2s)
     overlay.classList.add('is-open');
     overlay.setAttribute('aria-hidden', 'false');
     document.body.classList.add('lb-locked');
     if (ff) ff.start();
   };
   const close = () => {
-    if (vv) { vv.removeEventListener('resize', syncVV); vv.removeEventListener('scroll', syncVV); }
     overlay.classList.remove('is-open');
     overlay.setAttribute('aria-hidden', 'true');
     document.body.classList.remove('lb-locked');
     if (ff) ff.stop();
     clearVV();
-    hideDiag();
   };
 
   document.addEventListener('click', e => {
