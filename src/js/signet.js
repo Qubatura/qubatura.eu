@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { SVGLoader } from 'three/addons/loaders/SVGLoader.js';
-import { onTick, registerRefraction } from './scene.js?v=mrhjys1j';
-import { navFX, loadFX } from './tint.js?v=mrhjys1j';
+import { onTick, registerRefraction } from './scene.js?v=mrhkpqqv';
+import { navFX, loadFX } from './tint.js?v=mrhkpqqv';
 
 const _mouse = { x: -9999, y: -9999 };
 window.addEventListener('mousemove', e => { _mouse.x = e.clientX; _mouse.y = e.clientY; });
@@ -123,7 +123,11 @@ export async function initSignet(ctx) {
     // (nie fiolet). Desktop @1.8 wygląda świetnie. Decyzja Kuby: „przyjąć silnik z desktopu, zostawić
     // primary — na mobile nie ma myszki, więc sygnet musi nieść się samą opalescencją+refleksami, ale
     // zakotwiczonymi w primary, nie w bieli". SAFETY VALVE: gdyby środek wyszedł płaski → ~2.0, NIE 2.6.
-    uOpal:              { value: 1.8 },   // 1:1 desktop (było mobile 2.6 = biel na froncie)
+    // 2026-07-12 „CZYSTE SZKŁO + LAWA" (pomysł Kuby): mobile znów podbity (1.8→2.4). Poprzednio 2.6
+    // robił biel, bo front był zalany płaską farbą primary (uFillDensity 0.82) = zaklipowany → opal
+    // ścinał się w biel. Teraz OTWIERAMY szkło (uFillDensity mobile↓ 0.28) → wnętrze ciemne/przejrzyste
+    // → mocny opal (2.4) ujawnia się jako jasne fioletowe ŻYŁY LAWY w ciemnym wnętrzu, nie biała tafla.
+    uOpal:              { value: isMobile ? 2.4 : 1.8 },   // mobile: lawa w czystym szkle (nie biel — wnętrze otwarte)
     // Barwa krawędziowego rozświetlenia (rant fresnela). Desktop: ciepły lawendowo-biały.
     // Mobile (C5): WYRAŹNIE fioletowy (0.78,0.74→0.52,0.40), nie biały. Mobile ma uGlassFloor=0.52
     // → rant >2× jaśniejszy niż desktop w spoczynku; prawie biały uEdgeWarm robił z bryły
@@ -159,7 +163,11 @@ export async function initSignet(ctx) {
     // NIE o jasność). Nasycony primary przykrywa więcej refrakcji w centrum = mniej bieli.
     // 2026-07-12: mobile UJEDNOLICONE do desktopu (0.95→0.82) — razem z uOpal. Gęstszy płyn na mobile
     // dokładał się do jasności frontu (gdzie B=1.0) → współ-winny bieli. Desktop @0.82 = wzorzec Kuby.
-    uFillDensity:       { value: 0.82 },   // 1:1 desktop (było mobile 0.95)
+    // 2026-07-12 „CZYSTE SZKŁO + LAWA": mobile OTWARTE (0.82→0.28). Płaskie wypełnienie primary
+    // zalewało front litą farbą = to było „mleko" które zasłaniało płyn (Kuba: „mgła na froncie,
+    // nie widać substancji jak na desktopie"). Ściągnięte → skorupa czystego szkła (refrakcja+krawędzie+
+    // połysk), ciemne wnętrze jako tło dla jasnych żył lawy (uOpal↑). Desktop=0.82 (ma jasne tło, git).
+    uFillDensity:       { value: isMobile ? 0.28 : 0.82 },   // mobile: otwarte szkło pod lawę
     // EKSPERYMENT „szyba + płyn w środku" (2026-07-01, desktop; mobile=0 = bez zmian):
     // uFrontGlass — wąska, chłodna smuga refleksu szklanej tafli NA FRONCIE (nie matowa zasłona);
     // uInnerDepth — parallax płynu „w głąb" (opal przesuwa się z kątem patrzenia = wygląda za szybą).
