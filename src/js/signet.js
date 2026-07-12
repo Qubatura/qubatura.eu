@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { SVGLoader } from 'three/addons/loaders/SVGLoader.js';
-import { onTick, registerRefraction } from './scene.js?v=mrgwexww';
-import { navFX, loadFX } from './tint.js?v=mrgwexww';
+import { onTick, registerRefraction } from './scene.js?v=mrhimkkz';
+import { navFX, loadFX } from './tint.js?v=mrhimkkz';
 
 const _mouse = { x: -9999, y: -9999 };
 window.addEventListener('mousemove', e => { _mouse.x = e.clientX; _mouse.y = e.clientY; });
@@ -117,11 +117,13 @@ export async function initSignet(ctx) {
     // bryła „mieni się płynem" zamiast matowego tintu = mniej matu, bardziej szkło na froncie.
     // Desktop podbity (1.0→1.8, 2026-06-30): teraz centrum to PŁYN (uFillDensity), więc
     // opalescencja ma się w nim „mienić" wyraźniej — żywa substancja zamiast okna refrakcji.
-    // 2026-07-11: mobile PODBITY z powrotem (1.8→2.6). Po zdjęciu uGlassFloor (mleko) centrum
-    // mobile robiło się PŁASKIE — „nie widać środka jak na desktop" (Kuba). Desktop refraktuje
-    // jasną wieżę tuż za sygnetem = żywy środek; mobile ma ciemniejsze tło, więc płynowi trzeba
-    // dołożyć opalescencji, by środek „mienił się" i był widoczny. To KOLOR, nie biały sheen → bez mleka.
-    uOpal:              { value: isMobile ? 2.6 : 1.8 },
+    // 2026-07-12 (Kuba, screeny mobile↔desktop OBOK SIEBIE): mobile UJEDNOLICONE do desktopu
+    // (2.6→1.8). Podbicie 2.6 z 07-11 dawało „sporo białego": na FRONCIE bryły kanał B już siedzi
+    // na 1.0, więc nadmiar opalu mógł rosnąć TYLKO w R i G → wspólny wzrost = desaturacja ku BIELI
+    // (nie fiolet). Desktop @1.8 wygląda świetnie. Decyzja Kuby: „przyjąć silnik z desktopu, zostawić
+    // primary — na mobile nie ma myszki, więc sygnet musi nieść się samą opalescencją+refleksami, ale
+    // zakotwiczonymi w primary, nie w bieli". SAFETY VALVE: gdyby środek wyszedł płaski → ~2.0, NIE 2.6.
+    uOpal:              { value: 1.8 },   // 1:1 desktop (było mobile 2.6 = biel na froncie)
     // Barwa krawędziowego rozświetlenia (rant fresnela). Desktop: ciepły lawendowo-biały.
     // Mobile (C5): WYRAŹNIE fioletowy (0.78,0.74→0.52,0.40), nie biały. Mobile ma uGlassFloor=0.52
     // → rant >2× jaśniejszy niż desktop w spoczynku; prawie biały uEdgeWarm robił z bryły
@@ -155,7 +157,9 @@ export async function initSignet(ctx) {
     // bo tło ciemne — mocniejszy mix zbytnio by przygasił. Zastępuje rolę ściętego uBaseFill.
     // A1 (2026-07-01): 0.72→0.82 — gęstszy, mocniejszy kolor płynu (Kuba: „gęsty mocny kolor",
     // NIE o jasność). Nasycony primary przykrywa więcej refrakcji w centrum = mniej bieli.
-    uFillDensity:       { value: isMobile ? 0.95 : 0.82 },   // mobile gęstszy płyn w centrum (widoczny środek, 2026-07-11)
+    // 2026-07-12: mobile UJEDNOLICONE do desktopu (0.95→0.82) — razem z uOpal. Gęstszy płyn na mobile
+    // dokładał się do jasności frontu (gdzie B=1.0) → współ-winny bieli. Desktop @0.82 = wzorzec Kuby.
+    uFillDensity:       { value: 0.82 },   // 1:1 desktop (było mobile 0.95)
     // EKSPERYMENT „szyba + płyn w środku" (2026-07-01, desktop; mobile=0 = bez zmian):
     // uFrontGlass — wąska, chłodna smuga refleksu szklanej tafli NA FRONCIE (nie matowa zasłona);
     // uInnerDepth — parallax płynu „w głąb" (opal przesuwa się z kątem patrzenia = wygląda za szybą).
