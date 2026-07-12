@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { SVGLoader } from 'three/addons/loaders/SVGLoader.js';
-import { onTick, registerRefraction } from './scene.js?v=mrhm0tcm';
-import { navFX, loadFX } from './tint.js?v=mrhm0tcm';
+import { onTick, registerRefraction } from './scene.js?v=mrhm6b21';
+import { navFX, loadFX } from './tint.js?v=mrhm6b21';
 
 const _mouse = { x: -9999, y: -9999 };
 window.addEventListener('mousemove', e => { _mouse.x = e.clientX; _mouse.y = e.clientY; });
@@ -181,6 +181,12 @@ export async function initSignet(ctx) {
     // (bez zmian). Eksperyment: opal zostaje 1.8; jeśli substancja słaba → podbić opal; jeśli wróci
     // biel na crestach → obniżyć uBodyDim/opal. Ocena Kuby na iPhonie (headless nie odtworzy).
     uFrontFlat:         { value: isMobile ? 0.0 : 1.0 },
+    // 2026-07-12 (Kuba): mleko wraca gdy sygnet jest TWARZĄ na nas (dead-front = niski fresnel, gdzie
+    // opal/lawa ważona (1-fresnel)=MAX → wielka płaska tafla masy). Gdy się mieni/obraca — super.
+    // „OKNO SZKŁA" na froncie: uFrontClear (mobile 1) wygasza opal przy samym dead-froncie (fresnel→0)
+    // → tam zostaje czyste szkło (refrakcja+glassSpec połysk = „coś co się mieni"), a lawa przesuwa się
+    // na barki bryły i ożywa przy obrocie. Desktop=0 (bez zmian, front ma jasne tło do refrakcji).
+    uFrontClear:        { value: isMobile ? 1.0 : 0.0 },
     // Minimalne przyciemnienie całej bryły — elegancja > przepych, sygnet lepiej siada w tle.
     // 2026-07-02 (Kuba: „sygnet minimalnie za intensywny, trochę na dół z jasnością"): 0.90→0.84.
     uBodyDim:           { value: 0.84 },
@@ -224,6 +230,7 @@ export async function initSignet(ctx) {
       uniform float uFrontGlass;
       uniform float uInnerDepth;
       uniform float uFrontFlat;
+      uniform float uFrontClear;
       uniform float uBodyDim;
 
       varying vec3 vNormal;
@@ -334,7 +341,11 @@ export async function initSignet(ctx) {
         float opalPulse = 0.88 + 0.12 * sin(time * 0.55);
         // Waga 0.16→0.22 (2026-07-01): płyn świeci mocniej „sam z siebie" (gęsta, samo-świecąca
         // substancja zamiast prześwitu tła) — kierunek z opisu Kuby.
-        color += opalCol * opal * 0.22 * (1.0 - fresnel) * colorAmt * uOpal * opalPulse;
+        // „OKNO SZKŁA" (uFrontClear, mobile): wygasza opal przy samym dead-froncie (fresnel→0), gdzie
+        // twarzą-na-nas robił płaską mleczną taflę. Tam zostaje czyste szkło (refrakcja+glassSpec),
+        // a opal/lawa peakuje na barkach bryły (fresnel ~0.25) i ożywa przy obrocie. Desktop=0 → 1.0.
+        float frontWin = mix(1.0, smoothstep(0.0, 0.22, fresnel), uFrontClear);
+        color += opalCol * opal * 0.22 * (1.0 - fresnel) * colorAmt * uOpal * opalPulse * frontWin;
         // „Plasma" (drobne migotanie) — GŁÓWNE źródło pstrokatych plamek przez wysokie freq.
         // C4: częstotliwości 1.5/1.2→0.80/0.62 (większe plamy) + waga 0.06→0.03 (ledwo widoczne)
         // → jednolita, płynna refrakcja zamiast punktowych rozbłysków.
