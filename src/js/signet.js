@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { SVGLoader } from 'three/addons/loaders/SVGLoader.js';
-import { onTick, registerRefraction } from './scene.js?v=mrhj424g';
-import { navFX, loadFX } from './tint.js?v=mrhj424g';
+import { onTick, registerRefraction } from './scene.js?v=mrhjys1j';
+import { navFX, loadFX } from './tint.js?v=mrhjys1j';
 
 const _mouse = { x: -9999, y: -9999 };
 window.addEventListener('mousemove', e => { _mouse.x = e.clientX; _mouse.y = e.clientY; });
@@ -166,6 +166,13 @@ export async function initSignet(ctx) {
     // 1:1 mobile↔desktop (2026-07-01, życzenie Kuby): struktura „szyba + płyn" na obu platformach.
     uFrontGlass:        { value: 0.85 },
     uInnerDepth:        { value: 2.2 },
+    // 2026-07-12 „TRZECIA DROGA" (substancja na mobile BEZ bieli): płaski piedestał jasności frontu
+    // (`color += tint*0.4`) zapychał kanał do maksa → opalowy wir „ścinał się" do jednej białej tafli
+    // = brak widocznej cieczy. uFrontFlat ŚCIĄGA ten piedestał na mobile (0.0) → front ma HEADROOM →
+    // wir opalu (uOpal) ujawnia się jako jasno-ciemna substancja zamiast białego klipsa. Desktop=1.0
+    // (bez zmian). Eksperyment: opal zostaje 1.8; jeśli substancja słaba → podbić opal; jeśli wróci
+    // biel na crestach → obniżyć uBodyDim/opal. Ocena Kuby na iPhonie (headless nie odtworzy).
+    uFrontFlat:         { value: isMobile ? 0.0 : 1.0 },
     // Minimalne przyciemnienie całej bryły — elegancja > przepych, sygnet lepiej siada w tle.
     // 2026-07-02 (Kuba: „sygnet minimalnie za intensywny, trochę na dół z jasnością"): 0.90→0.84.
     uBodyDim:           { value: 0.84 },
@@ -208,6 +215,7 @@ export async function initSignet(ctx) {
       uniform float uFillDensity;
       uniform float uFrontGlass;
       uniform float uInnerDepth;
+      uniform float uFrontFlat;
       uniform float uBodyDim;
 
       varying vec3 vNormal;
@@ -284,7 +292,7 @@ export async function initSignet(ctx) {
         vec3  color = mix(refr, tint, fillDensity);
         color += specColor * colorAmt;
         color += sheenCol * colorAmt;   // C6: szklany połysk na froncie (mobile, gated uGlassFloor)
-        color += tint * 0.4 * colorAmt;
+        color += tint * 0.4 * uFrontFlat * colorAmt;   // uFrontFlat: mobile=0 → headroom na froncie (wir opalu = substancja, nie biel)
         // Wypełnienie ciała glassem: tint NIEZALEŻNY od tła ORAZ od trybu szkła (BEZ colorAmt) —
         // wcześniej *colorAmt zerowało wypełnienie w trybie szkła/ładowania, czyli dokładnie gdy
         // było potrzebne → czarne wnętrze + glass tylko na obrysie. Teraz CAŁA bryła jest z
