@@ -961,6 +961,38 @@ body.pong-active #pong-speed {
   filter: blur(24px);
   pointer-events: none;
   transition: opacity 0.6s ease;
+  /* WARSTWA 3 — poświata „oddycha": zdjęcie jak źródło światła pulsujące w kosmiczną mgłę obok */
+  animation: galBreathe 7.5s ease-in-out infinite;
+}
+@keyframes galBreathe {
+  0%, 100% { opacity: 0.82; transform: scale(1);    }
+  50%      { opacity: 1;    transform: scale(1.045); }
+}
+
+/* WARSTWA 2 — „wspólne powietrze": subtelna mgła sceny przepływa PRZED dolną krawędzią kadru
+   i wybrzusza się poniżej, w scenę → zdjęcie osadza się w GŁĘBI, nie leży na wierzchu.
+   Nad zdjęciem (z2 > stage z1), pod kropkami/kątownikami. Powolny dryf = żywe powietrze. */
+.page-gallery::after {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  left: -10%;
+  right: -10%;
+  bottom: -9%;
+  height: 40%;
+  pointer-events: none;
+  background: radial-gradient(120% 120% at 50% 100%,
+    color-mix(in srgb, var(--gal) 14%, rgba(8, 6, 18, 0)) 0%,
+    rgba(8, 6, 18, 0.42) 46%,
+    rgba(8, 6, 18, 0) 100%);
+  filter: blur(13px);
+  animation: galHaze 26s ease-in-out infinite alternate;
+  transition: opacity 0.6s ease;
+}
+.page-gallery:hover::after { opacity: 0.5; }   /* hover — mgła cofa się, zdjęcie wychodzi na wierzch */
+@keyframes galHaze {
+  0%   { transform: translateX(-5%) translateY(0);    }
+  100% { transform: translateX(5%)  translateY(-2.5%); }
 }
 
 /* Slajdy — crossfade (tylko .is-active widoczny). Scena clip-uje zdjęcia + zoom hover. */
@@ -976,8 +1008,9 @@ body.pong-active #pong-speed {
 }
 /* Barwa świecenia Events — screen na jasnych partiach → światła zdjęcia świecą fioletem.
    KNOB fioletu: 30% (mniej = bliżej czystego B&W; 0% = wariant „F" bez koloru). */
-/* „D" — fiolet TYLKO w cieniach (soft-light): barwa sceny wnika w zdjęcie, realne kolory zostają.
-   Nad winietą (::before), pod treścią. Hover → znika = czysty pełny kolor (wariant „B"). */
+/* WARSTWA 1 „Kosmiczna atmosfera" — GRADE do palety sceny (soft-light): cyjan w światłach (góra),
+   fiolet w cieniach (dół). Paleta zdjęcia przestaje „gryźć" z kosmicznym tłem. Hover → znika =
+   zdjęcie wraca do prawdziwych kolorów (wariant „B"). */
 .gal-stage::after {
   content: "";
   position: absolute;
@@ -985,8 +1018,10 @@ body.pong-active #pong-speed {
   z-index: 3;
   mix-blend-mode: soft-light;
   pointer-events: none;
-  background: radial-gradient(82% 92% at 50% 44%,
-              color-mix(in srgb, var(--gal) 36%, transparent), transparent 70%);
+  background: linear-gradient(202deg,
+    color-mix(in srgb, var(--color-lab) 26%, transparent) 0%,   /* cyjan sceny w światłach */
+    transparent 46%,
+    color-mix(in srgb, var(--gal) 42%, transparent) 100%);       /* fiolet działu w cieniach */
   transition: opacity 0.6s ease;
 }
 /* Winieta — miękkie ściemnienie brzegów, wtapia kadr w scenę (spójna w obu stanach) */
@@ -1016,8 +1051,9 @@ body.pong-active #pong-speed {
   display: block;
   transition: filter 0.6s ease, transform 0.9s ease, opacity 0.6s ease;
 }
-/* „D" spoczynek — realne zdjęcie w PEŁNYM KOLORZE, delikatnie podbite; wtopienie robią overlaye .gal-stage */
-.gal-photo { filter: contrast(1.04) saturate(1.03); }
+/* Spoczynek — realne zdjęcie lekko STONOWANE (mniej sat), by wtopić się w moody paletę sceny;
+   hover przywraca żywy kolor. Grade/atmosferę dokładają overlaye. */
+.gal-photo { filter: contrast(1.03) saturate(0.9) brightness(0.99); }
 /* Placeholder gdy brak pliku (onerror w gallery.js) — elegancki gradient + „FOTO 0N" */
 .gal-slide.is-missing { background: linear-gradient(135deg, #241a4a, #0c0a1c); }
 .gal-slide.is-missing img { display: none; }
@@ -1035,9 +1071,9 @@ body.pong-active #pong-speed {
 }
 
 .gal-tint { display: none; }   /* dawny duotone-tint — nieużywany (zostawiony neutralny) */
-/* Hover = „B": czysty pełny kolor + lekki zoom (fiolet z ::after zdjęty regułą wyżej) */
+/* Hover = „B": zdjęcie wraca do ŻYWEGO koloru + lekki zoom (grade z ::after zdjęty regułą wyżej) */
 .page-gallery:hover .gal-slide.is-active .gal-photo {
-  filter: contrast(1.02) saturate(1.06); transform: scale(1.04);
+  filter: contrast(1.02) saturate(1.1) brightness(1.02); transform: scale(1.04);
 }
 /* Wideo (gdyby wróciło) — prosty kolor+zoom na hover */
 .page-gallery:hover .gal-slide.is-active video { filter: contrast(1.02); transform: scale(1.04); }
