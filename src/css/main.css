@@ -1016,12 +1016,12 @@ body.pong-active #pong-speed {
   position: absolute;
   inset: 0;
   z-index: 3;
-  mix-blend-mode: soft-light;
+  mix-blend-mode: color;   /* HUE zdjęcia realnie przesunięty w paletę sceny (nie subtelny soft-light) */
   pointer-events: none;
   background: linear-gradient(202deg,
-    color-mix(in srgb, var(--color-lab) 42%, transparent) 0%,   /* cyjan sceny w światłach */
-    transparent 44%,
-    color-mix(in srgb, var(--gal) 62%, transparent) 100%);       /* fiolet działu w cieniach */
+    color-mix(in srgb, var(--color-lab) 55%, transparent) 0%,   /* światła → chłodny cyjan sceny */
+    transparent 40%,
+    color-mix(in srgb, var(--gal) 78%, transparent) 100%);       /* cienie → fiolet działu */
   transition: opacity 0.6s ease;
 }
 /* Winieta — miękkie ściemnienie brzegów, wtapia kadr w scenę (spójna w obu stanach) */
@@ -1053,7 +1053,7 @@ body.pong-active #pong-speed {
 }
 /* Spoczynek — realne zdjęcie lekko STONOWANE (mniej sat), by wtopić się w moody paletę sceny;
    hover przywraca żywy kolor. Grade/atmosferę dokładają overlaye. */
-.gal-photo { filter: contrast(1.04) saturate(0.82) brightness(0.96); }
+.gal-photo { filter: contrast(1.06) saturate(0.55) brightness(0.82); }
 /* Placeholder gdy brak pliku (onerror w gallery.js) — elegancki gradient + „FOTO 0N" */
 .gal-slide.is-missing { background: linear-gradient(135deg, #241a4a, #0c0a1c); }
 .gal-slide.is-missing img { display: none; }
@@ -1073,7 +1073,7 @@ body.pong-active #pong-speed {
 .gal-tint { display: none; }   /* dawny duotone-tint — nieużywany (zostawiony neutralny) */
 /* Hover = „B": zdjęcie wraca do ŻYWEGO koloru + lekki zoom (grade z ::after zdjęty regułą wyżej) */
 .page-gallery:hover .gal-slide.is-active .gal-photo {
-  filter: contrast(1.02) saturate(1.1) brightness(1.02); transform: scale(1.04);
+  filter: contrast(1.03) saturate(1.18) brightness(1.08); transform: scale(1.04);
 }
 /* Wideo (gdyby wróciło) — prosty kolor+zoom na hover */
 .page-gallery:hover .gal-slide.is-active video { filter: contrast(1.02); transform: scale(1.04); }
