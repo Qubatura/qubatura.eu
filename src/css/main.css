@@ -1000,11 +1000,12 @@ body.pong-active #pong-speed {
    Knob = próg ostrości (50% — niżej: więcej rozpływa; wyżej: większy ostry środek). Nad ::before. */
 .gal-stage {
   position: absolute;
-  inset: 0;
+  inset: -2.5%;               /* lekko poza kadr → zmiękczona krawędź WYLEWA się w scenę (pomysł Kuby) */
   overflow: hidden;
   z-index: 1;
-  -webkit-mask-image: radial-gradient(78% 78% at 50% 50%, #000 50%, transparent 100%);
-          mask-image: radial-gradient(78% 78% at 50% 50%, #000 50%, transparent 100%);
+  /* Szerszy, bardziej rozpuszczony feather — brzeg „paruje" w tło zamiast się kończyć */
+  -webkit-mask-image: radial-gradient(82% 82% at 50% 50%, #000 44%, transparent 99%);
+          mask-image: radial-gradient(82% 82% at 50% 50%, #000 44%, transparent 99%);
 }
 /* Barwa świecenia Events — screen na jasnych partiach → światła zdjęcia świecą fioletem.
    KNOB fioletu: 30% (mniej = bliżej czystego B&W; 0% = wariant „F" bez koloru). */
