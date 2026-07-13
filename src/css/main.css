@@ -46,6 +46,52 @@ html, body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* ── Zaznaczenie tekstu — barwa marki (premium detal, spójne z primary) ── */
+::selection {
+  background: var(--color-primary);
+  color: #F0EFFF;
+  text-shadow: none;
+}
+::-moz-selection {
+  background: var(--color-primary);
+  color: #F0EFFF;
+  text-shadow: none;
+}
+
+/* ── Focus klawiaturowy — czysty stan brand outline (dostępność pod jury).
+   Tylko :focus-visible → myszka nie rysuje ramek, klawiatura tak. */
+:focus { outline: none; }
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+/* Elementy z własnym ciemnym halo (topbar/tagline nad jasną sceną) — mocniejszy
+   kontrast obrysu, żeby był widoczny też na jasnych kadrach wideo. */
+#top-contact:focus-visible,
+#lang-toggle:focus-visible,
+#sound-toggle:focus-visible,
+.mp-arrow:focus-visible,
+#tagline:focus-visible {
+  outline-color: #F0EFFF;
+  outline-offset: 4px;
+}
+
+/* ── Subtelny pasek przewijania w barwie marki (WebKit + Firefox) ── */
+* { scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--color-primary) 55%, transparent) transparent; }
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--color-primary) 45%, transparent);
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--color-primary) 70%, transparent);
+  background-clip: padding-box;
+}
+
 /* ── Planet background ──────────────────────────────────────────── */
 /* Planeta przeniesiona do sceny Three.js (scene.js) — warstwa CSS wyłączona,
    żeby nie dublować i żeby sygnet mógł ją realnie zaginać (refrakcja). */
@@ -813,7 +859,7 @@ body.pong-active #pong-speed {
 .page-lead {
   font-family: var(--font-mono);
   font-size: 13px;
-  line-height: 1.85;
+  line-height: 1.95;   /* oddech dla monospace — czytelność opisu (Usability) */
   color: rgba(255, 255, 255, 0.6);
   max-width: 48ch;
   margin: 0 0 32px;
@@ -841,10 +887,11 @@ body.pong-active #pong-speed {
   content: "";
   position: absolute;
   left: 0;
-  top: 0.5em;
+  top: 0.62em;
   width: 5px;
   height: 5px;
-  border-radius: 50%;
+  /* ostry kwadrat zamiast kółka — techniczny marker (spójny z terminalowym charakterem list) */
+  border-radius: 0;
   background: var(--pg-color, var(--color-primary));
   box-shadow: 0 0 8px var(--pg-color, var(--color-primary));
 }
@@ -1658,7 +1705,7 @@ body.lb-locked { overflow: hidden; }
   color:color-mix(in srgb, var(--color-primary) 74%, #fff); margin:0 0 10px; }
 .cph-title { font-family:var(--font-display); font-weight:700; font-size:clamp(20px,2.4vw,26px);
   line-height:1.1; color:#F3F1FF; margin:0 0 12px; }
-.cph-lead { font-family:var(--font-display); font-weight:400; font-size:14.5px; line-height:1.55;
+.cph-lead { font-family:var(--font-display); font-weight:400; font-size:14.5px; line-height:1.72;
   color:rgba(243,241,255,.78); max-width:52ch; margin:0 0 22px; }
 .cph-lead b { color:#F3F1FF; font-weight:700; }   /* „Full custom." — pieczątka na końcu opisu */
 /* treść wyłania się Z SZYBY: blur→ostrość + fade + lekki dojazd; stagger przez transition-delay */
@@ -1671,7 +1718,8 @@ body.lb-locked { overflow: hidden; }
 .colophon.is-open .cph-credit[data-reveal]{transition-delay:1.3s}
 .colophon.is-open .cph-cta[data-reveal]{transition-delay:1.42s}
 .cph-stack { display:flex; flex-wrap:wrap; gap:7px; margin:0 0 22px; }
-.cph-stack span { font-family:var(--font-mono); font-size:10px; letter-spacing:.04em;
+.cph-stack span { font-family:var(--font-mono); font-size:9px; letter-spacing:.1em;
+  text-transform:uppercase;   /* chip terminalowy — spójny z tagami/kickerami reszty strony */
   color:color-mix(in srgb, var(--color-primary) 72%, #fff);
   border:1px solid color-mix(in srgb, var(--color-primary) 28%, transparent);
   background:color-mix(in srgb, var(--color-primary) 7%, transparent); padding:5px 10px;
