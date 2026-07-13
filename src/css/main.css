@@ -957,16 +957,16 @@ body.pong-active #pong-speed {
   inset: -16%;
   z-index: 0;
   background: radial-gradient(58% 56% at 50% 54%,
-              color-mix(in srgb, var(--gal) 30%, transparent), transparent 74%);
-  filter: blur(24px);
+              color-mix(in srgb, var(--gal) 46%, transparent), transparent 72%);
+  filter: blur(26px);
   pointer-events: none;
   transition: opacity 0.6s ease;
   /* WARSTWA 3 — poświata „oddycha": zdjęcie jak źródło światła pulsujące w kosmiczną mgłę obok */
-  animation: galBreathe 7.5s ease-in-out infinite;
+  animation: galBreathe 6.5s ease-in-out infinite;
 }
 @keyframes galBreathe {
-  0%, 100% { opacity: 0.82; transform: scale(1);    }
-  50%      { opacity: 1;    transform: scale(1.045); }
+  0%, 100% { opacity: 0.6; transform: scale(0.98); }
+  50%      { opacity: 1;   transform: scale(1.08); }
 }
 
 /* WARSTWA 2 — „wspólne powietrze": subtelna mgła sceny przepływa PRZED dolną krawędzią kadru
@@ -979,11 +979,11 @@ body.pong-active #pong-speed {
   left: -10%;
   right: -10%;
   bottom: -9%;
-  height: 40%;
+  height: 48%;
   pointer-events: none;
   background: radial-gradient(120% 120% at 50% 100%,
-    color-mix(in srgb, var(--gal) 14%, rgba(8, 6, 18, 0)) 0%,
-    rgba(8, 6, 18, 0.42) 46%,
+    color-mix(in srgb, var(--gal) 20%, rgba(8, 6, 18, 0)) 0%,
+    rgba(8, 6, 18, 0.55) 46%,
     rgba(8, 6, 18, 0) 100%);
   filter: blur(13px);
   animation: galHaze 26s ease-in-out infinite alternate;
@@ -1019,9 +1019,9 @@ body.pong-active #pong-speed {
   mix-blend-mode: soft-light;
   pointer-events: none;
   background: linear-gradient(202deg,
-    color-mix(in srgb, var(--color-lab) 26%, transparent) 0%,   /* cyjan sceny w światłach */
-    transparent 46%,
-    color-mix(in srgb, var(--gal) 42%, transparent) 100%);       /* fiolet działu w cieniach */
+    color-mix(in srgb, var(--color-lab) 42%, transparent) 0%,   /* cyjan sceny w światłach */
+    transparent 44%,
+    color-mix(in srgb, var(--gal) 62%, transparent) 100%);       /* fiolet działu w cieniach */
   transition: opacity 0.6s ease;
 }
 /* Winieta — miękkie ściemnienie brzegów, wtapia kadr w scenę (spójna w obu stanach) */
@@ -1031,7 +1031,7 @@ body.pong-active #pong-speed {
   inset: 0;
   z-index: 2;
   pointer-events: none;
-  background: radial-gradient(120% 120% at 50% 50%, transparent 60%, rgba(6, 5, 15, 0.42) 100%);
+  background: radial-gradient(120% 120% at 50% 50%, transparent 55%, rgba(6, 5, 15, 0.6) 100%);
 }
 .page-gallery:hover .gal-stage::after { opacity: 0; }   /* hover = czysty pełny kolor (B) */
 .gal-slide {
@@ -1053,7 +1053,7 @@ body.pong-active #pong-speed {
 }
 /* Spoczynek — realne zdjęcie lekko STONOWANE (mniej sat), by wtopić się w moody paletę sceny;
    hover przywraca żywy kolor. Grade/atmosferę dokładają overlaye. */
-.gal-photo { filter: contrast(1.03) saturate(0.9) brightness(0.99); }
+.gal-photo { filter: contrast(1.04) saturate(0.82) brightness(0.96); }
 /* Placeholder gdy brak pliku (onerror w gallery.js) — elegancki gradient + „FOTO 0N" */
 .gal-slide.is-missing { background: linear-gradient(135deg, #241a4a, #0c0a1c); }
 .gal-slide.is-missing img { display: none; }
