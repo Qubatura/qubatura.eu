@@ -1,6 +1,7 @@
 // gallery.js — Events: galeria realizacji (zdjęcia + WIDEO).
-// Ramka .page-gallery: slideshow, domyślnie DUOTONE (grayscale + fiolet przez .gal-tint) → pełny
-// kolor na hover. Autoplay: zdjęcie ~PHOTO_MS, wideo ~VIDEO_MS (dłużej). Licznik + klikalne kropki.
+// Ramka .page-gallery: slideshow, wtopienie „D" (realny kolor + fiolet w cieniach + owalna maska,
+// overlaye w CSS) → hover = czysty pełny kolor „B". Autoplay: zdjęcie ~PHOTO_MS, wideo ~VIDEO_MS.
+// Licznik + klikalne kropki.
 // Wideo: MP4 muted/loop/playsinline, LAZY (preload=none → pobiera się dopiero przy play()),
 // gra tylko gdy jego slajd aktywny (reszta pauzowana) — zero wpływu na start strony.
 // Klik → lightbox: strzałki ‹ ›, klawiatura ←/→/Esc, klik-tło zamyka, autoplay, pasek miniaturek
@@ -81,24 +82,17 @@ export function initGallery() {
       slide.appendChild(v);
       slideVideos[i] = v;
     } else {
-      // „Światło z ciemności": dwie warstwy TEGO SAMEGO pliku (jedno pobranie — cache).
-      // .gal-ghost = przygaszona kopia (STRUKTURA zdjęcia), .gal-glow = screen-blend (jasne partie
-      // ŚWIECĄ z ciemności). Zdjęcie = sygnał wyłaniający się ze sceny, nie kadr w ramce.
-      const ghost = new Image();
-      ghost.className = 'gal-ghost';
-      ghost.alt = `Realizacja Events ${i + 1}`;
-      ghost.decoding = 'async';
-      ghost.loading = 'lazy';
-      ghost.addEventListener('error', () => slide.classList.add('is-missing'));
-      ghost.src = asset(m.src);
-      const glow = new Image();
-      glow.className = 'gal-glow';
-      glow.alt = '';
-      glow.setAttribute('aria-hidden', 'true');
-      glow.decoding = 'async';
-      glow.loading = 'lazy';
-      glow.src = asset(m.src);
-      slide.append(ghost, glow);
+      // Wtopienie „D": realne zdjęcie w PEŁNYM KOLORZE, jedno <img> (lżej — bez drugiej warstwy).
+      // Fiolet-w-cieniach + winieta + owalna maska robią overlaye .gal-stage w CSS; hover → czysty
+      // pełny kolor („B"). Zdjęcie widoczne od razu w spoczynku (też na mobile, bez hovera).
+      const photo = new Image();
+      photo.className = 'gal-photo';
+      photo.alt = `Realizacja Events ${i + 1}`;
+      photo.decoding = 'async';
+      photo.loading = 'lazy';
+      photo.addEventListener('error', () => slide.classList.add('is-missing'));
+      photo.src = asset(m.src);
+      slide.appendChild(photo);
     }
     stage.appendChild(slide);
 

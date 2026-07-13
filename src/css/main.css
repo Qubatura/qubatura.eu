@@ -949,8 +949,8 @@ body.pong-active #pong-speed {
 }
 #page[data-division="events"] .page-gallery { display: block; }
 
-/* Fioletowa poświata Events pod zdjęciem — „światło sygnału". Bez ciemnego basenu: screen-blend
-   (.gal-glow) sam otwiera cienie na scenę, a ta łuna dokłada barwę i unoszenie nad tłem. */
+/* Fioletowa poświata Events pod zdjęciem — „światło sygnału": łuna dokłada barwę działu
+   i unosi kadr nad tłem sceny (zdjęcie w środku jest realne/kolorowe — wariant „D"). */
 .page-gallery::before {
   content: "";
   position: absolute;
@@ -976,18 +976,29 @@ body.pong-active #pong-speed {
 }
 /* Barwa świecenia Events — screen na jasnych partiach → światła zdjęcia świecą fioletem.
    KNOB fioletu: 30% (mniej = bliżej czystego B&W; 0% = wariant „F" bez koloru). */
+/* „D" — fiolet TYLKO w cieniach (soft-light): barwa sceny wnika w zdjęcie, realne kolory zostają.
+   Nad winietą (::before), pod treścią. Hover → znika = czysty pełny kolor (wariant „B"). */
 .gal-stage::after {
   content: "";
   position: absolute;
   inset: 0;
-  z-index: 2;
-  mix-blend-mode: screen;
+  z-index: 3;
+  mix-blend-mode: soft-light;
   pointer-events: none;
-  background: radial-gradient(72% 96% at 52% 46%,
-              color-mix(in srgb, var(--gal) 45%, transparent), transparent 72%);
+  background: radial-gradient(82% 92% at 50% 44%,
+              color-mix(in srgb, var(--gal) 36%, transparent), transparent 70%);
   transition: opacity 0.6s ease;
 }
-.page-gallery:hover .gal-stage::after { opacity: 0.4; }   /* hover = realne zdjęcie, mniej łuny */
+/* Winieta — miękkie ściemnienie brzegów, wtapia kadr w scenę (spójna w obu stanach) */
+.gal-stage::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: radial-gradient(120% 120% at 50% 50%, transparent 60%, rgba(6, 5, 15, 0.42) 100%);
+}
+.page-gallery:hover .gal-stage::after { opacity: 0; }   /* hover = czysty pełny kolor (B) */
 .gal-slide {
   position: absolute;
   inset: 0;
@@ -1005,10 +1016,8 @@ body.pong-active #pong-speed {
   display: block;
   transition: filter 0.6s ease, transform 0.9s ease, opacity 0.6s ease;
 }
-/* „Duch ciała" — przygaszona kopia daje STRUKTURĘ (żeby nie było samych świateł) */
-.gal-ghost { filter: grayscale(1) contrast(1.02); opacity: 0.32; }
-/* „Światło" — screen: czernie znikają (prześwituje scena → zdjęcie oddycha), jasne partie świecą */
-.gal-glow  { filter: grayscale(1) contrast(1.16) brightness(1.05); mix-blend-mode: screen; }
+/* „D" spoczynek — realne zdjęcie w PEŁNYM KOLORZE, delikatnie podbite; wtopienie robią overlaye .gal-stage */
+.gal-photo { filter: contrast(1.04) saturate(1.03); }
 /* Placeholder gdy brak pliku (onerror w gallery.js) — elegancki gradient + „FOTO 0N" */
 .gal-slide.is-missing { background: linear-gradient(135deg, #241a4a, #0c0a1c); }
 .gal-slide.is-missing img { display: none; }
@@ -1025,16 +1034,13 @@ body.pong-active #pong-speed {
   color: color-mix(in srgb, var(--gal) 60%, white 20%);
 }
 
-/* B&W domyślnie (grayscale w .gal-slide img) — fiolet zlewał się z tłem; kolor dopiero na hover.
-   .gal-tint wyłączony (zostawiony w HTML, neutralny), żeby zdjęcie było czysto czarno-białe. */
-.gal-tint { display: none; }
-/* Hover = sygnał KONDENSUJE się w realne, kolorowe zdjęcie: duch solidnieje + barwa, światło cofa się */
-.page-gallery:hover .gal-slide.is-active .gal-ghost {
-  opacity: 0.95; filter: grayscale(0) contrast(1.02); transform: scale(1.04);
+.gal-tint { display: none; }   /* dawny duotone-tint — nieużywany (zostawiony neutralny) */
+/* Hover = „B": czysty pełny kolor + lekki zoom (fiolet z ::after zdjęty regułą wyżej) */
+.page-gallery:hover .gal-slide.is-active .gal-photo {
+  filter: contrast(1.02) saturate(1.06); transform: scale(1.04);
 }
-.page-gallery:hover .gal-slide.is-active .gal-glow { opacity: 0.35; transform: scale(1.04); }
 /* Wideo (gdyby wróciło) — prosty kolor+zoom na hover */
-.page-gallery:hover .gal-slide.is-active video { filter: grayscale(0) contrast(1); transform: scale(1.04); }
+.page-gallery:hover .gal-slide.is-active video { filter: contrast(1.02); transform: scale(1.04); }
 
 /* Celownik — kątowniki po przekątnej (prawa-góra + lewy-dół), OBEJMUJĄ kadr od ZEWNĄTRZ
    (poza krawędzią, na tle), delikatnie pulsujący glow. tl/br schowane. */
