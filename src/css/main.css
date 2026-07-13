@@ -1829,7 +1829,12 @@ body.lb-locked { overflow: hidden; }
 .lb-link:hover { color: #fff; border-color: #fff; }
 
 @media (max-width: 768px) {
-  .studio-hotspot { display: none !important; }   /* smaczek desktop-only */
+  /* Studio easter egg TEŻ na mobile — celuje w ŚRODKOWY monitor (HOT_MOBILE w studio.js), bo przy
+     cover-center to on jest ładnie wykadrowany na wąskim ekranie. position:fixed, bo kolumna Studio
+     scrolluje nad STAŁYM tłem — absolute scrollowałby się z treścią i odkleił od monitora.
+     touch-action:pan-y → pionowy swipe dalej przewija kolumnę (hotspot nie blokuje scrolla), tap = otwiera. */
+  #page[data-division="studio"] .studio-hotspot { position: fixed; touch-action: pan-y; }
+  .studio-hotspot { display: none; }   /* poza Studio ukryty (jak na desktopie) */
   /* Events mobile: hero + galeria w przewijanej kolumnie (jak Studio); galeria pełną szerokością */
   #page[data-division="events"] {
     flex-direction: column;

@@ -1,7 +1,8 @@
 // studio.js — Studio „ożywiony monitor": pulsujący hotspot nad środkowym ekranem konsolety w tle.
 // Nie zdradza treści (tylko puls kusi); hover = narożniki HUD + glif; klik → lightbox z realizacjami
 // (podpis + link). Hotspot pozycjonowany z GEOMETRII TŁA (background cover) → trzyma się ekranu na
-// każdej szerokości okna. Desktop-only smaczek (na mobile ukryty).
+// każdej szerokości okna. Desktop celuje w LEWY ekran, mobile w ŚRODKOWY (ładnie wykadrowany przy
+// cover-center na wąskim ekranie). Na mobile position:fixed — kolumna Studio scrolluje nad tłem.
 
 const SHOTS = [
   {
@@ -18,9 +19,13 @@ const SHOTS = [
   },
 ];
 
-// Intrinsic tła dep-studio (16:9) + pozycja środkowego ekranu w OBRAZIE (ułamki 0..1). Do NUDGE.
+// Intrinsic tła dep-studio (16:9) + pozycja ekranu w OBRAZIE (ułamki 0..1). Do NUDGE.
 const IMG_W = 1920, IMG_H = 1080;
-const HOT = { fx: 0.323, fy: 0.569, fw: 0.116, fh: 0.059 };   // left, top, width, height (ułamki obrazu) — lewy ekran (mapa + kula)
+// Desktop: LEWY ekran (mapa + kula). Mobile: ŚRODKOWY ekran (mierniki) — przy cover-center to on
+// jest ładnie wykadrowany na wąskim ekranie (lewy wypada przy krawędzi). left, top, width, height.
+const HOT        = { fx: 0.323, fy: 0.569, fw: 0.116, fh: 0.059 };
+const HOT_MOBILE = { fx: 0.451, fy: 0.567, fw: 0.096, fh: 0.062 };
+const mqMobile = window.matchMedia('(max-width: 768px)');
 const pad = n => String(n).padStart(2, '0');
 
 // Assety jako ABSOLUTNY URL z URL modułu — ODPORNY na SPA pushState (router zmienia document.baseURI
@@ -45,17 +50,19 @@ export function initStudioMonitor() {
 
   // ── Pozycja hotspotu z geometrii tła (cover, wyśrodkowane) ──────────────────
   function positionHot() {
+    const h = mqMobile.matches ? HOT_MOBILE : HOT;     // mobile → środkowy ekran, desktop → lewy
     const vw = window.innerWidth, vh = window.innerHeight;
     const scale = Math.max(vw / IMG_W, vh / IMG_H);   // cover
     const rw = IMG_W * scale, rh = IMG_H * scale;
     const ox = (vw - rw) / 2, oy = (vh - rh) / 2;     // center
-    hot.style.left   = (ox + HOT.fx * rw) + 'px';
-    hot.style.top    = (oy + HOT.fy * rh) + 'px';
-    hot.style.width  = (HOT.fw * rw) + 'px';
-    hot.style.height = (HOT.fh * rh) + 'px';
+    hot.style.left   = (ox + h.fx * rw) + 'px';
+    hot.style.top    = (oy + h.fy * rh) + 'px';
+    hot.style.width  = (h.fw * rw) + 'px';
+    hot.style.height = (h.fh * rh) + 'px';
   }
   positionHot();
   window.addEventListener('resize', positionHot);
+  mqMobile.addEventListener('change', positionHot);   // przełączenie desktop↔mobile (obrót/resize)
 
   // ── Lightbox ────────────────────────────────────────────────────────────────
   function render() {
