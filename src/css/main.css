@@ -936,8 +936,9 @@ body.pong-active #pong-speed {
   display: none;              /* widoczna tylko dla Events */
   position: absolute;
   /* 2026-07-03 (Kuba): top-anchored na wysokości białego hero; pod spodem trafią testimoniale.
-     overflow VISIBLE — kątowniki obejmują kadr od zewnątrz (clip robi .gal-stage). top do nudge. */
-  top: 15vh;
+     overflow VISIBLE — kątowniki obejmują kadr od zewnątrz (clip robi .gal-stage).
+     top: wyrównane do góry nagłówka hero (uwzględnia wypływ -6% feather ku górze). */
+  top: 19vh;
   right: 6vw;
   width: 40vw;
   aspect-ratio: 16 / 9;
