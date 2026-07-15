@@ -1,3 +1,25 @@
+# ── qubatura.eu — trasy SPA + 404 ────────────────────────────────────────────
+# PROBLEM który to rozwiązuje: /events, /studio, /lab istnieją TYLKO w History API
+# (router.js pushState). Serwer ich nie znał → wejście z linku, zakładki albo zwykłe
+# odświeżenie (F5) na dziale kończyło się 404. Klikanie z home działało, bo trasę
+# robiła przeglądarka — dlatego bug był niewidoczny w codziennym używaniu.
+#
+# Rozwiązanie: znane trasy przepisujemy na index.html (status 200, NIE redirect —
+# URL ma zostać /events, inaczej router nie wie gdzie jest). Reszta zostaje realnym
+# 404 → nie robimy soft-404 na każdym śmieciu (Google karze, a i tak nic tam nie ma).
+#
+# UWAGA trailing slash: index.html linkuje assety WZGLĘDNIE ("css/main.css"), więc pod
+# /events/ przeglądarka szukałaby /events/css/main.css → 404. Stąd redirect /events/ → /events.
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  RewriteRule ^(events|studio|lab)/$ /$1 [R=301,L]
+  RewriteRule ^(events|studio|lab)$ index.html [L]
+</IfModule>
+
+ErrorDocument 404 /404.html
+
 # ── qubatura.eu — polityka cache ──────────────────────────────────────────────
 # PROBLEM który to rozwiązuje: serwer nie wysyłał żadnego Cache-Control → iOS Safari
 # cache'ował index.html heurystycznie i ładował STARE moduły mimo świeżego ?v= tokenu

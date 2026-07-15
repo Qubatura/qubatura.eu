@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Qubatura — sygnał zgubiony (404)</title>
+  <meta name="robots" content="noindex, follow">
+  <meta name="theme-color" content="#0A0A0F">
+  <link rel="icon" type="image/svg+xml" href="/assets/favicon-dark.svg">
+
+  <!-- ŚCIEŻKI ABSOLUTNE (/...) — 404 może zostać wyświetlona pod DOWOLNYM adresem, także
+       zagnieżdżonym (/a/b/c). Względne „css/..." rozwiązałyby się wtedy do /a/b/css/... → 404
+       w 404. Strona jest też CELOWO samodzielna: żadnego Three.js/GSAP — ma się pokazać
+       natychmiast i zadziałać nawet gdy coś większego padło. -->
+  <link rel="stylesheet" href="/css/fonts.css">
+
+  <style>
+    :root {
+      --bg: #0A0A0F;
+      --primary: #6B2FD9;
+      --violet-light: #8B4FFF;
+      --off-white: #F0EFFF;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      min-height: 100svh;
+      background: var(--bg);
+      color: var(--off-white);
+      font-family: 'Chakra Petch', system-ui, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8vw 6vw;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Poświata — jedyny „efekt": oddychająca łuna w barwie marki. Tanio, a scena żyje. */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 50%; left: 50%;
+      width: min(150vw, 1100px);
+      aspect-ratio: 1;
+      transform: translate(-50%, -50%);
+      background: radial-gradient(circle, rgba(107, 47, 217, 0.30), rgba(107, 47, 217, 0) 62%);
+      animation: breathe 9s ease-in-out infinite;
+      pointer-events: none;
+      z-index: 0;
+    }
+    @keyframes breathe {
+      0%, 100% { opacity: 0.62; transform: translate(-50%, -50%) scale(1); }
+      50%      { opacity: 1;    transform: translate(-50%, -50%) scale(1.09); }
+    }
+
+    .wrap { position: relative; z-index: 1; max-width: 620px; text-align: left; }
+
+    /* Lockup = biała maska na ORYGINALNYM pliku logo (ta sama technika co #page-home) */
+    .lockup {
+      width: 148px; height: 47px;
+      background: rgba(255, 255, 255, 0.92);
+      -webkit-mask: url('/assets/logo-lockup.svg') left center / contain no-repeat;
+              mask: url('/assets/logo-lockup.svg') left center / contain no-repeat;
+      margin-bottom: 34px;
+    }
+
+    .code {
+      font-family: 'Space Mono', ui-monospace, monospace;
+      font-size: 12px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--violet-light);
+      margin-bottom: 14px;
+    }
+
+    h1 {
+      font-size: clamp(2.1rem, 7vw, 3.5rem);
+      font-weight: 700;
+      line-height: 1.06;
+      letter-spacing: -0.01em;
+      margin-bottom: 18px;
+    }
+
+    .lead {
+      font-size: clamp(0.98rem, 2.2vw, 1.1rem);
+      line-height: 1.75;
+      color: rgba(240, 239, 255, 0.62);
+      margin-bottom: 36px;
+      max-width: 46ch;
+    }
+
+    .cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 11px;
+      font-family: 'Space Mono', ui-monospace, monospace;
+      font-size: 13px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--off-white);
+      text-decoration: none;
+      padding: 15px 26px;
+      border: 1px solid rgba(139, 79, 255, 0.42);
+      border-radius: 2px;
+      background: rgba(107, 47, 217, 0.09);
+      transition: background 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
+    }
+    .cta:hover {
+      background: rgba(107, 47, 217, 0.22);
+      border-color: var(--violet-light);
+      transform: translateX(-3px);
+    }
+    .cta .arr { color: var(--violet-light); }
+
+    .links {
+      margin-top: 40px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 26px;
+      font-family: 'Space Mono', ui-monospace, monospace;
+      font-size: 12px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+    .links a {
+      color: rgba(240, 239, 255, 0.45);
+      text-decoration: none;
+      transition: color 0.25s ease;
+    }
+    .links a:hover { color: var(--off-white); }
+
+    :focus-visible { outline: 2px solid var(--violet-light); outline-offset: 3px; }
+
+    @media (prefers-reduced-motion: reduce) {
+      body::before { animation: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <div class="lockup" aria-hidden="true"></div>
+
+    <p class="code" data-en="Error 404 · signal lost">Błąd 404 · sygnał zgubiony</p>
+    <h1 data-en="This frequency is empty">Na tej częstotliwości pusto</h1>
+    <p class="lead" data-en="The address you followed doesn't exist — or it has moved. Nothing is lost: the signal is still transmitting from the home page.">Adres, pod który trafiłeś, nie istnieje — albo się przeprowadził.
+      Nic straconego: sygnał nadaje dalej ze strony głównej.</p>
+
+    <a class="cta" href="/"><span class="arr" aria-hidden="true">‹</span><span data-en="Back to home">Wróć na stronę główną</span></a>
+
+    <nav class="links" aria-label="Działy">
+      <a href="/events">Events</a>
+      <a href="/studio">Studio</a>
+      <a href="/lab">Qlab</a>
+      <a href="/?lang=pl" data-en="Contact" id="l-contact">Kontakt</a>
+    </nav>
+  </main>
+
+  <script>
+    // Język spójny z resztą serwisu: ten sam klucz localStorage co i18n.js ('qb-lang').
+    // Bez modułu — 404 ma być samodzielna, więc mikro-wersja tej samej zasady (data-en).
+    try {
+      if (localStorage.getItem('qb-lang') === 'en') {
+        document.documentElement.lang = 'en';
+        document.querySelectorAll('[data-en]').forEach(el => { el.textContent = el.dataset.en; });
+        document.title = 'Qubatura — signal lost (404)';
+      }
+    } catch (e) { /* prywatny tryb — zostaje PL */ }
+  </script>
+</body>
+</html>
