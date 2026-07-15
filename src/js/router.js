@@ -5,8 +5,8 @@
 
 import * as THREE from 'three';
 import * as GSAPmod from 'gsap';
-import { DIVISION_COLORS, DIVISION_DIR, BASE_TINT, navFX } from './tint.js?v=mrkdqyuv';
-import { resetNavState } from './navigation.js?v=mrkdqyuv';
+import { DIVISION_COLORS, DIVISION_DIR, BASE_TINT, navFX } from './tint.js?v=mrm2k1i4';
+import { resetNavState } from './navigation.js?v=mrm2k1i4';
 
 const gsap = GSAPmod.gsap || GSAPmod.default || GSAPmod;
 
@@ -35,6 +35,21 @@ export function initRouter() {
 
   let current = null;   // aktualna ścieżka ('/'=hero)
 
+  // ── Welon pod klastrem powrotu (mobile) ────────────────────────────────────
+  // Kolumna działu przewija się POD #page-home (position:fixed) → litery treści
+  // wchodzą pod logo i nazwę działu. Klasa włącza gradient-welon (CSS); na górze
+  // kolumny welon śpi, bo tło sceny samo daje kontrast.
+  const VEIL_AT = 12;   // px — próg włączenia
+  let veiled = false;
+
+  function syncVeil() {
+    const on = page.scrollTop > VEIL_AT;
+    if (on === veiled) return;
+    veiled = on;
+    page.classList.toggle('is-scrolled', on);
+  }
+  page.addEventListener('scroll', syncVeil, { passive: true });
+
   // ── Renderowanie stanu dla ścieżki ─────────────────────────────────────────
   function render(path) {
     const route = ROUTES[path] || null;
@@ -47,6 +62,9 @@ export function initRouter() {
 
     // ── PODSTRONA ──
     views.forEach(v => { v.hidden = (v.id !== route.view); });
+
+    page.scrollTop = 0;   // nowy dział zawsze od góry (kolumna mobile bywała przewinięta po poprzednim)
+    syncVeil();
 
     document.body.classList.add('page-active');
     page.classList.add('is-open');
@@ -82,6 +100,8 @@ export function initRouter() {
     if (home) home.classList.remove('is-open');
     document.body.classList.remove('page-active');
     page.setAttribute('aria-hidden', 'true');
+    page.scrollTop = 0;
+    syncVeil();
 
     // scena wraca: tint neutralny + sygnet na środek/pełna skala
     gsap.to(navFX.target, {
