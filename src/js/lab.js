@@ -2,6 +2,8 @@
 // Overlay #product-overlay: miejsce na trailer + opis. Zamknięcie: „‹ Wróć", klik w tło, Esc.
 // Docelowo: osobne podstrony per produkt (trailer, opis, kilka pozycji) — teraz jeden placeholder.
 
+import { t } from './i18n.js?v=mrm4bp21';
+
 // Asset jako ABSOLUTNY URL z URL modulu - ODPORNE na SPA pushState (jak reszta).
 const DOC_ROOT = new URL('../', import.meta.url).href;
 const asset = rel => new URL(rel, DOC_ROOT).href;
@@ -65,8 +67,8 @@ export function initLab() {
       c.style.setProperty('--acc', m.accent);
       if (m.thumb) c.style.backgroundImage = "url('" + asset(m.thumb) + "')";   // miniaturka realnego mockupu
       c.dataset.case = i;
-      c.setAttribute('aria-label', m.name + ' — ' + m.cap);
-      c.innerHTML = '<span class="ls-name">' + m.name + '</span><span class="ls-cap">' + m.cap + '</span>';
+      c.setAttribute('aria-label', m.name + ' — ' + t(m.cap));   // m.name = nazwa własna marki, zostaje
+      c.innerHTML = '<span class="ls-name">' + m.name + '</span><span class="ls-cap">' + t(m.cap) + '</span>';
       return c;
     };
     // DWIE kopie (płynna pętla marquee -50%); każda karta pamięta swój indeks platformy.

@@ -3,7 +3,8 @@
 // Po zwycięstwie: cytat losowej postaci historycznej nad polem → powrót HOME.
 
 import * as GSAPmod from 'gsap';
-import { navFX } from './tint.js?v=mrm2k1i4';
+import { navFX } from './tint.js?v=mrm4bp21';
+import { t } from './i18n.js?v=mrm4bp21';
 
 const gsap = GSAPmod.gsap || GSAPmod.default || GSAPmod;
 
@@ -141,8 +142,8 @@ function startGame() {
     footer.style.left    = GL + 'px';
     footer.style.width   = GW + 'px';
     footer.textContent   = isMobile()
-      ? 'PRZESUWAJ PALCEM · GRA DO 3 BRAMEK'
-      : 'MYSZ LUB STRZAŁKI ↑↓ · GRA DO 3 BRAMEK';
+      ? t('PRZESUWAJ PALCEM · GRA DO 3 BRAMEK')
+      : t('MYSZ LUB STRZAŁKI ↑↓ · GRA DO 3 BRAMEK');
     gsap.set(footer, { opacity: 1 });
   }
 
@@ -443,7 +444,7 @@ function showCard(overlay, canvas, card, header, footer) {
   const yearsEl     = card.querySelector('.pong-years');
   const speedPanel  = document.getElementById('pong-speed');
 
-  if (quoteEl)  quoteEl.textContent = '"' + person.quote + '"';
+  if (quoteEl)  quoteEl.textContent = '"' + t(person.quote) + '"';
   if (nameEl)   nameEl.textContent  = person.name;
   if (yearsEl)  yearsEl.textContent = person.years;
 

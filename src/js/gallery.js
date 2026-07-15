@@ -9,6 +9,8 @@
 
 // Wideo tymczasowo WYWALONE (Kuba: obecne nieprofesjonalne — dorobi porządne krótkie pętle).
 // Kolejność na razie LOSOWANA przy starcie (shuffle w initGallery) — do ustalenia z Kubą.
+import { t } from './i18n.js?v=mrm4bp21';
+
 const MEDIA = [
   { src: '../assets/events/ev-07.webp' },
   { src: '../assets/events/ev-01.webp' },
@@ -99,7 +101,7 @@ export function initGallery() {
     const dot = document.createElement('button');
     dot.type = 'button';
     dot.className = 'gal-dot' + (i === 0 ? ' is-on' : '');
-    dot.setAttribute('aria-label', `Pokaż ${i + 1}`);
+    dot.setAttribute('aria-label', `${t('Pokaż')} ${i + 1}`);
     dot.addEventListener('click', e => { e.stopPropagation(); show(i); armFrame(); });
     dotsWrap.appendChild(dot);
 
@@ -108,7 +110,7 @@ export function initGallery() {
     thumb.type = 'button';
     thumb.className = 'lb-thumb' + (i === 0 ? ' is-on' : '') + (isVid(m) ? ' is-video' : '');
     thumb.dataset.idx = pad(i + 1);
-    thumb.setAttribute('aria-label', `Pokaż ${i + 1}`);
+    thumb.setAttribute('aria-label', `${t('Pokaż')} ${i + 1}`);
     const tImg = new Image();
     tImg.alt = '';
     tImg.addEventListener('error', () => thumb.classList.add('is-missing'));

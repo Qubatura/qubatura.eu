@@ -9,27 +9,29 @@
 //   Etap 7: navigation.js   — directional nav tint integration
 //   Etap 10: router.js      — SPA History API + GSAP transitions
 
-import { initScene, startLoop } from './scene.js?v=mrm2k1i4';
-import { initParallax }         from './parallax.js?v=mrm2k1i4';
-import { initAtmosphere }       from './atmosphere.js?v=mrm2k1i4';
-import { initFireflies }        from './fireflies.js?v=mrm2k1i4';
-import { initSignet }           from './signet.js?v=mrm2k1i4';
-import { initNavigation }       from './navigation.js?v=mrm2k1i4';
-import { initRouter }           from './router.js?v=mrm2k1i4';
-import { initPlayers }          from './players.js?v=mrm2k1i4';   // Część 2: playery audio (Studio)
-import { initCursor }           from './cursor.js?v=mrm2k1i4';
-import { initContact }          from './contact.js?v=mrm2k1i4';
-import { initContactConsole }   from './contact-console.js?v=mrm2k1i4';   // Kontakt: silnik formularza (konsoleta)
-import { initLoader }           from './loader.js?v=mrm2k1i4';   // Etap 9: loading screen
-import { initPong }             from './pong.js?v=mrm2k1i4';     // Easter egg: Chwila relaksu
-import { initGallery }          from './gallery.js?v=mrm2k1i4';              // Events: galeria realizacji + lightbox
-import { initLab }              from './lab.js?v=mrm2k1i4';                  // Lab: oprogramowanie audio + podstrona produktu
-import { initStudioMonitor }    from './studio.js?v=mrm2k1i4';               // Studio: „ożywiony monitor" (smaczek)
-import { initPlayer }           from './player.js?v=mrm2k1i4';               // HOME: mini player muzyczny (rolka)
-import { initCookies }          from './cookie-consent.js?v=mrm2k1i4';       // Cookie consent (minimalny, tylko niezbędne)
-import { initColophon }         from './colophon.js?v=mrm2k1i4';             // Colophon „tę stronę zrobiliśmy sami" (tagline)
+import { initI18n }             from './i18n-boot.js?v=mrm4bp21';   // PL/EN — musi ruszyć PRZED resztą
+import { initScene, startLoop } from './scene.js?v=mrm4bp21';
+import { initParallax }         from './parallax.js?v=mrm4bp21';
+import { initAtmosphere }       from './atmosphere.js?v=mrm4bp21';
+import { initFireflies }        from './fireflies.js?v=mrm4bp21';
+import { initSignet }           from './signet.js?v=mrm4bp21';
+import { initNavigation }       from './navigation.js?v=mrm4bp21';
+import { initRouter }           from './router.js?v=mrm4bp21';
+import { initPlayers }          from './players.js?v=mrm4bp21';   // Część 2: playery audio (Studio)
+import { initCursor }           from './cursor.js?v=mrm4bp21';
+import { initContact }          from './contact.js?v=mrm4bp21';
+import { initContactConsole }   from './contact-console.js?v=mrm4bp21';   // Kontakt: silnik formularza (konsoleta)
+import { initLoader }           from './loader.js?v=mrm4bp21';   // Etap 9: loading screen
+import { initPong }             from './pong.js?v=mrm4bp21';     // Easter egg: Chwila relaksu
+import { initGallery }          from './gallery.js?v=mrm4bp21';              // Events: galeria realizacji + lightbox
+import { initLab }              from './lab.js?v=mrm4bp21';                  // Lab: oprogramowanie audio + podstrona produktu
+import { initStudioMonitor }    from './studio.js?v=mrm4bp21';               // Studio: „ożywiony monitor" (smaczek)
+import { initPlayer }           from './player.js?v=mrm4bp21';               // HOME: mini player muzyczny (rolka)
+import { initCookies }          from './cookie-consent.js?v=mrm4bp21';       // Cookie consent (minimalny, tylko niezbędne)
+import { initColophon }         from './colophon.js?v=mrm4bp21';             // Colophon „tę stronę zrobiliśmy sami" (tagline)
 
 async function boot() {
+  initI18n();                   // język (zapamiętany wybór) PRZED modułami — renderują od razu w dobrym języku
   initCursor();                 // własna kulka kursora — od razu aktywna
   initContact();                // contact overlay (trigger: [data-contact])
   initContactConsole();         // Kontakt: silnik formularza (brama → konsoleta → tor → wyślij)

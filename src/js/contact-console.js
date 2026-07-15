@@ -4,6 +4,8 @@
 // Kolor działu zalewa konsoletę po wyborze toru; tło morfuje w scenę działu.
 //
 // Assety jako ABSOLUTNY URL z URL modułu (import.meta.url) — ODPORNE na SPA pushState.
+import { t } from './i18n.js?v=mrm4bp21';
+
 const DOC_ROOT = new URL('../', import.meta.url).href;
 const asset = rel => new URL(rel, DOC_ROOT).href;
 
@@ -119,20 +121,20 @@ export function initContactConsole() {
     if (rodoBox) rodoBox.classList.remove('err');
     if (hp) hp.value = '';
     const st = document.getElementById('cc-status'); if (st) st.textContent = '';
-    const sb = document.getElementById('cc-send'); if (sb) { sb.disabled = false; sb.textContent = 'WYŚLIJ SYGNAŁ →'; }
+    const sb = document.getElementById('cc-send'); if (sb) { sb.disabled = false; sb.textContent = t('WYŚLIJ SYGNAŁ →'); }
   }
   function pickTor(key) {
     cur = key;
     selected = [];                 // nowy tor → czyste zaznaczenie
     const d = DATA[key];
     wrap.style.setProperty('--cc', d.color);
-    s2q.firstChild.textContent = d.q;
+    s2q.firstChild.textContent = t(d.q);
     chips.innerHTML = '';
     d.items.forEach(it => {
       const b = document.createElement('button');
       b.type = 'button';
       b.className = 'cc-chip' + (it.soft ? ' soft' : '');
-      b.textContent = it.t;
+      b.textContent = t(it.t);
       b.setAttribute('aria-pressed', 'false');
       b.addEventListener('click', () => toggleChip(it, b));
       chips.appendChild(b);
@@ -151,16 +153,16 @@ export function initContactConsole() {
   // DALEJ → komponuje z zaznaczonych: temat = tytuły przez „ + ", opis = szkielety pól sklejone.
   function composeAndAdvance() {
     if (!selected.length) return;
-    msg.value  = selected.map(it => it.p).join('\n\n');
-    subj.textContent = '[' + DATA[cur].label + '] ' + selected.map(it => it.t).join(' + ');
+    msg.value  = selected.map(it => t(it.p)).join('\n\n');
+    subj.textContent = '[' + DATA[cur].label + '] ' + selected.map(it => t(it.t)).join(' + ');
     setStep(3);
     setTimeout(() => { msg.focus(); msg.setSelectionRange(msg.value.length, msg.value.length); }, 350);
   }
   function showSuccess() {
     const nm = (nameIn.value || '').trim();
     document.getElementById('cc-doneline').innerHTML =
-      (nm ? nm + ', dziękujemy. ' : '') +
-      'Wrócimy z odpowiedzią — zwykle w ciągu doby.<br>Odpisujemy z <b>biuro@qubatura.eu</b>.';
+      (nm ? nm + t(', dziękujemy. ') : '') +
+      t('Wrócimy z odpowiedzią — zwykle w ciągu doby.<br>Odpisujemy z <b>biuro@qubatura.eu</b>.');
     setStep(4);
   }
 
@@ -178,13 +180,13 @@ export function initContactConsole() {
 
     const btn = document.getElementById('cc-send');
     const label = btn ? btn.textContent : '';
-    if (btn) { btn.disabled = true; btn.textContent = 'WYSYŁAM…'; }
+    if (btn) { btn.disabled = true; btn.textContent = t('WYSYŁAM…'); }
     try {
       const res = await fetch('send.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify({
-          subject: (subj.textContent || 'Nowy sygnał — qubatura.eu').trim(),
+          subject: (subj.textContent || t('Nowy sygnał — qubatura.eu')).trim(),
           name: (nameIn.value || '').trim(),
           kontakt: (contactIn.value || '').trim(),
           message: (msg.value || '').trim(),
@@ -198,8 +200,8 @@ export function initContactConsole() {
         throw new Error('send failed');
       }
     } catch (err) {
-      if (btn) { btn.disabled = false; btn.textContent = label || 'WYŚLIJ SYGNAŁ →'; }
-      if (status) status.textContent = 'Nie udało się wysłać. Spróbuj ponownie lub napisz na biuro@qubatura.eu.';
+      if (btn) { btn.disabled = false; btn.textContent = label || t('WYŚLIJ SYGNAŁ →'); }
+      if (status) status.textContent = t('Nie udało się wysłać. Spróbuj ponownie lub napisz na biuro@qubatura.eu.');
     }
   }
   function back() {

@@ -4,6 +4,8 @@
 // każdej szerokości okna. Desktop celuje w LEWY ekran, mobile w ŚRODKOWY (ładnie wykadrowany przy
 // cover-center na wąskim ekranie). Na mobile position:fixed — kolumna Studio scrolluje nad tłem.
 
+import { t } from './i18n.js?v=mrm4bp21';
+
 const SHOTS = [
   {
     src: '../assets/studio/st-01.webp',
@@ -70,12 +72,12 @@ export function initStudioMonitor() {
     const url = asset(s.src);
     lbImg.src = url;
     if (lbFig) lbFig.style.setProperty('--lb-amb', `url("${url}")`);   // ambilight
-    lbImg.alt = s.cap || `Realizacja studia ${cur + 1}`;
-    lbCap.textContent = s.cap || '';
+    lbImg.alt = s.cap ? t(s.cap) : `${t('Realizacja studia')} ${cur + 1}`;
+    lbCap.textContent = s.cap ? t(s.cap) : '';
     lbCap.style.display = s.cap ? '' : 'none';
     if (s.link) {
       lbLink.href = s.link;
-      lbLink.textContent = s.linkLabel || 'Zobacz →';
+      lbLink.textContent = t(s.linkLabel || 'Zobacz →');
       lbLink.style.display = '';
     } else {
       lbLink.style.display = 'none';

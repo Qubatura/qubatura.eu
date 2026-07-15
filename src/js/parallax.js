@@ -1,5 +1,7 @@
 // parallax.js — warstwowy parallax + autonomiczny dryf sceny
 //
+// i18n: podpowiedzi mobilne (showBanner) tłumaczone centralnie w showBanner — wywołania podają PL.
+//
 // Dwie warstwy:
 //   planet  — mesh Three.js z=-500, przesuwa się w jedn. świata
 //   fog     — shader atmosphere.js, przesuwa się w "height units" (offset UV shadera)
@@ -15,7 +17,8 @@
 // widoczny baner (#motion-prompt). Gdy zgody brak / czujnik nieobecny / odmowa → touch-drag,
 // więc scena NIGDY nie jest w pełni statyczna. ?debug w URL → HUD z żywym gamma/beta + stanem.
 
-import { onTick } from './scene.js?v=mrm2k1i4';
+import { onTick } from './scene.js?v=mrm4bp21';
+import { t } from './i18n.js?v=mrm4bp21';
 
 // ─── Konfiguracja ─────────────────────────────────────────────────────────────
 
@@ -155,7 +158,7 @@ export function initParallax(ctx) {
   function showBanner(msg, mode, autoHideMs) {
     if (!banner) return;
     clearTimeout(bannerHideT);
-    if (msg && bText) bText.textContent = msg;
+    if (msg && bText) bText.textContent = t(msg);   // i18n w jednym miejscu — wywołania podają PL
     banner.classList.remove('is-gate', 'is-toast', 'is-invite');
     banner.classList.add(mode === 'invite' ? 'is-invite' : 'is-toast');
     banner.hidden = false;

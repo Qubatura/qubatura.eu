@@ -30,7 +30,7 @@
   <meta name="twitter:image"       content="https://qubatura.eu/assets/og-image.png">
 
   <!-- Fonts — self-hosted (Chakra Petch + Space Mono + Press Start 2P), zero zależności od Google -->
-  <link rel="stylesheet" href="css/fonts.css?v=mrm2k1i4">
+  <link rel="stylesheet" href="css/fonts.css?v=mrm4bp21">
 
   <!-- Favicon — sygnet Q na ciemnym kaflu (ustalony; czytelny w karcie na jasnym i ciemnym) -->
   <link rel="icon" type="image/svg+xml" href="../assets/favicon-dark.svg">
@@ -40,7 +40,7 @@
         referrerpolicy="no-referrer">
 
   <!-- CSS -->
-  <link rel="stylesheet" href="css/main.css?v=mrm2k1i4">
+  <link rel="stylesheet" href="css/main.css?v=mrm4bp21">
 
   <!-- Three.js via CDN importmap -->
   <script type="importmap">
@@ -117,16 +117,16 @@
   <div id="loading" aria-hidden="true">
     <div class="ld-foot">
       <div class="ld-readout"><span id="loading-pct">0</span><span class="ld-unit">%</span></div>
-      <p class="ld-label">Ładowanie</p>
+      <p class="ld-label" data-en="Loading">Ładowanie</p>
     </div>
   </div>
 
   <!-- SEO-accessible nav (hidden visually, readable by bots) -->
-  <nav class="sr-only" aria-label="Strony">
-    <a href="/events">Qubatura Events — nagłośnienie, oświetlenie, streaming</a>
-    <a href="/studio">Studio Q — audiobooki, sound design, binaural</a>
-    <a href="/lab">Qubatura Lab — druk 3D, mapping, IoT, web</a>
-    <a href="/contact">Kontakt</a>
+  <nav class="sr-only" aria-label="Strony" data-en-aria-label="Pages">
+    <a href="/events" data-en="Qubatura Events — live sound, lighting, streaming">Qubatura Events — nagłośnienie, oświetlenie, streaming</a>
+    <a href="/studio" data-en="Studio Q — audiobooks, sound design, binaural">Studio Q — audiobooki, sound design, binaural</a>
+    <a href="/lab" data-en="Qubatura Lab — 3D printing, mapping, IoT, web">Qubatura Lab — druk 3D, mapping, IoT, web</a>
+    <a href="/contact" data-en="Contact">Kontakt</a>
   </nav>
 
   <!-- Top-right UI -->
@@ -135,9 +135,9 @@
          LEWEJ krawędzi (align-items:flex-start) → strzałka playera ląduje pod „KONTAKT". -->
     <div id="top-cluster">
     <div id="top-right">
-      <button id="top-contact" data-contact>Kontakt</button>
+      <button id="top-contact" data-contact data-en="Contact">Kontakt</button>
       <button id="lang-toggle" aria-label="Przełącz na English" data-lang="pl">EN</button>
-      <button id="sound-toggle" aria-label="Włącz dźwięk ambient" data-active="false">
+      <button id="sound-toggle" aria-label="Włącz dźwięk ambient" data-en-aria-label="Turn on ambient sound" data-active="false">
         <div class="waveform" aria-hidden="true">
           <span style="height:4px"></span>
           <span style="height:10px"></span>
@@ -151,21 +151,21 @@
 
     <!-- Mini player muzyczny (TYLKO HOME) — rolka numerów + tytuł, organicznie, spięty z waveform.
          Numery i tytuł wypełnia player.js; znika na podstronach (body.page-active). -->
-    <div id="music-player" aria-label="Odtwarzacz muzyki Qubatura">
-      <button class="mp-arrow mp-prev" type="button" aria-label="Poprzedni utwór">‹</button>
+    <div id="music-player" aria-label="Odtwarzacz muzyki Qubatura" data-en-aria-label="Qubatura music player">
+      <button class="mp-arrow mp-prev" type="button" aria-label="Poprzedni utwór" data-en-aria-label="Previous track">‹</button>
       <div class="mp-reel" aria-hidden="true">
         <span class="mp-num mp-side mp-prev-n"></span>
         <span class="mp-num mp-cur"></span>
         <span class="mp-num mp-side mp-next-n"></span>
       </div>
-      <button class="mp-arrow mp-next" type="button" aria-label="Następny utwór">›</button>
+      <button class="mp-arrow mp-next" type="button" aria-label="Następny utwór" data-en-aria-label="Next track">›</button>
       <span class="mp-title" aria-live="polite"></span>
     </div>
     </div><!-- /#top-cluster -->
   </header>
 
   <!-- Directional navigation — emanating from central signet -->
-  <nav id="nav" aria-label="Nawigacja działów">
+  <nav id="nav" aria-label="Nawigacja działów" data-en-aria-label="Division navigation">
 
     <!-- Impuls wejścia — pierścień emitowany z sygnetu (animuje nav-intro.js, raz po loaderze) -->
     <div id="nav-pulse" aria-hidden="true"></div>
@@ -181,9 +181,9 @@
         <span class="hud-corner tl"></span><span class="hud-corner tr"></span>
         <span class="hud-corner bl"></span><span class="hud-corner br"></span>
         <div class="hud-body">
-          <p class="hud-title">PRODUKCJA EVENTÓW OD A DO Z</p>
+          <p class="hud-title" data-en="END-TO-END EVENT PRODUCTION">PRODUKCJA EVENTÓW OD A DO Z</p>
           <div class="hud-services">
-            <p class="hud-row">Artyści · Konferansjerzy · Reżyseria · Oprawa · Infrastruktura sprzętowa</p>
+            <p class="hud-row" data-en="Artists · Hosts · Direction · Staging · Equipment infrastructure">Artyści · Konferansjerzy · Reżyseria · Oprawa · Infrastruktura sprzętowa</p>
           </div>
         </div>
       </div>
@@ -200,18 +200,18 @@
         <span class="hud-corner tl"></span><span class="hud-corner tr"></span>
         <span class="hud-corner bl"></span><span class="hud-corner br"></span>
         <div class="hud-body">
-          <p class="hud-title">PRODUKCJA I POST-PRODUKCJA AUDIO</p>
+          <p class="hud-title" data-en="AUDIO PRODUCTION &amp; POST-PRODUCTION">PRODUKCJA I POST-PRODUKCJA AUDIO</p>
           <div class="hud-services">
-            <p class="hud-row">Miks &amp; Mastering · Audiobooki · Sound design · Binaural · Formy dramatyczne</p>
+            <p class="hud-row" data-en="Mixing &amp; Mastering · Audiobooks · Sound design · Binaural · Radio drama">Miks &amp; Mastering · Audiobooki · Sound design · Binaural · Formy dramatyczne</p>
           </div>
         </div>
       </div>
     </a>
 
     <!-- ↑ Pong — easter egg, widoczny tylko przy hover sygnetu -->
-    <button class="nav-item" id="nav-pong" type="button" aria-label="Chwila relaksu">
+    <button class="nav-item" id="nav-pong" type="button" aria-label="Chwila relaksu" data-en-aria-label="Take a break">
       <div class="nav-line" aria-hidden="true"></div>
-      <span class="nav-label">Chwila relaksu :)</span>
+      <span class="nav-label" data-en="Take a break :)">Chwila relaksu :)</span>
     </button>
 
     <!-- ↓ Lab -->
@@ -225,9 +225,9 @@
         <span class="hud-corner tl"></span><span class="hud-corner tr"></span>
         <span class="hud-corner bl"></span><span class="hud-corner br"></span>
         <div class="hud-body">
-          <p class="hud-title">TECHNOLOGIA, DESIGN I DEVELOPMENT</p>
+          <p class="hud-title" data-en="TECHNOLOGY, DESIGN &amp; DEVELOPMENT">TECHNOLOGIA, DESIGN I DEVELOPMENT</p>
           <div class="hud-services">
-            <p class="hud-row">UX/UI · Aplikacje · Software · Web design · Druk 3D · Mapping · IoT</p>
+            <p class="hud-row" data-en="UX/UI · Apps · Software · Web design · 3D printing · Mapping · IoT">UX/UI · Aplikacje · Software · Web design · Druk 3D · Mapping · IoT</p>
           </div>
         </div>
       </div>
@@ -242,7 +242,7 @@
          redundantny „← Powrót" z dołu. Strzałka (kolor działu) + pełny lockup z pliku
          źródłowego (sygnet+QUBATURA jako biała maska, NIE tekst w foncie; subtelny puls
          glow) + nazwa działu (treść/kolor z data-division). Cały obszar klikalny → HOME. -->
-    <button id="page-home" type="button" aria-label="Qubatura — powrót na stronę główną">
+    <button id="page-home" type="button" aria-label="Qubatura — powrót na stronę główną" data-en-aria-label="Qubatura — back to home">
       <span class="home-arrow" aria-hidden="true"></span>
       <span class="home-lockup" aria-hidden="true"></span>
       <span class="home-dept" aria-hidden="true"></span>
@@ -251,55 +251,55 @@
     <!-- Events -->
     <article class="page-view" id="page-events" data-division="events" hidden>
       <!-- label działu „Events" jest już w lockupie w rogu — bez duplikatu nad hero -->
-      <h1 class="page-title">Produkcja eventów<br>od A do Z</h1>
-      <p class="page-lead">Nagłośnienie, światło, multimedia i streaming — jeden zespół od koncepcji,
+      <h1 class="page-title" data-en="End-to-end<br>event production">Produkcja eventów<br>od A do Z</h1>
+      <p class="page-lead" data-en="Sound, lighting, multimedia and streaming — one team from concept, through the script, to the live show. Conferences, hotels, concerts.">Nagłośnienie, światło, multimedia i streaming — jeden zespół od koncepcji,
         przez scenariusz, po realizację na żywo. Konferencje, hotele, koncerty.</p>
       <ul class="page-services">
-        <li>Artyści &amp; konferansjerzy</li>
-        <li>Reżyseria i scenariusz</li>
-        <li>Nagłośnienie estradowe</li>
-        <li>Oświetlenie sceniczne</li>
-        <li>Multimedia &amp; mapping</li>
-        <li>Streaming i transmisje</li>
+        <li data-en="Artists &amp; hosts">Artyści &amp; konferansjerzy</li>
+        <li data-en="Direction &amp; scripting">Reżyseria i scenariusz</li>
+        <li data-en="Live sound">Nagłośnienie estradowe</li>
+        <li data-en="Stage lighting">Oświetlenie sceniczne</li>
+        <li data-en="Multimedia &amp; mapping">Multimedia &amp; mapping</li>
+        <li data-en="Streaming &amp; broadcast">Streaming i transmisje</li>
       </ul>
-      <a class="page-cta" data-contact role="button" tabindex="0">Porozmawiajmy o evencie →</a>
+      <a class="page-cta" data-contact role="button" tabindex="0" data-en="Let's talk about your event →">Porozmawiajmy o evencie →</a>
     </article>
 
     <!-- Studio -->
     <article class="page-view" id="page-studio" data-division="studio" hidden>
       <!-- label działu „Studio" jest już w lockupie w rogu — bez duplikatu nad hero -->
-      <h1 class="page-title">Produkcja<br>post&#8209;produkcja audio</h1>
-      <p class="page-lead">20 lat pracy studyjnej — od nagrań i realizacji singli, epek i albumów po dźwięk, który niesie historię.
+      <h1 class="page-title" data-en="Audio production<br>&amp; post&#8209;production">Produkcja<br>post&#8209;produkcja audio</h1>
+      <p class="page-lead" data-en="20 years in the studio — from tracking and producing singles, EPs and albums, to sound that carries a story. Audiobooks, radio drama, sound design and mastering under one roof.">20 lat pracy studyjnej — od nagrań i realizacji singli, epek i albumów po dźwięk, który niesie historię.
         Audiobooki, słuchowiska, sound design i mastering w jednym miejscu.</p>
       <ul class="page-services">
-        <li>Miks &amp; mastering</li>
-        <li>Audiobooki</li>
-        <li>Sound design</li>
-        <li>Miksy binauralne (3D)</li>
-        <li>Formy dramatyczne</li>
+        <li data-en="Mixing &amp; mastering">Miks &amp; mastering</li>
+        <li data-en="Audiobooks">Audiobooki</li>
+        <li data-en="Sound design">Sound design</li>
+        <li data-en="Binaural (3D) mixes">Miksy binauralne (3D)</li>
+        <li data-en="Radio drama">Formy dramatyczne</li>
       </ul>
-      <a class="page-cta" data-contact role="button" tabindex="0">Wyceń projekt →</a>
+      <a class="page-cta" data-contact role="button" tabindex="0" data-en="Get a quote →">Wyceń projekt →</a>
     </article>
 
     <!-- Lab -->
     <article class="page-view" id="page-lab" data-division="lab" hidden>
       <!-- label działu „Lab" jest już w lockupie w rogu — bez duplikatu nad hero -->
-      <h1 class="page-title">Technologia,<br>design i development</h1>
-      <p class="page-lead">Software na pierwszym miejscu — aplikacje, platformy i strony www,
+      <h1 class="page-title" data-en="Technology,<br>design &amp; development">Technologia,<br>design i development</h1>
+      <p class="page-lead" data-en="Software first — apps, platforms and websites, designed (UX) and coded from scratch. Plus IoT, acoustic measurement and 3D printing.">Software na pierwszym miejscu — aplikacje, platformy i strony www,
         projektowane (UX) i kodowane od zera. Do tego IoT, pomiary akustyczne i druk 3D.</p>
       <ul class="page-services">
-        <li>Aplikacje &amp; software</li>
-        <li>Web design</li>
-        <li>UX/UI</li>
-        <li>IoT</li>
-        <li>Pomiary akustyczne</li>
-        <li>Druk 3D</li>
+        <li data-en="Apps &amp; software">Aplikacje &amp; software</li>
+        <li data-en="Web design">Web design</li>
+        <li data-en="UX/UI">UX/UI</li>
+        <li data-en="IoT">IoT</li>
+        <li data-en="Acoustic measurement">Pomiary akustyczne</li>
+        <li data-en="3D printing">Druk 3D</li>
       </ul>
       <button class="page-showcase" type="button" data-showcase aria-haspopup="dialog">
-        <span class="ps-kicker">Systemy · platformy · aplikacje</span>
-        <span class="ps-hook">Zbudujemy to pod Twoją branżę →</span>
+        <span class="ps-kicker" data-en="Systems · platforms · apps">Systemy · platformy · aplikacje</span>
+        <span class="ps-hook" data-en="We'll build it for your industry →">Zbudujemy to pod Twoją branżę →</span>
       </button>
-      <a class="page-cta" data-contact data-contact-tor="lab" role="button" tabindex="0">Opisz projekt →</a>
+      <a class="page-cta" data-contact data-contact-tor="lab" role="button" tabindex="0" data-en="Tell us about your project →">Opisz projekt →</a>
     </article>
 
     <!-- Kontakt = overlay (#contact-overlay), nie podstrona -->
@@ -310,13 +310,13 @@
          Wskaźnik postępu = pierścień wokół play (reużycie motywu obręczy sygnetu). -->
     <!-- Sekcja 1: produkcje. Na przyszłość — druga sekcja „Posłuchaj głosów Qubatury"
          (demka lektorów) pod spodem, ten sam styl kart (.pl-card/.pl-grid). -->
-    <section class="studio-players" aria-label="Posłuchaj produkcji — Studio Q">
-      <p class="pl-head">Posłuchaj produkcji</p>
+    <section class="studio-players" aria-label="Posłuchaj produkcji — Studio Q" data-en-aria-label="Hear our work — Studio Q">
+      <p class="pl-head" data-en="Hear our work">Posłuchaj produkcji</p>
       <div class="pl-grid">
 
         <!-- Slot 1 — POTWIERDZONY -->
         <article class="pl-card" data-audio="../assets/audio/1-nztz-demo.mp3" data-dur="54">
-          <button class="pl-ring" type="button" aria-label="Odtwórz fragment: Nie z tej ziemi">
+          <button class="pl-ring" type="button" aria-label="Odtwórz fragment: Nie z tej ziemi" data-en-aria-label="Play excerpt: Nie z tej ziemi">
             <svg class="pl-svg" viewBox="0 0 48 48" aria-hidden="true">
               <circle class="pl-track" cx="24" cy="24" r="21"></circle>
               <circle class="pl-prog"  cx="24" cy="24" r="21"></circle>
@@ -326,20 +326,21 @@
           </button>
           <div class="pl-text">
             <p class="pl-title">„Nie z tej ziemi"</p>
-            <p class="pl-meta">Podcast popularnonaukowy</p>
-            <p class="pl-meta">czyta Łukasz Szwej</p>
-            <p class="pl-meta">produkcja Kuba Hyrja</p>
+            <p class="pl-meta" data-en="Popular science podcast">Podcast popularnonaukowy</p>
+            <p class="pl-meta" data-en="read by Łukasz Szwej">czyta Łukasz Szwej</p>
+            <p class="pl-meta" data-en="produced by Kuba Hyrja">produkcja Kuba Hyrja</p>
             <a class="pl-yt" href="https://www.youtube.com/@NZTZtv"
-               target="_blank" rel="noopener" aria-label="Zobacz „Nie z tej ziemi" na YouTube">
-              <i class="fa-brands fa-youtube" aria-hidden="true"></i><span>Zobacz na YouTube</span>
+               target="_blank" rel="noopener" aria-label="Zobacz „Nie z tej ziemi" na YouTube"
+               data-en-aria-label="Watch „Nie z tej ziemi" on YouTube">
+              <i class="fa-brands fa-youtube" aria-hidden="true"></i><span data-en="Watch on YouTube">Zobacz na YouTube</span>
             </a>
-            <p class="pl-eps">ponad 100 odcinków</p>
+            <p class="pl-eps" data-en="over 100 episodes">ponad 100 odcinków</p>
           </div>
         </article>
 
         <!-- Slot 2 — TBD -->
         <article class="pl-card is-tbd" data-audio="" data-dur="24">
-          <button class="pl-ring" type="button" aria-label="Demo — wkrótce">
+          <button class="pl-ring" type="button" aria-label="Demo — wkrótce" data-en-aria-label="Demo — coming soon">
             <svg class="pl-svg" viewBox="0 0 48 48" aria-hidden="true">
               <circle class="pl-track" cx="24" cy="24" r="21"></circle>
               <circle class="pl-prog"  cx="24" cy="24" r="21"></circle>
@@ -353,7 +354,7 @@
 
         <!-- Slot 3 — Mity słowiańskie (cykl dla Polskiego Radia, Michał Przypadło) -->
         <article class="pl-card" data-audio="../assets/audio/3-mity-slowianskie-demo.mp3" data-dur="49">
-          <button class="pl-ring" type="button" aria-label="Odtwórz fragment: Mity słowiańskie">
+          <button class="pl-ring" type="button" aria-label="Odtwórz fragment: Mity słowiańskie" data-en-aria-label="Play excerpt: Mity słowiańskie">
             <svg class="pl-svg" viewBox="0 0 48 48" aria-hidden="true">
               <circle class="pl-track" cx="24" cy="24" r="21"></circle>
               <circle class="pl-prog"  cx="24" cy="24" r="21"></circle>
@@ -363,15 +364,15 @@
           </button>
           <div class="pl-text">
             <p class="pl-title">„Mity słowiańskie"</p>
-            <p class="pl-meta">Cykl dla Polskiego Radia</p>
-            <p class="pl-meta">czyta Michał Przypadło</p>
-            <p class="pl-meta">produkcja Kuba Hyrja</p>
+            <p class="pl-meta" data-en="A series for Polish Radio">Cykl dla Polskiego Radia</p>
+            <p class="pl-meta" data-en="read by Michał Przypadło">czyta Michał Przypadło</p>
+            <p class="pl-meta" data-en="produced by Kuba Hyrja">produkcja Kuba Hyrja</p>
           </div>
         </article>
 
         <!-- Slot 4 — TBD -->
         <article class="pl-card is-tbd" data-audio="" data-dur="24">
-          <button class="pl-ring" type="button" aria-label="Demo — wkrótce">
+          <button class="pl-ring" type="button" aria-label="Demo — wkrótce" data-en-aria-label="Demo — coming soon">
             <svg class="pl-svg" viewBox="0 0 48 48" aria-hidden="true">
               <circle class="pl-track" cx="24" cy="24" r="21"></circle>
               <circle class="pl-prog"  cx="24" cy="24" r="21"></circle>
@@ -390,7 +391,7 @@
          Pozycję liczy studio.js z geometrii tła (cover). Nic nie zdradza — tylko puls kusi;
          hover = narożniki HUD + glif „rozwiń"; klik → realizacje z podpisem i linkiem. -->
     <button class="studio-hotspot" type="button" data-studio-monitor
-            aria-label="Zajrzyj do studia — realizacje">
+            aria-label="Zajrzyj do studia — realizacje" data-en-aria-label="Look inside the studio — our work">
       <span class="sh-corner tl"></span><span class="sh-corner tr"></span>
       <span class="sh-corner bl"></span><span class="sh-corner br"></span>
       <span class="sh-cue" aria-hidden="true">⤢</span>
@@ -400,24 +401,24 @@
          Dziecko #page (nie artykułu). Linia softu audio Qubatury z pieczęcią Q (spina z sygnetem):
          Karta 1 = Qplayer (guzik → podstrona produktu), karta 2 = Qtune (w produkcji, bez podstrony).
          Widoczne tylko na Lab. -->
-    <section class="lab-software" aria-label="Oprogramowanie audio — Qubatura Lab">
-      <p class="pl-head">Oprogramowanie audio</p>
+    <section class="lab-software" aria-label="Oprogramowanie audio — Qubatura Lab" data-en-aria-label="Audio software — Qubatura Lab">
+      <p class="pl-head" data-en="Audio software">Oprogramowanie audio</p>
       <div class="pl-grid">
         <article class="pl-card lab-card">
           <div class="pl-text">
             <p class="pl-title"><span class="q-mark">Q</span>player</p>
-            <p class="pl-meta">Playback na eventy — pro</p>
-            <p class="pl-meta">Web Audio API · desktop</p>
+            <p class="pl-meta" data-en="Event playback — pro">Playback na eventy — pro</p>
+            <p class="pl-meta" data-en="Web Audio API · desktop">Web Audio API · desktop</p>
           </div>
-          <button class="pl-cta" type="button" data-product="qplayer">Zobacz więcej →</button>
+          <button class="pl-cta" type="button" data-product="qplayer" data-en="Learn more →">Zobacz więcej →</button>
         </article>
         <article class="pl-card lab-card is-soon">
           <div class="pl-text">
             <p class="pl-title"><span class="q-mark">Q</span>tune</p>
-            <p class="pl-meta">Strojenie systemu PA</p>
-            <p class="pl-meta">Kreator + auto-fazowanie subów</p>
+            <p class="pl-meta" data-en="PA system tuning">Strojenie systemu PA</p>
+            <p class="pl-meta" data-en="Wizard + automatic sub alignment">Kreator + auto-fazowanie subów</p>
           </div>
-          <span class="pl-cta is-tag">w produkcji</span>
+          <span class="pl-cta is-tag" data-en="in development">w produkcji</span>
         </article>
       </div>
     </section>
@@ -426,13 +427,14 @@
          Slajdy i kropki wstrzykuje gallery.js. Dziecko #page (nie artykułu) — GSAP transform na
          artykule nie psuje pozycji. -->
     <div class="page-gallery" data-gallery role="button" tabindex="0"
-         aria-label="Realizacje Events — galeria zdjęć, kliknij aby powiększyć">
+         aria-label="Realizacje Events — galeria zdjęć, kliknij aby powiększyć"
+         data-en-aria-label="Events work — photo gallery, click to enlarge">
       <span class="gal-corner tl"></span><span class="gal-corner tr"></span>
       <span class="gal-corner bl"></span><span class="gal-corner br"></span>
       <div class="gal-stage"></div>
       <div class="gal-tint" aria-hidden="true"></div>
-      <button class="gal-nav gal-prev" type="button" aria-label="Poprzednie zdjęcie">‹</button>
-      <button class="gal-nav gal-next" type="button" aria-label="Następne zdjęcie">›</button>
+      <button class="gal-nav gal-prev" type="button" aria-label="Poprzednie zdjęcie" data-en-aria-label="Previous photo">‹</button>
+      <button class="gal-nav gal-next" type="button" aria-label="Następne zdjęcie" data-en-aria-label="Next photo">›</button>
       <div class="gal-hud" aria-hidden="true"><b class="gal-idx">01</b> / <span class="gal-total">06</span></div>
       <div class="gal-dots" aria-hidden="true"></div>
       <span class="gal-cta" aria-hidden="true">⊕</span>
@@ -441,31 +443,31 @@
 
   <!-- Lightbox galerii (Events) — prawie pełnoekranowy podgląd; sterowanie w gallery.js. -->
   <div id="lightbox" class="lightbox" role="dialog" aria-modal="true"
-       aria-label="Podgląd realizacji" aria-hidden="true">
-    <button class="lb-close" type="button" aria-label="Zamknij podgląd">×</button>
-    <button class="lb-nav lb-prev" type="button" aria-label="Poprzednie zdjęcie">‹</button>
+       aria-label="Podgląd realizacji" data-en-aria-label="Work preview" aria-hidden="true">
+    <button class="lb-close" type="button" aria-label="Zamknij podgląd" data-en-aria-label="Close preview">×</button>
+    <button class="lb-nav lb-prev" type="button" aria-label="Poprzednie zdjęcie" data-en-aria-label="Previous photo">‹</button>
     <figure class="lb-figure">
       <img class="lb-img" alt="">
       <video class="lb-video" muted loop playsinline preload="none" style="display:none"></video>
       <figcaption class="lb-cap"></figcaption>
     </figure>
-    <button class="lb-nav lb-next" type="button" aria-label="Następne zdjęcie">›</button>
+    <button class="lb-nav lb-next" type="button" aria-label="Następne zdjęcie" data-en-aria-label="Next photo">›</button>
     <div class="lb-count" aria-hidden="true"><b class="lb-idx">01</b> / <span class="lb-total">06</span></div>
     <!-- Pasek miniaturek — klik = skok, przewijalny (buduje gallery.js) -->
-    <div class="lb-thumbs" aria-label="Miniatury"></div>
+    <div class="lb-thumbs" aria-label="Miniatury" data-en-aria-label="Thumbnails"></div>
   </div>
 
   <!-- Lightbox Studio (smaczek monitora) — realizacje z podpisem + linkiem; sterowanie studio.js -->
   <div id="studio-lightbox" class="lightbox" role="dialog" aria-modal="true"
-       aria-label="Realizacje studia" aria-hidden="true">
-    <button class="lb-close" type="button" aria-label="Zamknij podgląd">×</button>
-    <button class="lb-nav lb-prev" type="button" aria-label="Poprzednie">‹</button>
+       aria-label="Realizacje studia" data-en-aria-label="Studio work" aria-hidden="true">
+    <button class="lb-close" type="button" aria-label="Zamknij podgląd" data-en-aria-label="Close preview">×</button>
+    <button class="lb-nav lb-prev" type="button" aria-label="Poprzednie" data-en-aria-label="Previous">‹</button>
     <figure class="lb-figure">
       <img class="lb-img" alt="">
       <figcaption class="lb-cap"></figcaption>
       <a class="lb-link" target="_blank" rel="noopener"></a>
     </figure>
-    <button class="lb-nav lb-next" type="button" aria-label="Następne">›</button>
+    <button class="lb-nav lb-next" type="button" aria-label="Następne" data-en-aria-label="Next">›</button>
     <div class="lb-count" aria-hidden="true"><b class="lb-idx">01</b> / <span class="lb-total">02</span></div>
   </div>
 
@@ -474,67 +476,68 @@
        aria-label="Qplayer — Qubatura Lab" aria-hidden="true">
     <div class="pcard">
       <span class="pc-tick tl"></span><span class="pc-tick tr"></span><span class="pc-tick bl"></span><span class="pc-tick br"></span>
-      <button class="prod-close" type="button" aria-label="Zamknij — wróć">‹ Wróć</button>
+      <button class="prod-close" type="button" aria-label="Zamknij — wróć" data-en-aria-label="Close — go back" data-en="‹ Back">‹ Wróć</button>
 
       <div class="pc-top">
         <!-- lewa: screen + kafle-liczby + offline -->
         <div class="pc-bay">
-          <div class="pc-frame"><img class="prod-shot-img" alt="Qplayer — interfejs aplikacji"></div>
-          <div class="pc-cap"><span><b>Qplayer</b> · interfejs</span></div>
+          <div class="pc-frame"><img class="prod-shot-img" alt="Qplayer — interfejs aplikacji" data-en-alt="Qplayer — app interface"></div>
+          <div class="pc-cap"><span data-en="<b>Qplayer</b> · interface"><b>Qplayer</b> · interfejs</span></div>
           <div class="pc-stats">
-            <div class="pc-stat"><div class="v">2</div><div class="l">decki</div></div>
-            <div class="pc-stat"><div class="v">∞</div><div class="l">jingle</div></div>
-            <div class="pc-stat"><div class="v">9</div><div class="l">padów</div></div>
-            <div class="pc-stat"><div class="v">∞</div><div class="l">kolejka</div></div>
+            <div class="pc-stat"><div class="v">2</div><div class="l" data-en="decks">decki</div></div>
+            <div class="pc-stat"><div class="v">∞</div><div class="l" data-en="jingles">jingle</div></div>
+            <div class="pc-stat"><div class="v">9</div><div class="l" data-en="pads">padów</div></div>
+            <div class="pc-stat"><div class="v">∞</div><div class="l" data-en="queue">kolejka</div></div>
           </div>
-          <div class="pc-offline"><span class="pc-dot"></span><span><b>100% offline</b> — gra bez sieci, nigdy nie tnie.</span></div>
+          <div class="pc-offline"><span class="pc-dot"></span><span data-en="<b>100% offline</b> — plays with no network, never drops out."><b>100% offline</b> — gra bez sieci, nigdy nie tnie.</span></div>
         </div>
 
         <!-- prawa: pitch -->
         <div class="pc-body">
-          <p class="pc-crumb"><span class="lab">Lab</span> <span class="sep">·</span> <span class="cur">Oprogramowanie audio</span></p>
+          <p class="pc-crumb"><span class="lab">Lab</span> <span class="sep">·</span> <span class="cur" data-en="Audio software">Oprogramowanie audio</span></p>
           <h2 class="pc-title"><span class="q">Q</span>player</h2>
-          <p class="pc-sub">Cały event z jednego okna. Wszystko w jednym miejscu, spokojna głowa — bez trzeciej ręki.</p>
+          <p class="pc-sub" data-en="The whole event from one window. Everything in one place, a clear head — no third hand needed.">Cały event z jednego okna. Wszystko w jednym miejscu, spokojna głowa — bez trzeciej ręki.</p>
 
-          <p class="pc-sec">Co potrafi</p>
+          <p class="pc-sec" data-en="What it does">Co potrafi</p>
           <div class="pc-feats">
-            <div class="pc-feat"><span class="n">01</span><div><h3>Automix</h3><p>Kolejka gra sama, z zadanymi fade'ami — bez dziur.</p></div></div>
-            <div class="pc-feat"><span class="n">02</span><div><h3>Dwa dedykowane decki</h3><p>Lista z automatu + drugi z ręki — grasz i szykujesz naraz.</p></div></div>
-            <div class="pc-feat"><span class="n">03</span><div><h3>Jingle i spoty</h3><p>Wchodzą co N utworów, z priorytetami emisji — licznik pilnuje sam.</p></div></div>
-            <div class="pc-feat"><span class="n">04</span><div><h3>Sampler</h3><p>9 padów na klawiszach 1–9, gotowe zawsze.</p></div></div>
-            <div class="pc-feat"><span class="n">05</span><div><h3>Głośność i fade'y na sekcję</h3><p>Każda sekcja ma własną głośność i konfigurowalny fade in/out.</p></div></div>
-            <div class="pc-feat"><span class="n">06</span><div><h3>Mapowanie klawiszy</h3><p>Dowolna funkcja pod dowolny klawisz (MIDI w przyszłości).</p></div></div>
+            <div class="pc-feat"><span class="n">01</span><div><h3 data-en="Automix">Automix</h3><p data-en="The queue plays itself, with the fades you set — no dead air.">Kolejka gra sama, z zadanymi fade'ami — bez dziur.</p></div></div>
+            <div class="pc-feat"><span class="n">02</span><div><h3 data-en="Two dedicated decks">Dwa dedykowane decki</h3><p data-en="Automated playlist on one, manual on the other — play and prep at the same time.">Lista z automatu + drugi z ręki — grasz i szykujesz naraz.</p></div></div>
+            <div class="pc-feat"><span class="n">03</span><div><h3 data-en="Jingles and spots">Jingle i spoty</h3><p data-en="They drop in every N tracks, with airplay priorities — the counter handles it.">Wchodzą co N utworów, z priorytetami emisji — licznik pilnuje sam.</p></div></div>
+            <div class="pc-feat"><span class="n">04</span><div><h3 data-en="Sampler">Sampler</h3><p data-en="9 pads on keys 1–9, always ready.">9 padów na klawiszach 1–9, gotowe zawsze.</p></div></div>
+            <div class="pc-feat"><span class="n">05</span><div><h3 data-en="Per-section volume and fades">Głośność i fade'y na sekcję</h3><p data-en="Every section has its own volume and a configurable fade in/out.">Każda sekcja ma własną głośność i konfigurowalny fade in/out.</p></div></div>
+            <div class="pc-feat"><span class="n">06</span><div><h3 data-en="Key mapping">Mapowanie klawiszy</h3><p data-en="Any function on any key (MIDI coming later).">Dowolna funkcja pod dowolny klawisz (MIDI w przyszłości).</p></div></div>
           </div>
 
           <div class="pc-actions">
-            <button class="pc-btn primary" type="button" disabled>Pobierz <span class="soon">· wkrótce</span></button>
-            <button class="pc-btn ghost" type="button" disabled>Pobierz instrukcję <span class="soon">· wkrótce</span></button>
+            <button class="pc-btn primary" type="button" disabled data-en="Download <span class=&quot;soon&quot;>· soon</span>">Pobierz <span class="soon">· wkrótce</span></button>
+            <button class="pc-btn ghost" type="button" disabled data-en="Download the manual <span class=&quot;soon&quot;>· soon</span>">Pobierz instrukcję <span class="soon">· wkrótce</span></button>
           </div>
-          <p class="pc-hint">Wersja komercyjna już wkrótce.</p>
+          <p class="pc-hint" data-en="Commercial release coming soon.">Wersja komercyjna już wkrótce.</p>
         </div>
       </div>
 
       <!-- dół: specyfikacja -->
       <div class="pc-specbar">
-        <p class="pc-sc">Specyfikacja</p>
+        <p class="pc-sc" data-en="Specification">Specyfikacja</p>
         <div class="pc-spec3">
           <div class="col">
-            <p class="k">Platforma</p>
+            <p class="k" data-en="Platform">Platforma</p>
             <p class="v">macOS 12 Monterey+ — <b>v1.0</b></p>
             <p class="v">Apple Silicon (M1–M4) / Intel i5+</p>
-            <p class="v dim">Windows 10/11 — wkrótce (v2)</p>
+            <p class="v dim" data-en="Windows 10/11 — soon (v2)">Windows 10/11 — wkrótce (v2)</p>
           </div>
           <div class="col">
-            <p class="k">Wymagania</p>
-            <p class="v">4 GB RAM · ~150 MB na dysku</p>
-            <p class="v">CoreAudio lub interfejs audio</p>
+            <p class="k" data-en="Requirements">Wymagania</p>
+            <p class="v" data-en="4 GB RAM · ~150 MB on disk">4 GB RAM · ~150 MB na dysku</p>
+            <p class="v" data-en="CoreAudio or an audio interface">CoreAudio lub interfejs audio</p>
             <p class="v dim">Windows: WASAPI / ASIO</p>
           </div>
           <div class="col">
-            <p class="k">Formaty — <b>czyta wszystko</b></p>
+            <p class="k" data-en="Formats — <b>reads everything</b>">Formaty — <b>czyta wszystko</b></p>
             <p class="v">MP3 · MP2 · AAC · M4A · FLAC · ALAC</p>
             <p class="v">WAV · AIFF · OGG · OPUS · WMA · WebM</p>
             <p class="v dim">16 / 24 / 32-bit float · auto-resampling</p>
+            <!-- (formaty audio = nazwy własne, te same w obu językach) -->
           </div>
         </div>
       </div>
@@ -544,61 +547,64 @@
   <!-- Lab: showcase „oprogramowanie na zamówienie" — nowe tło Lab + 3 filary + latająca galeria
        mockupów (marquee). Mockupy wstrzykuje lab.js z tablicy MOCKUPS (rozszerzalne). -->
   <div id="lab-showcase" class="lab-showcase" role="dialog" aria-modal="true"
-       aria-label="Oprogramowanie na zamówienie — Qubatura Lab" aria-hidden="true">
-    <button class="ls-close" type="button" aria-label="Zamknij — wróć">‹ Wróć</button>
+       aria-label="Oprogramowanie na zamówienie — Qubatura Lab"
+       data-en-aria-label="Custom software — Qubatura Lab" aria-hidden="true">
+    <button class="ls-close" type="button" aria-label="Zamknij — wróć" data-en-aria-label="Close — go back" data-en="‹ Back">‹ Wróć</button>
     <div class="ls-inner">
-      <p class="ls-kicker">Systemy · platformy · aplikacje</p>
-      <h2 class="ls-title">Zbudujemy to pod Twoją branżę</h2>
-      <p class="ls-lead">Nie robimy jednej apki. Budujemy software pod pomysł — platformy, systemy
+      <p class="ls-kicker" data-en="Systems · platforms · apps">Systemy · platformy · aplikacje</p>
+      <h2 class="ls-title" data-en="We'll build it for your industry">Zbudujemy to pod Twoją branżę</h2>
+      <p class="ls-lead" data-en="We don't build one app. We build software around an idea — platforms, systems and apps for any industry, from concept to launch.">Nie robimy jednej apki. Budujemy software pod pomysł — platformy, systemy
         i aplikacje dla każdej branży, od koncepcji po wdrożenie.</p>
       <div class="ls-pillars">
-        <div class="ls-pillar"><h3>Platformy i systemy</h3><p>Od zarządzania po sprzedaż — skrojone pod Twój proces.</p></div>
-        <div class="ls-pillar"><h3>Aplikacja + panel admin</h3><p>User w telefonie, Ty w przeglądarce — pełna kontrola online.</p></div>
-        <div class="ls-pillar"><h3>Integracje ze środowiskiem</h3><p>Spinamy z narzędziami, których już używasz.</p></div>
+        <div class="ls-pillar"><h3 data-en="Platforms and systems">Platformy i systemy</h3><p data-en="From operations to sales — cut to fit your process.">Od zarządzania po sprzedaż — skrojone pod Twój proces.</p></div>
+        <div class="ls-pillar"><h3 data-en="App + admin panel">Aplikacja + panel admin</h3><p data-en="Your users on their phones, you in the browser — full control online.">User w telefonie, Ty w przeglądarce — pełna kontrola online.</p></div>
+        <div class="ls-pillar"><h3 data-en="Integrations with your stack">Integracje ze środowiskiem</h3><p data-en="We connect it to the tools you already use.">Spinamy z narzędziami, których już używasz.</p></div>
       </div>
-      <div class="ls-gallery" aria-label="Przykładowe realizacje — różne branże"><div class="ls-track"></div></div>
-      <a class="ls-cta" data-contact data-contact-tor="lab" role="button" tabindex="0">Masz pomysł? Opisz projekt →</a>
+      <div class="ls-gallery" aria-label="Przykładowe realizacje — różne branże" data-en-aria-label="Sample work — various industries"><div class="ls-track"></div></div>
+      <a class="ls-cta" data-contact data-contact-tor="lab" role="button" tabindex="0" data-en="Got an idea? Tell us about it →">Masz pomysł? Opisz projekt →</a>
     </div>
   </div>
 
   <!-- Lab: detal branży — pełny mockup platformy w iframe (izolowany → własna tożsamość, zero kolizji)
        + ‹ › przeskok między 5 branżami. Sterowanie i lazy-src w lab.js. -->
   <div id="lab-case" class="lab-case" role="dialog" aria-modal="true"
-       aria-label="Podgląd platformy" aria-hidden="true">
-    <button class="lc-close" type="button" aria-label="Zamknij podgląd">‹ Wróć</button>
+       aria-label="Podgląd platformy" data-en-aria-label="Platform preview" aria-hidden="true">
+    <button class="lc-close" type="button" aria-label="Zamknij podgląd" data-en-aria-label="Close preview" data-en="‹ Back">‹ Wróć</button>
     <div class="lc-frame">
-      <button class="lc-nav lc-prev" type="button" aria-label="Poprzednia branża">‹</button>
-      <div class="lc-stage"><iframe class="lc-iframe" title="Mockup platformy" loading="lazy"></iframe></div>
-      <button class="lc-nav lc-next" type="button" aria-label="Następna branża">›</button>
+      <button class="lc-nav lc-prev" type="button" aria-label="Poprzednia branża" data-en-aria-label="Previous industry">‹</button>
+      <div class="lc-stage"><iframe class="lc-iframe" title="Mockup platformy" data-en-title="Platform mockup" loading="lazy"></iframe></div>
+      <button class="lc-nav lc-next" type="button" aria-label="Następna branża" data-en-aria-label="Next industry">›</button>
     </div>
-    <p class="lc-meta"><span class="lc-idx">01 / 05</span> &nbsp;·&nbsp; przeglądaj branże: ‹ › lub strzałki</p>
+    <!-- UWAGA i18n: .lc-idx aktualizuje lab.js po referencji złapanej przy init — NIE obejmować go
+         przez data-en (podmiana innerHTML osierociłaby węzeł i licznik by zamarł). Tłumaczymy sam tekst. -->
+    <p class="lc-meta"><span class="lc-idx">01 / 05</span> &nbsp;·&nbsp; <span data-en="browse industries: ‹ › or arrow keys">przeglądaj branże: ‹ › lub strzałki</span></p>
   </div>
 
   <!-- Colophon „tę stronę zrobiliśmy sami" — trigger: tagline [data-colophon]. Portfolio + flex
        techniczny (pod aplikacje/rekruterów). Copy robocze. Sterowanie: colophon.js. -->
   <div id="colophon" class="colophon" role="dialog" aria-modal="true"
-       aria-label="O tej stronie" aria-hidden="true">
+       aria-label="O tej stronie" data-en-aria-label="About this site" aria-hidden="true">
     <!-- Plakietka = prosty frost-szkiełko (nasze), lekko przezroczyste + glow primary, wjeżdża Z DOŁU.
          Wow-bajer: przejazd światła po szkle (.cph-sheen) na otwarciu. Treść wyłania się Z SZYBY
          fadem (blur→ostrość, [data-reveal], stagger). Minimalizm. Sterowanie: colophon.js. -->
     <div class="cph-plate">
-      <button class="cph-close" type="button" aria-label="Zamknij">‹ Wróć</button>
+      <button class="cph-close" type="button" aria-label="Zamknij" data-en-aria-label="Close" data-en="‹ Back">‹ Wróć</button>
       <canvas class="cph-fireflies" aria-hidden="true"></canvas>
       <span class="cph-sheen" aria-hidden="true"></span>
       <div class="cph-inner">
-        <p class="cph-kicker" data-reveal>O tej stronie</p>
-        <h2 class="cph-title" data-reveal>Technologia tej strony</h2>
-        <p class="cph-lead" data-reveal>Postawiona na czystym JavaScripcie — vanilla, ES modules, bez frameworka i bundlera. Scena 3D na Three.js i własnych shaderach, animacje w GSAP, dźwięk przez Web Audio API, nawigacja SPA na History API. Zero WordPressa, zero gotowych modułów — napisana przez nas od pierwszej linijki. <b>Full custom.</b></p>
-        <div class="cph-stack" aria-label="Zastosowane technologie">
+        <p class="cph-kicker" data-reveal data-en="About this site">O tej stronie</p>
+        <h2 class="cph-title" data-reveal data-en="The technology behind this site">Technologia tej strony</h2>
+        <p class="cph-lead" data-reveal data-en="Built on plain JavaScript — vanilla, ES modules, no framework, no bundler. The 3D scene runs on Three.js with our own shaders, animation in GSAP, sound through the Web Audio API, SPA navigation on the History API. Zero WordPress, zero off-the-shelf modules — written by us from the first line. <b>Full custom.</b>">Postawiona na czystym JavaScripcie — vanilla, ES modules, bez frameworka i bundlera. Scena 3D na Three.js i własnych shaderach, animacje w GSAP, dźwięk przez Web Audio API, nawigacja SPA na History API. Zero WordPressa, zero gotowych modułów — napisana przez nas od pierwszej linijki. <b>Full custom.</b></p>
+        <div class="cph-stack" aria-label="Zastosowane technologie" data-en-aria-label="Technologies used">
           <span>parallax</span><span>vanilla JS · ES modules</span><span>Three.js · WebGL</span>
-          <span>custom shadery</span><span>zero frameworku · bez bundlera</span><span>zero WordPressa</span>
+          <span data-en="custom shaders">custom shadery</span><span data-en="no framework · no bundler">zero frameworku · bez bundlera</span><span data-en="zero WordPress">zero WordPressa</span>
           <span>GSAP</span><span>SPA · History API</span><span>Web Audio API</span>
         </div>
         <div class="cph-credit" data-reveal>
-          <p class="cph-cr-tech">Projekt, kod, budowa — zespół <b>Qubatura Lab</b></p>
-          <p class="cph-cr-people">Web design, muzyka — <b>Kuba Hyrja</b> · CEO Qubatura Group</p>
+          <p class="cph-cr-tech" data-en="Design, code, build — the <b>Qubatura Lab</b> team">Projekt, kod, budowa — zespół <b>Qubatura Lab</b></p>
+          <p class="cph-cr-people" data-en="Web design, music — <b>Kuba Hyrja</b> · CEO, Qubatura Group">Web design, muzyka — <b>Kuba Hyrja</b> · CEO Qubatura Group</p>
         </div>
-        <a class="cph-cta page-cta" data-reveal data-contact data-contact-tor="lab" role="button" tabindex="0">Chcesz taką stronę? Opisz projekt →</a>
+        <a class="cph-cta page-cta" data-reveal data-contact data-contact-tor="lab" role="button" tabindex="0" data-en="Want a site like this? Tell us about it →">Chcesz taką stronę? Opisz projekt →</a>
       </div>
     </div>
   </div>
@@ -614,20 +620,20 @@
         <p class="pong-years"></p>
       </div>
     </div>
-    <div id="pong-footer">Mysz lub strzałki ↑↓ · Gra do 3 bramek</div>
+    <div id="pong-footer" data-en="Mouse or arrows ↑↓ · First to 3 goals">Mysz lub strzałki ↑↓ · Gra do 3 bramek</div>
     <!-- Opcje gry — po prawej stronie pola, pozycjonowane przez JS -->
-    <div id="pong-speed" aria-label="Opcje gry">
+    <div id="pong-speed" aria-label="Opcje gry" data-en-aria-label="Game options">
       <button class="speed-btn" data-mult="0.7" type="button">SLOW</button>
       <button class="speed-btn active" data-mult="1.0" type="button">MED</button>
       <button class="speed-btn" data-mult="1.4" type="button">FAST</button>
       <div class="speed-sep"></div>
       <button class="speed-btn" id="pong-pause" type="button">PAUSE</button>
-      <button class="speed-btn speed-exit" id="pong-exit" type="button">WYJDŹ</button>
+      <button class="speed-btn speed-exit" id="pong-exit" type="button" data-en="EXIT">WYJDŹ</button>
     </div>
   </div>
 
   <!-- Tagline (klik → colophon „tę stronę zrobiliśmy sami") -->
-  <p id="tagline" data-colophon role="button" tabindex="0" aria-haspopup="dialog">Przybywamy z sygnałem</p>
+  <p id="tagline" data-colophon role="button" tabindex="0" aria-haspopup="dialog" data-en="We arrive with the signal">Przybywamy z sygnałem</p>
 
   <!-- Motion invite / touch hint (mobile) — sterowany przez parallax.js (B4 — Opcja A).
        Invite (iOS): nieblokujący pill; tap JEST gestem do requestPermission(), ale opcjonalny —
@@ -635,34 +641,34 @@
   <div id="motion-prompt" hidden aria-hidden="true" role="button" tabindex="-1">
     <div class="mp-card">
       <span class="mp-icon" aria-hidden="true">⟳</span>
-      <span class="mp-text">Przechyl, by ożywić scenę</span>
+      <span class="mp-text" data-en="Tilt to bring the scene alive">Przechyl, by ożywić scenę</span>
     </div>
   </div>
 
   <!-- ── Contact overlay — fullscreen nakładka nad żywą sceną (NIE podstrona) ── -->
-  <div id="contact-overlay" role="dialog" aria-modal="true" aria-label="Kontakt" aria-hidden="true">
+  <div id="contact-overlay" role="dialog" aria-modal="true" aria-label="Kontakt" data-en-aria-label="Contact" aria-hidden="true">
     <!-- Tła „centrum łączności" — reveal na bramie + morfing w sceny działów (contact-console.js) -->
     <div class="cc-depbg" id="cc-bgA" aria-hidden="true"></div>
     <div class="cc-depbg" id="cc-bgB" aria-hidden="true"></div>
     <div class="cc-vig" aria-hidden="true"></div>
 
     <!-- Powrót SPÓJNY z podstronami: logo + strzałka + nazwa (jak dział) w lewym górnym rogu. -->
-    <button id="contact-close" type="button" aria-label="Zamknij kontakt — powrót">
+    <button id="contact-close" type="button" aria-label="Zamknij kontakt — powrót" data-en-aria-label="Close contact — go back">
       <span class="home-arrow" aria-hidden="true"></span>
       <span class="home-lockup" aria-hidden="true"></span>
-      <span class="contact-dept" aria-hidden="true">Kontakt</span>
+      <span class="contact-dept" aria-hidden="true" data-en="Contact">Kontakt</span>
     </button>
 
     <div class="contact-inner">
       <div class="contact-coords">
         <h2 class="coords-line">50°17'N · 19°08'E</h2>
-        <p class="coords-city">Śląsk · Polska</p>
+        <p class="coords-city" data-en="Silesia · Poland">Śląsk · Polska</p>
       </div>
 
       <!-- Brama do konsolety (frost-kafelek) — dopiero klik odsłania formularz + pokój łączności -->
       <button id="cc-gate" type="button">
-        <span class="cc-gate-title">Napisz do nas</span>
-        <span class="cc-gate-sub">otwórz centrum łączności →</span>
+        <span class="cc-gate-title" data-en="Write to us">Napisz do nas</span>
+        <span class="cc-gate-sub" data-en="open the comms hub →">otwórz centrum łączności →</span>
       </button>
 
       <div class="contact-cols">
@@ -682,69 +688,78 @@
           <i class="fa-brands fa-facebook-f"></i></a>
         <a href="https://linkedin.com/in/kuba-hyrja" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
           <i class="fa-brands fa-linkedin-in"></i></a>
-        <span class="social-soon" aria-label="TikTok — wkrótce"><i class="fa-brands fa-tiktok"></i></span>
-        <span class="social-soon" aria-label="Instagram — wkrótce"><i class="fa-brands fa-instagram"></i></span>
+        <span class="social-soon" aria-label="TikTok — wkrótce" data-en-aria-label="TikTok — coming soon"><i class="fa-brands fa-tiktok"></i></span>
+        <span class="social-soon" aria-label="Instagram — wkrótce" data-en-aria-label="Instagram — coming soon"><i class="fa-brands fa-instagram"></i></span>
       </div>
 
-      <a class="contact-policy" data-policy href="polityka-prywatnosci.html" target="_blank" rel="noopener noreferrer">Polityka prywatności</a>
+      <!-- UWAGA i18n: href [data-policy] ustawia contact-console.js przez asset() (SPA-proof) —
+           data-en na SAMYM <a> jest bezpieczne (podmienia tylko tekst, nie węzeł). -->
+      <a class="contact-policy" data-policy href="polityka-prywatnosci.html" target="_blank" rel="noopener noreferrer" data-en="Privacy policy">Polityka prywatności</a>
     </div>
 
     <!-- Konsoleta „Nadaj sygnał" — lejek: tor → podpowiedź → opis → wyślij -->
     <div id="cc-console" aria-hidden="true">
       <div class="cc-wrap" id="cc-wrap">
         <div class="cc-head">
-          <button class="cc-back" id="cc-back" type="button">‹ Wstecz</button>
+          <button class="cc-back" id="cc-back" type="button" data-en="‹ Back">‹ Wstecz</button>
           <div class="cc-count" id="cc-count">01 / 03</div>
         </div>
-        <div class="cc-name">CENTRUM <b>ŁĄCZNOŚCI</b></div>
+        <div class="cc-name" data-en="COMMS <b>HUB</b>">CENTRUM <b>ŁĄCZNOŚCI</b></div>
 
         <div class="cc-step" id="cc-s1">
-          <div class="cc-q">Jaką masz sprawę?<span class="cur">_</span></div>
-          <div class="cc-sub">Wybierz temat — dalej poprowadzimy.</div>
+          <div class="cc-q" data-en="What's this about?<span class=&quot;cur&quot;>_</span>">Jaką masz sprawę?<span class="cur">_</span></div>
+          <div class="cc-sub" data-en="Pick a topic — we'll take it from there.">Wybierz temat — dalej poprowadzimy.</div>
           <div class="cc-tory">
             <div class="cc-tor" style="--c:var(--color-events)" data-tor="events">
-              <div class="cc-ring" aria-hidden="true"></div><h3>EVENTS</h3><p>Nagłośnienie, światło, multimedia, streaming.</p>
+              <div class="cc-ring" aria-hidden="true"></div><h3>EVENTS</h3><p data-en="Sound, lighting, multimedia, streaming.">Nagłośnienie, światło, multimedia, streaming.</p>
             </div>
             <div class="cc-tor" style="--c:var(--color-studio)" data-tor="studio">
-              <div class="cc-ring" aria-hidden="true"></div><h3>STUDIO</h3><p>Produkcja audio, reklama, lektor, sound design.</p>
+              <div class="cc-ring" aria-hidden="true"></div><h3>STUDIO</h3><p data-en="Audio production, ads, voice-over, sound design.">Produkcja audio, reklama, lektor, sound design.</p>
             </div>
             <div class="cc-tor" style="--c:var(--color-lab)" data-tor="lab">
-              <div class="cc-ring" aria-hidden="true"></div><h3>Qlab</h3><p>Pomiary akustyczne, druk 3D, IoT, projekty techniczne, strony www.</p>
+              <div class="cc-ring" aria-hidden="true"></div><h3>Qlab</h3><p data-en="Acoustic measurement, 3D printing, IoT, hardware projects, websites.">Pomiary akustyczne, druk 3D, IoT, projekty techniczne, strony www.</p>
             </div>
           </div>
         </div>
 
         <div class="cc-step" id="cc-s2">
+          <!-- UWAGA i18n: treść #cc-s2q nadpisuje contact-console.js (pytanie toru przez t()) — bez data-en. -->
           <div class="cc-q" id="cc-s2q">Doprecyzuj<span class="cur">_</span></div>
-          <div class="cc-sub">Zaznacz wszystko, co pasuje — z tego złożymy Twoją wiadomość.</div>
+          <div class="cc-sub" data-en="Tick everything that fits — we'll compose your message from it.">Zaznacz wszystko, co pasuje — z tego złożymy Twoją wiadomość.</div>
           <div class="cc-chips" id="cc-chips"></div>
-          <button class="cc-next" id="cc-next" type="button" disabled>DALEJ →</button>
+          <button class="cc-next" id="cc-next" type="button" disabled data-en="NEXT →">DALEJ →</button>
         </div>
 
         <div class="cc-step" id="cc-s3">
-          <div class="cc-q">Opowiedz krótko<span class="cur">_</span></div>
-          <div class="cc-sub">Uzupełnij luki — im więcej wiemy, tym celniej odpowiemy.</div>
-          <div class="cc-field"><label>Twoja sprawa</label><textarea id="cc-msg"></textarea></div>
+          <div class="cc-q" data-en="Tell us briefly<span class=&quot;cur&quot;>_</span>">Opowiedz krótko<span class="cur">_</span></div>
+          <div class="cc-sub" data-en="Fill in the gaps — the more we know, the sharper our answer.">Uzupełnij luki — im więcej wiemy, tym celniej odpowiemy.</div>
+          <div class="cc-field"><label data-en="Your message">Twoja sprawa</label><textarea id="cc-msg"></textarea></div>
           <div class="cc-row">
-            <div class="cc-field"><label>Imię</label><input id="cc-name-in" placeholder="Jak masz na imię?"></div>
-            <div class="cc-field"><label>Mail lub telefon</label><input id="cc-contact-in" placeholder="Jak oddzwonić?"></div>
+            <div class="cc-field"><label data-en="Name">Imię</label><input id="cc-name-in" placeholder="Jak masz na imię?" data-en-placeholder="What's your name?"></div>
+            <div class="cc-field"><label data-en="Email or phone">Mail lub telefon</label><input id="cc-contact-in" placeholder="Jak oddzwonić?" data-en-placeholder="How do we reach you?"></div>
           </div>
-          <div class="cc-subject">Temat, który do nas doleci: <b id="cc-subj">[EVENTS] …</b></div>
+          <!-- UWAGA i18n: #cc-subj trzyma contact-console.js po referencji z init — data-en tylko na
+               otaczającym tekście, NIGDY na .cc-subject (podmiana innerHTML osierociłaby <b>). -->
+          <div class="cc-subject"><span data-en="Subject that will reach us:">Temat, który do nas doleci:</span> <b id="cc-subj">[EVENTS] …</b></div>
           <!-- honeypot anti-bot: pole poza ekranem; bot je wypełnia, człowiek nie → wysyłkę porzucamy -->
           <input type="text" id="cc-hp" class="cc-hp" tabindex="-1" autocomplete="off" aria-hidden="true">
           <label class="cc-rodo" id="cc-rodo">
             <input type="checkbox" id="cc-rodo-in">
-            <span>Zapoznałem się z <a data-policy href="polityka-prywatnosci.html" target="_blank" rel="noopener noreferrer">polityką prywatności</a> i zgadzam się na kontakt w sprawie mojego zapytania.</span>
+            <!-- UWAGA i18n: <a data-policy> dostaje href z asset() RAZ przy init — nie wolno go
+                 przepisać innerHTML-em (href wróciłby na względny → 404 w SPA). Stąd tekst
+                 podzielony na spany DOOKOŁA linku, a sam link tłumaczony osobno. -->
+            <span><span data-en="I have read the">Zapoznałem się z</span> <a data-policy href="polityka-prywatnosci.html" target="_blank" rel="noopener noreferrer" data-en="privacy policy">polityką prywatności</a> <span data-en="and I agree to be contacted about my enquiry.">i zgadzam się na kontakt w sprawie mojego zapytania.</span></span>
           </label>
-          <button class="cc-send" id="cc-send" type="button">WYŚLIJ SYGNAŁ →</button>
+          <button class="cc-send" id="cc-send" type="button" data-en="SEND SIGNAL →">WYŚLIJ SYGNAŁ →</button>
           <p class="cc-status" id="cc-status" role="alert" aria-live="polite"></p>
         </div>
 
         <div class="cc-step" id="cc-s4">
           <div class="cc-done">
             <div class="mark">◗</div>
-            <h2>Sygnał odebrany</h2>
-            <p id="cc-doneline">Wróci do Ciebie realny człowiek — zwykle w ciągu doby.<br>Odpisujemy z <b>biuro@qubatura.eu</b>.</p>
+            <h2 data-en="Signal received">Sygnał odebrany</h2>
+            <!-- UWAGA i18n: #cc-doneline nadpisuje contact-console.js (personalizacja imieniem, t()) -->
+            <p id="cc-doneline" data-en="A real person will get back to you — usually within a day.<br>We reply from <b>biuro@qubatura.eu</b>.">Wróci do Ciebie realny człowiek — zwykle w ciągu doby.<br>Odpisujemy z <b>biuro@qubatura.eu</b>.</p>
           </div>
         </div>
       </div>
@@ -762,25 +777,23 @@
 
     // Przełącznik języka — przycisk POKAZUJE język docelowy (ten, na który przełączy).
     // Strona domyślnie PL → przycisk pokazuje EN. Po przełączeniu na EN → pokazuje PL.
+    // Samo tłumaczenie robi moduł js/i18n.js (podpina się w main.js); tu zostaje wyłącznie
+    // wygląd guzika, żeby etykieta była poprawna także zanim moduły się załadują.
     const langToggle = document.getElementById('lang-toggle');
     const LANG = {
       pl: { other: 'en', label: 'EN', aria: 'Przełącz na English' },
       en: { other: 'pl', label: 'PL', aria: 'Switch to Polish' },
     };
-    function applyLang(cur) {
-      document.documentElement.lang = cur;
+    window.qbLangLabel = function (cur) {
       langToggle.dataset.lang = cur;
       langToggle.textContent  = LANG[cur].label;   // etykieta = język docelowy
       langToggle.setAttribute('aria-label', LANG[cur].aria);
-    }
-    applyLang('pl');   // domyślny stan: polski
-    langToggle.addEventListener('click', () => {
-      applyLang(LANG[langToggle.dataset.lang].other);
-      // (właściwe tłumaczenie treści — osobny etap i18n)
-    });
+    };
+    window.qbLangNext = cur => LANG[cur].other;
+    window.qbLangLabel('pl');   // stan wstępny; i18n.js skoryguje na zapamiętany język
   </script>
 
-  <script type="module" src="js/main.js?v=mrm2k1i4"></script>
+  <script type="module" src="js/main.js?v=mrm4bp21"></script>
 
 </body>
 </html>
