@@ -80,6 +80,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['token'] ?? '') === ($_SESS
         case 'przedluz':
             $pdo->prepare("UPDATE kody SET wazny_do = date(wazny_do, '+30 days') WHERE kod=?")->execute([$kod]);
             break;
+        // Znacznik wysyłki. Trzymamy DATĘ, nie „tak/nie": ptaszek mówi tylko, że poszło,
+        // a data mówi „ma to od trzech dni i nie pobrał" — czyli kiedy przypomnieć.
+        case 'mail_wyslany':
+            $pdo->prepare("UPDATE kody SET mail_wyslany = CASE WHEN mail_wyslany IS NULL OR mail_wyslany = ''
+                           THEN date('now') ELSE NULL END WHERE kod = ?")->execute([$kod]);
+            break;
     }
     header('Location: /panel.php'); exit;
 }
@@ -119,17 +125,37 @@ header('Content-Type: text/html; charset=utf-8');
  button{background:#8B4FFF;color:#0B0714;border:0;padding:9px 14px;font-weight:700;font-size:12px;cursor:pointer}
  button.sec{background:rgba(139,79,255,.18);color:#F3F1FF}
  .ptk{display:flex;align-items:center;gap:6px;font-size:12px;color:rgba(243,241,255,.7);text-transform:none;letter-spacing:0}
+ /* Znacznik wysyłki maila — jedno kliknięcie, ale zapisuje DATĘ, nie samo „tak”. */
+ td.wys{white-space:nowrap;text-align:center}
+ td.wys form{display:inline}
+ button.ptak{background:none;border:1px solid rgba(139,79,255,.35);color:rgba(243,241,255,.45);
+   padding:3px 8px;font-size:14px;line-height:1;cursor:pointer}
+ button.ptak.jest{background:rgba(127,227,160,.14);border-color:rgba(127,227,160,.5);color:#7FE3A0}
+ td.wys .mut{display:block;font-size:10.5px;margin-top:3px}
 </style></head><body>
 
 <h1>Qplayer — panel testerów</h1>
 <p class="sub">Baza poza public_html · <a href="/panel.php?wyloguj=1">wyloguj</a></p>
 
 <table>
- <tr><th>Kod</th><th>Osoba</th><th>Ważny do</th><th>Pobrania</th><th>Instalacje</th><th>Ostatni kontakt</th><th></th></tr>
+ <tr><th>Mail</th><th>Kod</th><th>Osoba</th><th>Ważny do</th><th>Pobrania</th><th>Instalacje</th><th>Ostatni kontakt</th><th></th></tr>
  <?php foreach ($kody as $k):
    $rez = strpos((string)$k['imie'], 'REZERWA') === 0;
    $po  = $k['wazny_do'] && $k['wazny_do'] < gmdate('Y-m-d'); ?>
  <tr class="<?= $rez ? 'rez' : '' ?><?= !empty($k['uniewazniony']) ? ' blok' : '' ?>">
+   <td class="wys">
+     <form method="post">
+       <input type="hidden" name="token" value="<?= $tok ?>">
+       <input type="hidden" name="kod" value="<?= h($k['kod']) ?>">
+       <button class="ptak <?= !empty($k['mail_wyslany']) ? 'jest' : '' ?>" name="akcja" value="mail_wyslany"
+               title="<?= !empty($k['mail_wyslany']) ? 'Wysłano ' . h($k['mail_wyslany']) . ' — kliknij, żeby cofnąć' : 'Oznacz jako wysłany' ?>">
+         <?= !empty($k['mail_wyslany']) ? '&#10003;' : '&#9744;' ?>
+       </button>
+     </form>
+     <?php if (!empty($k['mail_wyslany'])): ?>
+       <span class="mut"><?= h(substr((string)$k['mail_wyslany'], 5)) ?></span>
+     <?php endif; ?>
+   </td>
    <td class="kod"><?= h(ozdob($k['kod'])) ?></td>
    <td><?= h($k['imie']) ?><?php if ($k['firma']): ?><br><span class="mut"><?= h($k['firma']) ?></span><?php endif; ?>
        <?php if ($k['mail']): ?><br><span class="mut"><?= h($k['mail']) ?></span>
