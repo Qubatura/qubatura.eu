@@ -30,7 +30,7 @@
   <meta name="twitter:image"       content="https://qubatura.eu/assets/og-image.png">
 
   <!-- Fonts — self-hosted (Chakra Petch + Space Mono + Press Start 2P), zero zależności od Google -->
-  <link rel="stylesheet" href="css/fonts.css?v=msahnlsp">
+  <link rel="stylesheet" href="css/fonts.css?v=msahtab8">
 
   <!-- Favicon — sygnet Q na ciemnym kaflu (ustalony; czytelny w karcie na jasnym i ciemnym) -->
   <link rel="icon" type="image/svg+xml" href="../assets/favicon-dark.svg">
@@ -40,7 +40,7 @@
         referrerpolicy="no-referrer">
 
   <!-- CSS -->
-  <link rel="stylesheet" href="css/main.css?v=msahnlsp">
+  <link rel="stylesheet" href="css/main.css?v=msahtab8">
 
   <!-- Three.js via CDN importmap -->
   <script type="importmap">
@@ -542,43 +542,7 @@
             <!-- Trzy tryby — opisy WZIĘTE DOSŁOWNIE z programu (renderer/app.js, SEGUE_NAZWY).
                  Świadomie nie przepisane „ładniej": tekst na stronie ma być tym samym zdaniem,
                  które realizator zobaczy pod palcem w aplikacji. -->
-            <p class="qp-tryby-tyt">Trzy tryby, jeden guzik</p>
-            <!-- ⚠️ Krzywe NIE SĄ zrzutami ekranu ani rysunkami „takiego przejścia":
-                 liczy je `tools/render-krzywe.js` TYM SAMYM kodem, co silnik (prawdziwe
-                 pliki → analyzeChannel → SEGUE_MODES). Gdy tryb się zmieni, wystarczy
-                 przepuścić skrypt jeszcze raz i obrazek dogoni silnik. Zrzut ekranu
-                 zestarzałby się po cichu. Opisy — dosłownie z app.js. -->
-            <div class="qp-tryb">
-              <h4>Lazy</h4>
-              <p><i>niedzielny miks.</i> Utwór dostaje chwilę na wybrzmienie, a nowy dźwiga się
-                do pełni powoli, pod nim. Program płynie, nic nikogo nie popycha.</p>
-              <img src="../assets/qplayer/tryb-lazy.webp" width="760" height="300"
-                   alt="QSegue Lazy — krzywa przejścia" loading="lazy" decoding="async">
-            </div>
-            <div class="qp-tryb">
-              <h4>Smooth</h4>
-              <p><i>radio na co dzień.</i> Nowy wchodzi pełnią, a poprzedni ustępuje mu szybko,
-                zamiast dogorywać pod spodem. Bez dziur i bez gęstwiny.</p>
-              <img src="../assets/qplayer/tryb-smooth.webp" width="760" height="300"
-                   alt="QSegue Smooth — krzywa przejścia" loading="lazy" decoding="async">
-            </div>
-            <div class="qp-tryb">
-              <h4>Tight</h4>
-              <p><i>klubowo.</i> Przejście wypada, gdy utwór gra jeszcze niemal pełnią,
-                wybrzmienie ścinane niemal natychmiast, następny wchodzi na maksa.
-                Program stoi gęsto.</p>
-              <img src="../assets/qplayer/tryb-tight.webp" width="760" height="300"
-                   alt="QSegue Tight — krzywa przejścia" loading="lazy" decoding="async">
-            </div>
             <p class="qp-nota">Przejścia o stałej energii — bez zapadania głośności w połowie.</p>
-
-            <figure class="qp-krzywa qp-warsztat">
-              <img src="../assets/qplayer/warsztat.webp" width="1100" height="614"
-                   alt="Stół warsztatowy QSegue — realne pliki przepuszczone przez silnik"
-                   loading="lazy" decoding="async">
-              <figcaption>Stół warsztatowy, na którym silnik powstawał — prawdziwe pliki
-                przepuszczone przez ten sam kod, który gra u Ciebie</figcaption>
-            </figure>
           </article>
           <article class="qp-silnik">
             <h3><span class="q">Q</span>Level</h3>
@@ -610,6 +574,49 @@
             </ul>
           </article>
         </div>
+
+        <!-- TRZY TRYBY — własny rząd POD kaflami, nie w środku QSegue. Powód czysto
+             praktyczny: wciśnięte w kafel windowały go o 700 px ponad QLevel i zostawiały
+             obok pustkę, a krzywe renderowały się na pół szerokości. Tu każdy tryb ma
+             swoją kolumnę i czytelny wykres.
+             ⚠️ Krzywe NIE SĄ zrzutami ekranu ani rysunkami „takiego przejścia": liczy je
+             `tools/render-krzywe.js` TYM SAMYM kodem, co silnik (prawdziwe pliki →
+             analyzeChannel → SEGUE_MODES). Zmieni się tryb — wystarczy przepuścić skrypt
+             i obrazek dogoni silnik. Zrzut ekranu zestarzałby się po cichu.
+             Opisy — dosłownie z app.js (SEGUE_NAZWY). -->
+        <p class="qp-tryby-tyt">QSegue — trzy tryby, jeden guzik</p>
+        <div class="qp-tryby-rzad">
+          <div class="qp-tryb">
+            <h4>Lazy</h4>
+            <img src="../assets/qplayer/tryb-lazy.webp" width="760" height="300"
+                 alt="QSegue Lazy — krzywa przejścia" loading="lazy" decoding="async">
+            <p><i>niedzielny miks.</i> Utwór dostaje chwilę na wybrzmienie, a nowy dźwiga się
+              do pełni powoli, pod nim. Program płynie, nic nikogo nie popycha.</p>
+          </div>
+          <div class="qp-tryb">
+            <h4>Smooth</h4>
+            <img src="../assets/qplayer/tryb-smooth.webp" width="760" height="300"
+                 alt="QSegue Smooth — krzywa przejścia" loading="lazy" decoding="async">
+            <p><i>radio na co dzień.</i> Nowy wchodzi pełnią, a poprzedni ustępuje mu szybko,
+              zamiast dogorywać pod spodem. Bez dziur i bez gęstwiny.</p>
+          </div>
+          <div class="qp-tryb">
+            <h4>Tight</h4>
+            <img src="../assets/qplayer/tryb-tight.webp" width="760" height="300"
+                 alt="QSegue Tight — krzywa przejścia" loading="lazy" decoding="async">
+            <p><i>klubowo.</i> Przejście wypada, gdy utwór gra jeszcze niemal pełnią,
+              wybrzmienie ścinane niemal natychmiast, następny wchodzi na maksa.
+              Program stoi gęsto.</p>
+          </div>
+        </div>
+
+        <figure class="qp-krzywa qp-warsztat">
+          <img src="../assets/qplayer/warsztat.webp" width="1100" height="614"
+               alt="Stół warsztatowy QSegue — realne pliki przepuszczone przez silnik"
+               loading="lazy" decoding="async">
+          <figcaption>Stół warsztatowy, na którym silnik powstawał — prawdziwe pliki
+            przepuszczone przez ten sam kod, który gra u Ciebie</figcaption>
+        </figure>
       </section>
 
       <!-- ④ DOWÓD — sekcja dla kolegi, który sprawdzi. Dlatego liczby, nie przymiotniki. -->
@@ -993,7 +1000,7 @@
     window.qbLangLabel('pl');   // stan wstępny; i18n.js skoryguje na zapamiętany język
   </script>
 
-  <script type="module" src="js/main.js?v=msahnlsp"></script>
+  <script type="module" src="js/main.js?v=msahtab8"></script>
 
 </body>
 </html>

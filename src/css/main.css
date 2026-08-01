@@ -3413,3 +3413,12 @@ body.page-active #tagline {
   .qp-fakty { grid-template-columns: 1fr; gap: 11px; }
   .qp-podpis-blok { margin-left: 0; }
 }
+
+/* ── trzy tryby QSegue: własny rząd pod kaflami ─────────────────────────────── */
+.qp-tryby-tyt { margin: 34px 0 16px; }
+.qp-tryby-rzad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+.qp-tryby-rzad .qp-tryb { margin: 0; padding-top: 0; border-top: 0; }
+.qp-tryby-rzad .qp-tryb img { margin: 8px 0 10px; }
+@media (max-width: 900px) {
+  .qp-tryby-rzad { grid-template-columns: 1fr; gap: 26px; }
+}
