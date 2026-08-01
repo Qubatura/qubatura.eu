@@ -3422,3 +3422,9 @@ body.page-active #tagline {
 @media (max-width: 900px) {
   .qp-tryby-rzad { grid-template-columns: 1fr; gap: 26px; }
 }
+
+/* Dopisek pod nazwą systemu na guziku pobierania — mała, ciemniejsza linijka,
+   żeby nie konkurowała z nazwą, ale odpowiadała na „którą paczkę mam wziąć". */
+.qp-systemy .qp-btn { line-height: 1.25; text-align: center; }
+.qp-systemy .qp-btn small { display: block; margin-top: 4px; font-size: 10.5px;
+  font-weight: 500; letter-spacing: .06em; text-transform: none; opacity: .68; }
