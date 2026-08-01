@@ -26,13 +26,21 @@ const LIMIT_PROB = 25;      // nieudanych prób z jednego IP na 10 minut
 require __DIR__ . '/../dane/konfig.php';   // $DB_SCIEZKA, $PANEL_HASLO_HASH
 
 /**
- * Znormalizowany kod: same znaki alfabetu, wielkie litery.
- * „qp-4k7m 9xqr…" == „QP4K7M9XQR…" — myślniki, spacje i wielkość liter są bez znaczenia.
- * Znaki spoza alfabetu (0, O, 1, I, L) po prostu wypadają — w wygenerowanych kodach
- * nigdy ich nie ma, więc ich obecność i tak znaczy pomyłkę, którą złapie suma kontrolna.
+ * Kandydaci na kod z tego, co człowiek wpisał. Myślniki, spacje i wielkość liter
+ * są bez znaczenia; znaki spoza alfabetu (0, O, 1, I, L) wypadają.
+ *
+ * ⚠️ PUŁAPKA, która raz już nas ugryzła: przedrostek marki „QP-" NIE jest częścią kodu,
+ * ale litery Q i P NALEŻĄ do alfabetu — więc samo czyszczenie zostawiało 14 znaków
+ * i suma kontrolna odrzucała POPRAWNY kod. Nie da się tego rozstrzygnąć na sztywno,
+ * bo losowy kod też może zaczynać się od „QP". Dlatego zwracamy oba warianty
+ * i sprawdzamy, który przechodzi sumę kontrolną.
  */
-function normalizuj(string $s): string {
-    return preg_replace('/[^' . ALFABET . ']/', '', strtoupper(trim($s))) ?? '';
+function kandydaci(string $s): array {
+    $c = preg_replace('/[^' . ALFABET . ']/', '', strtoupper(trim($s))) ?? '';
+    $out = [];
+    if (strlen($c) === 12) $out[] = $c;                                   // wklejony sam kod
+    if (strlen($c) === 14 && substr($c, 0, 2) === 'QP') $out[] = substr($c, 2);   // z przedrostkiem
+    return $out;
 }
 
 /** Suma kontrolna: ostatni znak = f(reszta). Łapie literówkę bez pytania bazy. */
@@ -95,7 +103,9 @@ if ($imie === '' || !filter_var($mail, FILTER_VALIDATE_EMAIL)) {
     odmowa('Brakuje imienia albo adresu', 'Potrzebujemy obu, żeby wiedzieć, kto testuje — i żeby móc się odezwać.');
 }
 
-$kod = normalizuj($kodW);
+// Z kandydatów zostaje ten, który przechodzi sumę kontrolną. Gdy żaden — to literówka.
+$kod = '';
+foreach (kandydaci($kodW) as $k) { if (sumaOk($k)) { $kod = $k; break; } }
 $pdo = baza();
 
 // Zapora na zgadywanie kodów. Przy jedenastu osobach to teoria, ale kosztuje trzy linijki.
@@ -112,7 +122,7 @@ $zapisz = function (string $wynik, ?int $zgodnyMail = null) use ($pdo, $kod, $im
         ->execute([$kod, $imie, $mail, $plik, $ip, $ua, $teraz, $wynik, $zgodnyMail]);
 };
 
-if (!sumaOk($kod)) {                       // literówka — bez pytania bazy
+if ($kod === '') {                         // literówka — rozstrzygnięta bez pytania bazy
     $zapisz('zly-kod');
     odmowa('Ten kod jest niepoprawny', 'Sprawdź, czy nie wkradła się literówka. Najprościej: kliknij link z maila — kod wpisze się sam.');
 }
