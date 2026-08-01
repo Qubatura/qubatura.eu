@@ -3121,142 +3121,209 @@ body.page-active #tagline {
 }
 
 /* ═══ KARTA PRODUKTU — Qplayer (/qplayer) ══════════════════════════════════════
-   Zastępuje dawny placeholder .pc-* wewnątrz .pcard. Skorupa (.product-overlay,
-   .pcard, .pc-tick, .prod-close) zostaje bez zmian — tu tylko wnętrze.
-   Zrzuty są PRAWDZIWE (0.66.4, program gra) — nigdy generowane. ─────────────── */
+   Skorupa (.product-overlay, .pcard, .pc-tick, .prod-close) jest strony — zostaje.
+   WNĘTRZE należy do PRODUKTU: krój Outfit i ambra #F4A259 wzięte 1:1 z playera
+   (renderer/style.css: --fam, --amber). Decyzja Kuby 01.08: „na tej karcie
+   operujemy czcionką playera, nie strony" — karta ma pokazywać produkt, nie witrynę.
 
-/* ⚠️ `body` na tej stronie NIE MA ustawionej rodziny pisma — cała witryna wygląda dobrze
-   tylko dlatego, że każda reguła podaje font jawnie. Bez tej linijki akapity karty
-   dziedziczyły domyślny szeryfowy Times. Body copy = Chakra Petch 400, jak w reszcie strony. */
-.pcard > section, .pcard > .qp-stopka {
-  padding: 44px 52px;
-  font-family: var(--font-display); font-weight: 400;
+   🔒 JEDEN krój na całej karcie. Wcześniej biegły tu trzy (Chakra Petch, Space Mono
+   i domyślny szeryfowy) i Kuba słusznie to wychwycił. Liczby techniczne robimy
+   cyframi tabelarycznymi Outfita, a NIE dokładaniem DM Mono — drugi webfont to
+   waga, a strona ma zostać lekka.
+
+   Zrzuty są PRAWDZIWE (0.66.4, program gra), tło hero to KADR Z PLANU Kuby.
+   Zero grafiki generowanej. ────────────────────────────────────────────────── */
+
+@font-face {
+  font-family: 'Outfit'; font-style: normal; font-weight: 100 900; font-display: swap;
+  src: url('../../assets/qplayer/fonts/Outfit-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+2000-206F, U+2074, U+20AC, U+2122, U+2212;
 }
+@font-face {
+  font-family: 'Outfit'; font-style: normal; font-weight: 100 900; font-display: swap;
+  src: url('../../assets/qplayer/fonts/Outfit-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+.pcard {
+  --qp-fam: 'Outfit', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --qp-amber: #F4A259;              /* ta sama wartość co --amber w playerze */
+  --qp-amber-hi: #FFBC77;
+}
+.pcard > section, .pcard > .qp-stopka, .pcard .prod-close {
+  font-family: var(--qp-fam); font-weight: 400;
+}
+.pcard > section, .pcard > .qp-stopka { padding: 44px 52px; }
 .pcard > section + section { border-top: 1px solid rgba(139,79,255,.16); }
 
-.qp-sec { font-family: var(--font-mono); font-size: 11px; letter-spacing: .22em;
-  text-transform: uppercase; color: rgba(243,241,255,.42); margin: 0 0 22px; }
+/* Etykieta sekcji — dawniej Space Mono. Teraz Outfit rozstrzelony: ten sam sygnał
+   „to jest podpis techniczny", bez dokładania kroju. */
+.qp-sec { font-size: 11px; font-weight: 500; letter-spacing: .24em; text-transform: uppercase;
+  color: rgba(243,241,255,.42); margin: 0 0 22px; }
 
-/* ① hero */
-.qp-hero { display: grid; grid-template-columns: 1fr 1.15fr; gap: 40px; align-items: center;
-  padding-top: 66px !important; }
-.qp-kicker { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .2em;
-  text-transform: uppercase; color: var(--violet); margin: 0 0 14px; }
-.qp-h1 { font-family: var(--font-display); font-weight: 700; font-size: clamp(40px, 5vw, 64px);
-  line-height: 1; letter-spacing: -.03em; color: var(--ink); margin: 0; }
+/* ── ① hero ─────────────────────────────────────────────────────────────────
+   Tło: kadr z planu (sala, konsoleta), przygaszony i odbarwiony, pod gradientem —
+   ma dawać głębię, a nie konkurować z tekstem. ⚠️ Na ekranie laptopa w kadrze jest
+   STARY interfejs, dlatego kadr żyje jako TŁO, a aktualne okna 0.66.4 leżą na wierzchu. */
+.qp-hero { position: relative; display: grid; grid-template-columns: 1fr 1.15fr; gap: 40px;
+  align-items: center; padding-top: 66px !important; overflow: hidden; }
+.qp-hero::before {
+  content: ""; position: absolute; inset: 0; z-index: 0;
+  background: url('../../assets/qplayer/plyta-sala.webp') center/cover no-repeat;
+  opacity: .5;
+}
+.qp-hero::after {
+  content: ""; position: absolute; inset: 0; z-index: 1;
+  background: linear-gradient(100deg, #0E0B1A 30%, rgba(14,11,26,.82) 52%, rgba(14,11,26,.35) 100%);
+}
+.qp-hero > * { position: relative; z-index: 2; }
+
+.qp-kicker { font-size: 11px; font-weight: 500; letter-spacing: .2em; text-transform: uppercase;
+  color: var(--qp-amber); margin: 0 0 14px; }
+.qp-h1 { font-weight: 700; font-size: clamp(40px, 5vw, 64px); line-height: 1;
+  letter-spacing: -.035em; color: var(--ink); margin: 0; }
 .qp-h1 .q, .qp-silnik h3 .q { color: var(--violet); }
 .qp-lead { font-size: clamp(19px, 2vw, 25px); font-weight: 600; color: var(--ink);
-  margin: 16px 0 10px; letter-spacing: -.01em; }
-.qp-sub { font-size: 15px; line-height: 1.62; color: rgba(243,241,255,.66); margin: 0 0 26px; max-width: 46ch; }
+  margin: 16px 0 10px; letter-spacing: -.015em; }
+.qp-sub { font-size: 15.5px; line-height: 1.62; color: rgba(243,241,255,.7); margin: 0 0 26px; max-width: 46ch; }
 .qp-cta { display: flex; gap: 12px; flex-wrap: wrap; }
-.qp-btn { display: inline-block; padding: 13px 24px; font-family: var(--font-mono); font-size: 12px;
-  letter-spacing: .12em; text-transform: uppercase; text-decoration: none; cursor: pointer;
-  border: 1px solid transparent; transition: transform .25s ease, background .25s ease, border-color .25s ease; }
-.qp-btn.primary { background: var(--violet); color: #0B0714; font-weight: 700; }
-.qp-btn.primary:hover { transform: translateY(-2px); background: #A472FF; }
-.qp-btn.ghost { border-color: rgba(139,79,255,.45); color: var(--ink); background: none; }
-.qp-btn.ghost:hover { border-color: var(--violet); transform: translateY(-2px); }
-.qp-trust { font-family: var(--font-mono); font-size: 11px; color: rgba(243,241,255,.38);
-  margin: 22px 0 0; letter-spacing: .04em; }
 
-/* kolaż — trzy realne okna w przestrzeni; perspektywa CSS, zero generatywnego tła */
+.qp-btn { display: inline-block; padding: 13px 24px; font-family: var(--qp-fam); font-size: 13px;
+  font-weight: 600; letter-spacing: .1em; text-transform: uppercase; text-decoration: none;
+  cursor: pointer; border: 1px solid transparent;
+  transition: transform .25s ease, background .25s ease, border-color .25s ease; }
+/* 🔒 AMBRA = AKCJA. W playerze ambra znaczy „gotowy / GO", więc na stronie nosi ją
+   to, po co człowiek przyszedł: pobranie. Gdyby świeciło nią pół strony, przestałaby
+   cokolwiek znaczyć — ta sama pomyłka, którą Kuba złapał przy slotach P2. */
+.qp-btn.primary { background: var(--qp-amber); color: #1A1206; font-weight: 700; }
+.qp-btn.primary:hover { transform: translateY(-2px); background: var(--qp-amber-hi); }
+.qp-btn.ghost { border-color: rgba(139,79,255,.5); color: var(--ink); background: none; }
+.qp-btn.ghost:hover { border-color: var(--violet); transform: translateY(-2px); }
+.qp-trust { font-size: 12px; color: rgba(243,241,255,.42); margin: 22px 0 0; letter-spacing: .03em; }
+
 .qp-kolaz { position: relative; aspect-ratio: 4/3; perspective: 1400px; }
-/* ⚠️ `height: auto` JEST KONIECZNE. Znaczniki <img> mają width/height (dobre dla CLS),
-   a atrybut wysokości działa jak podpowiedź prezentacyjna — skoro CSS nadpisywał samą
-   szerokość, przeglądarka brała 870 px dosłownie i rozciągała okno w pionie
-   (zmierzone: 467×907 zamiast 467×276). Stąd kolaż wychodził poza kartę. */
-.qp-k { position: absolute; border: 1px solid rgba(139,79,255,.3);
-  box-shadow: 0 30px 70px rgba(0,0,0,.65); background: #0A0810;
-  height: auto; max-width: 100%; }
+/* ⚠️ `height:auto` KONIECZNE — <img> ma atrybuty width/height (dobre dla CLS), a sam
+   atrybut wysokości działa jak podpowiedź prezentacyjna: bez tego okno wychodziło
+   467×907 zamiast 467×276 i wyłaziło poza kartę. */
+.qp-k { position: absolute; border: 1px solid rgba(139,79,255,.32);
+  box-shadow: 0 30px 70px rgba(0,0,0,.7); background: #0A0810; height: auto; max-width: 100%; }
 .qp-k1 { width: 84%; right: 0; top: 12%; z-index: 3; transform: rotateY(-11deg) rotateX(3deg); }
 .qp-k2 { width: 58%; left: 0; top: 0; z-index: 2; transform: rotateY(-11deg) rotateX(3deg) translateZ(-70px); opacity: .82; }
 .qp-k3 { width: 26%; left: 4%; bottom: 0; z-index: 4; transform: rotateY(-11deg) rotateX(3deg) translateZ(60px); }
 
-/* ② głos */
-.qp-glos blockquote { margin: 0; border-left: 2px solid var(--violet); padding-left: 24px; }
-.qp-glos-mocne { font-family: var(--font-display); font-size: clamp(20px, 2.2vw, 27px);
-  font-weight: 600; color: var(--ink); margin: 0 0 14px; letter-spacing: -.01em; }
-.qp-glos p { font-size: 15px; line-height: 1.68; color: rgba(243,241,255,.7); margin: 0; max-width: 68ch; }
-.qp-podpis { font-family: var(--font-mono); font-size: 11.5px; color: rgba(243,241,255,.45);
-  margin: 18px 0 0 26px; letter-spacing: .06em; }
+/* ── ② głos ─────────────────────────────────────────────────────────────────── */
+.qp-glos blockquote { margin: 0; border-left: 2px solid var(--qp-amber); padding-left: 24px; }
+.qp-glos-mocne { font-size: clamp(20px, 2.2vw, 27px); font-weight: 600; color: var(--ink);
+  margin: 0 0 14px; letter-spacing: -.015em; }
+.qp-glos p { font-size: 15.5px; line-height: 1.68; color: rgba(243,241,255,.7); margin: 0; max-width: 68ch; }
+.qp-podpis { font-size: 12.5px; color: rgba(243,241,255,.45); margin: 18px 0 0 26px; letter-spacing: .1em;
+  text-transform: uppercase; }
 
-/* ③ silniki */
+/* ── ③ silniki ──────────────────────────────────────────────────────────────── */
 .qp-dwa { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
 .qp-silnik { border: 1px solid rgba(139,79,255,.22); padding: 30px; background: rgba(139,79,255,.04); }
-.qp-silnik h3 { font-family: var(--font-display); font-size: 30px; font-weight: 700;
-  letter-spacing: -.02em; color: var(--ink); margin: 0; }
-.qp-silnik-pod { font-family: var(--font-mono); font-size: 11px; letter-spacing: .1em;
-  color: var(--violet); margin: 6px 0 18px; text-transform: uppercase; }
-.qp-silnik p { font-size: 14.5px; line-height: 1.65; color: rgba(243,241,255,.7); margin: 0 0 14px; }
+.qp-silnik h3 { font-size: 31px; font-weight: 700; letter-spacing: -.03em; color: var(--ink); margin: 0; }
+.qp-silnik-pod { font-size: 11.5px; font-weight: 500; letter-spacing: .12em; color: var(--violet);
+  margin: 6px 0 18px; text-transform: uppercase; }
+.qp-silnik p { font-size: 15px; line-height: 1.65; color: rgba(243,241,255,.7); margin: 0 0 14px; }
 .qp-silnik p b { color: var(--ink); font-weight: 600; }
-.qp-liczba { font-family: var(--font-mono); font-size: clamp(24px, 2.6vw, 34px); font-weight: 700;
-  color: var(--ink); margin: 20px 0 6px !important; letter-spacing: -.02em; }
-.qp-liczba span { color: var(--violet); margin: 0 8px; }
-.qp-nota { font-family: var(--font-mono); font-size: 11px; color: rgba(243,241,255,.42);
-  letter-spacing: .04em; line-height: 1.6; }
+.qp-liczba { font-size: clamp(26px, 2.8vw, 38px); font-weight: 700; color: var(--qp-amber);
+  margin: 20px 0 6px !important; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.qp-liczba span { color: rgba(243,241,255,.4); margin: 0 10px; font-weight: 400; }
+.qp-nota { font-size: 12px; color: rgba(243,241,255,.45); letter-spacing: .02em; line-height: 1.6; }
 
-/* ④ dowód */
-.qp-dowod-lead { font-size: 15px; line-height: 1.65; color: rgba(243,241,255,.7); margin: 0 0 26px; max-width: 72ch; }
+/* ── ④ dowód ────────────────────────────────────────────────────────────────── */
+.qp-dowod-lead { font-size: 15.5px; line-height: 1.65; color: rgba(243,241,255,.7); margin: 0 0 26px; max-width: 72ch; }
 .qp-dowod-lead b, .qp-dowod-stopka b { color: var(--ink); font-weight: 600; }
 .qp-trzy { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
-.qp-poz { border: 1px solid rgba(139,79,255,.22); padding: 22px; text-align: center; }
-.qp-poz .v { display: block; font-family: var(--font-mono); font-size: 28px; font-weight: 700; color: var(--violet); }
-.qp-poz .l { display: block; font-size: 12.5px; color: rgba(243,241,255,.55); margin-top: 8px; line-height: 1.5; }
-.qp-dowod-stopka { font-size: 14px; color: rgba(243,241,255,.7); margin: 22px 0 0; }
+.qp-poz { border: 1px solid rgba(244,162,89,.28); padding: 24px; text-align: center;
+  background: rgba(244,162,89,.05); }
+.qp-poz .v { display: block; font-size: 30px; font-weight: 700; color: var(--qp-amber);
+  letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.qp-poz .l { display: block; font-size: 13px; color: rgba(243,241,255,.55); margin-top: 8px; line-height: 1.5; }
+.qp-dowod-stopka { font-size: 14.5px; color: rgba(243,241,255,.7); margin: 22px 0 0; }
 
-/* ⑤ sekcje */
+/* ── ⑤ sekcje ───────────────────────────────────────────────────────────────── */
 .qp-cztery { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
-.qp-kafel { border-top: 1px solid rgba(139,79,255,.3); padding-top: 16px; }
-.qp-kafel h4 { font-family: var(--font-display); font-size: 16px; font-weight: 600; color: var(--ink); margin: 0 0 8px; }
-.qp-kafel p { font-size: 13.5px; line-height: 1.6; color: rgba(243,241,255,.62); margin: 0; }
-.qp-scena { font-size: 15px; line-height: 1.65; color: rgba(243,241,255,.7); margin: 28px 0 0; max-width: 74ch; }
+.qp-kafel { border-top: 1px solid rgba(139,79,255,.32); padding-top: 16px; }
+.qp-kafel h4 { font-size: 16.5px; font-weight: 600; color: var(--ink); margin: 0 0 8px; letter-spacing: -.01em; }
+.qp-kafel p { font-size: 14px; line-height: 1.6; color: rgba(243,241,255,.62); margin: 0; }
+.qp-scena { font-size: 15.5px; line-height: 1.65; color: rgba(243,241,255,.7); margin: 28px 0 0; max-width: 74ch; }
 .qp-scena b { color: var(--ink); font-weight: 600; }
 
-/* ⑥ bezpieczeństwo */
+/* ── ⑥ bezpieczeństwo ───────────────────────────────────────────────────────── */
 .qp-bezp { display: grid; grid-template-columns: 1.25fr 1fr; gap: 40px; align-items: start; }
 .qp-lista { list-style: none; margin: 0; padding: 0; }
-.qp-lista li { position: relative; padding-left: 20px; margin-bottom: 16px; font-size: 14.5px;
+.qp-lista li { position: relative; padding-left: 20px; margin-bottom: 16px; font-size: 15px;
   line-height: 1.62; color: rgba(243,241,255,.68); }
 .qp-lista li::before { content: ""; position: absolute; left: 0; top: 9px; width: 6px; height: 6px;
-  background: var(--violet); }
+  background: var(--qp-amber); }
 .qp-lista b { color: var(--ink); font-weight: 600; }
 .qp-bezp-fig { margin: 0; }
 .qp-bezp-fig img { width: 100%; height: auto; border: 1px solid rgba(139,79,255,.28); display: block; }
-.qp-bezp-fig figcaption { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .06em;
-  color: rgba(243,241,255,.38); margin-top: 10px; }
+.qp-bezp-fig figcaption { font-size: 11.5px; letter-spacing: .04em; color: rgba(243,241,255,.38); margin-top: 10px; }
 
-/* ⑦ lekkość */
-.qp-lekki p { font-size: 15px; line-height: 1.68; color: rgba(243,241,255,.7); margin: 0; max-width: 78ch; }
+/* ── ⑦ lekkość ──────────────────────────────────────────────────────────────── */
+.qp-lekki p { font-size: 15.5px; line-height: 1.68; color: rgba(243,241,255,.7); margin: 0; max-width: 78ch; }
 .qp-lekki b { color: var(--ink); font-weight: 600; }
 
-/* ⑧ pobierz */
-.qp-pobierz { background: rgba(139,79,255,.06); }
-.qp-pobierz h3 { font-family: var(--font-display); font-size: clamp(24px, 2.6vw, 32px); font-weight: 700;
-  color: var(--ink); margin: 0 0 10px; letter-spacing: -.02em; }
-.qp-pobierz-lead { font-size: 15px; color: rgba(243,241,255,.7); margin: 0 0 26px; }
+/* ── ⑧ pobierz ──────────────────────────────────────────────────────────────── */
+.qp-pobierz { background: rgba(244,162,89,.05); border-top: 1px solid rgba(244,162,89,.25) !important; }
+.qp-pobierz h3 { font-size: clamp(25px, 2.6vw, 33px); font-weight: 700; color: var(--ink);
+  margin: 0 0 10px; letter-spacing: -.025em; }
+.qp-pobierz-lead { font-size: 15.5px; color: rgba(243,241,255,.7); margin: 0 0 26px; }
 .qp-pola { display: grid; grid-template-columns: 1fr 1.3fr 1.3fr; gap: 16px; margin-bottom: 20px; }
-.qp-pola label { display: flex; flex-direction: column; gap: 7px; font-family: var(--font-mono);
-  font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; color: rgba(243,241,255,.45); }
-.qp-pola input { background: rgba(10,8,16,.7); border: 1px solid rgba(139,79,255,.3); color: var(--ink);
-  padding: 12px 14px; font-family: var(--font-mono); font-size: 13.5px; letter-spacing: .02em;
+.qp-pola label { display: flex; flex-direction: column; gap: 7px; font-size: 11px; font-weight: 500;
+  letter-spacing: .16em; text-transform: uppercase; color: rgba(243,241,255,.45); }
+.qp-pola input { background: rgba(10,8,16,.75); border: 1px solid rgba(139,79,255,.3); color: var(--ink);
+  padding: 12px 14px; font-family: var(--qp-fam); font-size: 14.5px; letter-spacing: .04em;
   transition: border-color .25s ease; }
-.qp-pola input:focus { outline: none; border-color: var(--violet); }
-.qp-pola input::placeholder { color: rgba(243,241,255,.22); }
+.qp-pola input:focus { outline: none; border-color: var(--qp-amber); }
+.qp-pola input[name="kod"] { font-variant-numeric: tabular-nums; letter-spacing: .12em; }
+.qp-pola input::placeholder { color: rgba(243,241,255,.22); letter-spacing: .08em; }
 .qp-systemy { display: flex; gap: 12px; flex-wrap: wrap; }
-.qp-systemy .qp-btn { font-family: var(--font-mono); }
-.qp-uwaga { font-size: 12.5px; line-height: 1.6; color: rgba(243,241,255,.5); margin: 22px 0 0; max-width: 76ch; }
+.qp-uwaga { font-size: 13px; line-height: 1.6; color: rgba(243,241,255,.5); margin: 22px 0 0; max-width: 76ch; }
 
-/* ⑨ stopka techniczna */
+/* ── ⑨ stopka techniczna ────────────────────────────────────────────────────── */
 .qp-stopka { display: grid; gap: 10px; background: rgba(10,8,16,.55); }
 .qp-stopka > div { display: grid; grid-template-columns: 110px 1fr; gap: 16px; align-items: baseline; }
-.qp-stopka .k { font-family: var(--font-mono); font-size: 10px; letter-spacing: .18em;
-  text-transform: uppercase; color: rgba(243,241,255,.35); }
-.qp-stopka .v { font-family: var(--font-mono); font-size: 12px; color: rgba(243,241,255,.62); line-height: 1.6; }
+.qp-stopka .k { font-size: 10.5px; font-weight: 500; letter-spacing: .18em; text-transform: uppercase;
+  color: rgba(243,241,255,.35); }
+.qp-stopka .v { font-size: 13px; color: rgba(243,241,255,.62); line-height: 1.6; }
 
-/* ── mobile ───────────────────────────────────────────────────────────────── */
+/* ── uchwyt „Pobierz" — towarzyszy przez całe czytanie ──────────────────────────
+   Człowiek decyduje się w połowie strony, nie w hero. 🔒 ODDECH, NIE MIGANIE:
+   w programie Kuby miganie znaczy „wymaga Twojej reakcji" i nie rozmiękczamy tego
+   znaczenia na stronie firmowej. Znika, gdy sekcja pobierania jest już na ekranie. */
+.qp-uchwyt {
+  position: sticky; bottom: 26px; margin: 0 52px -18px; z-index: 6;
+  display: flex; justify-content: flex-end; pointer-events: none;
+}
+.qp-uchwyt a {
+  pointer-events: auto; display: inline-flex; align-items: center; gap: 10px;
+  padding: 13px 22px; background: var(--qp-amber); color: #1A1206; text-decoration: none;
+  font-family: var(--qp-fam); font-size: 13px; font-weight: 700; letter-spacing: .1em;
+  text-transform: uppercase; box-shadow: 0 14px 40px rgba(0,0,0,.6);
+  animation: qp-oddech 3.4s ease-in-out infinite;
+  transition: opacity .4s ease, transform .25s ease;
+}
+.qp-uchwyt a:hover { animation: none; transform: translateY(-2px); background: var(--qp-amber-hi); }
+.qp-uchwyt .strz { display: inline-block; animation: qp-strzalka 3.4s ease-in-out infinite; }
+.qp-uchwyt.schowany { opacity: 0; pointer-events: none; }
+@keyframes qp-oddech {
+  0%, 100% { box-shadow: 0 14px 40px rgba(0,0,0,.6), 0 0 0 0 rgba(244,162,89,.42); }
+  50%      { box-shadow: 0 14px 40px rgba(0,0,0,.6), 0 0 0 12px rgba(244,162,89,0); }
+}
+@keyframes qp-strzalka { 0%,100% { transform: translateY(0); } 50% { transform: translateY(3px); } }
+@media (prefers-reduced-motion: reduce) {
+  .qp-uchwyt a, .qp-uchwyt .strz { animation: none; }
+}
+
+/* ── mobile ─────────────────────────────────────────────────────────────────── */
 @media (max-width: 900px) {
   .pcard > section, .pcard > .qp-stopka { padding: 32px 22px; }
   .qp-hero { grid-template-columns: 1fr; gap: 30px; padding-top: 58px !important; }
+  .qp-hero::after { background: linear-gradient(180deg, #0E0B1A 42%, rgba(14,11,26,.6) 100%); }
   .qp-kolaz { perspective: none; aspect-ratio: 16/11; }
   .qp-k { transform: none !important; }
   .qp-k1 { width: 92%; right: 0; top: 8%; }
@@ -3267,7 +3334,22 @@ body.page-active #tagline {
   .qp-pola { grid-template-columns: 1fr; }
   .qp-systemy .qp-btn { width: 100%; text-align: center; }
   .qp-stopka > div { grid-template-columns: 1fr; gap: 4px; }
+  .qp-uchwyt { margin: 0 22px -14px; bottom: 18px; }
+  .qp-uchwyt a { padding: 12px 18px; font-size: 12px; }
 }
 @media (max-width: 560px) {
   .qp-trzy, .qp-cztery { grid-template-columns: 1fr; }
 }
+
+/* ── trzy tryby QSegue (opisy 1:1 z programu) ───────────────────────────────── */
+.qp-tryby-tyt { font-size: 12px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase;
+  color: var(--qp-amber); margin: 24px 0 12px; }
+.qp-tryby { margin: 0 0 16px; display: grid; gap: 12px; }
+.qp-tryby dt { font-size: 15.5px; font-weight: 700; color: var(--ink); letter-spacing: -.01em; }
+.qp-tryby dd { margin: 3px 0 0; font-size: 14px; line-height: 1.56; color: rgba(243,241,255,.62); }
+.qp-tryby dd i { font-style: normal; color: var(--qp-amber); }
+
+/* ── ton VIP w sekcji pobierania ─────────────────────────────────────────────── */
+.qp-vip { font-size: 11px; font-weight: 600; letter-spacing: .26em; text-transform: uppercase;
+  color: var(--qp-amber); margin: 0 0 10px; }
+.qp-pobierz-lead + .qp-pobierz-lead { margin-top: -14px; }

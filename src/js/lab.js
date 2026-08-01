@@ -2,7 +2,7 @@
 // Overlay #product-overlay: miejsce na trailer + opis. Zamknięcie: „‹ Wróć", klik w tło, Esc.
 // Docelowo: osobne podstrony per produkt (trailer, opis, kilka pozycji) — teraz jeden placeholder.
 
-import { t } from './i18n.js?v=msaf3913';
+import { t } from './i18n.js?v=msaffy0g';
 
 // Asset jako ABSOLUTNY URL z URL modulu - ODPORNE na SPA pushState (jak reszta).
 const DOC_ROOT = new URL('../', import.meta.url).href;
@@ -53,6 +53,18 @@ export function initLab() {
   // Wejście PROSTO z linku (mail, zakładka, F5 na /qplayer): podstronę Lab renderuje
   // router, kartę dokładamy tutaj. Bez opóźnienia — router.render() już się wykonał.
   if (location.pathname === '/qplayer') open();
+
+  // Uchwyt „Pobierz" chowa się, gdy sekcja pobierania sama jest już na ekranie —
+  // inaczej pływający guzik zasłaniałby własny cel, czyli formularz.
+  // Obserwujemy względem overlaya, bo to ON jest kontenerem przewijania, nie okno.
+  const uchwyt = overlay.querySelector('.qp-uchwyt');
+  const celPobierz = overlay.querySelector('#qp-pobierz');
+  if (uchwyt && celPobierz && 'IntersectionObserver' in window) {
+    new IntersectionObserver(
+      ([w]) => uchwyt.classList.toggle('schowany', w.isIntersecting),
+      { root: overlay, threshold: 0.12 }
+    ).observe(celPobierz);
+  }
 
   // Wstecz z /qplayer → karta znika, człowiek zostaje w Labie.
   window.addEventListener('popstate', () => {
