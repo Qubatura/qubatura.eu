@@ -106,9 +106,22 @@ export function initPlayer() {
   }
   loadedIdx = cur;
   audio.src = asset(TRACKS[cur].src);
+
+  // 🔴 NIE URUCHAMIAJ MUZYKI NA KARCIE PRODUKTU. Zgłoszone przez Sandrę 01.08: kliknęła
+  // w pole „Imię" w formularzu pobierania i ruszyła muzyka ze strony głównej. Gest był
+  // dowolny, więc łapał go `kick` niżej.
+  // Dlaczego to poważne, a nie kosmetyczne: karta (#product-overlay, z-index 1050) leży
+  // NAD paskiem strony, w którym siedzi przełącznik dźwięku — człowiek dostaje granie,
+  // którego nie ma jak wyłączyć. Do tego wchodzi z maila po program, a nie po zwiedzanie.
+  // Zachowanie na home zostaje nietknięte.
+  const kartaOtwarta = () => !!document.querySelector('#product-overlay.is-open');
+  if (location.pathname === '/qplayer') return;      // wejście prosto z linku w mailu
+
   audio.play().then(armPlaying).catch(() => {
     const kick = (e) => {
       if (toggle && e && e.target && toggle.contains(e.target)) return;  // niech toggle sam steruje
+      if (kartaOtwarta()) return;                    // gest na karcie produktu nie budzi muzyki
+      if (e && e.target && e.target.closest && e.target.closest('#product-overlay')) return;
       window.removeEventListener('pointerdown', kick);
       window.removeEventListener('keydown', kick);
       audio.play().then(armPlaying).catch(() => {});
