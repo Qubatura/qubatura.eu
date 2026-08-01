@@ -9,7 +9,7 @@
 
 // Wideo tymczasowo WYWALONE (Kuba: obecne nieprofesjonalne — dorobi porządne krótkie pętle).
 // Kolejność na razie LOSOWANA przy starcie (shuffle w initGallery) — do ustalenia z Kubą.
-import { t } from './i18n.js?v=mrm4bp21';
+import { t } from './i18n.js?v=msaeafs8';
 
 const MEDIA = [
   { src: '../assets/events/ev-07.webp' },

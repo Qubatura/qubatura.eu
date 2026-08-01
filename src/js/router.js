@@ -5,8 +5,8 @@
 
 import * as THREE from 'three';
 import * as GSAPmod from 'gsap';
-import { DIVISION_COLORS, DIVISION_DIR, BASE_TINT, navFX } from './tint.js?v=mrm4bp21';
-import { resetNavState } from './navigation.js?v=mrm4bp21';
+import { DIVISION_COLORS, DIVISION_DIR, BASE_TINT, navFX } from './tint.js?v=msaeafs8';
+import { resetNavState } from './navigation.js?v=msaeafs8';
 
 const gsap = GSAPmod.gsap || GSAPmod.default || GSAPmod;
 
@@ -25,6 +25,10 @@ const ROUTES = {
   '/events':  { view: 'page-events',  div: 'events'  },
   '/studio':  { view: 'page-studio',  div: 'studio'  },
   '/lab':     { view: 'page-lab',     div: 'lab'     },
+  // /qplayer renderuje TĘ SAMĄ podstronę co /lab — kartę produktu otwiera nad nią lab.js.
+  // Dzięki temu link z maila prowadzi prosto do Qplayera, a „‹ Wróć" zostawia człowieka
+  // w Labie, a nie wyrzuca go na hero. Trasa musi też istnieć w .htaccess (F5 / deep link).
+  '/qplayer': { view: 'page-lab',     div: 'lab'     },
 };
 
 export function initRouter() {

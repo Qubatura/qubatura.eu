@@ -30,7 +30,7 @@
   <meta name="twitter:image"       content="https://qubatura.eu/assets/og-image.png">
 
   <!-- Fonts — self-hosted (Chakra Petch + Space Mono + Press Start 2P), zero zależności od Google -->
-  <link rel="stylesheet" href="css/fonts.css?v=mrm4bp21">
+  <link rel="stylesheet" href="css/fonts.css?v=msaeafs8">
 
   <!-- Favicon — sygnet Q na ciemnym kaflu (ustalony; czytelny w karcie na jasnym i ciemnym) -->
   <link rel="icon" type="image/svg+xml" href="../assets/favicon-dark.svg">
@@ -40,7 +40,7 @@
         referrerpolicy="no-referrer">
 
   <!-- CSS -->
-  <link rel="stylesheet" href="css/main.css?v=mrm4bp21">
+  <link rel="stylesheet" href="css/main.css?v=msaeafs8">
 
   <!-- Three.js via CDN importmap -->
   <script type="importmap">
@@ -478,68 +478,158 @@
       <span class="pc-tick tl"></span><span class="pc-tick tr"></span><span class="pc-tick bl"></span><span class="pc-tick br"></span>
       <button class="prod-close" type="button" aria-label="Zamknij — wróć" data-en-aria-label="Close — go back" data-en="‹ Back">‹ Wróć</button>
 
-      <div class="pc-top">
-        <!-- lewa: screen + kafle-liczby + offline -->
-        <div class="pc-bay">
-          <div class="pc-frame"><img class="prod-shot-img" alt="Qplayer — interfejs aplikacji" data-en-alt="Qplayer — app interface"></div>
-          <div class="pc-cap"><span data-en="<b>Qplayer</b> · interface"><b>Qplayer</b> · interfejs</span></div>
-          <div class="pc-stats">
-            <div class="pc-stat"><div class="v">2</div><div class="l" data-en="decks">decki</div></div>
-            <div class="pc-stat"><div class="v">∞</div><div class="l" data-en="jingles">jingle</div></div>
-            <div class="pc-stat"><div class="v">9</div><div class="l" data-en="pads">padów</div></div>
-            <div class="pc-stat"><div class="v">∞</div><div class="l" data-en="queue">kolejka</div></div>
+      <!-- ① HERO — lewa: obietnica i CTA, prawa: kolaż trzech realnych okien 0.66.4 -->
+      <section class="qp-hero">
+        <div class="qp-hero-txt">
+          <p class="qp-kicker">Qubatura Lab · oprogramowanie audio</p>
+          <h2 class="qp-h1"><span class="q">Q</span>player</h2>
+          <p class="qp-lead">Cały event z jednego okna.</p>
+          <p class="qp-sub">Playlista, jingle, sample i drugi player z ręki — w jednym programie,
+            na jednym ekranie. Bez trzeciej ręki.</p>
+          <div class="qp-cta">
+            <a class="qp-btn primary" href="#qp-pobierz">Pobierz — 30 dni</a>
+            <a class="qp-btn ghost" href="#qp-silniki">Co potrafi ↓</a>
           </div>
-          <div class="pc-offline"><span class="pc-dot"></span><span data-en="<b>100% offline</b> — plays with no network, never drops out."><b>100% offline</b> — gra bez sieci, nigdy nie tnie.</span></div>
+          <p class="qp-trust">Windows i macOS · gra bez dostępu do sieci · pomiar zgodny z EBU R128</p>
         </div>
-
-        <!-- prawa: pitch -->
-        <div class="pc-body">
-          <p class="pc-crumb"><span class="lab">Lab</span> <span class="sep">·</span> <span class="cur" data-en="Audio software">Oprogramowanie audio</span></p>
-          <h2 class="pc-title"><span class="q">Q</span>player</h2>
-          <p class="pc-sub" data-en="The whole event from one window. Everything in one place, a clear head — no third hand needed.">Cały event z jednego okna. Wszystko w jednym miejscu, spokojna głowa — bez trzeciej ręki.</p>
-
-          <p class="pc-sec" data-en="What it does">Co potrafi</p>
-          <div class="pc-feats">
-            <div class="pc-feat"><span class="n">01</span><div><h3 data-en="Automix">Automix</h3><p data-en="The queue plays itself, with the fades you set — no dead air.">Kolejka gra sama, z zadanymi fade'ami — bez dziur.</p></div></div>
-            <div class="pc-feat"><span class="n">02</span><div><h3 data-en="Two dedicated decks">Dwa dedykowane decki</h3><p data-en="Automated playlist on one, manual on the other — play and prep at the same time.">Lista z automatu + drugi z ręki — grasz i szykujesz naraz.</p></div></div>
-            <div class="pc-feat"><span class="n">03</span><div><h3 data-en="Jingles and spots">Jingle i spoty</h3><p data-en="They drop in every N tracks, with airplay priorities — the counter handles it.">Wchodzą co N utworów, z priorytetami emisji — licznik pilnuje sam.</p></div></div>
-            <div class="pc-feat"><span class="n">04</span><div><h3 data-en="Sampler">Sampler</h3><p data-en="9 pads on keys 1–9, always ready.">9 padów na klawiszach 1–9, gotowe zawsze.</p></div></div>
-            <div class="pc-feat"><span class="n">05</span><div><h3 data-en="Per-section volume and fades">Głośność i fade'y na sekcję</h3><p data-en="Every section has its own volume and a configurable fade in/out.">Każda sekcja ma własną głośność i konfigurowalny fade in/out.</p></div></div>
-            <div class="pc-feat"><span class="n">06</span><div><h3 data-en="Key mapping">Mapowanie klawiszy</h3><p data-en="Any function on any key (MIDI coming later).">Dowolna funkcja pod dowolny klawisz (MIDI w przyszłości).</p></div></div>
-          </div>
-
-          <div class="pc-actions">
-            <button class="pc-btn primary" type="button" disabled data-en="Download <span class=&quot;soon&quot;>· soon</span>">Pobierz <span class="soon">· wkrótce</span></button>
-            <button class="pc-btn ghost" type="button" disabled data-en="Download the manual <span class=&quot;soon&quot;>· soon</span>">Pobierz instrukcję <span class="soon">· wkrótce</span></button>
-          </div>
-          <p class="pc-hint" data-en="Commercial release coming soon.">Wersja komercyjna już wkrótce.</p>
+        <div class="qp-kolaz">
+          <img class="qp-k qp-k1" src="../assets/qplayer/ui-2x2.webp" width="1470" height="870"
+               alt="Qplayer — układ 2×2, program gra" loading="eager" decoding="async">
+          <img class="qp-k qp-k2" src="../assets/qplayer/ui-1x4.webp" width="1100" height="651"
+               alt="Qplayer — układ pionowy 1×4" loading="lazy" decoding="async">
+          <img class="qp-k qp-k3" src="../assets/qplayer/ui-dok.webp" width="660" height="870"
+               alt="Qplayer — wąskie okno przy krawędzi ekranu" loading="lazy" decoding="async">
         </div>
-      </div>
+      </section>
 
-      <!-- dół: specyfikacja -->
-      <div class="pc-specbar">
-        <p class="pc-sc" data-en="Specification">Specyfikacja</p>
-        <div class="pc-spec3">
-          <div class="col">
-            <p class="k" data-en="Platform">Platforma</p>
-            <p class="v">macOS 12 Monterey+ — <b>v1.0</b></p>
-            <p class="v">Apple Silicon (M1–M4) / Intel i5+</p>
-            <p class="v dim" data-en="Windows 10/11 — soon (v2)">Windows 10/11 — wkrótce (v2)</p>
-          </div>
-          <div class="col">
-            <p class="k" data-en="Requirements">Wymagania</p>
-            <p class="v" data-en="4 GB RAM · ~150 MB on disk">4 GB RAM · ~150 MB na dysku</p>
-            <p class="v" data-en="CoreAudio or an audio interface">CoreAudio lub interfejs audio</p>
-            <p class="v dim">Windows: WASAPI / ASIO</p>
-          </div>
-          <div class="col">
-            <p class="k" data-en="Formats — <b>reads everything</b>">Formaty — <b>czyta wszystko</b></p>
-            <p class="v">MP3 · MP2 · AAC · M4A · FLAC · ALAC</p>
-            <p class="v">WAV · AIFF · OGG · OPUS · WMA · WebM</p>
-            <p class="v dim">16 / 24 / 32-bit float · auto-resampling</p>
-            <!-- (formaty audio = nazwy własne, te same w obu językach) -->
-          </div>
+      <!-- ② SKĄD SIĘ WZIĄŁ — głos Kuby; wiarygodność bierze się stąd, nie z listy funkcji -->
+      <section class="qp-glos">
+        <blockquote>
+          <p class="qp-glos-mocne">Dość pięciu playerów na biurku, w każdym coś innego.</p>
+          <p>Qplayer powstał, bo przez kilkanaście lat realizacji na żywo nie znalazłem jednego
+            programu, który ogarnia cały wieczór. Więc go napisałem — najpierw dla siebie,
+            na własne eventy.</p>
+        </blockquote>
+        <p class="qp-podpis">Kuba Hyrja — Qubatura Group</p>
+      </section>
+
+      <!-- ③ SILNIKI — karta przetargowa produktu. Liczby są zmierzone, nie oszacowane. -->
+      <section class="qp-silniki" id="qp-silniki">
+        <p class="qp-sec">Dwa autorskie silniki</p>
+        <div class="qp-dwa">
+          <article class="qp-silnik">
+            <h3><span class="q">Q</span>Segue</h3>
+            <p class="qp-silnik-pod">przejścia po granicach muzyki, nie pliku</p>
+            <p>Każdy automiks odlicza przejście od końca pliku. Ale koniec pliku to nie koniec
+              muzyki — biblioteki i eksporty z DAW mają na końcu sekundy ciszy. Crossfade wchodzi
+              w pustkę i brzmi jak awaria, nie jak decyzja realizatora.</p>
+            <p><b>QSegue wie, kiedy utwór naprawdę się kończy i od którego miejsca naprawdę się
+              zaczyna.</b> Bez ustawiania punktów przy każdym kawałku.</p>
+            <p class="qp-nota">Przejścia o stałej energii — bez zapadania głośności w połowie.</p>
+          </article>
+          <article class="qp-silnik">
+            <h3><span class="q">Q</span>Level</h3>
+            <p class="qp-silnik-pod">wszystko gra równo, bez skakania do fadera</p>
+            <p>Na prawdziwej playliście imprezowej — dwadzieścia współczesnych kawałków
+              i trzy archiwalne — rozrzut głośności wynosił <b>13,67 dB</b>.</p>
+            <p class="qp-liczba">13,67 dB <span>→</span> 0,00</p>
+            <p class="qp-nota">na 23 utworach · samym tłumieniem · limiter nie włączył się ani razu</p>
+            <p>Nic nie dociskamy. Utwór brzmi tak, jak go nagrano.</p>
+          </article>
         </div>
+      </section>
+
+      <!-- ④ DOWÓD — sekcja dla kolegi, który sprawdzi. Dlatego liczby, nie przymiotniki. -->
+      <section class="qp-dowod">
+        <p class="qp-sec">To nie jest „coś w rodzaju LUFS"</p>
+        <p class="qp-dowod-lead">Pomiar wg <b>ITU-R BS.1770 / EBU R128</b> — ten sam standard,
+          na którym opiera się radio, telewizja i streaming. Sprawdzony niezależnie:</p>
+        <div class="qp-trzy">
+          <div class="qp-poz"><span class="v">0,05 LU</span><span class="l">offline vs ffmpeg, 16 plików</span></div>
+          <div class="qp-poz"><span class="v">0,02 LU</span><span class="l">na żywo vs ton kalibracyjny</span></div>
+          <div class="qp-poz"><span class="v">0,04 LU</span><span class="l">na żywo vs ffmpeg, na muzyce</span></div>
+        </div>
+        <p class="qp-dowod-stopka">Norma dopuszcza 0,10 LU. <b>Sprawdź Youleanem — zobaczysz to samo.</b></p>
+      </section>
+
+      <!-- ⑤ CZTERY SEKCJE -->
+      <section class="qp-sekcje">
+        <p class="qp-sec">Cztery sekcje, jeden ekran</p>
+        <div class="qp-cztery">
+          <div class="qp-kafel"><h4>Player 1 — automat</h4><p>Kolejka gra sama, z Twoimi fade'ami.
+            QSegue i QLevel siedzą w torze.</p></div>
+          <div class="qp-kafel"><h4>Jingle</h4><p>Wchodzą co N utworów, z priorytetami. Sygnał
+            sponsorski nie przepada — przesuwa się na później.</p></div>
+          <div class="qp-kafel"><h4>Player 2 — z ręki</h4><p>Sloty pod klawiszami. Na czas wejścia
+            przyciszają Player 1.</p></div>
+          <div class="qp-kafel"><h4>Sampler</h4><p>Sześć padów w banku, cztery banki. Grają
+            na wierzchu — nic nie przerywają.</p></div>
+        </div>
+        <p class="qp-scena"><b>Zapisujesz cały wieczór jednym plikiem.</b> Nastawy, kolejki, jingle,
+          sample. Nazywasz „wesele 22.08" i masz komplet gotowy do odtworzenia.</p>
+      </section>
+
+      <!-- ⑥ BEZPIECZEŃSTWO — realizator nie kupuje funkcji, kupuje pewność. -->
+      <section class="qp-bezp">
+        <div class="qp-bezp-txt">
+          <p class="qp-sec">Żeby o 23:40 nic się nie stało</p>
+          <ul class="qp-lista">
+            <li><b>Muzyka gra z pamięci, nie z dysku.</b> Każdy plik jest zdekodowany przed
+              odtworzeniem. Uśpiony dysk zewnętrzny nie ma jak przerwać grania.</li>
+            <li><b>Blokada ekranu.</b> Nikt nic nie kliknie, a duży napis mówi, co teraz gra —
+              czytelny z drugiego końca sali.</li>
+            <li><b>Licencja nigdy nie przerywa grania.</b> Żadnych okoliczności. Jeśli termin minie
+              w trakcie imprezy, program gra do końca i odezwie się po zamknięciu.</li>
+            <li><b>Gra bez sieci.</b> Na evencie zero łączenia, zero sprawdzania, zero rzeczy,
+              które mogą się nie udać.</li>
+            <li><b>Każda awaria kończy się graniem.</b> Gdy cokolwiek pójdzie nie tak, silnik cofa
+              się do trybu prostego, zamiast przerwać.</li>
+          </ul>
+        </div>
+        <figure class="qp-bezp-fig">
+          <img src="../assets/qplayer/ui-blokada.webp" width="1100" height="651"
+               alt="Qplayer — ekran blokady z nazwą granego utworu" loading="lazy" decoding="async">
+          <figcaption>Blokada — nazwa utworu czytelna z drugiego końca sali</figcaption>
+        </figure>
+      </section>
+
+      <!-- ⑦ LEKKOŚĆ I TESTY -->
+      <section class="qp-lekki">
+        <p class="qp-sec">Lekki, policzony</p>
+        <p>Miernik kosztuje <b>0,19 ms na klatkę</b>. Rdzeń audio nie ma <b>żadnych</b> zewnętrznych
+          zależności — nic, co mogłoby się samo zaktualizować w środku sezonu. <b>32 testy</b>
+          i strażnik, który po każdej zmianie porównuje silnik z wzorcem co do szóstego miejsca
+          po przecinku.</p>
+      </section>
+
+      <!-- ⑧ POBIERZ — bramka. Kod jest kluczem; mail i imię wiążą pobranie z człowiekiem. -->
+      <section class="qp-pobierz" id="qp-pobierz">
+        <h3>Wersja testowa dla branży</h3>
+        <p class="qp-pobierz-lead">Trzydzieści dni, pełna funkcjonalność, bez opłat.
+          Wpisz kod z maila.</p>
+        <form class="qp-form" method="post" action="pobierz.php">
+          <div class="qp-pola">
+            <label>Imię<input type="text" name="imie" required autocomplete="given-name"></label>
+            <label>E-mail<input type="email" name="mail" required autocomplete="email"></label>
+            <label>Kod<input type="text" name="kod" required placeholder="QP-XXXX-XXXX-XXXX"
+                   spellcheck="false" autocapitalize="characters"></label>
+          </div>
+          <div class="qp-systemy">
+            <button class="qp-btn primary" type="submit" name="plik" value="win">Windows</button>
+            <button class="qp-btn primary" type="submit" name="plik" value="arm">Mac — Apple Silicon</button>
+            <button class="qp-btn primary" type="submit" name="plik" value="intel">Mac — Intel</button>
+          </div>
+          <p class="qp-uwaga">⚠️ Program nie jest jeszcze podpisany cyfrowo — Windows pokaże
+            ostrzeżenie SmartScreen, macOS zapyta o zgodę. To normalne przed premierą,
+            czekamy na Apple.</p>
+        </form>
+      </section>
+
+      <!-- ⑨ STOPKA TECHNICZNA -->
+      <div class="qp-stopka">
+        <div><span class="k">Wersja</span><span class="v">0.66.4</span></div>
+        <div><span class="k">Systemy</span><span class="v">Windows 10/11 · macOS — Apple Silicon i Intel, osobne paczki</span></div>
+        <div><span class="k">Formaty</span><span class="v">MP3 · MP2 · AAC · M4A · FLAC · ALAC · WAV · AIFF · OGG · OPUS · WMA · WebM · 16/24/32-bit</span></div>
       </div>
     </div>
   </div>
@@ -793,7 +883,7 @@
     window.qbLangLabel('pl');   // stan wstępny; i18n.js skoryguje na zapamiętany język
   </script>
 
-  <script type="module" src="js/main.js?v=mrm4bp21"></script>
+  <script type="module" src="js/main.js?v=msaeafs8"></script>
 
 </body>
 </html>

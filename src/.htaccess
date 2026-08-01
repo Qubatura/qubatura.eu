@@ -14,8 +14,8 @@
   RewriteEngine On
   RewriteBase /
 
-  RewriteRule ^(events|studio|lab)/$ /$1 [R=301,L]
-  RewriteRule ^(events|studio|lab)$ index.html [L]
+  RewriteRule ^(events|studio|lab|qplayer)/$ /$1 [R=301,L]
+  RewriteRule ^(events|studio|lab|qplayer)$ index.html [L]
 </IfModule>
 
 ErrorDocument 404 /404.html

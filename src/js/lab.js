@@ -2,7 +2,7 @@
 // Overlay #product-overlay: miejsce na trailer + opis. Zamknięcie: „‹ Wróć", klik w tło, Esc.
 // Docelowo: osobne podstrony per produkt (trailer, opis, kilka pozycji) — teraz jeden placeholder.
 
-import { t } from './i18n.js?v=mrm4bp21';
+import { t } from './i18n.js?v=msaeafs8';
 
 // Asset jako ABSOLUTNY URL z URL modulu - ODPORNE na SPA pushState (jak reszta).
 const DOC_ROOT = new URL('../', import.meta.url).href;
@@ -17,15 +17,21 @@ export function initLab() {
   const shot = overlay.querySelector('.prod-shot-img');
   if (shot) shot.src = asset('../assets/lab/event-player.webp');
 
+  // Karta produktu ma WŁASNY ADRES (/qplayer) — bez tego nie da się jej wkleić w maila
+  // ani zaindeksować, bo overlay żyje tylko w pamięci przeglądarki.
+  // Zasada: otwarcie dokłada wpis do historii (Wstecz zamyka kartę), zamknięcie
+  // PODMIENIA adres na /lab bez przerysowania — pod spodem i tak jest ta sama podstrona.
   const open = () => {
     overlay.classList.add('is-open');
     overlay.setAttribute('aria-hidden', 'false');
     document.body.classList.add('lb-locked');
+    if (location.pathname !== '/qplayer') history.pushState({ path: '/qplayer' }, '', '/qplayer');
   };
   const close = () => {
     overlay.classList.remove('is-open');
     overlay.setAttribute('aria-hidden', 'true');
     document.body.classList.remove('lb-locked');
+    if (location.pathname === '/qplayer') history.replaceState({ path: '/lab' }, '', '/lab');
   };
 
   // Delegacja: każdy [data-product] otwiera overlay (na razie wspólny placeholder).
@@ -34,6 +40,16 @@ export function initLab() {
     if (!trg) return;
     e.preventDefault();
     open();
+  });
+
+  // Wejście PROSTO z linku (mail, zakładka, F5 na /qplayer): podstronę Lab renderuje
+  // router, kartę dokładamy tutaj. Bez opóźnienia — router.render() już się wykonał.
+  if (location.pathname === '/qplayer') open();
+
+  // Wstecz z /qplayer → karta znika, człowiek zostaje w Labie.
+  window.addEventListener('popstate', () => {
+    if (location.pathname === '/qplayer') open();
+    else if (overlay.classList.contains('is-open')) close();
   });
 
   closeBtn.addEventListener('click', close);
