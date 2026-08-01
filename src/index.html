@@ -30,7 +30,7 @@
   <meta name="twitter:image"       content="https://qubatura.eu/assets/og-image.png">
 
   <!-- Fonts — self-hosted (Chakra Petch + Space Mono + Press Start 2P), zero zależności od Google -->
-  <link rel="stylesheet" href="css/fonts.css?v=msafjizo">
+  <link rel="stylesheet" href="css/fonts.css?v=msafkela">
 
   <!-- Favicon — sygnet Q na ciemnym kaflu (ustalony; czytelny w karcie na jasnym i ciemnym) -->
   <link rel="icon" type="image/svg+xml" href="../assets/favicon-dark.svg">
@@ -40,7 +40,7 @@
         referrerpolicy="no-referrer">
 
   <!-- CSS -->
-  <link rel="stylesheet" href="css/main.css?v=msafjizo">
+  <link rel="stylesheet" href="css/main.css?v=msafkela">
 
   <!-- Three.js via CDN importmap -->
   <script type="importmap">
@@ -547,8 +547,12 @@
           <article class="qp-silnik">
             <h3><span class="q">Q</span>Level</h3>
             <p class="qp-silnik-pod">wszystko gra równo, bez skakania do fadera</p>
+            <!-- Poziomy podane WPROST, bo sama liczba „13,67 dB" myli: to jest ROZRZUT
+                 (różnica), a nie poziom — więc nie ma przy niej minusa. Kuba potknął się
+                 o to przy pierwszym czytaniu, czyli potknie się co drugi realizator. -->
             <p>Na prawdziwej playliście imprezowej — dwadzieścia współczesnych kawałków
-              i trzy archiwalne — rozrzut głośności wynosił <b>13,67 dB</b>.</p>
+              i trzy archiwalne — najgłośniejszy grał <b>−5,00 LUFS</b>, najcichszy
+              <b>−18,67 LUFS</b>. Między nimi <b>13,67 dB</b> różnicy.</p>
             <p class="qp-liczba">13,67 dB <span>→</span> 0,00</p>
             <p class="qp-nota">na 23 utworach · samym tłumieniem · limiter nie włączył się ani razu</p>
             <p>Nic nie dociskamy. Utwór brzmi tak, jak go nagrano.</p>
@@ -923,7 +927,7 @@
     window.qbLangLabel('pl');   // stan wstępny; i18n.js skoryguje na zapamiętany język
   </script>
 
-  <script type="module" src="js/main.js?v=msafjizo"></script>
+  <script type="module" src="js/main.js?v=msafkela"></script>
 
 </body>
 </html>
