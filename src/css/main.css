@@ -3125,7 +3125,13 @@ body.page-active #tagline {
    .pcard, .pc-tick, .prod-close) zostaje bez zmian — tu tylko wnętrze.
    Zrzuty są PRAWDZIWE (0.66.4, program gra) — nigdy generowane. ─────────────── */
 
-.pcard > section, .pcard > .qp-stopka { padding: 44px 52px; }
+/* ⚠️ `body` na tej stronie NIE MA ustawionej rodziny pisma — cała witryna wygląda dobrze
+   tylko dlatego, że każda reguła podaje font jawnie. Bez tej linijki akapity karty
+   dziedziczyły domyślny szeryfowy Times. Body copy = Chakra Petch 400, jak w reszcie strony. */
+.pcard > section, .pcard > .qp-stopka {
+  padding: 44px 52px;
+  font-family: var(--font-display); font-weight: 400;
+}
 .pcard > section + section { border-top: 1px solid rgba(139,79,255,.16); }
 
 .qp-sec { font-family: var(--font-mono); font-size: 11px; letter-spacing: .22em;
@@ -3155,8 +3161,13 @@ body.page-active #tagline {
 
 /* kolaż — trzy realne okna w przestrzeni; perspektywa CSS, zero generatywnego tła */
 .qp-kolaz { position: relative; aspect-ratio: 4/3; perspective: 1400px; }
+/* ⚠️ `height: auto` JEST KONIECZNE. Znaczniki <img> mają width/height (dobre dla CLS),
+   a atrybut wysokości działa jak podpowiedź prezentacyjna — skoro CSS nadpisywał samą
+   szerokość, przeglądarka brała 870 px dosłownie i rozciągała okno w pionie
+   (zmierzone: 467×907 zamiast 467×276). Stąd kolaż wychodził poza kartę. */
 .qp-k { position: absolute; border: 1px solid rgba(139,79,255,.3);
-  box-shadow: 0 30px 70px rgba(0,0,0,.65); background: #0A0810; }
+  box-shadow: 0 30px 70px rgba(0,0,0,.65); background: #0A0810;
+  height: auto; max-width: 100%; }
 .qp-k1 { width: 84%; right: 0; top: 12%; z-index: 3; transform: rotateY(-11deg) rotateX(3deg); }
 .qp-k2 { width: 58%; left: 0; top: 0; z-index: 2; transform: rotateY(-11deg) rotateX(3deg) translateZ(-70px); opacity: .82; }
 .qp-k3 { width: 26%; left: 4%; bottom: 0; z-index: 4; transform: rotateY(-11deg) rotateX(3deg) translateZ(60px); }

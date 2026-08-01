@@ -11,9 +11,9 @@
 //   (nav/topbar/tagline) wjeżdża DOPIERO TERAZ (po fontach) staggerem.
 
 import * as GSAPmod from 'gsap';
-import { onTick } from './scene.js?v=msaegn67';
-import { loadFX, sceneFX } from './tint.js?v=msaegn67';
-import { playNavIntro } from './nav-intro.js?v=msaegn67';
+import { onTick } from './scene.js?v=msaf3913';
+import { loadFX, sceneFX } from './tint.js?v=msaf3913';
+import { playNavIntro } from './nav-intro.js?v=msaf3913';
 
 const gsap = GSAPmod.gsap || GSAPmod.default || GSAPmod;
 
