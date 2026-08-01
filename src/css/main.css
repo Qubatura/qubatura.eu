@@ -3365,3 +3365,13 @@ body.page-active #tagline {
 .qp-vip { font-size: 11px; font-weight: 600; letter-spacing: .26em; text-transform: uppercase;
   color: var(--qp-amber); margin: 0 0 10px; }
 .qp-pobierz-lead + .qp-pobierz-lead { margin-top: -14px; }
+
+/* ── wykresy silników ────────────────────────────────────────────────────────
+   Małe, ale prawdziwe: to są wykresy z pomiarów silnika, nie ilustracje.
+   Kliknięcie ich nie powiększa — świadomie: karta ma jeden cel (pobranie),
+   a lightbox otwierałby drugą drogę i zabierał z niej człowieka. */
+.qp-krzywa { margin: 20px 0 16px; }
+.qp-krzywa img { width: 100%; height: auto; display: block;
+  border: 1px solid rgba(139,79,255,.22); background: #0A0810; }
+.qp-krzywa figcaption { font-size: 11.5px; letter-spacing: .03em;
+  color: rgba(243,241,255,.4); margin-top: 8px; }

@@ -30,7 +30,7 @@
   <meta name="twitter:image"       content="https://qubatura.eu/assets/og-image.png">
 
   <!-- Fonts — self-hosted (Chakra Petch + Space Mono + Press Start 2P), zero zależności od Google -->
-  <link rel="stylesheet" href="css/fonts.css?v=msafkela">
+  <link rel="stylesheet" href="css/fonts.css?v=msag1ucb">
 
   <!-- Favicon — sygnet Q na ciemnym kaflu (ustalony; czytelny w karcie na jasnym i ciemnym) -->
   <link rel="icon" type="image/svg+xml" href="../assets/favicon-dark.svg">
@@ -40,7 +40,7 @@
         referrerpolicy="no-referrer">
 
   <!-- CSS -->
-  <link rel="stylesheet" href="css/main.css?v=msafkela">
+  <link rel="stylesheet" href="css/main.css?v=msag1ucb">
 
   <!-- Three.js via CDN importmap -->
   <script type="importmap">
@@ -542,6 +542,12 @@
                 wybrzmienie ścinane niemal natychmiast, następny wchodzi na maksa.
                 Program stoi gęsto.</dd>
             </dl>
+            <figure class="qp-krzywa">
+              <img src="../assets/qplayer/krzywa-qsegue.webp" width="900" height="317"
+                   alt="QSegue — zakładka przejścia liczona od realnego końca muzyki"
+                   loading="lazy" decoding="async">
+              <figcaption>Zakładka przejścia liczona od realnego końca muzyki</figcaption>
+            </figure>
             <p class="qp-nota">Przejścia o stałej energii — bez zapadania głośności w połowie.</p>
           </article>
           <article class="qp-silnik">
@@ -556,6 +562,12 @@
             <p class="qp-liczba">13,67 dB <span>→</span> 0,00</p>
             <p class="qp-nota">na 23 utworach · samym tłumieniem · limiter nie włączył się ani razu</p>
             <p>Nic nie dociskamy. Utwór brzmi tak, jak go nagrano.</p>
+            <figure class="qp-krzywa">
+              <img src="../assets/qplayer/krzywa-qlevel.webp" width="900" height="509"
+                   alt="QLevel — przebieg przed wyrównaniem i po wyrównaniu"
+                   loading="lazy" decoding="async">
+              <figcaption>Ten sam materiał przed wyrównaniem i po nim</figcaption>
+            </figure>
             <!-- Dwie twarde gwarancje — najmocniejsze zdania, jakie mamy o tym silniku.
                  Przy okazji wyrównują wysokość kolumny z QSegue, który urósł o trzy tryby. -->
             <ul class="qp-gwar">
@@ -642,13 +654,14 @@
 
       <!-- ⑧ POBIERZ — bramka. Kod jest kluczem; mail i imię wiążą pobranie z człowiekiem. -->
       <section class="qp-pobierz" id="qp-pobierz">
-        <p class="qp-vip">Dostęp na zaproszenie</p>
-        <h3>Jesteś w pierwszej jedenastce</h3>
-        <p class="qp-pobierz-lead">Qplayer nie jest jeszcze w sprzedaży. Wysyłamy go imiennie
-          do kilkunastu osób z branży, których zdanie coś dla nas znaczy — i Twoje jest jednym
-          z nich. <b>Trzydzieści dni, pełna wersja, trzy instalacje</b> — sprawdź go na Macu,
-          na Windowsie i na tablecie. Bez opłat i bez zobowiązań.</p>
-        <p class="qp-pobierz-lead">Jak coś Cię wkurzy — <b>napisz.</b> Po to Ci go dajemy.</p>
+        <!-- 🔒 TU SIĘ JUŻ NIE SPRZEDAJE. Kto tu dojechał, jest przekonany — zostaje mu
+             tylko pobrać. Sprzedaż jest wyżej, w silnikach i dowodach.
+             ⚠️ Nie pisać „jedenastu": jedenasta jest Sandra, czyli test wewnętrzny.
+             Na zewnątrz mówimy o dziesięciu testerach z branży. -->
+        <p class="qp-vip">Dostęp na zaproszenie · 10 testerów z branży</p>
+        <h3>Pobierz</h3>
+        <p class="qp-pobierz-lead">Kod z maila. <b>Trzydzieści dni, pełna wersja,
+          trzy instalacje</b> — Mac, Windows, tablet.</p>
         <!-- Ścieżka ABSOLUTNA: karta żyje pod /qplayer, a względna „pobierz.php" rozwiązałaby
              się inaczej przy każdym wariancie adresu. Jedna litera, cała klasa błędów mniej. -->
         <form class="qp-form" method="post" action="/pobierz.php">
@@ -927,7 +940,7 @@
     window.qbLangLabel('pl');   // stan wstępny; i18n.js skoryguje na zapamiętany język
   </script>
 
-  <script type="module" src="js/main.js?v=msafkela"></script>
+  <script type="module" src="js/main.js?v=msag1ucb"></script>
 
 </body>
 </html>
