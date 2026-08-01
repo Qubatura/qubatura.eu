@@ -132,6 +132,11 @@ header('Content-Type: text/html; charset=utf-8');
    padding:3px 8px;font-size:14px;line-height:1;cursor:pointer}
  button.ptak.jest{background:rgba(127,227,160,.14);border-color:rgba(127,227,160,.5);color:#7FE3A0}
  td.wys .mut{display:block;font-size:10.5px;margin-top:3px}
+ /* Link gotowy do wklejenia: klik zaznacza calosc. */
+ input.link{display:block;margin-top:5px;width:290px;background:#07060D;
+   border:1px solid rgba(139,79,255,.22);color:rgba(243,241,255,.55);
+   padding:5px 7px;font:11px ui-monospace,monospace;cursor:pointer}
+ input.link:focus{outline:none;border-color:#8B4FFF;color:#F3F1FF}
 </style></head><body>
 
 <h1>Qplayer — panel testerów</h1>
@@ -156,7 +161,14 @@ header('Content-Type: text/html; charset=utf-8');
        <span class="mut"><?= h(substr((string)$k['mail_wyslany'], 5)) ?></span>
      <?php endif; ?>
    </td>
-   <td class="kod"><?= h(ozdob($k['kod'])) ?></td>
+   <!-- Gotowy link do wklejenia w mail — Kuba sklejal go recznie przy kazdym nazwisku,
+        a to jest dokladnie ta czynnosc, w ktorej robi sie literowke. Klikniecie zaznacza
+        calosc, wiec kopiuje sie jednym Cmd+C. -->
+   <td class="kod">
+     <?= h(ozdob($k['kod'])) ?>
+     <input class="link" readonly onclick="this.select()"
+            value="https://qubatura.eu/qplayer?kod=<?= h(ozdob($k['kod'])) ?>">
+   </td>
    <td><?= h($k['imie']) ?><?php if ($k['firma']): ?><br><span class="mut"><?= h($k['firma']) ?></span><?php endif; ?>
        <?php if ($k['mail']): ?><br><span class="mut"><?= h($k['mail']) ?></span>
        <?php else: ?><br><span class="zle">brak adresu</span><?php endif; ?></td>
