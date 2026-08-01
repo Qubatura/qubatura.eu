@@ -3307,9 +3307,15 @@ body.page-active #tagline {
    Człowiek decyduje się w połowie strony, nie w hero. 🔒 ODDECH, NIE MIGANIE:
    w programie Kuby miganie znaczy „wymaga Twojej reakcji" i nie rozmiękczamy tego
    znaczenia na stronie firmowej. Znika, gdy sekcja pobierania jest już na ekranie. */
+/* ⚠️ Pierwsza wersja była samym guzikiem wiszącym nad treścią i ZJADAŁA tekst
+   (końcówkę listy formatów), co czytało się jak usterka, a nie jak pływająca akcja.
+   Teraz to PAS z wygaszeniem: litery wjeżdżają pod gradient i gasną, zamiast być
+   przecięte prostokątem. Ten sam guzik, ale nic nie wygląda na zepsute. */
 .qp-uchwyt {
-  position: sticky; bottom: 26px; margin: 0 52px -18px; z-index: 6;
-  display: flex; justify-content: flex-end; pointer-events: none;
+  position: sticky; bottom: 0; margin: 0; z-index: 6;
+  display: flex; justify-content: flex-end; align-items: center;
+  padding: 26px 52px 18px; pointer-events: none;
+  background: linear-gradient(180deg, rgba(14,11,26,0) 0%, rgba(14,11,26,.9) 58%, rgba(14,11,26,.97) 100%);
 }
 .qp-uchwyt a {
   pointer-events: auto; display: inline-flex; align-items: center; gap: 10px;
@@ -3346,7 +3352,7 @@ body.page-active #tagline {
   .qp-pola { grid-template-columns: 1fr; }
   .qp-systemy .qp-btn { width: 100%; text-align: center; }
   .qp-stopka > div { grid-template-columns: 1fr; gap: 4px; }
-  .qp-uchwyt { margin: 0 22px -14px; bottom: 18px; }
+  .qp-uchwyt { margin: 0; bottom: 0; padding: 20px 22px 14px; }
   .qp-uchwyt a { padding: 12px 18px; font-size: 12px; }
 }
 @media (max-width: 560px) {
