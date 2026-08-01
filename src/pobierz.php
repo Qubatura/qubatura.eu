@@ -16,10 +16,14 @@ declare(strict_types=1);
 
 const ALFABET   = '23456789ABCDEFGHJKMNPQRSTUVWXYZ';   // bez 0/O i 1/I/L — kod ma się dać podyktować
 const KATALOG   = '/pobierz/q7f3a91c/';                 // nieodgadywalny; zmiana nazwy unieważnia stare linki
+// ⚠️ NAZWY SĄ ZASZYTE Z NUMEREM WERSJI. Przy każdym wydaniu: najpierw wgraj wszystkie
+// trzy paczki na serwer, POTEM podmień te trzy linie, i dopiero wtedy skasuj stare.
+// Odwrotna kolejność daje 404 u człowieka, który ma poprawny kod — czyli dokładnie
+// tego, kogo najmniej stać na naszą pomyłkę.
 const PLIKI     = [
-    'win'   => 'Qplayer-Setup-0.66.4.exe',
-    'arm'   => 'Qplayer-0.66.4-arm64.dmg',
-    'intel' => 'Qplayer-0.66.4-intel.dmg',
+    'win'   => 'Qplayer-Setup-0.66.5.exe',
+    'arm'   => 'Qplayer-0.66.5-arm64.dmg',
+    'intel' => 'Qplayer-0.66.5-intel.dmg',
 ];
 const LIMIT_PROB = 25;      // nieudanych prób z jednego IP na 10 minut
 
