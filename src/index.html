@@ -30,7 +30,7 @@
   <meta name="twitter:image"       content="https://qubatura.eu/assets/og-image.png">
 
   <!-- Fonts — self-hosted (Chakra Petch + Space Mono + Press Start 2P), zero zależności od Google -->
-  <link rel="stylesheet" href="css/fonts.css?v=msag1ucb">
+  <link rel="stylesheet" href="css/fonts.css?v=msahksnh">
 
   <!-- Favicon — sygnet Q na ciemnym kaflu (ustalony; czytelny w karcie na jasnym i ciemnym) -->
   <link rel="icon" type="image/svg+xml" href="../assets/favicon-dark.svg">
@@ -40,7 +40,7 @@
         referrerpolicy="no-referrer">
 
   <!-- CSS -->
-  <link rel="stylesheet" href="css/main.css?v=msag1ucb">
+  <link rel="stylesheet" href="css/main.css?v=msahksnh">
 
   <!-- Three.js via CDN importmap -->
   <script type="importmap">
@@ -502,15 +502,28 @@
         </div>
       </section>
 
-      <!-- ② SKĄD SIĘ WZIĄŁ — głos Kuby; wiarygodność bierze się stąd, nie z listy funkcji -->
-      <section class="qp-glos">
-        <blockquote>
-          <p class="qp-glos-mocne">Dość pięciu playerów na biurku, w każdym coś innego.</p>
-          <p>Qplayer powstał, bo przez kilkanaście lat realizacji na żywo nie znalazłem jednego
-            programu, który ogarnia cały wieczór. Więc go napisałem — najpierw dla siebie,
-            na własne eventy.</p>
-        </blockquote>
-        <p class="qp-podpis">Kuba Hyrja — Qubatura Group</p>
+      <!-- ② SKRÓT — to, co u dużych producentów stoi zaraz pod nagłówkiem: sucha lista
+           faktów do przebiegnięcia wzrokiem. Człowiek z branży decyduje tutaj, czy czytać
+           dalej. Każda pozycja jest rozwinięta niżej — nic tu nie jest obietnicą bez pokrycia. -->
+      <section class="qp-skrot">
+        <p class="qp-sec">W skrócie</p>
+        <ul class="qp-fakty">
+          <li><b>Dwa autorskie silniki</b> — QSegue (inteligentne przejścia)
+            i QLevel (normalizacja materiału)</li>
+          <li><b>Miernik zgodny z ITU-R BS.1770 / EBU R128</b> — sprawdzony niezależnie
+            względem ffmpeg, rozbieżność 0,05 LU</li>
+          <li><b>Cztery sekcje na jednym ekranie</b> — automat, jingle z priorytetami,
+            drugi player z ręki, sampler</li>
+          <li><b>Czyta praktycznie wszystko</b> — MP3, AAC, M4A, FLAC, ALAC, WAV, AIFF,
+            OGG, OPUS, WMA, WebM</li>
+          <li><b>Materiał gra z pamięci, nie z dysku</b> — start bez czekania na nośnik</li>
+          <li><b>Blokada ekranu</b> — nikt nic nie kliknie</li>
+          <li><b>Gra bez dostępu do sieci</b> — na evencie zero rzeczy, które mogą się nie udać</li>
+          <li><b>Cały wieczór w jednym pliku</b> — nastawy, kolejki, jingle i sample w jednej scenie</li>
+          <li><b>Windows i macOS</b> — Apple Silicon oraz Intel, osobne paczki</li>
+          <li><b>Lekki i policzony</b> — miernik kosztuje 0,19 ms na klatkę,
+            rdzeń audio bez zewnętrznych zależności</li>
+        </ul>
       </section>
 
       <!-- ③ SILNIKI — karta przetargowa produktu. Liczby są zmierzone, nie oszacowane. -->
@@ -519,7 +532,7 @@
         <div class="qp-dwa">
           <article class="qp-silnik">
             <h3><span class="q">Q</span>Segue</h3>
-            <p class="qp-silnik-pod">przejścia po granicach muzyki, nie pliku</p>
+            <p class="qp-silnik-pod">inteligentne przejścia</p>
             <p>Każdy automiks odlicza przejście od końca pliku. Ale koniec pliku to nie koniec
               muzyki — biblioteki i eksporty z DAW mają na końcu sekundy ciszy. Crossfade wchodzi
               w pustkę i brzmi jak awaria, nie jak decyzja realizatora.</p>
@@ -530,29 +543,46 @@
                  Świadomie nie przepisane „ładniej": tekst na stronie ma być tym samym zdaniem,
                  które realizator zobaczy pod palcem w aplikacji. -->
             <p class="qp-tryby-tyt">Trzy tryby, jeden guzik</p>
-            <dl class="qp-tryby">
-              <dt>Lazy</dt>
-              <dd><i>niedzielny miks.</i> Utwór dostaje chwilę na wybrzmienie, a nowy dźwiga się
-                do pełni powoli, pod nim. Program płynie, nic nikogo nie popycha.</dd>
-              <dt>Smooth</dt>
-              <dd><i>radio na co dzień.</i> Nowy wchodzi pełnią, a poprzedni ustępuje mu szybko,
-                zamiast dogorywać pod spodem. Bez dziur i bez gęstwiny.</dd>
-              <dt>Tight</dt>
-              <dd><i>klubowo.</i> Przejście wypada, gdy utwór gra jeszcze niemal pełnią,
+            <!-- ⚠️ Krzywe NIE SĄ zrzutami ekranu ani rysunkami „takiego przejścia":
+                 liczy je `tools/render-krzywe.js` TYM SAMYM kodem, co silnik (prawdziwe
+                 pliki → analyzeChannel → SEGUE_MODES). Gdy tryb się zmieni, wystarczy
+                 przepuścić skrypt jeszcze raz i obrazek dogoni silnik. Zrzut ekranu
+                 zestarzałby się po cichu. Opisy — dosłownie z app.js. -->
+            <div class="qp-tryb">
+              <h4>Lazy</h4>
+              <p><i>niedzielny miks.</i> Utwór dostaje chwilę na wybrzmienie, a nowy dźwiga się
+                do pełni powoli, pod nim. Program płynie, nic nikogo nie popycha.</p>
+              <img src="../assets/qplayer/tryb-lazy.webp" width="760" height="300"
+                   alt="QSegue Lazy — krzywa przejścia" loading="lazy" decoding="async">
+            </div>
+            <div class="qp-tryb">
+              <h4>Smooth</h4>
+              <p><i>radio na co dzień.</i> Nowy wchodzi pełnią, a poprzedni ustępuje mu szybko,
+                zamiast dogorywać pod spodem. Bez dziur i bez gęstwiny.</p>
+              <img src="../assets/qplayer/tryb-smooth.webp" width="760" height="300"
+                   alt="QSegue Smooth — krzywa przejścia" loading="lazy" decoding="async">
+            </div>
+            <div class="qp-tryb">
+              <h4>Tight</h4>
+              <p><i>klubowo.</i> Przejście wypada, gdy utwór gra jeszcze niemal pełnią,
                 wybrzmienie ścinane niemal natychmiast, następny wchodzi na maksa.
-                Program stoi gęsto.</dd>
-            </dl>
-            <figure class="qp-krzywa">
-              <img src="../assets/qplayer/krzywa-qsegue.webp" width="900" height="317"
-                   alt="QSegue — zakładka przejścia liczona od realnego końca muzyki"
-                   loading="lazy" decoding="async">
-              <figcaption>Zakładka przejścia liczona od realnego końca muzyki</figcaption>
-            </figure>
+                Program stoi gęsto.</p>
+              <img src="../assets/qplayer/tryb-tight.webp" width="760" height="300"
+                   alt="QSegue Tight — krzywa przejścia" loading="lazy" decoding="async">
+            </div>
             <p class="qp-nota">Przejścia o stałej energii — bez zapadania głośności w połowie.</p>
+
+            <figure class="qp-krzywa qp-warsztat">
+              <img src="../assets/qplayer/warsztat.webp" width="1100" height="614"
+                   alt="Stół warsztatowy QSegue — realne pliki przepuszczone przez silnik"
+                   loading="lazy" decoding="async">
+              <figcaption>Stół warsztatowy, na którym silnik powstawał — prawdziwe pliki
+                przepuszczone przez ten sam kod, który gra u Ciebie</figcaption>
+            </figure>
           </article>
           <article class="qp-silnik">
             <h3><span class="q">Q</span>Level</h3>
-            <p class="qp-silnik-pod">wszystko gra równo, bez skakania do fadera</p>
+            <p class="qp-silnik-pod">normalizacja materiału</p>
             <!-- Poziomy podane WPROST, bo sama liczba „13,67 dB" myli: to jest ROZRZUT
                  (różnica), a nie poziom — więc nie ma przy niej minusa. Kuba potknął się
                  o to przy pierwszym czytaniu, czyli potknie się co drugi realizator. -->
@@ -619,8 +649,9 @@
           <ul class="qp-lista">
             <li><b>Muzyka gra z pamięci, nie z dysku.</b> Każdy plik jest zdekodowany przed
               odtworzeniem. Uśpiony dysk zewnętrzny nie ma jak przerwać grania.</li>
-            <li><b>Blokada ekranu.</b> Nikt nic nie kliknie, a duży napis mówi, co teraz gra —
-              czytelny z drugiego końca sali.</li>
+            <!-- ⚠️ Bez „czytelny z drugiego końca sali" — to była nieprawda i realizator
+                 sprawdziłby ją pierwszego wieczoru. Wystarczy, że nikt nic nie kliknie. -->
+            <li><b>Blokada ekranu.</b> Nikt nic nie kliknie. Na planszy widać, co teraz gra.</li>
             <li><b>Licencja nigdy nie przerywa grania.</b> Żadnych okoliczności. Jeśli termin minie
               w trakcie imprezy, program gra do końca i odezwie się po zamknięciu.</li>
             <li><b>Gra bez sieci.</b> Na evencie zero łączenia, zero sprawdzania, zero rzeczy,
@@ -632,7 +663,7 @@
         <figure class="qp-bezp-fig">
           <img src="../assets/qplayer/ui-blokada.webp" width="1100" height="651"
                alt="Qplayer — ekran blokady z nazwą granego utworu" loading="lazy" decoding="async">
-          <figcaption>Blokada — nazwa utworu czytelna z drugiego końca sali</figcaption>
+          <figcaption>Blokada — nikt nic nie kliknie</figcaption>
         </figure>
       </section>
 
@@ -643,6 +674,28 @@
           zależności — nic, co mogłoby się samo zaktualizować w środku sezonu. <b>32 testy</b>
           i strażnik, który po każdej zmianie porównuje silnik z wzorcem co do szóstego miejsca
           po przecinku.</p>
+      </section>
+
+      <!-- GŁOS KUBY — na samym końcu, tuż przed pobraniem (decyzja Kuby 01.08).
+           Wcześniej stał zaraz pod nagłówkiem i konkurował z faktami; tutaj jest ostatnią
+           rzeczą, jaką człowiek czyta przed kliknięciem — i to ona zostaje w głowie.
+           🔒 Tekst WZIĘTY 1:1 z programu („O programie", renderer/index.html), razem
+           z odręcznym podpisem. Nie wygładzać: to jest jego zdanie, nie moje. -->
+      <section class="qp-glos">
+        <blockquote>
+          <p>Nie wiem, czy tylko ja tak miałem — oby nie.</p>
+          <p class="qp-glos-mocne">Pięć playerów otwartych na biurku. Na każdym coś innego:
+            inny poziom, inny start, inne skróty i tak dalej. <b>Znacie to?</b></p>
+          <p>Qplayer powstawał przez kilka naprawdę długich miesięcy, w odpowiedzi na problem,
+            który w mojej ocenie realnie dotyka naszej branży. <b>QSegue</b> i <b>QLevel</b>
+            to już ewolucja tego, co było podstawowym celem — to konsekwencja prawie 20 lat
+            na antenie radiowej&nbsp;:)</p>
+        </blockquote>
+        <figure class="qp-podpis-blok">
+          <img src="../assets/qplayer/podpis.webp" width="300" height="167"
+               alt="Kuba Hyrja" loading="lazy" decoding="async">
+          <figcaption>Kuba Hyrja — Qubatura Group</figcaption>
+        </figure>
       </section>
 
       <!-- Uchwyt „Pobierz" — towarzyszy przez całe czytanie, bo człowiek decyduje się
@@ -677,8 +730,8 @@
             <button class="qp-btn primary" type="submit" name="plik" value="intel">Mac — Intel</button>
           </div>
           <p class="qp-uwaga">⚠️ Program nie jest jeszcze podpisany cyfrowo — Windows pokaże
-            ostrzeżenie SmartScreen, macOS zapyta o zgodę. To normalne przed premierą,
-            czekamy na Apple.</p>
+            ostrzeżenie SmartScreen, macOS zapyta o zgodę. <b>Przepraszamy za to utrudnienie —
+            czekamy na Apple.</b></p>
         </form>
       </section>
 
@@ -940,7 +993,7 @@
     window.qbLangLabel('pl');   // stan wstępny; i18n.js skoryguje na zapamiętany język
   </script>
 
-  <script type="module" src="js/main.js?v=msag1ucb"></script>
+  <script type="module" src="js/main.js?v=msahksnh"></script>
 
 </body>
 </html>

@@ -3375,3 +3375,35 @@ body.page-active #tagline {
   border: 1px solid rgba(139,79,255,.22); background: #0A0810; }
 .qp-krzywa figcaption { font-size: 11.5px; letter-spacing: .03em;
   color: rgba(243,241,255,.4); margin-top: 8px; }
+
+/* ── „W skrócie" — sucha lista faktów pod nagłówkiem ─────────────────────────
+   To, co u dużych producentów stoi zaraz po hero: człowiek z branży przebiega
+   wzrokiem i decyduje, czy czytać dalej. Każda pozycja jest rozwinięta niżej. */
+.qp-fakty { list-style: none; margin: 0; padding: 0;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 13px 34px; }
+.qp-fakty li { position: relative; padding-left: 18px; font-size: 14.5px; line-height: 1.55;
+  color: rgba(243,241,255,.62); }
+.qp-fakty li::before { content: ""; position: absolute; left: 0; top: 8px; width: 5px; height: 5px;
+  border-radius: 50%; background: var(--qp-amber); }
+.qp-fakty b { color: var(--ink); font-weight: 600; }
+
+/* ── tryb QSegue: opis + krzywa policzona silnikiem ──────────────────────────── */
+.qp-tryb { margin: 0 0 20px; padding-top: 14px; border-top: 1px solid rgba(139,79,255,.16); }
+.qp-tryb h4 { font-size: 16px; font-weight: 700; color: var(--ink); margin: 0 0 5px; letter-spacing: -.01em; }
+.qp-tryb p { font-size: 14px; line-height: 1.55; color: rgba(243,241,255,.62); margin: 0 0 10px; }
+.qp-tryb p i { font-style: normal; color: var(--qp-amber); }
+.qp-tryb img { width: 100%; height: auto; display: block; background: #0A0810;
+  border: 1px solid rgba(139,79,255,.18); }
+
+.qp-warsztat { margin-top: 24px; }
+
+/* ── podpis odręczny pod cytatem ─────────────────────────────────────────────── */
+.qp-podpis-blok { margin: 20px 0 0 26px; }
+.qp-podpis-blok img { display: block; width: 190px; height: auto; opacity: .92; }
+.qp-podpis-blok figcaption { font-size: 12.5px; letter-spacing: .1em; text-transform: uppercase;
+  color: rgba(243,241,255,.45); margin-top: 6px; }
+
+@media (max-width: 900px) {
+  .qp-fakty { grid-template-columns: 1fr; gap: 11px; }
+  .qp-podpis-blok { margin-left: 0; }
+}
