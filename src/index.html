@@ -30,7 +30,7 @@
   <meta name="twitter:image"       content="https://qubatura.eu/assets/og-image.png">
 
   <!-- Fonts — self-hosted (Chakra Petch + Space Mono + Press Start 2P), zero zależności od Google -->
-  <link rel="stylesheet" href="css/fonts.css?v=msaeafs8">
+  <link rel="stylesheet" href="css/fonts.css?v=msaegn67">
 
   <!-- Favicon — sygnet Q na ciemnym kaflu (ustalony; czytelny w karcie na jasnym i ciemnym) -->
   <link rel="icon" type="image/svg+xml" href="../assets/favicon-dark.svg">
@@ -40,7 +40,7 @@
         referrerpolicy="no-referrer">
 
   <!-- CSS -->
-  <link rel="stylesheet" href="css/main.css?v=msaeafs8">
+  <link rel="stylesheet" href="css/main.css?v=msaegn67">
 
   <!-- Three.js via CDN importmap -->
   <script type="importmap">
@@ -607,7 +607,9 @@
         <h3>Wersja testowa dla branży</h3>
         <p class="qp-pobierz-lead">Trzydzieści dni, pełna funkcjonalność, bez opłat.
           Wpisz kod z maila.</p>
-        <form class="qp-form" method="post" action="pobierz.php">
+        <!-- Ścieżka ABSOLUTNA: karta żyje pod /qplayer, a względna „pobierz.php" rozwiązałaby
+             się inaczej przy każdym wariancie adresu. Jedna litera, cała klasa błędów mniej. -->
+        <form class="qp-form" method="post" action="/pobierz.php">
           <div class="qp-pola">
             <label>Imię<input type="text" name="imie" required autocomplete="given-name"></label>
             <label>E-mail<input type="email" name="mail" required autocomplete="email"></label>
@@ -883,7 +885,7 @@
     window.qbLangLabel('pl');   // stan wstępny; i18n.js skoryguje na zapamiętany język
   </script>
 
-  <script type="module" src="js/main.js?v=msaeafs8"></script>
+  <script type="module" src="js/main.js?v=msaegn67"></script>
 
 </body>
 </html>

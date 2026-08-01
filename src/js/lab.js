@@ -2,7 +2,7 @@
 // Overlay #product-overlay: miejsce na trailer + opis. Zamknięcie: „‹ Wróć", klik w tło, Esc.
 // Docelowo: osobne podstrony per produkt (trailer, opis, kilka pozycji) — teraz jeden placeholder.
 
-import { t } from './i18n.js?v=msaeafs8';
+import { t } from './i18n.js?v=msaegn67';
 
 // Asset jako ABSOLUTNY URL z URL modulu - ODPORNE na SPA pushState (jak reszta).
 const DOC_ROOT = new URL('../', import.meta.url).href;
@@ -41,6 +41,14 @@ export function initLab() {
     e.preventDefault();
     open();
   });
+
+  // Kod z adresu: /qplayer?kod=QP-XXXX-XXXX-XXXX → pole wypełnia się samo.
+  // To kasuje w praktyce cały problem literówek: tester niczego nie przepisuje z palca.
+  const kodZUrl = new URLSearchParams(location.search).get('kod');
+  if (kodZUrl) {
+    const pole = overlay.querySelector('input[name="kod"]');
+    if (pole) pole.value = kodZUrl.trim().toUpperCase();
+  }
 
   // Wejście PROSTO z linku (mail, zakładka, F5 na /qplayer): podstronę Lab renderuje
   // router, kartę dokładamy tutaj. Bez opóźnienia — router.render() już się wykonał.
