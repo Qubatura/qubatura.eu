@@ -21,9 +21,9 @@ const KATALOG   = '/pobierz/q7f3a91c/';                 // nieodgadywalny; zmian
 // Odwrotna kolejność daje 404 u człowieka, który ma poprawny kod — czyli dokładnie
 // tego, kogo najmniej stać na naszą pomyłkę.
 const PLIKI     = [
-    'win'   => 'Qplayer-Setup-0.66.5.exe',
-    'arm'   => 'Qplayer-0.66.5-arm64.dmg',
-    'intel' => 'Qplayer-0.66.5-intel.dmg',
+    'win'   => 'Qplayer-Setup-0.66.7.exe',
+    'arm'   => 'Qplayer-0.66.7-arm64.dmg',
+    'intel' => 'Qplayer-0.66.7-intel.dmg',
 ];
 const LIMIT_PROB = 25;      // nieudanych prób z jednego IP na 10 minut
 
