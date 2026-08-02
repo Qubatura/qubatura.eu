@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { SVGLoader } from 'three/addons/loaders/SVGLoader.js';
-import { onTick, registerRefraction } from './scene.js?v=msbt7j03';
-import { navFX, loadFX } from './tint.js?v=msbt7j03';
+import { onTick, registerRefraction } from './scene.js?v=msbteoe2';
+import { navFX, loadFX } from './tint.js?v=msbteoe2';
 
 const _mouse = { x: -9999, y: -9999 };
 window.addEventListener('mousemove', e => { _mouse.x = e.clientX; _mouse.y = e.clientY; });
@@ -248,7 +248,10 @@ export async function initSignet(ctx) {
     // Odbicia otoczenia — patrz `zbudujOtoczenie()` wyżej. Wartość startowa do strojenia
     // panelem `?tune=1`; 0 = stan sprzed 2026-08-02 (bryła bez czego odbić).
     tEnv:               { value: zbudujOtoczenie() },
-    uEnvIntensity:      { value: 0.85 },   // 2026-08-02: podbite — odbicia to główny sygnał „to jest szkło"
+    uEnvIntensity:      { value: 0.85 },
+    // Szerokość rolki światła. 3.0 = surowy fresnel (wstęga na samym kancie, ~2 px na telefonie),
+    // <1 = refleks rozlany w poprzek paska = element czyta się jak wałek. Patrz shader niżej.
+    uEnvRoll:           { value: 0.45 },   // 2026-08-02: podbite — odbicia to główny sygnał „to jest szkło"
   };
 
   // Panel strojenia (?tune=1) — TYLKO wtedy wystawiamy uniformy na zewnątrz. Zwykły gość
@@ -297,6 +300,7 @@ export async function initSignet(ctx) {
       uniform float uBodyDim;
       uniform sampler2D tEnv;
       uniform float uEnvIntensity;
+      uniform float uEnvRoll;
 
       varying vec3 vNormal;
       varying vec3 vWorldPos;
@@ -445,9 +449,14 @@ export async function initSignet(ctx) {
         // Drogie strony nie kręcą logotypem — prowadzą po nim refleks.
         vec2 envUV = vec2(atan(odbicie.z, odbicie.x) * 0.1591549 + 0.5 + time * 0.0008,
                           asin(clamp(odbicie.y, -1.0, 1.0)) * 0.3183099 + 0.5);
-        // Waga rośnie ku krawędziom (fresnel) — tak zachowuje się prawdziwe szkło: patrząc
-        // prosto widzisz przez nie, patrząc pod kątem widzisz w nim odbity świat.
-        color += texture2D(tEnv, envUV).rgb * uEnvIntensity * (0.18 + fresnel * 0.82);
+        // SZEROKOŚĆ ROLKI ŚWIATŁA (2026-08-02). Waga odbicia rośnie ku krawędziom, ale surowy
+        // fresnel jest podniesiony do 3. potęgi → jasna wstęga siedziała na samym kancie i miała
+        // ~2 px na telefonie. A oko rozpoznaje obłość po SZEROKOŚCI GRADIENTU, nie po liczbie
+        // trójkątów na krawędzi. uEnvRoll < 1 rozlewa refleks w poprzek paska znaku, więc każdy
+        // element czyta się jak wałek — niezależnie od tego, jak mały jest na ekranie.
+        // Zaokrąglenia geometrii podnieść się nie da: blokuje je ogon Q (bevelSize 0.40).
+        float rolka = pow(fresnel, uEnvRoll);
+        color += texture2D(tEnv, envUV).rgb * uEnvIntensity * (0.18 + rolka * 0.82);
 
         // Minimalne, równomierne przyciemnienie (elegancja w kontekście ciemnego tła).
         color *= uBodyDim;

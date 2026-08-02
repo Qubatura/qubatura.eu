@@ -4,7 +4,7 @@
 // każdej szerokości okna. Desktop celuje w LEWY ekran, mobile w ŚRODKOWY (ładnie wykadrowany przy
 // cover-center na wąskim ekranie). Na mobile position:fixed — kolumna Studio scrolluje nad tłem.
 
-import { t } from './i18n.js?v=msbt7j03';
+import { t } from './i18n.js?v=msbteoe2';
 
 const SHOTS = [
   {
