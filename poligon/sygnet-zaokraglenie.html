@@ -45,8 +45,9 @@
 
   <div class="row">
     <label>Głębia bryły <b id="v-depth"></b></label>
-    <input id="depth" type="range" min="1" max="30" step="0.5" value="8">
-    <p class="hint">Na stronie: 8. Grubsza bryła = więcej „rury", mniej „wstążki".</p>
+    <input id="depth" type="range" min="1" max="46" step="0.5" value="7.5">
+    <p class="hint">Na stronie: 7.5 — w jednostkach ŚWIATA, tak jak w signet.js (`7.5 / S`).
+    Grubsza bryła = więcej „rury", mniej „wstążki".</p>
   </div>
 
   <div class="row">
@@ -72,6 +73,11 @@
     <button id="auto" type="button" aria-pressed="true">Obrót auto</button>
     <button id="siatka" type="button" aria-pressed="false">Siatka</button>
   </div>
+  <div class="btns">
+    <button id="wzorzec" type="button" aria-pressed="false">Obrys wzorcowy</button>
+  </div>
+  <p class="hint">Wzorzec = krawędź PRZED zaokrągleniem. Gdzie bryła od niego odjeżdża,
+  tam bevel wszedł sam w siebie (najpierw ogon Q i kreska nad nim).</p>
   <div class="btns">
     <button id="reset" type="button">Wartości ze strony</button>
     <button id="kopiuj" type="button">Kopiuj</button>
@@ -150,18 +156,44 @@ const grupa = new THREE.Group();
 scene.add(grupa);
 let siatkaWl = false;
 
+// ── Obrys wzorcowy — kontur SVG BEZ bevela, na z=0 ────────────────────────────
+// Bevel w ExtrudeGeometry odsuwa krawędź na zewnątrz i przy cienkich miejscach
+// (ogon Q) potrafi wejść sam w siebie = przewrócone trójkąty. Ten obrys pokazuje,
+// gdzie krawędź BYŁA — odjazd bryły od linii to dokładnie moment przekroczenia progu.
+const wzorzecGrupa = new THREE.Group();
+wzorzecGrupa.visible = false;
+scene.add(wzorzecGrupa);
+{
+  const lmat = new THREE.LineBasicMaterial({ color: 0xFFB35C, transparent: true, opacity: 0.95,
+                                             depthTest: false });
+  for (const shape of shapes) {
+    for (const kontur of [shape, ...(shape.holes || [])]) {
+      const pts = kontur.getPoints(140).map(p => new THREE.Vector3(p.x - cx, p.y - cy, 0));
+      const g = new THREE.BufferGeometry().setFromPoints(pts);
+      g.scale(S, S, S);
+      const l = new THREE.LineLoop(g, lmat);
+      l.renderOrder = 10;
+      wzorzecGrupa.add(l);
+    }
+  }
+  wzorzecGrupa.rotation.x = Math.PI;   // ta sama orientacja co bryła
+}
+
 function zbuduj({ bevel, depth, bseg, cseg }) {
   grupa.clear();
   let tri = 0;
+  // GŁĘBIA I BEVEL W JEDNOSTKACH ŚWIATA — dokładnie jak signet.js (`7.5 / S`, `0.25 / S`).
+  // Suwaki muszą mówić tym samym językiem co kod, inaczej przenoszenie liczb jest bez sensu.
+  const glebiaSVG = depth / S;
   for (const shape of shapes) {
     const geo = new THREE.ExtrudeGeometry(shape, {
-      depth, bevelEnabled: true,
-      bevelThickness: bevel / S,     // bevel podajemy w jednostkach ŚWIATA, jak w signet.js
+      depth: glebiaSVG, bevelEnabled: true,
+      bevelThickness: bevel / S,
       bevelSize:      bevel / S,
       bevelSegments:  bseg,
       curveSegments:  cseg,
     });
-    geo.translate(-cx, -cy, -depth / 2);
+    geo.translate(-cx, -cy, -glebiaSVG / 2);
     geo.scale(S, S, S);
     tri += geo.index ? geo.index.count / 3 : geo.attributes.position.count / 3;
     grupa.add(new THREE.Mesh(geo, siatkaWl ? matSiatka : mat));
@@ -172,7 +204,7 @@ function zbuduj({ bevel, depth, bseg, cseg }) {
 
 // ── Sterowanie ────────────────────────────────────────────────────────────────
 const DOM = id => document.getElementById(id);
-const P = { bevel: 0.25, depth: 8, bseg: 4, cseg: 32 };
+const P = { bevel: 0.25, depth: 7.5, bseg: 4, cseg: 32 };
 const ZE_STRONY = { ...P };
 
 function odswiez() {
@@ -203,13 +235,17 @@ DOM('rot').addEventListener('input', e => {
 DOM('siatka').addEventListener('click', e => {
   siatkaWl = !siatkaWl; e.target.setAttribute('aria-pressed', String(siatkaWl)); zbuduj(P);
 });
+DOM('wzorzec').addEventListener('click', e => {
+  wzorzecGrupa.visible = !wzorzecGrupa.visible;
+  e.target.setAttribute('aria-pressed', String(wzorzecGrupa.visible));
+});
 DOM('reset').addEventListener('click', () => {
   Object.assign(P, ZE_STRONY);
   for (const k of ['bevel', 'depth', 'bseg', 'cseg']) DOM(k).value = P[k];
   odswiez();
 });
 DOM('kopiuj').addEventListener('click', async () => {
-  const t = `sygnet — profil: bevel ${P.bevel.toFixed(2)} (dziś 0.25), głębia ${P.depth} (dziś 8), `
+  const t = `sygnet — profil: bevel ${P.bevel.toFixed(2)} (dziś 0.25), głębia ${P.depth} (dziś 7.5), `
           + `bevelSegments ${P.bseg} (dziś 4), curveSegments ${P.cseg} (dziś 32)`;
   try { await navigator.clipboard.writeText(t); DOM('status').textContent = 'Skopiowane — wklej mi to na czacie.'; }
   catch { console.log(t); DOM('status').textContent = 'Schowek zablokowany — poszło do konsoli (F12).'; }
@@ -223,6 +259,7 @@ addEventListener('resize', () => {
 odswiez();
 renderer.setAnimationLoop(t => {
   grupa.rotation.y = auto ? t * 0.0004 : recznie;
+  wzorzecGrupa.rotation.y = grupa.rotation.y;   // wzorzec jedzie z bryłą, inaczej porównanie kłamie
   renderer.render(scene, camera);
 });
 </script>
