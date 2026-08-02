@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { SVGLoader } from 'three/addons/loaders/SVGLoader.js';
-import { onTick, registerRefraction } from './scene.js?v=msbrm4p6';
-import { navFX, loadFX } from './tint.js?v=msbrm4p6';
+import { onTick, registerRefraction } from './scene.js?v=msbrpsw9';
+import { navFX, loadFX } from './tint.js?v=msbrpsw9';
 
 const _mouse = { x: -9999, y: -9999 };
 window.addEventListener('mousemove', e => { _mouse.x = e.clientX; _mouse.y = e.clientY; });
@@ -440,7 +440,10 @@ export async function initSignet(ctx) {
         // Kamera stoi, więc normalne w przestrzeni widoku wystarczą: gdy sygnet się obraca,
         // smugi przesuwają się po powierzchni — i o to dokładnie chodzi.
         vec3 odbicie = reflect(vec3(0.0, 0.0, -1.0), normalize(vNormal));
-        vec2 envUV = vec2(atan(odbicie.z, odbicie.x) * 0.1591549 + 0.5,
+        // Panorama dryfuje bardzo wolno wokół bryły (pełny obieg ~21 min). To JEST ten ruch,
+        // który zastąpił kołysanie: znak stoi prawie nieruchomo, a po szkle przejeżdża światło.
+        // Drogie strony nie kręcą logotypem — prowadzą po nim refleks.
+        vec2 envUV = vec2(atan(odbicie.z, odbicie.x) * 0.1591549 + 0.5 + time * 0.0008,
                           asin(clamp(odbicie.y, -1.0, 1.0)) * 0.3183099 + 0.5);
         // Waga rośnie ku krawędziom (fresnel) — tak zachowuje się prawdziwe szkło: patrząc
         // prosto widzisz przez nie, patrząc pod kątem widzisz w nim odbity świat.
@@ -458,7 +461,7 @@ export async function initSignet(ctx) {
   const group  = new THREE.Group();
   // 2026-08-02 — założenia Kuby: „to bryła, nie płaskie SVG", „ma być obła, kant się eksponuje",
   // „nastawy takie same na kompie i na telefonie". Stąd zero rozgałęzień isMobile poniżej.
-  const depth  = 14.0 / S;  // 8.5→14: dopiero tu profil czyta się jak pręt, a nie blaszka.
+  const depth  = 11.0 / S;  // 8.5→14 było za grubo przy dużym kącie; przy ściętym kołysaniu 11 wystarcza.
   // DWA OSOBNE ZAOKRĄGLENIA — to jest sedno:
   //  • bevelSize odsuwa krawędź NA BOKI i to ON niszczy ogon Q. Zmierzony próg: 0.40
   //    (od ~0.55 koniec ogona tępieje i puchnie niesymetrycznie = bevel wchodzi sam w siebie).
@@ -630,16 +633,23 @@ export async function initSignet(ctx) {
   onTick((_dt, elapsed) => {
     uniforms.time.value = elapsed;
 
-    // +25% prędkości — skalowany czas mnoży częstotliwości, zachowuje amplitudy i fazy
-    const t = elapsed * 1.25;
+    // 2026-08-02 — „dostojny, nie festynowy". Festyn bierze się z KILKU ruchów o podobnej
+    // amplitudzie naraz: oko nie wie, na co patrzeć, i czyta niepokój. Elegancja to jeden
+    // ruch dominujący + mikrodetal. Stąd: czas zwolniony (1.25→0.85) i amplitudy ścięte niżej.
+    const t = elapsed * 0.85;
 
     // Dryf jak obiekt w wodzie — sumy sinusoid o niewspółmiernych częstotliwościach
     // i przesuniętych fazach → ruch nieprzewidywalny, nie wahadłowy.
     // Kołysanie lewo-prawo: dominująca fala (~połowa dawnego zakresu, widać bryłę 3D)
     // + dwie mniejsze niewspółmierne fale na losowość.
-    const idleRotY = Math.sin(t * 0.15)        * 0.35
-                   + Math.sin(t * 0.211 + 1.7) * 0.10
-                   + Math.sin(t * 0.087 + 4.1) * 0.06;
+    // 2026-08-02: suma amplitud 0.51 rad (≈29°) → 0.24 rad (≈14°). Przy głębi bryły ±29°
+    // pokazywało całą ściankę boczną — stąd wrażenie „za gruby". Nie bryła była za gruba,
+    // tylko kąt za duży. Pełnego obrotu świadomie NIE robimy: w połowie widać znak od tyłu,
+    // czyli lustrzane Q (czyta się jak błąd), a przy 90° bryła zamienia się w kreskę.
+    // Efekt uboczny w dobrą stronę: mniejszy idle nie przebija już zwrotu ku działom (±0.30).
+    const idleRotY = Math.sin(t * 0.15)        * 0.16
+                   + Math.sin(t * 0.211 + 1.7) * 0.05
+                   + Math.sin(t * 0.087 + 4.1) * 0.03;
     // Loading (Etap 9): jeden pełny obrót 360° sterowany progresem (loadFX.spin), mieszany
     // z idle przez spinWeight (1 w loadingu → 0 przy osiadaniu w HOME = bezszwowo).
     const baseRotY = loadFX.active
@@ -654,22 +664,22 @@ export async function initSignet(ctx) {
     // nudgeRotY/X: cykliczny impuls obrotu ku dywizji (navigation.js GSAP yoyo)
     pivot.rotation.y = baseRotY * idleDamp + navFX.nudgeRotY;
     // Przechył góra-dół (~0.22 idle) — też tłumiony przy hoverze, by zwrot ku Lab (dół) był czytelny
-    pivot.rotation.x = (Math.sin(t * 0.17 + 0.6)  * 0.10
-                     +  Math.sin(t * 0.283 + 2.9) * 0.07
-                     +  Math.sin(t * 0.119 + 5.2) * 0.05) * idleDamp
+    pivot.rotation.x = (Math.sin(t * 0.17 + 0.6)  * 0.05
+                     +  Math.sin(t * 0.283 + 2.9) * 0.032
+                     +  Math.sin(t * 0.119 + 5.2) * 0.022) * idleDamp
                      + navFX.nudgeRotX;
     // Subtelny roll (~0.057)
-    pivot.rotation.z = Math.sin(t * 0.093 + 3.3) * 0.035
-                     + Math.sin(t * 0.157 + 0.9) * 0.022;
+    pivot.rotation.z = Math.sin(t * 0.093 + 3.3) * 0.014
+                     + Math.sin(t * 0.157 + 0.9) * 0.009;
 
     // Float góra-dół: amplituda −30% (5.0 → ~3.5), też rozbity na kilka fal
     // + navFX.tug = przeskok „jakby go pociągnęło" w stronę działu (heartbeat)
     // mobileYShift — na mobile przesuwa sygnet w górę, żeby nie siedział za nisko nad tacą nav
     pivot.position.x = navFX.tugX + navFX.pageX;
     pivot.position.y = mobileYShift + baseYOffset
-                     + Math.sin(t * 0.6)         * 2.2
-                     + Math.sin(t * 0.41 + 2.2)  * 0.9
-                     + Math.sin(t * 0.83 + 5.0)  * 0.4
+                     + Math.sin(t * 0.6)         * 1.3
+                     + Math.sin(t * 0.41 + 2.2)  * 0.5
+                     + Math.sin(t * 0.83 + 5.0)  * 0.2
                      + navFX.tugY + navFX.pageY;
     pivot.position.z = navFX.pageZ;   // Q-PONG na mobile: odjazd w głąb sceny
 
