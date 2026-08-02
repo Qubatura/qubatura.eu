@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { SVGLoader } from 'three/addons/loaders/SVGLoader.js';
-import { onTick, registerRefraction } from './scene.js?v=msbrc8p2';
-import { navFX, loadFX } from './tint.js?v=msbrc8p2';
+import { onTick, registerRefraction } from './scene.js?v=msbrm4p6';
+import { navFX, loadFX } from './tint.js?v=msbrm4p6';
 
 const _mouse = { x: -9999, y: -9999 };
 window.addEventListener('mousemove', e => { _mouse.x = e.clientX; _mouse.y = e.clientY; });
@@ -172,7 +172,9 @@ export async function initSignet(ctx) {
     // robił biel, bo front był zalany płaską farbą primary (uFillDensity 0.82) = zaklipowany → opal
     // ścinał się w biel. Teraz OTWIERAMY szkło (uFillDensity mobile↓ 0.28) → wnętrze ciemne/przejrzyste
     // → mocny opal (2.4) ujawnia się jako jasne fioletowe ŻYŁY LAWY w ciemnym wnętrzu, nie biała tafla.
-    uOpal:              { value: isMobile ? 2.4 : 1.8 },   // mobile: lawa w czystym szkle (nie biel — wnętrze otwarte)
+    // 2026-08-02 UJEDNOLICONE (2.4/1.8 → 2.2): jeden reżim na obu platformach. Przy otwartym
+    // szkle (uFillDensity↓) żyły muszą nieść substancję same, więc bliżej mobilnej wartości.
+    uOpal:              { value: 2.2 },
     // Barwa krawędziowego rozświetlenia (rant fresnela). Desktop: ciepły lawendowo-biały.
     // Mobile (C5): WYRAŹNIE fioletowy (0.78,0.74→0.52,0.40), nie biały. Mobile ma uGlassFloor=0.52
     // → rant >2× jaśniejszy niż desktop w spoczynku; prawie biały uEdgeWarm robił z bryły
@@ -212,7 +214,10 @@ export async function initSignet(ctx) {
     // zalewało front litą farbą = to było „mleko" które zasłaniało płyn (Kuba: „mgła na froncie,
     // nie widać substancji jak na desktopie"). Ściągnięte → skorupa czystego szkła (refrakcja+krawędzie+
     // połysk), ciemne wnętrze jako tło dla jasnych żył lawy (uOpal↑). Desktop=0.82 (ma jasne tło, git).
-    uFillDensity:       { value: isMobile ? 0.28 : 0.82 },   // mobile: otwarte szkło pod lawę
+    // 2026-08-02 UJEDNOLICONE (0.28/0.82 → 0.42). 0.82 to nie było wypełnienie, tylko
+    // PRZEMALOWANIE — lita farba na froncie = „festyn". 0.28 z kolei gubiło bryłę na jasnym
+    // tle desktopu. 0.42: substancja jest, ale tło dalej przez nią przechodzi.
+    uFillDensity:       { value: 0.42 },
     // EKSPERYMENT „szyba + płyn w środku" (2026-07-01, desktop; mobile=0 = bez zmian):
     // uFrontGlass — wąska, chłodna smuga refleksu szklanej tafli NA FRONCIE (nie matowa zasłona);
     // uInnerDepth — parallax płynu „w głąb" (opal przesuwa się z kątem patrzenia = wygląda za szybą).
@@ -225,20 +230,25 @@ export async function initSignet(ctx) {
     // wir opalu (uOpal) ujawnia się jako jasno-ciemna substancja zamiast białego klipsa. Desktop=1.0
     // (bez zmian). Eksperyment: opal zostaje 1.8; jeśli substancja słaba → podbić opal; jeśli wróci
     // biel na crestach → obniżyć uBodyDim/opal. Ocena Kuby na iPhonie (headless nie odtworzy).
-    uFrontFlat:         { value: isMobile ? 0.0 : 1.0 },
+    // 2026-08-02 UJEDNOLICONE → 0.0. Ten człon dokładał płaski piedestał jasności na froncie
+    // i zjadał headroom, przez co wir opalu ścinał się w białą taflę zamiast pokazać żyły.
+    uFrontFlat:         { value: 0.0 },
     // 2026-07-12 (Kuba): mleko wraca gdy sygnet jest TWARZĄ na nas (dead-front = niski fresnel, gdzie
     // opal/lawa ważona (1-fresnel)=MAX → wielka płaska tafla masy). Gdy się mieni/obraca — super.
     // „OKNO SZKŁA" na froncie: uFrontClear (mobile 1) wygasza opal przy samym dead-froncie (fresnel→0)
     // → tam zostaje czyste szkło (refrakcja+glassSpec połysk = „coś co się mieni"), a lawa przesuwa się
     // na barki bryły i ożywa przy obrocie. Desktop=0 (bez zmian, front ma jasne tło do refrakcji).
-    uFrontClear:        { value: isMobile ? 1.0 : 0.0 },
+    // 2026-08-02 UJEDNOLICONE → 1.0. Przy samym dead-froncie zostaje czyste szkło (refrakcja
+    // + połysk), a lawa przenosi się na barki bryły i ożywa przy obrocie. To jest ta
+    // „droga skromność": front nie krzyczy masą, tylko się mieni.
+    uFrontClear:        { value: 1.0 },
     // Minimalne przyciemnienie całej bryły — elegancja > przepych, sygnet lepiej siada w tle.
     // 2026-07-02 (Kuba: „sygnet minimalnie za intensywny, trochę na dół z jasnością"): 0.90→0.84.
     uBodyDim:           { value: 0.84 },
     // Odbicia otoczenia — patrz `zbudujOtoczenie()` wyżej. Wartość startowa do strojenia
     // panelem `?tune=1`; 0 = stan sprzed 2026-08-02 (bryła bez czego odbić).
     tEnv:               { value: zbudujOtoczenie() },
-    uEnvIntensity:      { value: 0.6 },
+    uEnvIntensity:      { value: 0.85 },   // 2026-08-02: podbite — odbicia to główny sygnał „to jest szkło"
   };
 
   // Panel strojenia (?tune=1) — TYLKO wtedy wystawiamy uniformy na zewnątrz. Zwykły gość
@@ -446,29 +456,36 @@ export async function initSignet(ctx) {
 
   // ─── Geometry — bevel mały żeby nie pożerał cienkich fragmentów ogona Q ───
   const group  = new THREE.Group();
-  // 2026-08-02 (Kuba, poligon `poligon/sygnet-zaokraglenie.html`): 7.5→8.5.
-  const depth  = 8.5 / S;   // pękatszy (4.5→7.5, 2026-07-01): więcej „środka" na płyn za szybą.
-                            // UWAGA: głębia NIE zatrze wavy (to robi bevel, którego nie ruszamy).
-  // bevelSize w przestrzeni świata. 2026-08-02: 0.25→0.40. Zmierzone na obrysie wzorcowym
-  // (poligon, kadr na ogon Q): do 0.40 bryła odchodzi od konturu RÓWNO = czyste zaokrąglanie.
-  // Od ~0.55 koniec ogona tępieje i puchnie niesymetrycznie — bevel zaczyna wchodzić sam
-  // w siebie. Powyżej tego progu potrzebny jest znak narysowany jako krzywe (temat rebrandingu).
-  const bevel  = 0.40 / S;
+  // 2026-08-02 — założenia Kuby: „to bryła, nie płaskie SVG", „ma być obła, kant się eksponuje",
+  // „nastawy takie same na kompie i na telefonie". Stąd zero rozgałęzień isMobile poniżej.
+  const depth  = 14.0 / S;  // 8.5→14: dopiero tu profil czyta się jak pręt, a nie blaszka.
+  // DWA OSOBNE ZAOKRĄGLENIA — to jest sedno:
+  //  • bevelSize odsuwa krawędź NA BOKI i to ON niszczy ogon Q. Zmierzony próg: 0.40
+  //    (od ~0.55 koniec ogona tępieje i puchnie niesymetrycznie = bevel wchodzi sam w siebie).
+  //  • bevelThickness zaokrągla W GŁĄB i ogona nie dotyka w ogóle.
+  // Wcześniej oba były równe, więc limit ogona trzymał w dole całą obłość. Rozdzielone:
+  // bok bezpieczny, bark bryły długi i miękki → znika ostry kant na przejściu front↔ścianka.
+  // Warunek: 2 × bevelThickness < depth (inaczej bevel zjada środek bryły).
+  const bevelBok    = 0.40 / S;
+  const bevelWglab  = 2.20 / S;
 
   for (const shape of shapes) {
     const geo = new THREE.ExtrudeGeometry(shape, {
       depth,
       bevelEnabled:   true,
-      bevelThickness: bevel,
-      bevelSize:      bevel,
+      bevelThickness: bevelWglab,
+      bevelSize:      bevelBok,
       // 2026-08-02 (Kuba na poligonie): gęstsza siatka = gładszy profil i lepsze normalne
       // dla shadera szkła. ZMIERZONE: 4/32 = 45 836 trójkątów, 14/80 = 339 116 (×7,4),
       // 8/56 = 142 988 (×3,1). Desktop bierze pełne, mobile pośrednie — przy wielkości
       // sygnetu na ekranie różnica 56↔80 jest poniżej piksela, a telefon renderuje to
       // razem z mgłą, świetlikami i dwuprzebiegowym render targetem.
       // To NIE jest różnica wyglądu między platformami (ta siedzi w materiale), tylko gęstości.
-      bevelSegments:  isMobile ? 8  : 14,
-      curveSegments:  isMobile ? 56 : 80,
+      // 2026-08-02: UJEDNOLICONE (Kuba: „nastawy takie same na kompie co na telefonie").
+      // Cena: ~339 tys. trójkątów zamiast 143 tys. Gdyby telefon się zaciął — ciąć TU
+      // (8 / 56), bo gęstość siatki nie zmienia wyglądu, tylko gładkość poniżej piksela.
+      bevelSegments:  14,
+      curveSegments:  80,
     });
     const mesh = new THREE.Mesh(geo, mat);
     mesh.position.set(-svgCX, -svgCY, -depth / 2);
