@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { SVGLoader } from 'three/addons/loaders/SVGLoader.js';
-import { onTick, registerRefraction } from './scene.js?v=msbqzxaq';
-import { navFX, loadFX } from './tint.js?v=msbqzxaq';
+import { onTick, registerRefraction } from './scene.js?v=msbrc8p2';
+import { navFX, loadFX } from './tint.js?v=msbrc8p2';
 
 const _mouse = { x: -9999, y: -9999 };
 window.addEventListener('mousemove', e => { _mouse.x = e.clientX; _mouse.y = e.clientY; });
@@ -449,8 +449,11 @@ export async function initSignet(ctx) {
   // 2026-08-02 (Kuba, poligon `poligon/sygnet-zaokraglenie.html`): 7.5→8.5.
   const depth  = 8.5 / S;   // pękatszy (4.5→7.5, 2026-07-01): więcej „środka" na płyn za szybą.
                             // UWAGA: głębia NIE zatrze wavy (to robi bevel, którego nie ruszamy).
-  // bevelSize 0.25wu w przestrzeni świata → ~6 jedn. SVG → nie niszczy detali
-  const bevel  = 0.25 / S;
+  // bevelSize w przestrzeni świata. 2026-08-02: 0.25→0.40. Zmierzone na obrysie wzorcowym
+  // (poligon, kadr na ogon Q): do 0.40 bryła odchodzi od konturu RÓWNO = czyste zaokrąglanie.
+  // Od ~0.55 koniec ogona tępieje i puchnie niesymetrycznie — bevel zaczyna wchodzić sam
+  // w siebie. Powyżej tego progu potrzebny jest znak narysowany jako krzywe (temat rebrandingu).
+  const bevel  = 0.40 / S;
 
   for (const shape of shapes) {
     const geo = new THREE.ExtrudeGeometry(shape, {
