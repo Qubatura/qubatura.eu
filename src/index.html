@@ -30,7 +30,7 @@
   <meta name="twitter:image"       content="https://qubatura.eu/assets/og-image.png">
 
   <!-- Fonts — self-hosted (Chakra Petch + Space Mono + Press Start 2P), zero zależności od Google -->
-  <link rel="stylesheet" href="css/fonts.css?v=msc41wce">
+  <link rel="stylesheet" href="css/fonts.css?v=msc4a5i0">
 
   <!-- Favicon — sygnet Q na ciemnym kaflu (ustalony; czytelny w karcie na jasnym i ciemnym) -->
   <link rel="icon" type="image/svg+xml" href="../assets/favicon-dark.svg">
@@ -40,7 +40,7 @@
         referrerpolicy="no-referrer">
 
   <!-- CSS -->
-  <link rel="stylesheet" href="css/main.css?v=msc41wce">
+  <link rel="stylesheet" href="css/main.css?v=msc4a5i0">
 
   <!-- Three.js via CDN importmap -->
   <script type="importmap">
@@ -787,6 +787,22 @@
             </svg>Napisz do nas</button>
         </div>
 
+        <!-- MAPA DROGOWA — tuż nad cennikiem, bo odpowiada na pytanie, które człowiek zadaje
+             sobie dokładnie przed spojrzeniem na cenę: „co jeszcze dostanę za te pieniądze".
+             ⚠️ GPIO: program nie ma pinów — ma most po sieci do Raspberry Pi / ESP, które je mają.
+             Tak napisane, bo inżynier czytający samo „GPIO" w apce desktopowej pyta „na czym?". -->
+        <div class="qp-plan">
+          <p class="qp-plan-kicker">Planowane wdrożenia do końca roku</p>
+          <ul>
+            <!-- HASŁA, nie opisy (Kuba): to mapa drogowa, a nie specyfikacja. Im krócej, tym
+                 mniej obiecane. „W obie strony" wycięte — litera O w GPIO to już „output",
+                 dla realizatora znającego broadcast to masło maślane. -->
+            <li><b>Obsługa MIDI (learn)</b> — konsolety, klawiatury, kontrolery</li>
+            <li><b>Wyjścia wielokanałowe</b> — 4 × stereo (na sekcję) + PFL</li>
+            <li><b>GPIO po sieci</b> — Raspberry Pi / ESP</li>
+          </ul>
+        </div>
+
         <!-- CENNIK — świadomie NA KOŃCU sekcji, po ścieżce testera. Kto ma kod, pobiera i nie
              ociera się o kwoty; kto doczytał do dołu, jest już zainteresowany produktem.
              Hierarchia wg Kuby: miesiąc DUŻY, warianty roczne małym drukiem pod spodem.
@@ -1057,7 +1073,7 @@
     window.qbLangLabel('pl');   // stan wstępny; i18n.js skoryguje na zapamiętany język
   </script>
 
-  <script type="module" src="js/main.js?v=msc41wce"></script>
+  <script type="module" src="js/main.js?v=msc4a5i0"></script>
 
 </body>
 </html>
