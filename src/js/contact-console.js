@@ -4,7 +4,7 @@
 // Kolor działu zalewa konsoletę po wyborze toru; tło morfuje w scenę działu.
 //
 // Assety jako ABSOLUTNY URL z URL modułu (import.meta.url) — ODPORNE na SPA pushState.
-import { t } from './i18n.js?v=msc1gg2z';
+import { t } from './i18n.js?v=msc1xfqu';
 
 const DOC_ROOT = new URL('../', import.meta.url).href;
 const asset = rel => new URL(rel, DOC_ROOT).href;

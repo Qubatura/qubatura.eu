@@ -7,7 +7,7 @@
 // Wszystko czyta navFX, który tu płynnie tweenujemy.
 
 import * as GSAPmod from 'gsap';
-import { DIVISION_COLORS, DIVISION_DIR, BASE_TINT, navFX } from './tint.js?v=msc1gg2z';
+import { DIVISION_COLORS, DIVISION_DIR, BASE_TINT, navFX } from './tint.js?v=msc1xfqu';
 
 // +esm bywa default albo named — bądź odporny na obie postacie
 const gsap = GSAPmod.gsap || GSAPmod.default || GSAPmod;
@@ -92,10 +92,13 @@ export function initNavigation() {
       if (hud) hud.play();
 
       // Tint + outline color dochodzą płynnie i ZOSTAJĄ (spokojny dryf w kolorze działu)
-      gsap.to(navFX.target, { r: c.r, g: c.g, b: c.b, duration: 0.5, ease: EASE, overwrite: 'auto' });
+      // 2026-08-02 (Kuba: „zbyt gwałtowna zmiana koloru — ma płynąć, dostojnie, ale nie slow-mo"):
+      // 0.5→1.3 s i ease power2.out→power2.inOut. `out` startuje pełną prędkością = przeskok;
+      // `inOut` rusza miękko i miękko dochodzi, więc barwa PŁYNIE zamiast skakać.
+      gsap.to(navFX.target, { r: c.r, g: c.g, b: c.b, duration: 1.3, ease: 'power2.inOut', overwrite: 'auto' });
       gsap.to(navFX, {
         intensity: 1, dirX: dir.x, dirY: dir.y,
-        duration: 0.5, ease: EASE, overwrite: 'auto',
+        duration: 1.3, ease: 'power2.inOut', overwrite: 'auto',   // razem z barwą — jeden ruch, nie dwa
       });
 
       // Pulsujące przyciąganie — sygnet „oddycha" w stronę działu: pozycja bazowa → bliżej
@@ -112,7 +115,10 @@ export function initNavigation() {
       // A2 (2026-07-01): amplituda 0.30→0.55 / 0.20→0.40. Sam wzrost nie wystarczał (idle-sway
       // realnie ±0.51, nie ±0.35 jak zakładał stary komentarz) — dlatego signet.js dodatkowo
       // TŁUMI idle przy hoverze (idleDamp). Razem: wyraźny, pewny zwrot ku dywizji na każdym dziale.
-      startNudge(dir.x * 0.55, -dir.y * 0.40);
+      // 2026-08-02: zwrot mniejszy (0.55/0.40 → 0.34/0.25). Kuba: „ten zwrot w stronę gałęzi
+      // może mniejszy". Ma prawo być mniejszy, bo idle-sway też zjechał (0.51→0.24 rad), więc
+      // zwrot nadal wyraźnie góruje nad tłem ruchu — a przestaje szarpać.
+      startNudge(dir.x * 0.34, -dir.y * 0.25);
 
       // Heartbeat — szybki „sygnał": puls skali + eksplozja glow → opadanie (bez ruchu kierunkowego)
       // 2026-07-02 (Kuba: „ten wybuch koloru za mocny; poświata i stan podświetlony OK"):
@@ -134,16 +140,16 @@ export function initNavigation() {
       stopNudge();
       gsap.to(navFX, {
         intensity: 0, glow: 0, pulse: 0,
-        duration: 0.5, ease: EASE, overwrite: 'auto',
+        duration: 1.0, ease: 'power2.inOut', overwrite: 'auto',   // 0.5→1.0: gaśnie płynnie
       });
       // Dryf powrotny do bazy — równie dostojny, wolny (z punktu, w którym zastał go puls)
       gsap.to(navFX, {
         tugX: 0, tugY: 0,
         duration: 1.35, ease: 'power2.out', overwrite: 'auto',
       });
-      gsap.to(navFX.target, {
+      gsap.to(navFX.target, {   // barwa wraca do primary tym samym tempem co gaszenie
         r: BASE_TINT.r, g: BASE_TINT.g, b: BASE_TINT.b,
-        duration: 0.5, ease: EASE, overwrite: 'auto',
+        duration: 1.0, ease: 'power2.inOut', overwrite: 'auto',
       });
     });
   });
@@ -154,7 +160,7 @@ export function initNavigation() {
     if (pongEl) {
       pongEl.addEventListener('mouseenter', () => {
         if (document.body.classList.contains('page-active')) return;
-        startNudge(0, -0.40);   // Q-PONG jest u góry → sygnet patrzy w górę (spójne z dz. 0.40)
+        startNudge(0, -0.25);   // Q-PONG u góry → spójne z nową amplitudą działów (0.25)
       });
       pongEl.addEventListener('mouseleave', () => stopNudge());
     }
