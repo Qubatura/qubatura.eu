@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Poligon — sygnet: profil bryły (zaokrąglenie)</title>
+<style>
+  :root{ --bg:#06050F; --panel:rgba(10,9,22,.94); --violet:#8B4FFF; --ink:#F0EFFF; --dim:#8E88AD; }
+  *{box-sizing:border-box;}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);
+    font:12px/1.45 ui-monospace,'DM Mono',monospace;overflow:hidden;}
+  canvas{display:block;}
+  #ui{position:fixed;top:14px;left:14px;width:300px;max-height:calc(100dvh - 28px);overflow-y:auto;
+    background:var(--panel);border:1px solid rgba(139,79,255,.42);border-radius:12px;padding:12px 13px;
+    box-shadow:0 24px 60px rgba(0,0,0,.6);}
+  h1{margin:0 0 3px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--violet);}
+  .info{color:var(--dim);font-size:10.5px;margin:0 0 11px;}
+  .row{margin-bottom:10px;}
+  .row label{display:flex;justify-content:space-between;gap:8px;margin-bottom:3px;color:#BDB8D8;}
+  .row b{color:var(--ink);font-weight:500;}
+  input[type=range]{width:100%;accent-color:var(--violet);height:16px;margin:0;}
+  .hint{color:var(--dim);font-size:10px;margin-top:2px;}
+  .hint.alarm{color:#FFB35C;}
+  .btns{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;}
+  button{flex:1 1 auto;background:rgba(139,79,255,.14);color:var(--ink);border:1px solid rgba(139,79,255,.42);
+    border-radius:6px;padding:6px 8px;font:inherit;font-size:11px;cursor:pointer;
+    transition:background .18s ease,border-color .18s ease;}
+  button:hover{background:rgba(139,79,255,.3);border-color:var(--violet);}
+  button[aria-pressed="true"]{background:rgba(139,79,255,.42);border-color:var(--violet);}
+  hr{border:none;border-top:1px solid rgba(139,79,255,.22);margin:12px 0;}
+  #stopka{position:fixed;left:14px;bottom:12px;color:var(--dim);font-size:10.5px;max-width:300px;}
+</style>
+</head>
+<body>
+<div id="ui">
+  <h1>Sygnet — profil bryły</h1>
+  <p class="info">Ta strona jest <b>tylko o kształcie</b>. Materiał to zastępcze szkło demo (transmission +
+  odbicia), NIE nasz shader ze strony — chodzi o to, żeby zobaczyć, jak światło biegnie po profilu.</p>
+
+  <div class="row">
+    <label>Zaokrąglenie profilu <b id="v-bevel"></b></label>
+    <input id="bevel" type="range" min="0.05" max="2.2" step="0.01" value="0.25">
+    <p class="hint" id="h-bevel"></p>
+  </div>
+
+  <div class="row">
+    <label>Głębia bryły <b id="v-depth"></b></label>
+    <input id="depth" type="range" min="1" max="30" step="0.5" value="8">
+    <p class="hint">Na stronie: 8. Grubsza bryła = więcej „rury", mniej „wstążki".</p>
+  </div>
+
+  <div class="row">
+    <label>Segmenty zaokrąglenia <b id="v-bseg"></b></label>
+    <input id="bseg" type="range" min="1" max="14" step="1" value="4">
+    <p class="hint">Na stronie: 4. Więcej = gładsza rurka, ale cięższa siatka.</p>
+  </div>
+
+  <div class="row">
+    <label>Gładkość krzywych <b id="v-cseg"></b></label>
+    <input id="cseg" type="range" min="8" max="80" step="2" value="32">
+    <p class="hint">Na stronie: 32.</p>
+  </div>
+
+  <hr>
+
+  <div class="row">
+    <label>Obrót ręczny <b id="v-rot"></b></label>
+    <input id="rot" type="range" min="-180" max="180" step="1" value="0">
+  </div>
+
+  <div class="btns">
+    <button id="auto" type="button" aria-pressed="true">Obrót auto</button>
+    <button id="siatka" type="button" aria-pressed="false">Siatka</button>
+  </div>
+  <div class="btns">
+    <button id="reset" type="button">Wartości ze strony</button>
+    <button id="kopiuj" type="button">Kopiuj</button>
+  </div>
+  <p class="hint" id="status">Trójkątów: —</p>
+</div>
+<p id="stopka">Ogon Q to najcieńszy fragment znaku — on wyznacza sufit zaokrąglenia. Kręć suwakiem w górę i patrz, kiedy zaczyna znikać.</p>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/"
+} }
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { SVGLoader } from 'three/addons/loaders/SVGLoader.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.15;
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x06050F);
+
+// Środowisko z addonu — daje realistyczne odbicia bez ładowania plików HDR z sieci.
+// Bez tego zaokrąglenie jest niewidoczne: profil czyta się WYŁĄCZNIE przez smugi światła.
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+
+const camera = new THREE.PerspectiveCamera(38, innerWidth / innerHeight, 0.1, 1000);
+camera.position.set(0, 0, 150);
+
+// Płaszczyzna w tle — coś, co szkło ma zaginać (na stronie tę rolę gra planeta i wieża).
+const tlo = new THREE.Mesh(
+  new THREE.PlaneGeometry(600, 400),
+  new THREE.MeshBasicMaterial({ map: (() => {
+    const c = document.createElement('canvas'); c.width = 512; c.height = 512;
+    const g = c.getContext('2d');
+    const grad = g.createLinearGradient(0, 512, 512, 0);
+    grad.addColorStop(0, '#0a0820'); grad.addColorStop(.55, '#2a1b6b'); grad.addColorStop(1, '#7a5cff');
+    g.fillStyle = grad; g.fillRect(0, 0, 512, 512);
+    g.fillStyle = 'rgba(200,190,255,.5)'; g.fillRect(300, 0, 14, 512);   // smuga „wieży"
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+  })() })
+);
+tlo.position.z = -160;
+scene.add(tlo);
+
+const mat = new THREE.MeshPhysicalMaterial({
+  color: 0x6B2FD9, metalness: 0, roughness: 0.06,
+  transmission: 1, thickness: 6, ior: 1.52,
+  iridescence: 0.35, iridescenceIOR: 1.6,
+  envMapIntensity: 1.4, transparent: true,
+});
+const matSiatka = new THREE.MeshBasicMaterial({ color: 0x8B4FFF, wireframe: true });
+
+// ── Wczytanie znaku ────────────────────────────────────────────────────────────
+// Ta sama ścieżka i to samo skalowanie co w signet.js — inaczej „zaokrąglenie 0.25"
+// znaczyłoby tu co innego niż na stronie i porównanie byłoby bez sensu.
+const dane = await new Promise((ok, zle) => new SVGLoader().load('../assets/signet.svg', ok, undefined, zle));
+const shapes = dane.paths.flatMap(p => SVGLoader.createShapes(p));
+
+const bb = new THREE.Box2();
+for (const s of shapes) for (const p of s.getPoints(64)) bb.expandByPoint(p);
+const cx = (bb.min.x + bb.max.x) / 2, cy = (bb.min.y + bb.max.y) / 2;
+const maxWym = Math.max(bb.max.x - bb.min.x, bb.max.y - bb.min.y);
+const S = (51.4 * 1.1) / maxWym;                        // skala 1:1 z signet.js (desktop)
+
+const grupa = new THREE.Group();
+scene.add(grupa);
+let siatkaWl = false;
+
+function zbuduj({ bevel, depth, bseg, cseg }) {
+  grupa.clear();
+  let tri = 0;
+  for (const shape of shapes) {
+    const geo = new THREE.ExtrudeGeometry(shape, {
+      depth, bevelEnabled: true,
+      bevelThickness: bevel / S,     // bevel podajemy w jednostkach ŚWIATA, jak w signet.js
+      bevelSize:      bevel / S,
+      bevelSegments:  bseg,
+      curveSegments:  cseg,
+    });
+    geo.translate(-cx, -cy, -depth / 2);
+    geo.scale(S, S, S);
+    tri += geo.index ? geo.index.count / 3 : geo.attributes.position.count / 3;
+    grupa.add(new THREE.Mesh(geo, siatkaWl ? matSiatka : mat));
+  }
+  grupa.rotation.x = Math.PI;        // SVG ma oś Y w dół
+  document.getElementById('status').textContent = 'Trójkątów: ' + Math.round(tri).toLocaleString('pl-PL');
+}
+
+// ── Sterowanie ────────────────────────────────────────────────────────────────
+const DOM = id => document.getElementById(id);
+const P = { bevel: 0.25, depth: 8, bseg: 4, cseg: 32 };
+const ZE_STRONY = { ...P };
+
+function odswiez() {
+  DOM('v-bevel').textContent = P.bevel.toFixed(2);
+  DOM('v-depth').textContent = P.depth.toFixed(1);
+  DOM('v-bseg').textContent  = P.bseg;
+  DOM('v-cseg').textContent  = P.cseg;
+  const h = DOM('h-bevel');
+  if (P.bevel <= 0.3)      { h.className = 'hint';       h.textContent = 'Na stronie: 0.25 — profil praktycznie ostry.'; }
+  else if (P.bevel <= 0.9) { h.className = 'hint';       h.textContent = 'Profil się zaokrągla — tu zaczyna wyglądać jak pręt.'; }
+  else                     { h.className = 'hint alarm'; h.textContent = 'Uwaga: tu bevel zaczyna zjadać ogon Q. Patrz na ogon, nie na obręcz.'; }
+  zbuduj(P);
+}
+
+for (const k of ['bevel', 'depth', 'bseg', 'cseg']) {
+  DOM(k).addEventListener('input', e => { P[k] = +e.target.value; odswiez(); });
+}
+
+let auto = true, recznie = 0;
+DOM('auto').addEventListener('click', e => {
+  auto = !auto; e.target.setAttribute('aria-pressed', String(auto));
+});
+DOM('rot').addEventListener('input', e => {
+  recznie = +e.target.value * Math.PI / 180;
+  DOM('v-rot').textContent = e.target.value + '°';
+  auto = false; DOM('auto').setAttribute('aria-pressed', 'false');
+});
+DOM('siatka').addEventListener('click', e => {
+  siatkaWl = !siatkaWl; e.target.setAttribute('aria-pressed', String(siatkaWl)); zbuduj(P);
+});
+DOM('reset').addEventListener('click', () => {
+  Object.assign(P, ZE_STRONY);
+  for (const k of ['bevel', 'depth', 'bseg', 'cseg']) DOM(k).value = P[k];
+  odswiez();
+});
+DOM('kopiuj').addEventListener('click', async () => {
+  const t = `sygnet — profil: bevel ${P.bevel.toFixed(2)} (dziś 0.25), głębia ${P.depth} (dziś 8), `
+          + `bevelSegments ${P.bseg} (dziś 4), curveSegments ${P.cseg} (dziś 32)`;
+  try { await navigator.clipboard.writeText(t); DOM('status').textContent = 'Skopiowane — wklej mi to na czacie.'; }
+  catch { console.log(t); DOM('status').textContent = 'Schowek zablokowany — poszło do konsoli (F12).'; }
+});
+
+addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+
+odswiez();
+renderer.setAnimationLoop(t => {
+  grupa.rotation.y = auto ? t * 0.0004 : recznie;
+  renderer.render(scene, camera);
+});
+</script>
+</body>
+</html>
