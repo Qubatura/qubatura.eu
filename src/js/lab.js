@@ -2,7 +2,7 @@
 // Overlay #product-overlay: miejsce na trailer + opis. Zamknięcie: „‹ Wróć", klik w tło, Esc.
 // Docelowo: osobne podstrony per produkt (trailer, opis, kilka pozycji) — teraz jeden placeholder.
 
-import { t } from './i18n.js?v=msbmcvip';
+import { t } from './i18n.js?v=msbozqzw';
 
 // Asset jako ABSOLUTNY URL z URL modulu - ODPORNE na SPA pushState (jak reszta).
 const DOC_ROOT = new URL('../', import.meta.url).href;

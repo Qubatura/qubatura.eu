@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { SVGLoader } from 'three/addons/loaders/SVGLoader.js';
-import { onTick, registerRefraction } from './scene.js?v=msbmcvip';
-import { navFX, loadFX } from './tint.js?v=msbmcvip';
+import { onTick, registerRefraction } from './scene.js?v=msbozqzw';
+import { navFX, loadFX } from './tint.js?v=msbozqzw';
 
 const _mouse = { x: -9999, y: -9999 };
 window.addEventListener('mousemove', e => { _mouse.x = e.clientX; _mouse.y = e.clientY; });
@@ -191,6 +191,10 @@ export async function initSignet(ctx) {
     // 2026-07-02 (Kuba: „sygnet minimalnie za intensywny, trochę na dół z jasnością"): 0.90→0.84.
     uBodyDim:           { value: 0.84 },
   };
+
+  // Panel strojenia (?tune=1) — TYLKO wtedy wystawiamy uniformy na zewnątrz. Zwykły gość
+  // płaci za to jedno sprawdzenie query stringa przy starcie i nic więcej.
+  if (new URLSearchParams(location.search).has('tune')) window.__sygnetUniformy = uniforms;
 
   // 1:1 (2026-07-01): refractionStrength = 0.06 na OBU platformach (zniesiony mobilny override 0.20).
   // ⚠ RYZYKO do sprawdzenia na telefonie: na ciemnym tle 0.06 może nie zaginać widocznie krawędzi
