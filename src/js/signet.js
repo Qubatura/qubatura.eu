@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { SVGLoader } from 'three/addons/loaders/SVGLoader.js';
-import { onTick, registerRefraction } from './scene.js?v=msbrpsw9';
-import { navFX, loadFX } from './tint.js?v=msbrpsw9';
+import { onTick, registerRefraction } from './scene.js?v=msbt7j03';
+import { navFX, loadFX } from './tint.js?v=msbt7j03';
 
 const _mouse = { x: -9999, y: -9999 };
 window.addEventListener('mousemove', e => { _mouse.x = e.clientX; _mouse.y = e.clientY; });
@@ -588,9 +588,20 @@ export async function initSignet(ctx) {
   // 1:1 (2026-07-01): _glowMul = 1.0 na obu (zniesiony mobilny 0.85). Poświata jest teraz chłodna
   // (0x8288FF), a bryłę przyciemnia uBodyDim — nie ma już powodu ścinać mobilnego blasku osobno.
   const _glowMul = 1.0;
-  addGlowSprite(makeGlowTexture(48), 0x5B2EFF, 0.55 * _glowMul, 6);   // szersza warstwa — więcej oddechu
-  addGlowSprite(makeGlowTexture(14), 0x8288FF, 0.95 * _glowMul, 7);
-  group.add(buildOutline(1.0, 0x8288FF, 0.90, 8));   // ostry rdzeń (czytelność idle)
+  // 2026-08-02 (zgoda Kuby) — ŚCISZENIE POŚWIATY. Powód: to ona robiła robotę, którą powinno
+  // robić szkło. Halo mówi „logo", refrakcja i odbicia mówią „przedmiot". Odkąd bryła ma
+  // co odbijać (mapa otoczenia) i zaokrąglony bark, neon zaczął z nią konkurować.
+  // Cięcia NIE są równe — każda warstwa robi co innego:
+  //  • szeroki bloom (48) niemal zostaje: to atmosfera, dzięki niej sygnet siedzi w scenie,
+  //    i to on niesie czytelność wskaźnika ładowania.
+  //  • ciasny rdzeń (14) ścięty najmocniej: 0.95→0.38. To była jasna obwódka tuż przy krawędzi,
+  //    czyli dokładnie „świetlówka".
+  //  • ostry kontur: 0.90→0.45. Rysowany z płaskich linii SVG, więc NIE zaokrągla się razem
+  //    z bryłą — przy obłym profilu zaczynał wyglądać, jakby wisiał obok szkła.
+  // Powrót: wpisać 0.55 / 0.95 / 0.90.
+  addGlowSprite(makeGlowTexture(48), 0x5B2EFF, 0.50 * _glowMul, 6);   // szersza warstwa — więcej oddechu
+  addGlowSprite(makeGlowTexture(14), 0x8288FF, 0.38 * _glowMul, 7);
+  group.add(buildOutline(1.0, 0x8288FF, 0.45, 8));   // ostry rdzeń (czytelność idle)
 
   group.scale.set(S, -S, S);
 
