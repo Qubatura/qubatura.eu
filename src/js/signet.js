@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { SVGLoader } from 'three/addons/loaders/SVGLoader.js';
-import { onTick, registerRefraction } from './scene.js?v=msbozqzw';
-import { navFX, loadFX } from './tint.js?v=msbozqzw';
+import { onTick, registerRefraction } from './scene.js?v=msbqoukf';
+import { navFX, loadFX } from './tint.js?v=msbqoukf';
 
 const _mouse = { x: -9999, y: -9999 };
 window.addEventListener('mousemove', e => { _mouse.x = e.clientX; _mouse.y = e.clientY; });
@@ -382,7 +382,8 @@ export async function initSignet(ctx) {
 
   // ─── Geometry — bevel mały żeby nie pożerał cienkich fragmentów ogona Q ───
   const group  = new THREE.Group();
-  const depth  = 7.5 / S;   // pękatszy (4.5→7.5, 2026-07-01): więcej „środka" na płyn za szybą.
+  // 2026-08-02 (Kuba, poligon `poligon/sygnet-zaokraglenie.html`): 7.5→8.5.
+  const depth  = 8.5 / S;   // pękatszy (4.5→7.5, 2026-07-01): więcej „środka" na płyn za szybą.
                             // UWAGA: głębia NIE zatrze wavy (to robi bevel, którego nie ruszamy).
   // bevelSize 0.25wu w przestrzeni świata → ~6 jedn. SVG → nie niszczy detali
   const bevel  = 0.25 / S;
@@ -393,8 +394,14 @@ export async function initSignet(ctx) {
       bevelEnabled:   true,
       bevelThickness: bevel,
       bevelSize:      bevel,
-      bevelSegments:  4,
-      curveSegments:  32,   // gładsze krzywe SVG → lepsze przybliżenie krawędzi
+      // 2026-08-02 (Kuba na poligonie): gęstsza siatka = gładszy profil i lepsze normalne
+      // dla shadera szkła. ZMIERZONE: 4/32 = 45 836 trójkątów, 14/80 = 339 116 (×7,4),
+      // 8/56 = 142 988 (×3,1). Desktop bierze pełne, mobile pośrednie — przy wielkości
+      // sygnetu na ekranie różnica 56↔80 jest poniżej piksela, a telefon renderuje to
+      // razem z mgłą, świetlikami i dwuprzebiegowym render targetem.
+      // To NIE jest różnica wyglądu między platformami (ta siedzi w materiale), tylko gęstości.
+      bevelSegments:  isMobile ? 8  : 14,
+      curveSegments:  isMobile ? 56 : 80,
     });
     const mesh = new THREE.Mesh(geo, mat);
     mesh.position.set(-svgCX, -svgCY, -depth / 2);

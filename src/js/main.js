@@ -9,26 +9,26 @@
 //   Etap 7: navigation.js   — directional nav tint integration
 //   Etap 10: router.js      — SPA History API + GSAP transitions
 
-import { initI18n }             from './i18n-boot.js?v=msbozqzw';   // PL/EN — musi ruszyć PRZED resztą
-import { initScene, startLoop } from './scene.js?v=msbozqzw';
-import { initParallax }         from './parallax.js?v=msbozqzw';
-import { initAtmosphere }       from './atmosphere.js?v=msbozqzw';
-import { initFireflies }        from './fireflies.js?v=msbozqzw';
-import { initSignet }           from './signet.js?v=msbozqzw';
-import { initNavigation }       from './navigation.js?v=msbozqzw';
-import { initRouter }           from './router.js?v=msbozqzw';
-import { initPlayers }          from './players.js?v=msbozqzw';   // Część 2: playery audio (Studio)
-import { initCursor }           from './cursor.js?v=msbozqzw';
-import { initContact }          from './contact.js?v=msbozqzw';
-import { initContactConsole }   from './contact-console.js?v=msbozqzw';   // Kontakt: silnik formularza (konsoleta)
-import { initLoader }           from './loader.js?v=msbozqzw';   // Etap 9: loading screen
-import { initPong }             from './pong.js?v=msbozqzw';     // Easter egg: Chwila relaksu
-import { initGallery }          from './gallery.js?v=msbozqzw';              // Events: galeria realizacji + lightbox
-import { initLab }              from './lab.js?v=msbozqzw';                  // Lab: oprogramowanie audio + podstrona produktu
-import { initStudioMonitor }    from './studio.js?v=msbozqzw';               // Studio: „ożywiony monitor" (smaczek)
-import { initPlayer }           from './player.js?v=msbozqzw';               // HOME: mini player muzyczny (rolka)
-import { initCookies }          from './cookie-consent.js?v=msbozqzw';       // Cookie consent (minimalny, tylko niezbędne)
-import { initColophon }         from './colophon.js?v=msbozqzw';             // Colophon „tę stronę zrobiliśmy sami" (tagline)
+import { initI18n }             from './i18n-boot.js?v=msbqoukf';   // PL/EN — musi ruszyć PRZED resztą
+import { initScene, startLoop } from './scene.js?v=msbqoukf';
+import { initParallax }         from './parallax.js?v=msbqoukf';
+import { initAtmosphere }       from './atmosphere.js?v=msbqoukf';
+import { initFireflies }        from './fireflies.js?v=msbqoukf';
+import { initSignet }           from './signet.js?v=msbqoukf';
+import { initNavigation }       from './navigation.js?v=msbqoukf';
+import { initRouter }           from './router.js?v=msbqoukf';
+import { initPlayers }          from './players.js?v=msbqoukf';   // Część 2: playery audio (Studio)
+import { initCursor }           from './cursor.js?v=msbqoukf';
+import { initContact }          from './contact.js?v=msbqoukf';
+import { initContactConsole }   from './contact-console.js?v=msbqoukf';   // Kontakt: silnik formularza (konsoleta)
+import { initLoader }           from './loader.js?v=msbqoukf';   // Etap 9: loading screen
+import { initPong }             from './pong.js?v=msbqoukf';     // Easter egg: Chwila relaksu
+import { initGallery }          from './gallery.js?v=msbqoukf';              // Events: galeria realizacji + lightbox
+import { initLab }              from './lab.js?v=msbqoukf';                  // Lab: oprogramowanie audio + podstrona produktu
+import { initStudioMonitor }    from './studio.js?v=msbqoukf';               // Studio: „ożywiony monitor" (smaczek)
+import { initPlayer }           from './player.js?v=msbqoukf';               // HOME: mini player muzyczny (rolka)
+import { initCookies }          from './cookie-consent.js?v=msbqoukf';       // Cookie consent (minimalny, tylko niezbędne)
+import { initColophon }         from './colophon.js?v=msbqoukf';             // Colophon „tę stronę zrobiliśmy sami" (tagline)
 
 async function boot() {
   initI18n();                   // język (zapamiętany wybór) PRZED modułami — renderują od razu w dobrym języku
@@ -71,7 +71,7 @@ async function boot() {
   // Panel strojenia sygnetu — TYLKO pod ?tune=1. Import dynamiczny: gość bez tego parametru
   // nie pobiera pliku w ogóle (osobny chunk, nie wchodzi do bundla startowego).
   if (new URLSearchParams(location.search).has('tune')) {
-    import('./tune-signet.js?v=msbozqzw').then(m => m.initTuneSignet()).catch(() => {});
+    import('./tune-signet.js?v=msbqoukf').then(m => m.initTuneSignet()).catch(() => {});
   }
 
   startLoop();                  // pętla rusza → sygnet renderuje się jako wskaźnik loadingu
