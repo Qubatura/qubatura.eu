@@ -2091,6 +2091,33 @@ body.lb-locked { overflow: hidden; }
   text-overflow: ellipsis;
 }
 
+/* Kafelki softu w Lab mają ZDANIE, nie kredyty. Bazowy .pl-meta jest jednolinijkowy
+   (nowrap + ellipsis — robiony pod krótkie podpisy w Studio) i uciąłby opis w połowie.
+   Tu: pełne zawijanie, trochę większy tekst, bo to jest treść, a nie metadana. */
+.lab-card .pl-meta {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  /* ⚠️ Było tu `var(--font-body)` — TAKIEJ ZMIENNEJ W PROJEKCIE NIE MA. Strona ma tylko dwie:
+     --font-display (Chakra Petch) i --font-mono (Space Mono). Nieistniejąca zmienna cicho
+     spadła do domyślnego fontu przeglądarki (szeryfowy) i opis odstawał od reszty strony.
+     Kuba wychwycił to okiem. Dłuższe zdania na stronie chodzą na --font-display (jak .ls-lead). */
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 13px;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.62);
+}
+/* Termin — z powrotem monospace i przygaszony: to znacznik czasu, nie obietnica marketingowa. */
+.lab-card .pl-kiedy {
+  margin-top: 7px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.38);
+}
+
 /* Druga akcja karty — link YT (osobny od play/pause). Optycznie w kolorze działu (Kuba),
    żeby odznaczał się jako akcja, spójnie z tożsamością Studio. */
 .pl-yt {
@@ -3296,8 +3323,10 @@ body.page-active #tagline {
   font-size: 11px; letter-spacing: .08em; color: rgba(243,241,255,.42); }
 
 /* Furtka bez kodu — wyciszona, pod formularzem. Nie ma konkurować z guzikami pobierania. */
-.qp-zapis { margin: 18px 0 0; font-size: 13px; color: rgba(243,241,255,.5); }
-.qp-zapis-btn { display: inline-flex; align-items: center; gap: 7px; margin-left: 6px;
+.qp-zapis { margin: 20px 0 0; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.qp-zapis p { margin: 0; font-size: 13px; color: rgba(243,241,255,.55); }
+.qp-zapis p b { color: rgba(243,241,255,.85); font-weight: 600; }
+.qp-zapis-btn { display: inline-flex; align-items: center; gap: 7px;
   padding: 7px 13px; border-radius: 8px; cursor: pointer; font: inherit; font-size: 13px;
   color: #fff; background: transparent; -webkit-appearance: none; appearance: none;
   border: 1px solid rgba(243,241,255,.22);
@@ -3306,36 +3335,25 @@ body.page-active #tagline {
 .qp-zapis-btn:hover { border-color: var(--color-primary);
   background: color-mix(in srgb, var(--color-primary) 14%, transparent); }
 
-/* ── Cennik Qplayera (2026-08-02) — ZAPARKOWANY do 01.09, patrz index.html ─────
-   Dwa kafle obok siebie: przedsprzedaż wyróżniona ramką w primary, cena regularna
-   obok jako punkt odniesienia (bez niej „199" nic nie znaczy). Na wąskim ekranie
-   schodzą pod siebie — kafel przedsprzedaży zostaje pierwszy, bo to on sprzedaje. */
-.qp-cennik { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px; margin: 0 0 14px; }
-.qp-cena { position: relative; padding: 16px 18px 15px; border-radius: 12px;
-  border: 1px solid rgba(243,241,255,.14); background: rgba(255,255,255,.02); }
-.qp-cena.wyroz { border-color: color-mix(in srgb, var(--color-primary) 62%, transparent);
-  background: color-mix(in srgb, var(--color-primary) 10%, transparent); }
-.qp-cena-plakietka { display: inline-block; font-family: var(--font-mono); font-size: 10px;
-  letter-spacing: .14em; text-transform: uppercase; color: rgba(243,241,255,.55);
-  margin-bottom: 9px; }
-.qp-cena.wyroz .qp-cena-plakietka { color: color-mix(in srgb, var(--color-primary) 55%, #fff); }
-.qp-cena-kwota { margin: 0; font-family: var(--font-display); font-weight: 800;
-  font-size: 40px; line-height: 1; color: #fff; letter-spacing: -.01em; }
-.qp-cena-kwota span { font-size: 20px; font-weight: 600; margin-left: 2px; }
-.qp-cena-kwota small { font-family: var(--font-mono); font-size: 12px; font-weight: 400;
-  letter-spacing: .06em; color: rgba(243,241,255,.5); margin-left: 7px; }
-.qp-cena:not(.wyroz) .qp-cena-kwota { color: rgba(243,241,255,.62); }
-.qp-cena-opis { margin: 8px 0 0; font-size: 12.5px; line-height: 1.5;
-  color: rgba(243,241,255,.55); }
-.qp-cena-gwarancja { margin: 0 0 26px; padding: 11px 14px; border-radius: 10px;
-  font-size: 13px; line-height: 1.55; color: rgba(243,241,255,.72);
-  border: 1px dashed rgba(243,241,255,.18); }
-.qp-cena-gwarancja b { color: #fff; font-weight: 600; }
-@media (max-width: 640px) {
-  .qp-cennik { grid-template-columns: 1fr; }
-  .qp-cena-kwota { font-size: 34px; }
-}
+/* Furtka bez zaproszenia + cennik — koniec sekcji Pobierz.
+   Hierarchia wg Kuby: kwota miesięczna duża, warianty roczne małym drukiem pod spodem.
+   Cennik stoi PO ścieżce testera: kto ma kod, pobiera i nie ociera się o kwoty. */
+.qp-sprzedaz { margin: 26px 0 0; padding: 18px 20px 17px; border-radius: 12px;
+  border: 1px solid rgba(243,241,255,.13); background: rgba(255,255,255,.022); }
+.qp-sprzedaz-kicker { margin: 0 0 10px; font-family: var(--font-mono); font-size: 10.5px;
+  letter-spacing: .16em; text-transform: uppercase; color: rgba(243,241,255,.45); }
+.qp-sprzedaz-kwota { margin: 0; font-family: var(--font-display); font-weight: 800;
+  font-size: 46px; line-height: 1; letter-spacing: -.01em; color: #fff; }
+.qp-sprzedaz-kwota .zl { font-size: 21px; font-weight: 600; margin-left: 1px; }
+.qp-sprzedaz-kwota small { font-family: var(--font-mono); font-size: 12px; font-weight: 400;
+  letter-spacing: .06em; color: rgba(243,241,255,.5); margin-left: 8px; }
+.qp-sprzedaz-rok { margin: 12px 0 0; font-size: 13px; line-height: 1.6;
+  color: rgba(243,241,255,.6); }
+.qp-sprzedaz-rok b { color: rgba(243,241,255,.9); font-weight: 600; }
+.qp-sprzedaz-rok span { display: block; margin-top: 4px; font-size: 12px;
+  color: rgba(243,241,255,.42); }
+@media (max-width: 640px) { .qp-sprzedaz-kwota { font-size: 38px; } }
+
 .qp-pola { display: grid; grid-template-columns: 1fr 1.3fr 1.3fr; gap: 16px; margin-bottom: 20px; }
 .qp-pola label { display: flex; flex-direction: column; gap: 7px; font-size: 11px; font-weight: 500;
   letter-spacing: .16em; text-transform: uppercase; color: rgba(243,241,255,.45); }
