@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { SVGLoader } from 'three/addons/loaders/SVGLoader.js';
-import { onTick, registerRefraction } from './scene.js?v=msbqoukf';
-import { navFX, loadFX } from './tint.js?v=msbqoukf';
+import { onTick, registerRefraction } from './scene.js?v=msbqzxaq';
+import { navFX, loadFX } from './tint.js?v=msbqzxaq';
 
 const _mouse = { x: -9999, y: -9999 };
 window.addEventListener('mousemove', e => { _mouse.x = e.clientX; _mouse.y = e.clientY; });
@@ -79,6 +79,51 @@ export async function initSignet(ctx) {
   const dbSize = new THREE.Vector2();
   renderer.getDrawingBufferSize(dbSize);
   window.addEventListener('resize', () => renderer.getDrawingBufferSize(dbSize));
+
+  // ─── Mapa otoczenia (2026-08-02) ────────────────────────────────────────────
+  // DLACZEGO: shader liczył refrakcję tła i fresnela, ale bryła NIE MIAŁA CZEGO ODBIĆ.
+  // Prawdziwe szkło czyta się jako szkło głównie po smugach odbitego świata — bez nich
+  // połysk trzeba udawać wąskim specularem, i stąd wrażenie „neon zamiast szkła".
+  // Robimy własne, malowane otoczenie (nie HDR z sieci): panorama równoprostokątna
+  // z canvasu — jasna smuga „wieży", poświata „planety", ciemny dół. Miękkie gradienty
+  // działają jak wstępne rozmycie, więc nie potrzeba PMREM ani ciężkich plików.
+  function zbudujOtoczenie() {
+    const c = document.createElement('canvas');
+    c.width = 1024; c.height = 512;
+    const g = c.getContext('2d');
+
+    g.fillStyle = '#07061a';                       // niebo bazowe
+    g.fillRect(0, 0, 1024, 512);
+
+    const dol = g.createLinearGradient(0, 300, 0, 512);   // ciemny grunt pod horyzontem
+    dol.addColorStop(0, 'rgba(4,3,12,0)'); dol.addColorStop(1, 'rgba(2,2,8,1)');
+    g.fillStyle = dol; g.fillRect(0, 300, 1024, 212);
+
+    const planeta = g.createRadialGradient(250, 190, 10, 250, 190, 260);   // poświata planety
+    planeta.addColorStop(0, 'rgba(150,120,255,.85)');
+    planeta.addColorStop(0.45, 'rgba(80,55,180,.28)');
+    planeta.addColorStop(1, 'rgba(20,14,60,0)');
+    g.fillStyle = planeta; g.fillRect(0, 0, 1024, 512);
+
+    const wieza = g.createLinearGradient(660, 0, 760, 0);   // pionowa smuga „wieży" — główny refleks
+    wieza.addColorStop(0, 'rgba(190,180,255,0)');
+    wieza.addColorStop(0.5, 'rgba(226,222,255,.95)');
+    wieza.addColorStop(1, 'rgba(190,180,255,0)');
+    g.fillStyle = wieza; g.fillRect(660, 30, 100, 420);
+
+    const zorza = g.createLinearGradient(0, 120, 0, 300);   // druga, słabsza smuga z boku
+    zorza.addColorStop(0, 'rgba(120,90,230,0)');
+    zorza.addColorStop(0.5, 'rgba(140,110,240,.35)');
+    zorza.addColorStop(1, 'rgba(120,90,230,0)');
+    g.fillStyle = zorza; g.fillRect(30, 120, 180, 180);
+
+    const t = new THREE.CanvasTexture(c);
+    t.wrapS = THREE.RepeatWrapping;       // panorama zawija się po poziomie
+    t.wrapT = THREE.ClampToEdgeWrapping;
+    t.colorSpace = THREE.SRGBColorSpace;
+    t.minFilter = THREE.LinearFilter;     // bez mipmap: gradienty i tak są gładkie
+    return t;
+  }
 
   const uniforms = {
     tBackground:        { value: null },   // wstrzykiwane co klatkę przez scene.js
@@ -190,6 +235,10 @@ export async function initSignet(ctx) {
     // Minimalne przyciemnienie całej bryły — elegancja > przepych, sygnet lepiej siada w tle.
     // 2026-07-02 (Kuba: „sygnet minimalnie za intensywny, trochę na dół z jasnością"): 0.90→0.84.
     uBodyDim:           { value: 0.84 },
+    // Odbicia otoczenia — patrz `zbudujOtoczenie()` wyżej. Wartość startowa do strojenia
+    // panelem `?tune=1`; 0 = stan sprzed 2026-08-02 (bryła bez czego odbić).
+    tEnv:               { value: zbudujOtoczenie() },
+    uEnvIntensity:      { value: 0.6 },
   };
 
   // Panel strojenia (?tune=1) — TYLKO wtedy wystawiamy uniformy na zewnątrz. Zwykły gość
@@ -236,6 +285,8 @@ export async function initSignet(ctx) {
       uniform float uFrontFlat;
       uniform float uFrontClear;
       uniform float uBodyDim;
+      uniform sampler2D tEnv;
+      uniform float uEnvIntensity;
 
       varying vec3 vNormal;
       varying vec3 vWorldPos;
@@ -371,6 +422,19 @@ export async function initSignet(ctx) {
         // niebieski → bryła czyta się jak brandowy primary #5B2EFF, nie różowo. Pełna siła
         // mnoży R×0.74 / G×0.94 / B×1.05; faktyczna siła = uPrimaryShift (mobile 0.7). Desktop=0.
         color = mix(color, color * vec3(0.74, 0.94, 1.05), uPrimaryShift);
+
+        // ── Odbicie otoczenia ─────────────────────────────────────────────────
+        // PO korekcie hue celowo: refleks otoczenia ma zostać chłodny i czysty. Gdyby szedł
+        // przed nią, uPrimaryShift ściągnąłby mu czerwień i smugi zrobiłyby się fioletowe —
+        // czyli znów „kolorowa bryła" zamiast światła ślizgającego się po szkle.
+        // Kamera stoi, więc normalne w przestrzeni widoku wystarczą: gdy sygnet się obraca,
+        // smugi przesuwają się po powierzchni — i o to dokładnie chodzi.
+        vec3 odbicie = reflect(vec3(0.0, 0.0, -1.0), normalize(vNormal));
+        vec2 envUV = vec2(atan(odbicie.z, odbicie.x) * 0.1591549 + 0.5,
+                          asin(clamp(odbicie.y, -1.0, 1.0)) * 0.3183099 + 0.5);
+        // Waga rośnie ku krawędziom (fresnel) — tak zachowuje się prawdziwe szkło: patrząc
+        // prosto widzisz przez nie, patrząc pod kątem widzisz w nim odbity świat.
+        color += texture2D(tEnv, envUV).rgb * uEnvIntensity * (0.18 + fresnel * 0.82);
 
         // Minimalne, równomierne przyciemnienie (elegancja w kontekście ciemnego tła).
         color *= uBodyDim;

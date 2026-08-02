@@ -12,6 +12,7 @@ const KLUCZ = 'qb-tune-sygnet';
 // Suwaki: [uniform, etykieta, min, max, krok]. Kolejność = od tego, co najmocniej rządzi
 // wrażeniem „szklana waza z cieczą", do drobiazgów.
 const SUWAKI = [
+  ['uEnvIntensity',      'Odbicia otoczenia',         0,    2,    0.02],
   ['uFillDensity',       'Gęstość cieczy',            0,    1,    0.01],
   ['uOpal',              'Opalizacja (żyły)',         0,    3.5,  0.05],
   ['uFrontClear',        'Okno szkła na froncie',     0,    1,    0.01],
