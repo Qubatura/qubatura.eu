@@ -30,7 +30,7 @@
   <meta name="twitter:image"       content="https://qubatura.eu/assets/og-image.png">
 
   <!-- Fonts — self-hosted (Chakra Petch + Space Mono + Press Start 2P), zero zależności od Google -->
-  <link rel="stylesheet" href="css/fonts.css?v=msbteoe2">
+  <link rel="stylesheet" href="css/fonts.css?v=msc1gg2z">
 
   <!-- Favicon — sygnet Q na ciemnym kaflu (ustalony; czytelny w karcie na jasnym i ciemnym) -->
   <link rel="icon" type="image/svg+xml" href="../assets/favicon-dark.svg">
@@ -40,7 +40,7 @@
         referrerpolicy="no-referrer">
 
   <!-- CSS -->
-  <link rel="stylesheet" href="css/main.css?v=msbteoe2">
+  <link rel="stylesheet" href="css/main.css?v=msc1gg2z">
 
   <!-- Three.js via CDN importmap -->
   <script type="importmap">
@@ -730,6 +730,36 @@
         <h3>Pobierz</h3>
         <p class="qp-pobierz-lead">Kod z maila. <b>Trzydzieści dni, pełna wersja,
           trzy instalacje</b> — Mac, Windows, tablet.</p>
+
+        <!-- 🔴 TESTER NIE MOŻE MIEĆ POCZUCIA, ŻE MA PŁACIĆ (Kuba, 2026-08-02).
+             Ta sekcja to lejek TESTERÓW, nie sprzedaż. Kolejność zdania jest celowa:
+             najpierw „bezpłatne" (kasuje wątpliwość), dopiero potem wrzesień (kontekst).
+             Odwrotna kolejność czyta się jak zapowiedź rachunku. -->
+        <p class="qp-testy-free"><b>Testy są bezpłatne.</b> Kod z maila otwiera pełną wersję
+          na trzydzieści dni — nic nie płacisz i nie podpinasz żadnej karty.
+          <span>Sprzedaż rusza 1 września.</span></p>
+
+        <!-- 💤 CENNIK ZAPARKOWANY DO 01.09.2026. Zbudowany 2026-08-02, wycofany z widoku tego
+             samego dnia: w lejku testerów sugerował, że trzeba kupić. Style `.qp-cennik`
+             zostają w main.css — odkomentowanie tego bloku wystarczy, żeby ruszył.
+             ⚠️ PRZED ODKOMENTOWANIEM potwierdzić z Kubą, czy jest też abonament MIESIĘCZNY
+             (pisał „miesiąc/rok 249", zrobione jako oba roczne).
+        <div class="qp-cennik">
+          <div class="qp-cena wyroz">
+            <span class="qp-cena-plakietka">Przedsprzedaż · do 31 sierpnia</span>
+            <p class="qp-cena-kwota">199 <span>zł</span><small>/ rok</small></p>
+            <p class="qp-cena-opis">Cena zamrożona na pierwszy rok.</p>
+          </div>
+          <div class="qp-cena">
+            <span class="qp-cena-plakietka">Od 1 września</span>
+            <p class="qp-cena-kwota">249 <span>zł</span><small>/ rok</small></p>
+            <p class="qp-cena-opis">Cena regularna po starcie sprzedaży.</p>
+          </div>
+        </div>
+        <p class="qp-cena-gwarancja"><b>Dwie duże aktualizacje do końca roku</b> — w cenie,
+          bez dopłat. Kupując w przedsprzedaży, płacisz mniej i dostajesz jedno i drugie.</p>
+        -->
+
         <!-- Ścieżka ABSOLUTNA: karta żyje pod /qplayer, a względna „pobierz.php" rozwiązałaby
              się inaczej przy każdym wariancie adresu. Jedna litera, cała klasa błędów mniej. -->
         <form class="qp-form" method="post" action="/pobierz.php">
@@ -757,6 +787,17 @@
             ostrzeżenie SmartScreen, macOS zapyta o zgodę. <b>Przepraszamy za to utrudnienie —
             czekamy na Apple.</b></p>
         </form>
+
+        <!-- Ścieżka dla kogoś BEZ kodu. Celowo POD formularzem i wyciszona: to furtka,
+             nie konkurencja dla głównej akcji. Otwiera zwykły overlay kontaktu ([data-contact]). -->
+        <p class="qp-zapis">Nie masz kodu?
+          <button type="button" class="qp-zapis-btn" data-contact>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M16 20v-1.5a3.5 3.5 0 0 0-3.5-3.5h-5A3.5 3.5 0 0 0 4 18.5V20"/>
+              <circle cx="10" cy="8" r="3.4"/><path d="M17.5 8.5v5M20 11h-5"/>
+            </svg>Zapisz się na testy</button>
+        </p>
       </section>
 
       <!-- ⑨ STOPKA TECHNICZNA -->
@@ -1017,7 +1058,7 @@
     window.qbLangLabel('pl');   // stan wstępny; i18n.js skoryguje na zapamiętany język
   </script>
 
-  <script type="module" src="js/main.js?v=msbteoe2"></script>
+  <script type="module" src="js/main.js?v=msc1gg2z"></script>
 
 </body>
 </html>

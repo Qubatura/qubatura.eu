@@ -5,8 +5,8 @@
 
 import * as THREE from 'three';
 import * as GSAPmod from 'gsap';
-import { DIVISION_COLORS, DIVISION_DIR, BASE_TINT, navFX } from './tint.js?v=msbteoe2';
-import { resetNavState } from './navigation.js?v=msbteoe2';
+import { DIVISION_COLORS, DIVISION_DIR, BASE_TINT, navFX } from './tint.js?v=msc1gg2z';
+import { resetNavState } from './navigation.js?v=msc1gg2z';
 
 const gsap = GSAPmod.gsap || GSAPmod.default || GSAPmod;
 
