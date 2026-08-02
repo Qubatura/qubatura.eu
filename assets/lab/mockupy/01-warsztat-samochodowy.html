@@ -2,7 +2,8 @@
 <html lang="pl">
 <head>
 <meta charset="UTF-8">
-<title>TORQ — mockup platformy warsztatowej</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Serwis Wójcik — platforma warsztatu</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
@@ -19,7 +20,8 @@
   .eyebrow{font-size:12px;letter-spacing:.18em;color:var(--accent);text-transform:uppercase;margin:0 0 10px;}
   h1{font-family:'Oswald',sans-serif;font-weight:700;font-size:44px;letter-spacing:.01em;margin:0 0 8px;text-transform:uppercase;}
   .sub{color:var(--ink-dim);font-size:14px;max-width:560px;line-height:1.6;}
-  .gallery{max-width:1180px;margin:0 auto;display:flex;gap:28px;flex-wrap:wrap;align-items:flex-start;}
+  /* Układ 01: panel warsztatu z lewej, telefony klienta po prawej, opuszczone niżej. */
+  .gallery{max-width:1180px;margin:0 auto;display:flex;flex-direction:row-reverse;justify-content:flex-end;gap:24px;flex-wrap:wrap;align-items:flex-end;}
   .cap{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-dim);margin:14px 2px 0;}
   .cap b{color:var(--ink);}
 
@@ -46,7 +48,8 @@
 
   .part-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);position:relative;}
   .part-row:last-of-type{border-bottom:none;}
-  .part-ico{width:36px;height:36px;border:1px solid var(--line-strong);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+  .part-ico{width:36px;height:36px;border:1px solid var(--line-strong);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--ink-dim);}
+  .part-ico svg{width:17px;height:17px;}
   .part-name{font-size:12.5px;flex:1;}
   .part-name .schema{display:block;font-size:9.5px;color:var(--ink-dim);margin-top:2px;}
   .part-price{font-size:12.5px;font-weight:500;color:var(--accent);white-space:nowrap;}
@@ -77,8 +80,8 @@
 </head>
 <body>
   <div class="head">
-    <p class="eyebrow">Qubatura Lab — mockup platformy / branża 1 z 5</p>
-    <h1>Serwis samochodowy</h1>
+    <p class="eyebrow">Serwis samochodowy · Sosnowiec, ul. Kilińskiego 12</p>
+    <h1>Auto-Serwis Wójcik</h1>
     <p class="sub">Rezerwacja online zamiast telefonu, jasny status zlecenia dla klienta, plan stanowisk dla warsztatu. Estetyka: schemat techniczny, nie aplikacja lifestyle'owa.</p>
   </div>
 
@@ -87,7 +90,7 @@
       <div class="phone">
         <div class="bar"></div>
         <div class="scr">
-          <div class="brand"><span class="dot"></span>TORQ.</div>
+          <div class="brand"><span class="dot"></span>Wójcik</div>
           <div class="platebox">
             <div><div class="plate">KA 4R771</div><div class="model">Škoda Octavia III · 2018</div></div>
             <div class="chip">zmień</div>
@@ -109,28 +112,28 @@
       <div class="phone">
         <div class="bar"></div>
         <div class="scr">
-          <div class="brand"><span class="dot"></span>TORQ.</div>
+          <div class="brand"><span class="dot"></span>Wójcik</div>
           <p class="label">Zakres zlecenia</p>
           <div class="part-row">
             <div class="dashline"></div>
-            <div class="part-ico">⛽</div>
-            <div class="part-name">Filtr oleju + olej 5W30<span class="schema">poz. 04A / OEM</span></div>
-            <div class="part-price">210 zł</div>
+            <div class="part-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3s6 6.4 6 10.4A6 6 0 0 1 6 13.4C6 9.4 12 3 12 3z"/></svg></div>
+            <div class="part-name">Filtr oleju + olej 5W30 (4,5 l)<span class="schema">poz. 04A / OEM</span></div>
+            <div class="part-price">214 zł</div>
           </div>
           <div class="part-row">
             <div class="dashline"></div>
-            <div class="part-ico">⊙</div>
+            <div class="part-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="3.2"/><path d="M12 3.8v3M12 17.2v3M3.8 12h3M17.2 12h3"/></svg></div>
             <div class="part-name">Klocki hamulcowe przód<span class="schema">poz. 11C / zamiennik</span></div>
-            <div class="part-price">340 zł</div>
+            <div class="part-price">389 zł</div>
           </div>
           <div class="part-row">
-            <div class="part-ico">↻</div>
+            <div class="part-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 12a8.5 8.5 0 1 1-2.5-6"/><path d="M20.5 4.5V10h-5.5"/></svg></div>
             <div class="part-name">Diagnostyka komputerowa<span class="schema">poz. 00 / robocizna</span></div>
             <div class="part-price">80 zł</div>
           </div>
           <div class="totalbar">
             <span class="t1">Suma szacunkowa</span>
-            <span class="t2">630 zł</span>
+            <span class="t2">683 zł</span>
           </div>
         </div>
       </div>
@@ -139,7 +142,7 @@
 
     <div>
       <div class="desk">
-        <div class="topbar"><div class="brand"><span class="dot"></span>TORQ. — panel warsztatu</div><div class="chip">WT, 08:42</div></div>
+        <div class="topbar"><div class="brand"><span class="dot"></span>Wójcik — panel warsztatu</div><div class="chip">WT, 08:42</div></div>
         <div class="desk-body">
           <div class="stations">
             <div class="station">

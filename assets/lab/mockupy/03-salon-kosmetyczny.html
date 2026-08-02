@@ -2,7 +2,8 @@
 <html lang="pl">
 <head>
 <meta charset="UTF-8">
-<title>Atelier Dłoń — mockup platformy salonu</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nails by Marta — platforma salonu</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,600;1,500&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -18,11 +19,14 @@
   .eyebrow{font-size:12px;letter-spacing:.18em;color:var(--gold);text-transform:uppercase;margin:0 0 12px;font-weight:500;}
   h1{font-family:'Fraunces',serif;font-weight:600;font-style:italic;font-size:42px;margin:0 0 10px;}
   .sub{color:var(--cream-dim);font-size:15px;max-width:580px;line-height:1.7;}
-  .gallery{max-width:1180px;margin:0 auto;display:flex;gap:28px;flex-wrap:wrap;align-items:flex-start;}
+  /* Układ 03: telefony grają pierwsze skrzypce (salon = ekran klientki), panel recepcji mniejszy z boku. */
+  .gallery{max-width:1180px;margin:0 auto;display:flex;gap:30px;flex-wrap:wrap;align-items:center;}
+  .head{text-align:center;}
+  .head .sub{margin-left:auto;margin-right:auto;}
   .cap{font-size:12px;color:var(--cream-dim);margin:14px 2px 0;}
   .cap b{color:var(--cream);font-weight:500;}
 
-  .phone{width:320px;background:var(--panel);border:1px solid var(--line-strong);border-radius:28px;overflow:hidden;box-shadow:0 30px 60px rgba(0,0,0,.4);}
+  .phone{width:348px;background:var(--panel);border:1px solid var(--line-strong);border-radius:28px;overflow:hidden;box-shadow:0 30px 60px rgba(0,0,0,.4);}
   .phone .bar{height:32px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--line);}
   .phone .bar::before{content:'';width:60px;height:4px;background:var(--line-strong);border-radius:2px;}
   .scr{padding:22px 20px 26px;}
@@ -56,7 +60,7 @@
   .shape{flex:1;text-align:center;font-size:10.5px;padding:8px 0;border:1px solid var(--line);border-radius:8px;color:var(--cream-dim);}
   .shape.sel{border-color:var(--gold);color:var(--gold);}
 
-  .desk{width:460px;background:var(--panel);border:1px solid var(--line-strong);border-radius:16px;overflow:hidden;box-shadow:0 30px 60px rgba(0,0,0,.4);}
+  .desk{width:392px;background:var(--panel);border:1px solid var(--line-strong);border-radius:16px;overflow:hidden;box-shadow:0 30px 60px rgba(0,0,0,.4);}
   .desk .topbar{background:var(--panel2);padding:16px 22px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line-strong);}
   .desk .topbar .brand{margin:0;}
   .desk-body{padding:22px;}
@@ -72,8 +76,8 @@
 </head>
 <body>
   <div class="head">
-    <p class="eyebrow">Qubatura Lab — mockup platformy / branża 3 z 5</p>
-    <h1>Atelier stylizacji paznokci</h1>
+    <p class="eyebrow">Stylizacja paznokci · Katowice, Mariacka 8/3</p>
+    <h1>Nails by Marta</h1>
     <p class="sub">Klientka rezerwuje termin, przymierza kolor na zdjęciu własnej dłoni, recepcja widzi cały dzień salonu na jednym ekranie.</p>
   </div>
 
@@ -82,18 +86,18 @@
       <div class="phone">
         <div class="bar"></div>
         <div class="scr">
-          <div class="brand">Atelier Dłoń</div>
+          <div class="brand">Nails by Marta</div>
           <p class="label">Wybierz stylistkę</p>
           <div class="stylist-row">
-            <div class="stylist sel"><div class="av"></div><div class="nm">Ola</div></div>
-            <div class="stylist"><div class="av"></div><div class="nm">Iga</div></div>
-            <div class="stylist"><div class="av"></div><div class="nm">Nel</div></div>
+            <div class="stylist sel"><div class="av"></div><div class="nm">Marta</div></div>
+            <div class="stylist"><div class="av"></div><div class="nm">Ola</div></div>
+            <div class="stylist"><div class="av"></div><div class="nm">Wero</div></div>
           </div>
           <p class="label">Wolne terminy — czwartek</p>
           <div class="slotgrid">
-            <div class="slot">10:00</div>
+            <div class="slot">10:15</div>
             <div class="slot active">12:30</div>
-            <div class="slot">16:00</div>
+            <div class="slot">16:45</div>
           </div>
           <button class="cta">Zarezerwuj miejsce</button>
         </div>
@@ -105,10 +109,11 @@
       <div class="phone">
         <div class="bar"></div>
         <div class="scr">
-          <div class="brand">Atelier Dłoń</div>
+          <div class="brand">Nails by Marta</div>
           <div class="handframe">
             <div class="corner c1"></div><div class="corner c2"></div><div class="corner c3"></div><div class="corner c4"></div>
-            📷 Zrób zdjęcie dłoni
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px"><path d="M3 8.5A1.5 1.5 0 0 1 4.5 7h2.7l1.3-2h6l1.3 2h2.7A1.5 1.5 0 0 1 20 8.5v9A1.5 1.5 0 0 1 18.5 19h-13A1.5 1.5 0 0 1 4 17.5z"/><circle cx="12" cy="13" r="3.4"/></svg>
+            Zrób zdjęcie dłoni
           </div>
           <p class="label">Kolor</p>
           <div class="swatches">
@@ -132,12 +137,12 @@
 
     <div>
       <div class="desk">
-        <div class="topbar"><div class="brand">Atelier Dłoń — recepcja</div><div class="cap" style="margin:0">Czwartek, 6 stanowisk</div></div>
+        <div class="topbar"><div class="brand">Marta — recepcja</div><div class="cap" style="margin:0">Czwartek, 4 stanowiska</div></div>
         <div class="desk-body">
-          <div class="stationline"><div><div class="st-name">Ola — stanowisko 1</div><div class="st-sub">Kasia W. · hybryda + zdobienie</div></div><span class="status wip">trwa</span></div>
-          <div class="stationline"><div><div class="st-name">Iga — stanowisko 2</div><div class="st-sub">12:30 · przedłużanie tipsów</div></div><span class="status wait">za 20 min</span></div>
-          <div class="stationline"><div><div class="st-name">Nel — stanowisko 3</div><div class="st-sub">Wolne do 15:00</div></div><span class="status wait">wolne</span></div>
-          <div class="alertbox">⚠ Zamów żel bazowy — zostało 2 sztuki na magazynie</div>
+          <div class="stationline"><div><div class="st-name">Marta — stanowisko 1</div><div class="st-sub">Kasia Wróbel · hybryda + zdobienie</div></div><span class="status wip">trwa</span></div>
+          <div class="stationline"><div><div class="st-name">Ola — stanowisko 2</div><div class="st-sub">12:30 · przedłużanie tipsów</div></div><span class="status wait">za 18 min</span></div>
+          <div class="stationline"><div><div class="st-name">Wero — stanowisko 3</div><div class="st-sub">Wolne do 15:00</div></div><span class="status wait">wolne</span></div>
+          <div class="alertbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;vertical-align:-2px;margin-right:6px"><path d="M12 4.5 21 19.5H3z"/><path d="M12 10v4M12 16.8v.2"/></svg>Zamów żel bazowy — zostały 2 sztuki na magazynie</div>
         </div>
       </div>
       <p class="cap">Ekran 3 — <b>recepcja / admin</b>, grafik dnia</p>

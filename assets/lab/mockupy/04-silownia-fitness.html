@@ -2,7 +2,8 @@
 <html lang="pl">
 <head>
 <meta charset="UTF-8">
-<title>IRON LAB — mockup platformy klubu fitness</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Atlas Gym — platforma klubu</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
@@ -18,7 +19,10 @@
   .eyebrow{font-size:12px;letter-spacing:.18em;color:var(--lime);text-transform:uppercase;margin:0 0 10px;}
   h1{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:40px;margin:0 0 8px;letter-spacing:-.01em;}
   .sub{color:var(--ink-dim);font-size:14px;max-width:580px;line-height:1.6;}
-  .gallery{max-width:1180px;margin:0 auto;display:flex;gap:28px;flex-wrap:wrap;align-items:flex-start;}
+  /* Układ 04: kaskada schodkowa — każdy kolejny ekran niżej, jak seria pomiarów. */
+  .gallery{max-width:1180px;margin:0 auto;display:flex;gap:26px;flex-wrap:wrap;align-items:flex-start;}
+  .gallery > div:nth-child(2){margin-top:44px;}
+  .gallery > div:nth-child(3){margin-top:88px;}
   .cap{font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-dim);margin:14px 2px 0;}
   .cap b{color:var(--ink);}
 
@@ -68,8 +72,8 @@
 </head>
 <body>
   <div class="head">
-    <p class="eyebrow">Qubatura Lab — mockup platformy / branża 4 z 5</p>
-    <h1>Klub fitness</h1>
+    <p class="eyebrow">Klub fitness · Dąbrowa Górnicza, Aleja Róż 3</p>
+    <h1>Atlas Gym</h1>
     <p class="sub">Zapisy na zajęcia grupowe z limitem miejsc, tygodniowy plan treningowy z progresem, panel trenera z listą podopiecznych i trendem wyników.</p>
   </div>
 
@@ -82,7 +86,7 @@
             <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
             <span></span><span></span><span></span><span></span>
           </div>
-          <div class="brand">Iron Lab</div>
+          <div class="brand">Atlas Gym</div>
           <p class="label">Zajęcia — dziś</p>
           <div class="classrow">
             <div><div class="cl-name">RPM</div><div class="cl-time">18:00 · sala 2</div></div>
@@ -106,7 +110,7 @@
       <div class="phone">
         <div class="bar"></div>
         <div class="scr">
-          <div class="brand">Iron Lab</div>
+          <div class="brand">Atlas Gym</div>
           <div class="ring-wrap">
             <div class="ring"><div class="ring-in">65%</div></div>
             <div class="ring-txt"><div class="rt1">Tydzień 3 / 4</div><div class="rt2">Plan siłowy — góra/dół</div></div>
@@ -123,14 +127,14 @@
 
     <div>
       <div class="desk">
-        <div class="topbar"><div class="brand">Iron Lab — panel trenera</div><div class="cap" style="margin:0">12 podopiecznych</div></div>
+        <div class="topbar"><div class="brand">Atlas Gym — panel trenera</div><div class="cap" style="margin:0">13 podopiecznych</div></div>
         <div class="desk-body">
-          <div class="memrow"><div class="memav">KN</div><div class="memname">Kasia N.<div class="memsub">Ostatnia sesja: wczoraj</div></div><span class="trend up">↑ −2.1 kg</span></div>
-          <div class="memrow"><div class="memav">PW</div><div class="memname">Piotr W.<div class="memsub">Ostatnia sesja: 3 dni temu</div></div><span class="trend down">↓ siła</span></div>
-          <div class="memrow"><div class="memav">AG</div><div class="memname">Ania G.<div class="memsub">Nowy podopieczny</div></div><span class="trend up">start</span></div>
+          <div class="memrow"><div class="memav">KN</div><div class="memname">Kasia Nowacka<div class="memsub">Ostatnia sesja: wczoraj</div></div><span class="trend up">−2,1 kg</span></div>
+          <div class="memrow"><div class="memav">PW</div><div class="memname">Piotr Wieczorek<div class="memsub">Ostatnia sesja: 3 dni temu</div></div><span class="trend down">↓ siła</span></div>
+          <div class="memrow"><div class="memav">AG</div><div class="memname">Ania Górska<div class="memsub">Nowy podopieczny · od 14 lipca</div></div><span class="trend up">start</span></div>
           <p class="label" style="margin-top:16px">Najbliższe sesje</p>
           <div class="exrow"><span>17:00 — Kasia N., trening siłowy</span><span class="reps">dziś</span></div>
-          <div class="exrow"><span>18:30 — Piotr W., konsultacja</span><span class="reps">dziś</span></div>
+          <div class="exrow"><span>18:45 — Piotr W., konsultacja</span><span class="reps">dziś</span></div>
         </div>
       </div>
       <p class="cap">Ekran 3 — <b>trener</b>, panel podopiecznych</p>

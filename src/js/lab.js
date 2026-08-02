@@ -2,7 +2,7 @@
 // Overlay #product-overlay: miejsce na trailer + opis. Zamknięcie: „‹ Wróć", klik w tło, Esc.
 // Docelowo: osobne podstrony per produkt (trailer, opis, kilka pozycji) — teraz jeden placeholder.
 
-import { t } from './i18n.js?v=msakzm11';
+import { t } from './i18n.js?v=msbmcvip';
 
 // Asset jako ABSOLUTNY URL z URL modulu - ODPORNE na SPA pushState (jak reszta).
 const DOC_ROOT = new URL('../', import.meta.url).href;
@@ -90,11 +90,11 @@ export function initLab() {
     // 5 realnych platform (mockupy HTML). Każda: plik + nazwa + branża + własny akcent.
     // Karty galerii lecą w swoich barwach; klik → detal z pełnym mockupem (iframe).
     const MOCKUPS = [
-      { file: '../assets/lab/mockupy/01-warsztat-samochodowy.html', thumb: '../assets/lab/mockupy/thumbs/01.webp', name: 'TORQ',        cap: 'Serwis samochodowy',    accent: '#FF5A1F' },
-      { file: '../assets/lab/mockupy/02-druzyna-pilkarska.html',    thumb: '../assets/lab/mockupy/thumbs/02.webp', name: 'Młode Orły',  cap: 'Klub piłkarski dzieci', accent: '#F2C14E' },
-      { file: '../assets/lab/mockupy/03-salon-kosmetyczny.html',    thumb: '../assets/lab/mockupy/thumbs/03.webp', name: 'Atelier Dłoń',cap: 'Salon stylizacji',      accent: '#C9A227' },
-      { file: '../assets/lab/mockupy/04-silownia-fitness.html',     thumb: '../assets/lab/mockupy/thumbs/04.webp', name: 'IRON LAB',    cap: 'Klub fitness',          accent: '#C6FF3D' },
-      { file: '../assets/lab/mockupy/05-restauracja.html',          thumb: '../assets/lab/mockupy/thumbs/05.webp', name: 'Stół.',       cap: 'Restauracja',           accent: '#B08D57' },
+      { file: '../assets/lab/mockupy/01-warsztat-samochodowy.html', thumb: '../assets/lab/mockupy/thumbs/01.webp', name: 'Serwis Wójcik',  cap: 'Serwis samochodowy',    accent: '#FF5A1F' },
+      { file: '../assets/lab/mockupy/02-druzyna-pilkarska.html',    thumb: '../assets/lab/mockupy/thumbs/02.webp', name: 'UKS Iskra',      cap: 'Klub piłkarski dzieci', accent: '#F2C14E' },
+      { file: '../assets/lab/mockupy/03-salon-kosmetyczny.html',    thumb: '../assets/lab/mockupy/thumbs/03.webp', name: 'Nails by Marta', cap: 'Salon stylizacji',      accent: '#C9A227' },
+      { file: '../assets/lab/mockupy/04-silownia-fitness.html',     thumb: '../assets/lab/mockupy/thumbs/04.webp', name: 'Atlas Gym',      cap: 'Klub fitness',          accent: '#C6FF3D' },
+      { file: '../assets/lab/mockupy/05-restauracja.html',          thumb: '../assets/lab/mockupy/thumbs/05.webp', name: 'Zielona 27',     cap: 'Restauracja',           accent: '#B08D57' },
     ];
     const makeCard = (m, i) => {
       const c = document.createElement('button');
