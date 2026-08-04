@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { SVGLoader } from 'three/addons/loaders/SVGLoader.js';
-import { onTick, registerRefraction } from './scene.js?v=msc4a5i0';
-import { navFX, loadFX } from './tint.js?v=msc4a5i0';
+import { onTick, registerRefraction } from './scene.js?v=msekplen';
+import { navFX, loadFX } from './tint.js?v=msekplen';
 
 const _mouse = { x: -9999, y: -9999 };
 window.addEventListener('mousemove', e => { _mouse.x = e.clientX; _mouse.y = e.clientY; });
@@ -241,7 +241,19 @@ export async function initSignet(ctx) {
     // 2026-08-02 UJEDNOLICONE → 1.0. Przy samym dead-froncie zostaje czyste szkło (refrakcja
     // + połysk), a lawa przenosi się na barki bryły i ożywa przy obrocie. To jest ta
     // „droga skromność": front nie krzyczy masą, tylko się mieni.
-    uFrontClear:        { value: 1.0 },
+    // 2026-08-04 ŚCIĄGNIĘTE 1.0 → 0.35 (Kuba, porównanie zrzutów Mac vs iPhone: „na telefonie
+    // wygląda kreskówkowo"). Zmierzone: sygnet zajmuje 8,5% szerokości ekranu na Macu i 34% na
+    // iPhonie — CZTERY RAZY więcej. Na Macu kreska znaku ma ~15 px, czyli jest SAMĄ krawędzią
+    // (wysoki fresnel = pryzmat, rant, odbicia) i wnętrza praktycznie nie widać. Na telefonie
+    // kreska ma ~28 px i wnętrze (fresnel≈0) staje się główną powierzchnią — a przy uFrontClear=1
+    // opal był tam wygaszony DO ZERA, więc zostawało płaskie pole koloru + jedna jasna wstęga.
+    // To jest dokładnie cel-shading, stąd „bajka".
+    // DLACZEGO to była martwa nastawa: 1.0 pochodzi z 07-12, gdy walczyła z prawdziwym mlekiem od
+    // uGlassFloor (0.28) i uBaseFill (0.12). Oba są dziś na 0.0 — lekarstwo zostało po chorobie,
+    // a wycina substancję. Dziś opalCol jest nasyconym fioletem (0.26,0.16,1.0), nie bielą jak
+    // wtedy, więc ryzyko powrotu mleka jest małe. 0.35 zostawia lekkie wyciszenie w samym środku.
+    // POWRÓT: 1.0.
+    uFrontClear:        { value: 0.35 },
     // Minimalne przyciemnienie całej bryły — elegancja > przepych, sygnet lepiej siada w tle.
     // 2026-07-02 (Kuba: „sygnet minimalnie za intensywny, trochę na dół z jasnością"): 0.90→0.84.
     uBodyDim:           { value: 0.84 },
@@ -456,7 +468,15 @@ export async function initSignet(ctx) {
         // element czyta się jak wałek — niezależnie od tego, jak mały jest na ekranie.
         // Zaokrąglenia geometrii podnieść się nie da: blokuje je ogon Q (bevelSize 0.40).
         float rolka = pow(fresnel, uEnvRoll);
-        color += texture2D(tEnv, envUV).rgb * uEnvIntensity * (0.18 + rolka * 0.82);
+        // PODŁOGA ODBICIA 0.18 → 0.06 (2026-08-04) — źródło „białego mleka" na telefonie.
+        // Ten składnik jest BEZWARUNKOWY: dokładał się także przy fresnel=0, czyli na płaskiej
+        // twarzy bryły. A envUV liczy się z samej normalnej, więc CAŁY front próbkuje niemal jeden
+        // teksel panoramy — policzone: reflect((0,0,-1),(0,0,1)) → u≈0.75, v=0.5 → piksel ~768×256,
+        // czyli wprost smuga „wieży" rgba(226,222,255,.95). Prawie biel, rozlana płaską, jednolitą
+        // warstwą po całej twarzy znaku. Na Macu to nie kłuje (front to ułamek znaku), na iPhonie
+        // front jest główną powierzchnią. Rolka na krawędziach (×0.82) NIETKNIĘTA — obłość zostaje.
+        // POWRÓT: 0.18.
+        color += texture2D(tEnv, envUV).rgb * uEnvIntensity * (0.06 + rolka * 0.82);
 
         // Minimalne, równomierne przyciemnienie (elegancja w kontekście ciemnego tła).
         color *= uBodyDim;

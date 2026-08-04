@@ -3,7 +3,7 @@
 // więc baner jest informacyjny + „Rozumiem" (bez opt-outu, bo nie ma czego wyłączać).
 // Akceptację pamiętamy w localStorage → potem się nie pokazuje. Link do polityki jest SPA-proof.
 
-import { t } from './i18n.js?v=msc4a5i0';
+import { t } from './i18n.js?v=msekplen';
 
 const DOC_ROOT = new URL('../', import.meta.url).href;
 const asset = rel => new URL(rel, DOC_ROOT).href;
