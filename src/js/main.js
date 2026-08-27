@@ -25,6 +25,7 @@ import { initLoader }           from './loader.js?v=msekplen';   // Etap 9: load
 import { initPong }             from './pong.js?v=msekplen';     // Easter egg: Chwila relaksu
 import { initGallery }          from './gallery.js?v=msekplen';              // Events: galeria realizacji + lightbox
 import { initLab }              from './lab.js?v=msekplen';                  // Lab: oprogramowanie audio + podstrona produktu
+import { initQpZapis }          from './qp-zapis.js?v=msekplen';             // Qplayer: mini-zgłoszenie „nie mam zaproszenia"
 import { initStudioMonitor }    from './studio.js?v=msekplen';               // Studio: „ożywiony monitor" (smaczek)
 import { initPlayer }           from './player.js?v=msekplen';               // HOME: mini player muzyczny (rolka)
 import { initCookies }          from './cookie-consent.js?v=msekplen';       // Cookie consent (minimalny, tylko niezbędne)
@@ -50,6 +51,7 @@ async function boot() {
   initPong();
   initGallery();                // galeria realizacji działu Events (slideshow + lightbox)
   initLab();                    // Lab: kafelki oprogramowania + podstrona produktu (overlay)
+  initQpZapis();                // Qplayer: mini-zgłoszenie o testy (inline — overlay chował się pod kartą)
   initStudioMonitor();          // Studio: pulsujący monitor-smaczek → lightbox realizacji
   initPlayer();                 // HOME: mini player muzyczny (rolka numerów + tytuł, spięty z waveform)
   initCookies();                // Cookie consent — minimalny baner „tylko niezbędne" (raz, do akceptacji)

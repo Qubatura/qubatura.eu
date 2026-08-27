@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lab — kafelki oprogramowania (poligon)</title>
+<style>
+  @font-face{font-family:'Chakra Petch';font-weight:400;font-display:swap;
+    src:url('../assets/fonts/chakra-petch-400-latin-ext.woff2') format('woff2');
+    unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;}
+  @font-face{font-family:'Chakra Petch';font-weight:400;font-display:swap;
+    src:url('../assets/fonts/chakra-petch-400-latin.woff2') format('woff2');
+    unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;}
+  @font-face{font-family:'Chakra Petch';font-weight:700;font-display:swap;
+    src:url('../assets/fonts/chakra-petch-700-latin-ext.woff2') format('woff2');
+    unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;}
+  @font-face{font-family:'Chakra Petch';font-weight:700;font-display:swap;
+    src:url('../assets/fonts/chakra-petch-700-latin.woff2') format('woff2');
+    unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;}
+  @font-face{font-family:'Space Mono';font-weight:400;font-display:swap;
+    src:url('../assets/fonts/space-mono-400-latin-ext.woff2') format('woff2');
+    unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;}
+  @font-face{font-family:'Space Mono';font-weight:400;font-display:swap;
+    src:url('../assets/fonts/space-mono-400-latin.woff2') format('woff2');
+    unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;}
+
+  /* Wartości 1:1 z src/css/main.css — żeby ocena z poligonu przenosiła się na stronę. */
+  :root{
+    --color-bg:#0A0A0F; --color-lab:#00E5FF; --color-white:#fff;
+    --pg-color:var(--color-lab);
+    --font-display:'Chakra Petch',system-ui,sans-serif;
+    --font-mono:'Space Mono',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    min-height:100vh; font-family:var(--font-display); color:var(--color-white);
+    background:
+      radial-gradient(120% 90% at 78% 42%, rgba(0,229,255,.07), transparent 60%),
+      radial-gradient(90% 70% at 12% 60%, rgba(91,46,255,.10), transparent 62%),
+      linear-gradient(180deg,#0a0812,#060510);
+  }
+
+  /* ── pasek poligonu (nie wchodzi na stronę) ───────────────────────── */
+  .pg-bar{
+    position:fixed; inset:0 0 auto 0; z-index:50;
+    display:flex; gap:18px; align-items:center; flex-wrap:wrap;
+    padding:10px 18px; background:rgba(6,5,15,.86);
+    border-bottom:1px solid rgba(255,255,255,.09);
+    font-family:var(--font-mono); font-size:11px; letter-spacing:.06em;
+    color:rgba(255,255,255,.62);
+  }
+  .pg-bar b{color:var(--color-lab); font-weight:400; letter-spacing:.14em; text-transform:uppercase}
+  .pg-bar label{display:flex; gap:7px; align-items:center; cursor:pointer; user-select:none}
+  .pg-bar input{accent-color:var(--color-lab)}
+
+  /* ── scena: dwie kolumny startujące od tej samej linii ────────────── */
+  .scena{
+    min-height:100vh; padding:78px 5.5vw 40px;
+    display:grid; grid-template-columns:minmax(0,1fr) min(46vw,600px);
+    gap:6vw; align-content:center;
+  }
+  @media (max-width:900px){ .scena{grid-template-columns:minmax(0,1fr); gap:38px} }
+
+  /* ── lewa kolumna: hero 1:1 z .page-title / .page-lead / .page-cta ── */
+  .page-title{
+    font-family:var(--font-display); font-weight:700; text-transform:uppercase;
+    font-size:clamp(26px,3.6vw,42px); line-height:1.08; letter-spacing:.02em;
+    color:var(--color-white); margin:0 0 22px;
+  }
+  .page-lead{
+    font-family:var(--font-mono); font-size:13.5px; line-height:1.72;
+    color:rgba(255,255,255,.68); margin:0 0 22px; max-width:52ch;
+  }
+  .page-services{list-style:none; display:flex; flex-wrap:wrap; gap:10px 22px; margin:0 0 26px}
+  .page-services li{
+    font-family:var(--font-mono); font-size:11px; letter-spacing:.16em; text-transform:uppercase;
+    color:rgba(255,255,255,.5);
+  }
+  .page-showcase{
+    display:block; width:100%; text-align:left; margin:0 0 14px; padding:15px 18px;
+    border:1px solid color-mix(in srgb,var(--color-lab) 22%,transparent);
+    background:color-mix(in srgb,var(--color-lab) 5%,transparent);
+    color:#fff; cursor:pointer; backdrop-filter:blur(6px);
+  }
+  .ps-kicker{
+    display:block; font-family:var(--font-mono); font-size:10.5px; letter-spacing:.18em;
+    text-transform:uppercase; color:rgba(255,255,255,.46); margin-bottom:5px;
+  }
+  .ps-hook{display:block; font-weight:700; font-size:14px}
+  .page-cta{
+    display:block; width:100%; text-align:left; padding:15px 18px; margin:0;
+    font-family:var(--font-display); font-weight:700; font-size:15px; letter-spacing:.01em;
+    color:#fff; cursor:pointer; text-decoration:none;
+    border:1px solid color-mix(in srgb,var(--color-lab) 46%,transparent);
+    background:color-mix(in srgb,var(--color-lab) 11%,transparent);
+    transition:border-color .3s ease,background .3s ease,box-shadow .3s ease;
+  }
+  .page-cta:hover{
+    border-color:color-mix(in srgb,var(--color-lab) 72%,transparent);
+    background:color-mix(in srgb,var(--color-lab) 18%,transparent);
+    box-shadow:0 0 28px -6px color-mix(in srgb,var(--color-lab) 60%,transparent);
+  }
+
+  /* ── prawa kolumna ────────────────────────────────────────────────── */
+  .lab-software{display:flex; flex-direction:column}
+  /* ZMIANA 1 — samo „Oprogramowanie", bez „audio”. Linia bazowa nagłówka siada
+     na pierwszej linii hero: hero ma line-height 1.08 przy ~42px → ok. 30px
+     wcięcia w dół równa optycznie wersalik hero z rozstrzelonym mikro-nagłówkiem. */
+  .pl-head{
+    font-family:var(--font-display); font-weight:700; text-transform:uppercase;
+    font-size:13px; letter-spacing:.34em; color:rgba(255,255,255,.9);
+    margin:0 0 18px; padding-top:11px;
+  }
+  .pl-grid{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; align-items:stretch}
+  body[data-uklad="1"] .pl-grid{grid-template-columns:minmax(0,1fr)}
+  @media (max-width:900px){ .pl-grid{grid-template-columns:minmax(0,1fr)} }
+
+  /* Kafel — frost 1:1 z .pl-card, ale kolumna i wyższy (Kuba: „mogą być na dół”). */
+  .pl-card{
+    position:relative; display:flex; flex-direction:column; align-items:flex-start;
+    gap:0; padding:16px 16px 15px;
+    border:1px solid color-mix(in srgb,var(--pg-color) 22%,transparent);
+    background:linear-gradient(135deg,rgba(139,79,255,.07),rgba(6,5,15,.20));
+    box-shadow:
+      0 0 16px color-mix(in srgb,var(--pg-color) 10%,transparent),
+      inset 0 0 18px color-mix(in srgb,var(--pg-color) 4%,transparent);
+    backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+    transition:border-color .35s ease,background .35s ease,box-shadow .35s ease;
+  }
+  .pl-card:hover{
+    border-color:color-mix(in srgb,var(--pg-color) 60%,transparent);
+    background:linear-gradient(135deg,color-mix(in srgb,var(--pg-color) 10%,transparent),rgba(6,5,15,.24));
+    box-shadow:0 0 26px color-mix(in srgb,var(--pg-color) 22%,transparent),
+               inset 0 0 22px color-mix(in srgb,var(--pg-color) 7%,transparent);
+  }
+
+  /* ZMIANA 2 — PRAWDZIWA ikona aplikacji, ta sama, którą widać na pulpicie.
+     Qplayer: `Qplayer/build/icon.png` (wariant V-final, ten jedzie w paczce).
+     QRent:   `QRent/branding/qrent-1024.png` — wariant B z decyzji D13, wyrenderowany
+              TYM SAMYM generatorem co Qplayer (`QRent/tools/generator-ikony-qrent.py`),
+              więc ramka Q, poświata i gradient są identyczne. Różni się tylko sygnet.
+     Obie zeskalowane do 192 px WebP → po 4,7 kB. */
+  .pl-ikona{
+    width:56px; height:56px; margin-bottom:13px; flex:none; display:block;
+    /* cień jak pod ikoną w docku — odkleja ikonę od szkła kafla */
+    filter:drop-shadow(0 6px 14px rgba(0,0,0,.55));
+    transition:transform .35s ease;
+  }
+  .pl-card:hover .pl-ikona{transform:translateY(-2px)}
+
+  .pl-title{font-size:19px; font-weight:700; letter-spacing:.01em; margin:0 0 7px; line-height:1}
+  .q-mark{color:var(--pg-color)}
+  .pl-krotki{
+    font-family:var(--font-mono); font-size:12px; line-height:1.6;
+    color:rgba(255,255,255,.72); margin:0 0 13px;
+  }
+  /* „featuresy” — lista kreskowana, mono, żeby czytała się jak dane techniczne */
+  .pl-cechy{list-style:none; margin:0 0 14px; display:grid; gap:6px}
+  .pl-cechy li{
+    position:relative; padding-left:15px;
+    font-family:var(--font-mono); font-size:11.5px; line-height:1.45;
+    color:rgba(255,255,255,.56);
+  }
+  .pl-cechy li::before{
+    content:""; position:absolute; left:0; top:.62em; width:7px; height:1px;
+    background:color-mix(in srgb,var(--pg-color) 70%,transparent);
+  }
+  .pl-stopka{margin-top:auto; width:100%; padding-top:12px;
+    border-top:1px solid color-mix(in srgb,var(--pg-color) 14%,transparent)}
+  .pl-cena{font-family:var(--font-display); font-weight:700; font-size:15px; color:#fff; margin:0 0 3px}
+  .pl-cena small{
+    font-family:var(--font-mono); font-weight:400; font-size:11px;
+    color:color-mix(in srgb,var(--pg-color) 80%,#fff); letter-spacing:.02em;
+  }
+  .pl-kiedy{
+    font-family:var(--font-mono); font-size:10.5px; letter-spacing:.1em; text-transform:uppercase;
+    color:rgba(255,255,255,.42); margin:0 0 12px;
+  }
+  /* Status „dzieje się teraz" — inaczej niż premiera, która jest dim i archiwalna.
+     Kropka żyje (ten sam język co „everything lives" w reszcie strony), ale powoli:
+     to informacja, nie alarm. */
+  .pl-status{
+    display:flex; align-items:center; gap:7px; margin:-6px 0 12px;
+    font-family:var(--font-mono); font-size:10.5px; line-height:1.35;
+    color:color-mix(in srgb,var(--pg-color) 62%,#fff);
+  }
+  .pl-status i{
+    flex:none; width:5px; height:5px; border-radius:50%; background:var(--pg-color);
+    box-shadow:0 0 8px var(--pg-color); animation:puls 2.8s ease-in-out infinite;
+  }
+  @keyframes puls{0%,100%{opacity:.45}50%{opacity:1}}
+  @media (prefers-reduced-motion:reduce){ .pl-status i{animation:none;opacity:.9} }
+
+  .pl-cta{
+    align-self:flex-start; font-family:var(--font-mono); font-size:11px; letter-spacing:.12em;
+    text-transform:uppercase; color:var(--pg-color); background:none; cursor:pointer;
+    border:1px solid color-mix(in srgb,var(--pg-color) 45%,transparent); padding:9px 15px;
+    transition:background .3s ease,color .3s ease,box-shadow .3s ease;
+  }
+  .pl-cta:hover{
+    color:#fff; background:color-mix(in srgb,var(--pg-color) 16%,transparent);
+    box-shadow:0 0 22px color-mix(in srgb,var(--pg-color) 40%,transparent);
+  }
+
+  /* ZMIANA 3 — oddech pod kafelkami, guzik ASC dosunięty do dołu kolumny,
+     na wysokości „Opisz projekt”. `margin-top:auto` w kolumnie flex robi to sam,
+     bez magicznych liczb — i trzyma się przy każdej wysokości okna. */
+  .asc-wrap{margin-top:auto; padding-top:34px}
+  .asc-btn{
+    display:flex; align-items:center; gap:13px; width:100%;
+    padding:15px 18px; text-decoration:none; cursor:pointer;
+    border:1px solid rgba(255,255,255,.16);
+    background:rgba(255,255,255,.035);
+    backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+    transition:border-color .3s ease,background .3s ease,box-shadow .3s ease;
+  }
+  .asc-btn:hover{
+    border-color:color-mix(in srgb,var(--color-lab) 55%,transparent);
+    background:color-mix(in srgb,var(--color-lab) 9%,transparent);
+    box-shadow:0 0 28px -8px color-mix(in srgb,var(--color-lab) 55%,transparent);
+  }
+  .asc-znak{
+    flex:none; width:34px; height:34px; display:grid; place-items:center;
+    border:1px solid color-mix(in srgb,var(--color-lab) 34%,transparent);
+    font-family:var(--font-display); font-weight:700; font-size:11.5px; letter-spacing:.06em;
+    color:var(--color-lab);
+  }
+  .asc-txt{display:block; min-width:0}
+  .asc-kicker{
+    display:block; font-family:var(--font-mono); font-size:10px; letter-spacing:.18em;
+    text-transform:uppercase; color:rgba(255,255,255,.4); margin-bottom:3px;
+  }
+  .asc-hook{display:block; font-weight:700; font-size:14px; color:#fff}
+  .asc-strzalka{margin-left:auto; flex:none; color:rgba(255,255,255,.45); font-size:15px;
+    transition:color .3s ease,transform .3s ease}
+  .asc-btn:hover .asc-strzalka{color:var(--color-lab); transform:translate(2px,-2px)}
+
+  /* podgląd starego stanu do porównania */
+  body[data-stare="1"] .nowe{display:none}
+  body:not([data-stare="1"]) .stare{display:none}
+  .stare .pl-card{height:208px; gap:12px; padding:14px 16px}
+  .stare .pl-card .pl-krotki{margin-bottom:0}
+</style>
+</head>
+<body data-uklad="2" data-stare="0">
+
+<div class="pg-bar">
+  <b>poligon · Lab — kafelki</b>
+  <label><input type="checkbox" id="t-uklad"> jeden pod drugim (zamiast 2 obok)</label>
+  <label><input type="checkbox" id="t-stare"> pokaż STARE kafelki (przed zmianą)</label>
+  <span id="pg-info"></span>
+</div>
+
+<div class="scena">
+
+  <!-- ══ LEWA: hero 1:1 z żywą stroną (do sprawdzenia wyrównania) ══ -->
+  <div>
+    <h1 class="page-title">Technologia,<br>design i development</h1>
+    <p class="page-lead">Tworzymy oprogramowanie: aplikacje, platformy i strony www —
+      projektowane (UX) i kodowane od zera, bez gotowców. Robimy też stronę sprzętową:
+      elektronikę i IoT.</p>
+    <ul class="page-services">
+      <li>Aplikacje &amp; software</li><li>Web design</li><li>UX/UI</li><li>IoT</li>
+    </ul>
+    <button class="page-showcase" type="button">
+      <span class="ps-kicker">Systemy · platformy · aplikacje</span>
+      <span class="ps-hook">Zbudujemy to pod Twoją branżę →</span>
+    </button>
+    <a class="page-cta" href="#" onclick="return false">Opisz projekt →</a>
+  </div>
+
+  <!-- ══ PRAWA: oprogramowanie ══ -->
+  <section class="lab-software">
+    <p class="pl-head nowe">Oprogramowanie</p>
+    <p class="pl-head stare">Oprogramowanie audio</p>
+
+    <!-- ── NOWE ─────────────────────────────────────────────────────── -->
+    <div class="pl-grid nowe">
+
+      <article class="pl-card">
+        <img class="pl-ikona" src="../assets/ikony/qplayer-192.webp" alt="" aria-hidden="true"
+             width="56" height="56" loading="lazy" decoding="async">
+        <p class="pl-title"><span class="q-mark">Q</span>player</p>
+        <p class="pl-krotki">Bezpieczny, lekki i mądry ProPlayer, znacząco usprawniający
+          pracę z dźwiękiem na evencie.</p>
+        <!-- Kuba, 27.08: nie tłumaczymy funkcji, tylko je NAZYWAMY. Kto chce, doczyta
+             na podstronie produktu. Kafel ma powiedzieć „to ma własne silniki", a nie
+             uczyć, czym jest automix. Nazwy grepnięte z FEATURES.md — QSegue i QLevel
+             to jedyne dwa własne silniki, reszty nie wymyślamy. -->
+        <ul class="pl-cechy">
+          <li>Autorski silnik QSegue — inteligentny automix w trzech trybach</li>
+          <li>QLevel — wyrównanie głośności wg standardu nadawczego EBU R128</li>
+          <li>Miernik wyjścia w LUFS i dBFS</li>
+          <li>Cztery sekcje: listy A/B, jingle, sampler</li>
+        </ul>
+        <div class="pl-stopka">
+          <!-- 🔒 Dwa PLANY, nie jedna cena podana dwa razy (Kuba 27.08 — wcześniej stało
+               „21 zł/mies.", czyli 249/12; obie liczby mówiły to samo i miesiąc nie miał
+               po co istnieć). Teraz 12 × 29 = 348 zł, więc rok za 249 zł oszczędza 99 zł
+               (28%) — i to on jest planem, do którego się prowadzi. -->
+          <p class="pl-cena">29 zł/mies. <small>· 249 zł/rok, preorder 199 zł</small></p>
+          <p class="pl-kiedy">Premiera wersji komercyjnej · wrzesień 2026</p>
+          <button class="pl-cta" type="button">Wersja testowa →</button>
+        </div>
+      </article>
+
+      <article class="pl-card">
+        <img class="pl-ikona" src="../assets/ikony/qrent-192.webp" alt="" aria-hidden="true"
+             width="56" height="56" loading="lazy" decoding="async">
+        <p class="pl-title"><span class="q-mark">Q</span>rent</p>
+        <p class="pl-krotki">Kompleksowy system ofertowo-magazynowy dla firm eventowych.</p>
+        <ul class="pl-cechy">
+          <li>Inteligentne budowanie ofert</li>
+          <li>Baza sprzętu z realną dostępnością</li>
+          <li>Skanowanie przy wydaniu i zwrocie</li>
+          <li>Historia, kompletacja, braki</li>
+        </ul>
+        <div class="pl-stopka">
+          <p class="pl-cena">od 149 zł/mies.</p>
+          <p class="pl-kiedy">Planowana premiera · październik 2026</p>
+          <!-- ⚠️ SPRAWDŹ PRZED PUSHEM: to zdanie jest prawdziwe dopiero wtedy, gdy beta
+               naprawdę stoi u klienta. Na 27.08 QRent nie ma jeszcze kodu. Kuba wie
+               i tak zdecydował — ale jeśli publikujemy wcześniej, ta linijka wylatuje. -->
+          <p class="pl-status"><i aria-hidden="true"></i>Aktualnie wdrożenie wersji beta u klienta</p>
+          <button class="pl-cta" type="button">Zapytaj o wdrożenie →</button>
+        </div>
+      </article>
+
+    </div>
+
+    <!-- ── STARE (do porównania) ────────────────────────────────────── -->
+    <div class="pl-grid stare">
+      <article class="pl-card">
+        <p class="pl-title"><span class="q-mark">Q</span>player</p>
+        <p class="pl-krotki">Bezpieczny, lekki i mądry ProPlayer, znacząco usprawniający
+          pracę z dźwiękiem na evencie.</p>
+        <div class="pl-stopka" style="border:0;margin-top:auto;padding-top:0">
+          <p class="pl-kiedy">Premiera · wrzesień 2026</p>
+          <button class="pl-cta" type="button">Zobacz więcej →</button>
+        </div>
+      </article>
+      <article class="pl-card">
+        <p class="pl-title"><span class="q-mark">Q</span>tune</p>
+        <p class="pl-krotki">Przyjazny soft pomagający stroić PA — RTA, faza, delay i reszta.</p>
+        <div class="pl-stopka" style="border:0;margin-top:auto;padding-top:0">
+          <p class="pl-kiedy">Wkrótce</p>
+          <span class="pl-cta" style="cursor:default">w produkcji</span>
+        </div>
+      </article>
+    </div>
+
+    <!-- ── GUZIK ASC ────────────────────────────────────────────────── -->
+    <div class="asc-wrap">
+      <a class="asc-btn" href="https://ascagencja.pl" target="_blank" rel="noopener">
+        <span class="asc-znak" aria-hidden="true">ASC</span>
+        <span class="asc-txt">
+          <span class="asc-kicker">Agencja Systemów Cyfrowych</span>
+          <span class="asc-hook">Zajrzyj do naszej agencji</span>
+        </span>
+        <span class="asc-strzalka" aria-hidden="true">↗</span>
+      </a>
+    </div>
+
+  </section>
+</div>
+
+<script>
+  const b = document.body;
+  t_uklad.onchange = e => b.dataset.uklad = e.target.checked ? '1' : '2';
+  t_stare.onchange = e => b.dataset.stare = e.target.checked ? '1' : '0';
+
+  // Pomiar, nie oko: czy nagłówek prawej kolumny stoi na pierwszej linii hero
+  // i czy guzik ASC siada na „Opisz projekt". Liczby lecą na pasek.
+  function zmierz(){
+    const h1  = document.querySelector('.page-title').getBoundingClientRect();
+    const cta = document.querySelector('.page-cta').getBoundingClientRect();
+    const head= document.querySelector('.pl-head.nowe').getBoundingClientRect();
+    const asc = document.querySelector('.asc-btn').getBoundingClientRect();
+    pg_info.textContent =
+      `nagłówek vs hero: ${(head.top - h1.top).toFixed(0)} px · ` +
+      `ASC vs „Opisz projekt": ${(asc.bottom - cta.bottom).toFixed(0)} px`;
+  }
+  addEventListener('resize', zmierz);
+  document.fonts.ready.then(zmierz);
+  zmierz();
+</script>
+</body>
+</html>

@@ -34,12 +34,53 @@ export function initLab() {
     if (location.pathname === '/qplayer') history.replaceState({ path: '/lab' }, '', '/lab');
   };
 
-  // Delegacja: każdy [data-product] otwiera overlay (na razie wspólny placeholder).
+  // ── Dodatkowe karty produktów ───────────────────────────────────────────────
+  // Każda działa tak samo jak karta Qplayera: własny adres (/qrent), Wstecz zamyka,
+  // klik w tło i Esc zamykają. Karta Qplayera zostaje osobno, bo ma jeszcze
+  // formularz kodu i pływający uchwyt „Pobierz" — tamtego nie uogólniamy na siłę.
+  const KARTY = {};
+  for (const [nazwa, id] of [['qrent', 'qrent-overlay']]) {
+    const el = document.getElementById(id);
+    if (!el) continue;
+    const sciezka = '/' + nazwa;
+    const otworz = () => {
+      el.classList.add('is-open');
+      el.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('lb-locked');
+      if (location.pathname !== sciezka) history.pushState({ path: sciezka }, '', sciezka);
+    };
+    const zamknij = () => {
+      el.classList.remove('is-open');
+      el.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('lb-locked');
+      if (location.pathname === sciezka) history.replaceState({ path: '/lab' }, '', '/lab');
+    };
+    el.querySelector('.prod-close')?.addEventListener('click', zamknij);
+    el.addEventListener('click', e => { if (e.target === el) zamknij(); });
+    window.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && el.classList.contains('is-open')) zamknij();
+    });
+    window.addEventListener('popstate', () => {
+      if (location.pathname === sciezka) otworz();
+      else if (el.classList.contains('is-open')) zamknij();
+    });
+    // Wejście PROSTO z linku (mail, zakładka, F5 na /qrent).
+    if (location.pathname === sciezka) otworz();
+    KARTY[nazwa] = { open: otworz, close: zamknij };
+  }
+
+  // Delegacja: [data-product] otwiera kartę TEGO produktu.
+  // ⚠️ Do 27.08 każdy [data-product] otwierał kartę Qplayera — było jedno.
+  //    Teraz wartość atrybutu decyduje, więc dołożenie trzeciego softu to
+  //    jeden wpis w KARTY i overlay w HTML, bez ruszania tej logiki.
   document.addEventListener('click', e => {
     const trg = e.target.closest('[data-product]');
     if (!trg) return;
     e.preventDefault();
-    open();
+    const ktory = trg.dataset.product;
+    if (ktory === 'qplayer') return open();
+    const inna = KARTY[ktory];
+    if (inna) inna.open();
   });
 
   // Kod z adresu: /qplayer?kod=QP-XXXX-XXXX-XXXX → pole wypełnia się samo.

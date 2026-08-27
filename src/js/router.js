@@ -29,6 +29,8 @@ const ROUTES = {
   // Dzięki temu link z maila prowadzi prosto do Qplayera, a „‹ Wróć" zostawia człowieka
   // w Labie, a nie wyrzuca go na hero. Trasa musi też istnieć w .htaccess (F5 / deep link).
   '/qplayer': { view: 'page-lab',     div: 'lab'     },
+  // to samo dla QRenta — karta produktu żyje nad podstroną Lab, nie zamiast niej
+  '/qrent':   { view: 'page-lab',     div: 'lab'     },
 };
 
 export function initRouter() {

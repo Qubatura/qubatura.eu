@@ -2,3 +2,6 @@ dist/
 
 # master assets (nie deployować)
 _source/
+
+# zrzuty robocze z Electrona (tools/zmierz-lab.cjs, tools/zrzut-qrent.cjs) — nie do repo
+.zrzuty/

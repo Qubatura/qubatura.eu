@@ -405,19 +405,43 @@
          Dziecko #page (nie artykułu). Linia softu audio Qubatury z pieczęcią Q (spina z sygnetem):
          Karta 1 = Qplayer (guzik → podstrona produktu), karta 2 = Qtune (w produkcji, bez podstrony).
          Widoczne tylko na Lab. -->
-    <section class="lab-software" aria-label="Oprogramowanie audio — Qubatura Lab" data-en-aria-label="Audio software — Qubatura Lab">
-      <p class="pl-head" data-en="Audio software">Oprogramowanie audio</p>
+    <section class="lab-software" aria-label="Oprogramowanie — Qubatura Lab" data-en-aria-label="Software — Qubatura Lab">
+      <!-- 2026-08-27 (Kuba): „audio" WYPADA z nagłówka. Lab nie robi już wyłącznie softu
+           audio — QRent nie ma z dźwiękiem nic wspólnego, a nagłówek go wykluczał. -->
+      <p class="pl-head" data-en="Software">Oprogramowanie</p>
       <div class="pl-grid">
-        <article class="pl-card lab-card">
-          <div class="pl-text">
-            <!-- 2026-08-02 (Kuba): „wywal to Web Audio API, kogo to obchodzi". Racja — realizator
-                 nie kupuje technologii, tylko spokój na evencie. Zamiast stosu: co to robi i kiedy. -->
-            <p class="pl-title"><span class="q-mark">Q</span>player</p>
-            <p class="pl-meta" data-en="A safe, light and smart pro player that makes a real difference to running sound at an event.">Bezpieczny, lekki i mądry ProPlayer, znacząco usprawniający pracę z dźwiękiem na evencie.</p>
-            <p class="pl-meta pl-kiedy" data-en="Launch · September 2026">Premiera · wrzesień 2026</p>
+
+        <article class="pl-card lab-card" data-produkt="qplayer">
+          <!-- Ikona = PRAWDZIWA ikona aplikacji (`Qplayer/build/icon.png`, wariant V-final),
+               nie rysunek pod stronę. 192 px WebP, 4,7 kB. -->
+          <img class="pl-ikona" src="../assets/ikony/qplayer-192.webp" alt="" aria-hidden="true"
+               width="56" height="56" loading="lazy" decoding="async">
+          <p class="pl-title"><span class="q-mark">Q</span>player</p>
+          <!-- 2026-08-02 (Kuba): „wywal to Web Audio API, kogo to obchodzi". Racja — realizator
+               nie kupuje technologii, tylko spokój na evencie. Zamiast stosu: co to robi i kiedy. -->
+          <p class="pl-meta" data-en="A safe, light and smart pro player that makes a real difference to running sound at an event.">Bezpieczny, lekki i mądry ProPlayer, znacząco usprawniający pracę z dźwiękiem na evencie.</p>
+          <!-- 2026-08-27 (Kuba): funkcji NIE tłumaczymy, tylko je NAZYWAMY — kto chce, doczyta
+               na podstronie produktu. Nazwy sprawdzone w `Qplayer/FEATURES.md`: QSegue i QLevel
+               to jedyne dwa własne silniki, reszty nie chrzcimy. -->
+          <ul class="pl-cechy">
+            <li data-en="QSegue — our own automix engine, in three modes">Autorski silnik QSegue — inteligentny automix w trzech trybach</li>
+            <li data-en="QLevel — loudness matching to the EBU R128 broadcast standard">QLevel — wyrównanie głośności wg standardu nadawczego EBU R128</li>
+            <li data-en="Output metering in LUFS and dBFS">Miernik wyjścia w LUFS i dBFS</li>
+            <li data-en="Four sections: A/B lists, jingles, sampler">Cztery sekcje: listy A/B, jingle, sampler</li>
+          </ul>
+          <div class="pl-stopka">
+            <!-- 🔒 Dwa PLANY, nie jedna cena podana dwa razy: 12 × 29 = 348 zł, więc rok
+                 za 249 zł oszczędza 99 zł (28%) — i to on jest planem, do którego prowadzimy. -->
+            <p class="pl-cena">29 zł/mies. <small data-en="· PLN 249/year, preorder PLN 199">· 249 zł/rok, preorder 199 zł</small></p>
+            <p class="pl-kiedy" data-en="Commercial release · September 2026">Premiera wersji komercyjnej · wrzesień 2026</p>
+            <button class="pl-cta" type="button" data-product="qplayer" data-en="Learn more →">Dowiedz się więcej →</button>
           </div>
-          <button class="pl-cta" type="button" data-product="qplayer" data-en="Learn more →">Zobacz więcej →</button>
         </article>
+
+        <!-- 2026-08-27: Qtune ZAPARKOWANY, nie skasowany (Kuba: „wyrzucimy NA RAZIE
+             qtune"). Leży tu w całości, żeby wrócił odkomentowaniem, a nie odtwarzaniem
+             z pamięci. ⚠️ Wracając: dorób mu ikonę (dziś nie istnieje) — inaczej stanie
+             obok dwóch kafli z ikonami jako jedyny bez.
         <article class="pl-card lab-card is-soon">
           <div class="pl-text">
             <p class="pl-title"><span class="q-mark">Q</span>tune</p>
@@ -426,6 +450,48 @@
           </div>
           <span class="pl-cta is-tag" data-en="in development">w produkcji</span>
         </article>
+        -->
+
+        <article class="pl-card lab-card" data-produkt="qrent">
+          <!-- Ikona wyrenderowana TYM SAMYM generatorem co Qplayer
+               (`QRent/tools/generator-ikony-qrent.py`) — ramka Q, poświata i gradient
+               identyczne, różni się wyłącznie sygnet. Wariant B z decyzji D13, cyjan #2ED3E6. -->
+          <img class="pl-ikona" src="../assets/ikony/qrent-192.webp" alt="" aria-hidden="true"
+               width="56" height="56" loading="lazy" decoding="async">
+          <p class="pl-title"><span class="q-mark">Q</span>rent</p>
+          <p class="pl-meta" data-en="A complete quoting and inventory system for event companies.">Kompleksowy system ofertowo-magazynowy dla firm eventowych.</p>
+          <ul class="pl-cechy">
+            <li data-en="Smart quote building">Inteligentne budowanie ofert</li>
+            <li data-en="Equipment database with real availability">Baza sprzętu z realną dostępnością</li>
+            <li data-en="Scanning on check-out and return">Skanowanie przy wydaniu i zwrocie</li>
+            <li data-en="History, pick lists, shortages">Historia, kompletacja, braki</li>
+          </ul>
+          <div class="pl-stopka">
+            <p class="pl-cena" data-en="from PLN 149/month">od 149 zł/mies.</p>
+            <p class="pl-kiedy" data-en="Planned release · October 2026">Planowana premiera · październik 2026</p>
+            <!-- ⚠️ SPRAWDŹ PRZED KAŻDYM PUSHEM: to zdanie jest prawdziwe dopiero wtedy, gdy
+                 beta naprawdę stoi u klienta. Na 27.08 QRent nie ma jeszcze kodu (decyzja Kuby,
+                 świadoma). Jeśli publikujemy wcześniej — ta jedna linijka wylatuje. -->
+            <p class="pl-status"><i aria-hidden="true"></i><span data-en="Beta currently rolling out with a client">Aktualnie wdrożenie wersji beta u klienta</span></p>
+            <button class="pl-cta" type="button" data-product="qrent" data-en="Learn more →">Dowiedz się więcej →</button>
+          </div>
+        </article>
+
+      </div>
+
+      <!-- Wyjście do ASC — osobnej linii usług, więc osobna strona i NOWA KARTA.
+           Strzałka ukośna, nie prosta: na tej stronie „→" znaczy „zostajesz u nas". -->
+      <div class="asc-wrap">
+        <a class="asc-btn" href="https://ascagencja.pl" target="_blank" rel="noopener"
+           aria-label="Zajrzyj do naszej agencji ASC — otwiera się w nowej karcie"
+           data-en-aria-label="Visit our agency ASC — opens in a new tab">
+          <span class="asc-znak" aria-hidden="true">ASC</span>
+          <span class="asc-txt">
+            <span class="asc-kicker" data-en="Digital Systems Agency">Agencja Systemów Cyfrowych</span>
+            <span class="asc-hook" data-en="Visit our agency">Zajrzyj do naszej agencji</span>
+          </span>
+          <span class="asc-strzalka" aria-hidden="true">↗</span>
+        </a>
       </div>
     </section>
 
@@ -775,17 +841,56 @@
         </form>
 
         <!-- Ścieżka dla kogoś BEZ zaproszenia. Celowo POD formularzem i wyciszona: to furtka,
-             nie konkurencja dla głównej akcji. Otwiera zwykły overlay kontaktu ([data-contact]).
+             nie konkurencja dla głównej akcji.
+             ⚠️ 2026-08-05 — BYŁO [data-contact] (otwarcie #contact-overlay) i NIE DZIAŁAŁO.
+             Przyczyna policzona, nie zgadnięta: .product-overlay ma z-index 1050,
+             #contact-overlay 1000 → kontakt otwierał się POD kartą i był zasłonięty jej
+             tłem rgba(6,5,15,.9). Z zewnątrz objaw brzmiał „nic się nie dzieje".
+             Formularz jest teraz INLINE — nic się nie nakłada, więc klasa błędu znika
+             u źródła, zamiast być obchodzona kolejnym z-indeksem.
              ⚠️ Dwa różne okresy i to jest zamierzone: zaproszenie VIP = 30 dni, zgłoszenie
              z ulicy = 14 dni. Zaproszenie ma być warte więcej niż napisanie maila. -->
         <div class="qp-zapis">
           <p>Nie masz zaproszenia? Napisz do nas — dostaniesz <b>14 dni testów</b>.</p>
-          <button type="button" class="qp-zapis-btn" data-contact>
+          <button type="button" class="qp-zapis-btn" id="qp-zapis-open"
+                  aria-expanded="false" aria-controls="qp-zapis-form">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
                  stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="M3.5 6.5h17v11h-17z"/><path d="m3.5 7 8.5 6 8.5-6"/>
             </svg>Napisz do nas</button>
         </div>
+
+        <!-- Mini-zgłoszenie: kto, skąd, gdzie gra. Kod wysyła Kuba RĘCZNIE po przeczytaniu
+             maila — świadomie, bo to jest moment kwalifikacji człowieka, nie automat. -->
+        <form class="qp-zg" id="qp-zapis-form" hidden>
+          <div class="qp-zg-pola">
+            <label>Imię i nazwisko<input type="text" name="imie" required autocomplete="name"></label>
+            <label>E-mail<input type="email" name="mail" required autocomplete="email"></label>
+            <label>Miasto<input type="text" name="miasto" required autocomplete="address-level2"></label>
+            <label>Gdzie grasz
+              <select name="gdzie" required>
+                <option value="" selected disabled>wybierz…</option>
+                <option>Wesela i imprezy prywatne</option>
+                <option>Konferencje i gale</option>
+                <option>Hotele i sale bankietowe</option>
+                <option>Kluby i koncerty</option>
+                <option>Teatr i scena</option>
+                <option>Radio / studio</option>
+                <option>Inne</option>
+              </select>
+            </label>
+          </div>
+          <!-- Honeypot: człowiek tego nie widzi. Bot wypełnia → send.php udaje sukces
+               i NIE wysyła maila. Ten sam mechanizm co w konsolecie Kontaktu. -->
+          <input type="text" name="botcheck" class="qp-zg-hp" tabindex="-1"
+                 autocomplete="off" aria-hidden="true">
+          <div class="qp-zg-stopka">
+            <button type="submit" class="qp-btn primary">Wyślij zgłoszenie</button>
+            <p class="qp-zg-nota">Dane lecą mailem na biuro@qubatura.eu i zostają u nas —
+              żadnego pośrednika. Kod odsyłamy osobiście.</p>
+          </div>
+          <p class="qp-zg-status" role="status" aria-live="polite"></p>
+        </form>
 
         <!-- MAPA DROGOWA — tuż nad cennikiem, bo odpowiada na pytanie, które człowiek zadaje
              sobie dokładnie przed spojrzeniem na cenę: „co jeszcze dostanę za te pieniądze".
@@ -821,6 +926,86 @@
         <div><span class="k">Systemy</span><span class="v">Windows 10/11 · macOS — Apple Silicon i Intel, osobne paczki</span></div>
         <div><span class="k">Formaty</span><span class="v">MP3 · MP2 · AAC · M4A · FLAC · ALAC · WAV · AIFF · OGG · OPUS · WMA · WebM · 16/24/32-bit</span></div>
       </div>
+    </div>
+  </div>
+
+  <!-- ══ KARTA QRent ══════════════════════════════════════════════════════════════
+       Świadomie CHUDSZA niż karta Qplayera: tamten ma produkt do pobrania, ten ma
+       na razie prototyp i rozmowę. Rozbudowana karta obiecywałaby gotowy soft.
+       ⚠️ Zrzuty pochodzą z `QRent/prototyp/index.html` (`tools/zrzut-qrent.cjs`).
+          Dane w nich są WYMYŚLONE — „Kowalski sp. z o.o.", „Festyn Sosnowiec".
+          🔴 Żadnych danych realnego klienta na tej karcie. Nigdy.
+       Telefon jest rysowany CSS-em, nie zrzutem: prototyp nie ma wersji mobilnej,
+       a zrzut ściśniętego desktopu wyglądałby jak zepsuta strona. To makieta i tak
+       się nazywa na ekranie — nie udajemy, że to działający ekran. -->
+  <div id="qrent-overlay" class="product-overlay" role="dialog" aria-modal="true"
+       aria-label="QRent — Qubatura Lab" data-en-aria-label="QRent — Qubatura Lab" aria-hidden="true">
+    <div class="pcard">
+      <span class="pc-tick tl"></span><span class="pc-tick tr"></span><span class="pc-tick bl"></span><span class="pc-tick br"></span>
+      <button class="prod-close" type="button" aria-label="Zamknij — wróć" data-en-aria-label="Close — go back" data-en="‹ Back">‹ Wróć</button>
+
+      <section class="qr-hero">
+        <img class="qr-ikona" src="../assets/ikony/qrent-192.webp" alt="" aria-hidden="true"
+             width="72" height="72" loading="eager" decoding="async">
+        <p class="qp-kicker" data-en="Qubatura Lab · software for event companies">Qubatura Lab · oprogramowanie dla firm eventowych</p>
+        <h2 class="qp-h1"><span class="q">Q</span>rent</h2>
+        <p class="qp-lead" data-en="Quote, warehouse and crew — in one place.">Oferta, magazyn i ludzie — w jednym miejscu.</p>
+        <p class="qp-sub" data-en="Instead of a spreadsheet, a folder of PDFs and &quot;check if we have it&quot; — one system that knows what you own, where it is and what it earns.">Zamiast arkusza, folderu z PDF-ami i „sprawdź, czy mamy" — jeden system,
+          który wie, co macie, gdzie to jest i ile na tym zarabiacie.</p>
+      </section>
+
+      <section class="qr-ekrany" aria-label="Ekrany z prototypu" data-en-aria-label="Screens from the prototype">
+        <figure class="qr-fig">
+          <img src="../assets/lab/qrent-pulpit.webp" width="1200" height="500" loading="lazy" decoding="async"
+               alt="QRent — pulpit: co dziś wyjeżdża, co wraca, przygotuj ofertę"
+               data-en-alt="QRent — dashboard: what ships today, what comes back, start a quote">
+          <figcaption data-en="Dashboard — what ships today, what comes back, what needs attention.">Pulpit — co dziś wyjeżdża, co wraca, co wymaga uwagi.</figcaption>
+        </figure>
+        <figure class="qr-fig">
+          <img src="../assets/lab/qrent-magazyn.webp" width="1200" height="742" loading="lazy" decoding="async"
+               alt="QRent — magazyn: lista sprzętu z sekcją, rolą, ilością, stawką i stanem"
+               data-en-alt="QRent — warehouse: equipment list with section, role, quantity, rate and status">
+          <figcaption data-en="Warehouse — every item has a role, a rate and a status. The role, not the model, drives the suggestions.">Magazyn — każda pozycja ma rolę, stawkę i stan. To rola, nie model, napędza podpowiedzi.</figcaption>
+        </figure>
+      </section>
+
+      <section class="qr-mobil">
+        <div class="qr-tel" aria-hidden="true">
+          <div class="qr-tel-ekran">
+            <div class="qr-tel-pasek"><span class="qr-tel-kropka"></span>QRent</div>
+            <div class="qr-tel-skan">
+              <span class="qr-ramka"><i></i></span>
+              <p class="qr-tel-model">Seeburg G Sub</p>
+              <p class="qr-tel-rola">subbas · 8 szt.</p>
+            </div>
+            <div class="qr-tel-lista">
+              <div><span>Seeburg GL16</span><b>6/6</b></div>
+              <div><span>Shure SM58</span><b>12/12</b></div>
+              <div><span>Statyw K&amp;M</span><b>13/14</b></div>
+            </div>
+            <div class="qr-tel-stopka">Wydanie · Festyn Sosnowiec</div>
+          </div>
+        </div>
+        <div class="qr-mobil-txt">
+          <p class="qr-etykieta" data-en="Concept — not a working screen">Makieta — nie działający ekran</p>
+          <h3 data-en="The warehouse runs off a phone">Magazyn obsługuje się z telefonu</h3>
+          <p data-en="Loading a van is not a desk job. Scan on check-out, scan on return — the system counts, and what is missing shows up before the van leaves, not a week later.">Pakowanie busa to nie robota przy biurku. Skan przy wydaniu, skan przy zwrocie —
+            system liczy sam, a braki widać zanim bus odjedzie, nie tydzień później.</p>
+        </div>
+      </section>
+
+      <section class="qr-stopka">
+        <div class="qr-cena">
+          <p class="qr-kwota" data-en="from PLN 149/month">od 149 zł/mies.</p>
+          <p class="qr-kiedy" data-en="Planned release · October 2026">Planowana premiera · październik 2026</p>
+          <p class="pl-status"><i aria-hidden="true"></i><span data-en="Beta currently rolling out with a client">Aktualnie wdrożenie wersji beta u klienta</span></p>
+        </div>
+        <div class="qr-akcje">
+          <button class="qp-btn primary" type="button" data-contact data-contact-tor="lab"
+                  data-en="Ask about deployment">Zapytaj o wdrożenie</button>
+          <p class="qr-nota" data-en="Every warehouse is different — we start with a conversation about yours, not with a price list.">Każdy magazyn jest inny — zaczynamy od rozmowy o Twoim, nie od cennika.</p>
+        </div>
+      </section>
     </div>
   </div>
 

@@ -1368,25 +1368,222 @@ body.lb-locked { overflow: hidden; }
 .lab-software {
   display: none;                      /* widoczne tylko na Lab */
   position: absolute;
-  /* wyrównane do góry — nagłówek na wysokości hero „Technologia…", oddech na dole.
-     (offset ≈ połowa wysokości bloku hero; do drobnego nudge'a przy ocenie na żywo) */
-  top: calc(50% - 198px);
+  /* 2026-08-27 — BYŁO `top: calc(50% - 198px)`, czyli offset dobrany ręcznie. Przy dwóch
+     kaflach o innej wysokości ta liczba przestawała znaczyć cokolwiek, a nagłówek stawał
+     obok hero, nie na nim. Teraz kolumna dostaje TE SAME granice pionowe co blok treści
+     po lewej (`.page-view` jest wyśrodkowany w `#page`), a wyrównanie robi flex:
+     nagłówek u góry, guzik ASC przyklejony do dołu przez `margin-top:auto`.
+     ⚠️ Nie wracaj do stałej liczby pikseli — złamie się przy każdej zmianie treści kafla. */
+  top: 50%;
+  transform: translateY(-50%);
   right: 5.5vw;
-  width: min(46vw, 600px);
+  width: min(50vw, 668px);
+  /* Granice: nie wyżej niż topbar, nie niżej niż stopka sceny. Kolumna ma się mieścić
+     bez scrolla — to jest strona bez przewijania na desktopie. */
+  max-height: min(78vh, 760px);
   pointer-events: auto;
 }
-#page[data-division="lab"] .lab-software { display: block; }
-/* Karta Lab — kolumna: tekst u góry + guzik/tag PRZYPIĘTY do dołu (tytuły obu kart równo).
+#page[data-division="lab"] .lab-software { display: flex; flex-direction: column; }
+
+/* Nagłówek prawej kolumny siada na PIERWSZEJ linii hero. `.page-title` ma
+   font-size clamp(26px,3.6vw,42px) i line-height 1.08, więc jego wersalik zaczyna się
+   ~11px poniżej krawędzi bloku; ten padding wyrównuje optycznie mikro-nagłówek
+   (13px, rozstrzelony) do tamtego wersalika. Zmierzone, nie ocenione okiem. */
+.lab-software .pl-head { padding-top: 11px; margin-bottom: 13px; }
+
+/* Karta Lab — kolumna: ikona → nazwa → zdanie → cechy → stopka przypięta do dołu.
    Selektor .pl-card.lab-card (0,2,0) — MUSI przebić późniejsze .pl-card (height/align-items). */
 .pl-card.lab-card {
   flex-direction: column;
   align-items: flex-start;
   justify-content: flex-start;
-  gap: 12px;
-  height: 208px;                      /* większe, jednakowe kafle */
+  gap: 0;
+  /* 2026-08-27 (Kuba: „kafelki trochę większe, na dół mogą być"). Stała wysokość
+     ZNIKA — treść obu kafli jest dziś różnej długości, a `height` ucinało cechy.
+     Równość trzyma `align-items: stretch` na siatce + stopka na `margin-top:auto`. */
+  height: auto;
+  padding: 14px 16px 14px;
 }
+/* ⚠️ Bazowe `.pl-grid` ma `align-items: start` i stoi PÓŹNIEJ w pliku (linia ~2142),
+   więc przy równej wadze selektora wygrywało — kafle wychodziły różnej wysokości
+   (492 i 430 px w pomiarze). Scope przez `.lab-software` podbija wagę i naprawia to
+   u źródła, zamiast dopisywać `!important`. Studio zostaje nietknięte. */
+.lab-software .pl-grid { align-items: stretch; }
 .pl-card.lab-card .pl-text { width: 100%; }
-.lab-card .pl-cta { margin-top: auto; }   /* guzik/tag do dołu → nazwy na jednej wysokości */
+
+/* PRAWDZIWA ikona aplikacji — ta sama, którą widać na pulpicie, nie rysunek pod stronę.
+   Cień jak pod ikoną w docku: odkleja ją od szkła kafla, inaczej tonie w froście. */
+.lab-card .pl-ikona {
+  width: 50px;
+  height: 50px;
+  margin-bottom: 11px;
+  flex: none;
+  display: block;
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.55));
+  transition: transform 0.35s ease;
+}
+.lab-card:hover .pl-ikona { transform: translateY(-2px); }
+
+/* Cechy produktu — lista kreskowana, mono: ma się czytać jak dane techniczne,
+   nie jak akapit marketingowy. Kreska w kolorze działu spina ją z resztą Laba. */
+.lab-card .pl-cechy {
+  list-style: none;
+  margin: 10px 0 9px;
+  padding: 0;
+  display: grid;
+  gap: 5px;
+}
+.lab-card .pl-cechy li {
+  position: relative;
+  padding-left: 14px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.42;
+  color: rgba(255, 255, 255, 0.56);
+}
+.lab-card .pl-cechy li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.62em;
+  width: 7px;
+  height: 1px;
+  background: color-mix(in srgb, var(--pg-color, var(--color-lab)) 70%, transparent);
+}
+
+/* Stopka kafla — cena, termin, guzik. Przypięta do dołu, więc guziki obu kart
+   stoją na jednej linii niezależnie od tego, ile kto ma tekstu. */
+.lab-card .pl-stopka {
+  margin-top: auto;
+  width: 100%;
+  padding-top: 9px;
+  border-top: 1px solid color-mix(in srgb, var(--pg-color, var(--color-lab)) 14%, transparent);
+}
+.lab-card .pl-cena {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 15px;
+  color: #fff;
+  margin: 0 0 3px;
+}
+.lab-card .pl-cena small {
+  font-family: var(--font-mono);
+  font-weight: 400;
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  color: color-mix(in srgb, var(--pg-color, var(--color-lab)) 80%, #fff);
+}
+
+/* Status „dzieje się teraz" — świadomie inny niż `.pl-kiedy` (data w przyszłości,
+   przygaszona). Kropka żyje, ale powoli: to informacja, nie alarm. */
+.lab-card .pl-status {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 5px 0 12px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  line-height: 1.35;
+  color: color-mix(in srgb, var(--pg-color, var(--color-lab)) 62%, #fff);
+}
+.lab-card .pl-status i {
+  flex: none;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--pg-color, var(--color-lab));
+  box-shadow: 0 0 8px var(--pg-color, var(--color-lab));
+  animation: pl-status-puls 2.8s ease-in-out infinite;
+}
+@keyframes pl-status-puls { 0%, 100% { opacity: 0.45; } 50% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .lab-card .pl-status i { animation: none; opacity: 0.9; }
+}
+
+/* Wyjście do ASC — dosunięte do dołu kolumny, czyli na wysokość „Opisz projekt"
+   po lewej. `margin-top:auto` robi to bez magicznej liczby i trzyma się przy każdej
+   wysokości okna. Celowo BIAŁE, nie cyjanowe: to wyjście na zewnątrz, nie kolejny
+   guzik Laba — nie może konkurować z „Opisz projekt", który jest główną akcją. */
+.asc-wrap { margin-top: auto; padding-top: 22px; }
+.asc-btn {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  width: 100%;
+  padding: 15px 18px;
+  text-decoration: none;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.035);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transition: border-color 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+}
+.asc-btn:hover {
+  border-color: color-mix(in srgb, var(--color-lab) 55%, transparent);
+  background: color-mix(in srgb, var(--color-lab) 9%, transparent);
+  box-shadow: 0 0 28px -8px color-mix(in srgb, var(--color-lab) 55%, transparent);
+}
+.asc-znak {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--color-lab) 34%, transparent);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 11.5px;
+  letter-spacing: 0.06em;
+  color: var(--color-lab);
+}
+.asc-txt { display: block; min-width: 0; }
+.asc-kicker {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.4);
+  margin-bottom: 3px;
+}
+.asc-hook { display: block; font-weight: 700; font-size: 14px; color: #fff; }
+.asc-strzalka {
+  margin-left: auto;
+  flex: none;
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 15px;
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+.asc-btn:hover .asc-strzalka { color: var(--color-lab); transform: translate(2px, -2px); }
+
+.lab-card .pl-cta { margin-top: 0; }      /* guzik siedzi w stopce, nie na `auto` */
+
+/* ── KOLOR PRODUKTU (Kuba, 27.08) ────────────────────────────────────────────
+   System, nie ozdoba — ten sam, co w ikonach (QRent, decyzja D13 z 24.08):
+     fioletowy pierścień Q + ciemne tło = rodzina Qubatury, NIGDY się nie zmienia
+     kolor sygnetu                      = kolor wiodący aplikacji
+     kształt sygnetu                    = co ten soft robi
+   ⭐ Identyfikatorem jest KSZTAŁT, nie barwa — kolory wolno powtarzać przy
+      odległych produktach, więc lista się nie skończy (obawa Kuby).
+
+   🔒 Na kaflu kolor produktu dostają DOKŁADNIE DWIE rzeczy: litera Q w nazwie
+      i guzik. Sekcja, kreski przy cechach i obrys kafla zostają w cyjanie Laba —
+      inaczej kafle przestają być rodzeństwem i strona rozsypuje się na łatki.
+   Amber wzięty z ikony Qplayera (rdzeń pasków, #EE8C3A), nie dobrany na oko. */
+.lab-card[data-produkt="qplayer"] { --produkt: #EE8C3A; }
+.lab-card[data-produkt="qrent"]   { --produkt: #2ED3E6; }
+
+.lab-card .q-mark { color: var(--produkt, var(--pg-color, var(--color-lab))); }
+.lab-card .pl-cta {
+  color: var(--produkt, var(--pg-color, var(--color-lab)));
+  border-color: color-mix(in srgb, var(--produkt, var(--color-lab)) 45%, transparent);
+}
+.lab-card .pl-cta:hover {
+  color: #fff;
+  background: color-mix(in srgb, var(--produkt, var(--color-lab)) 16%, transparent);
+  box-shadow: 0 0 22px color-mix(in srgb, var(--produkt, var(--color-lab)) 40%, transparent);
+}
 .pl-cta {
   align-self: flex-start;
   font-family: var(--font-mono);
@@ -1925,11 +2122,18 @@ body.lb-locked { overflow: hidden; }
     top: auto;
     right: auto;
     transform: none;
+    /* ⚠️ 2026-08-27: desktop dostał `max-height` (kolumna bez scrolla). Na telefonie
+       sekcja JEST przewijana razem ze stroną — bez tego zerowania kafle by się ucięły. */
+    max-height: none;
     width: auto;
     padding: 0 6vw;
     padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 236px);
   }
   #page[data-division="lab"] .pl-grid { grid-template-columns: 1fr; }
+  /* Kafle są od 27.08 wyższe (ikona + cechy + cena). Na wąskim ekranie schodzą pod
+     siebie, więc ikona może zejść — 56 px zjadałoby pół pierwszego ekranu kafla. */
+  #page[data-division="lab"] .lab-card .pl-ikona { width: 46px; height: 46px; margin-bottom: 11px; }
+  #page[data-division="lab"] .asc-wrap { padding-top: 26px; }
 
   .lb-nav { width: 46px; height: 46px; font-size: 28px; }
   .lb-close { right: 5%; }
@@ -2104,8 +2308,8 @@ body.lb-locked { overflow: hidden; }
      Kuba wychwycił to okiem. Dłuższe zdania na stronie chodzą na --font-display (jak .ls-lead). */
   font-family: var(--font-display);
   font-weight: 400;
-  font-size: 13px;
-  line-height: 1.55;
+  font-size: 12.5px;
+  line-height: 1.5;
   color: rgba(255, 255, 255, 0.62);
 }
 /* Termin — z powrotem monospace i przygaszony: to znacznik czasu, nie obietnica marketingowa. */
@@ -3335,6 +3539,40 @@ body.page-active #tagline {
 .qp-zapis-btn:hover { border-color: var(--color-primary);
   background: color-mix(in srgb, var(--color-primary) 14%, transparent); }
 
+/* ── Mini-zgłoszenie „nie mam zaproszenia" ────────────────────────────
+   Rozwijane INLINE pod furtką. Nie overlay — patrz komentarz w index.html:
+   karta produktu (1050) przykrywała overlay kontaktu (1000). */
+.qp-zg { margin: 14px 0 0; padding: 18px; border-radius: 10px;
+  border: 1px solid rgba(139,79,255,.24); background: rgba(10,8,16,.5); }
+/* [hidden] przegrywa z display:grid/flex — trzeba wyłączyć jawnie */
+.qp-zg[hidden], .qp-zg-pola[hidden], .qp-zg-stopka[hidden] { display: none; }
+.qp-zg-pola { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+.qp-zg-pola label { display: flex; flex-direction: column; gap: 7px; font-size: 11px;
+  font-weight: 500; letter-spacing: .16em; text-transform: uppercase;
+  color: rgba(243,241,255,.45); }
+.qp-zg-pola input, .qp-zg-pola select { background: rgba(10,8,16,.75);
+  border: 1px solid rgba(139,79,255,.3); color: var(--ink); padding: 11px 13px;
+  font-family: var(--qp-fam); font-size: 14.5px; letter-spacing: .04em;
+  border-radius: 0; -webkit-appearance: none; appearance: none;
+  transition: border-color .25s ease; }
+.qp-zg-pola input:focus, .qp-zg-pola select:focus { outline: none; border-color: var(--qp-amber); }
+.qp-zg-pola select { cursor: pointer; }
+/* rozwiniętą listę rysuje system — bez tego błyska bielą w ciemnej karcie */
+.qp-zg-pola select option { background: #0E0B1A; color: var(--ink); }
+.qp-zg-hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+.qp-zg-stopka { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 16px; }
+.qp-zg-nota { margin: 0; flex: 1 1 240px; font-size: 12px; line-height: 1.5;
+  color: rgba(243,241,255,.4); }
+.qp-zg-status { margin: 12px 0 0; font-size: 13.5px; line-height: 1.5;
+  color: rgba(243,241,255,.6); }
+.qp-zg-status[data-stan="ok"]   { color: var(--qp-amber); }
+.qp-zg-status[data-stan="blad"] { color: #FF8A8A; }
+@media (max-width: 720px) {
+  .qp-zg { padding: 15px; }
+  .qp-zg-pola { grid-template-columns: 1fr; }
+  .qp-zg-stopka .qp-btn { width: 100%; text-align: center; }
+}
+
 /* Mapa drogowa — tuż nad cennikiem. Kropki w kolorze primary, treść zwykłym tekstem:
    to lista obietnic, więc ma się czytać spokojnie, nie jak specyfikacja techniczna. */
 .qp-plan { margin: 26px 0 0; padding: 17px 20px 16px; border-radius: 12px;
@@ -3512,3 +3750,142 @@ body.page-active #tagline {
 .qp-systemy .qp-btn { line-height: 1.25; text-align: center; }
 .qp-systemy .qp-btn small { display: block; margin-top: 4px; font-size: 10.5px;
   font-weight: 500; letter-spacing: .06em; text-transform: none; opacity: .68; }
+
+/* ══ KARTA QRent (#qrent-overlay) ══════════════════════════════════════════════
+   Świadomie CHUDSZA niż karta Qplayera: tamten ma produkt do pobrania, ten ma
+   prototyp i rozmowę. Reużywa skorupy `.product-overlay`/`.pcard`/`.prod-close`,
+   więc otwieranie, zamykanie i zachowanie na telefonie są identyczne. */
+#qrent-overlay { --produkt: #2ED3E6; }
+#qrent-overlay .qp-h1 .q { color: var(--produkt); }
+
+.qr-hero { max-width: 760px; padding: 8px 0 30px; }
+.qr-ikona {
+  width: 72px; height: 72px; display: block; margin: 0 0 16px;
+  filter: drop-shadow(0 8px 18px rgba(0, 0, 0, .6));
+}
+
+.qr-ekrany { display: grid; gap: 26px; margin: 0 0 34px; }
+@media (min-width: 900px) { .qr-ekrany { grid-template-columns: 1fr 1fr; align-items: start; } }
+.qr-fig { margin: 0; }
+.qr-fig img {
+  display: block; width: 100%; height: auto;
+  border: 1px solid color-mix(in srgb, var(--produkt) 20%, transparent);
+  /* Ostre rogi — nasze, bez „obłości" (ten sam wybór co przy kafelkach playera). */
+  box-shadow: 0 18px 44px -22px rgba(0, 0, 0, .9);
+}
+.qr-fig figcaption {
+  margin-top: 10px;
+  font-family: var(--font-mono); font-size: 11.5px; line-height: 1.5;
+  color: rgba(255, 255, 255, .5);
+}
+
+/* ── Telefon: MAKIETA rysowana CSS-em ────────────────────────────────────────
+   ⚠️ NIE zrzut. Prototyp QRenta nie ma wersji mobilnej, a zrzut ściśniętego
+   desktopu (z dwoma paskami przewijania) wyglądałby jak zepsuta strona.
+   Etykieta „Makieta — nie działający ekran" stoi na ekranie i ma tam zostać. */
+.qr-mobil { display: grid; gap: 28px; align-items: center; margin: 0 0 34px; }
+@media (min-width: 760px) { .qr-mobil { grid-template-columns: 232px 1fr; } }
+.qr-tel {
+  width: 232px; max-width: 100%; aspect-ratio: 232 / 470;
+  padding: 10px; border-radius: 30px;
+  border: 1px solid rgba(255, 255, 255, .14);
+  background: linear-gradient(160deg, rgba(255, 255, 255, .07), rgba(6, 5, 15, .5));
+  box-shadow: 0 26px 60px -28px rgba(0, 0, 0, .95);
+}
+.qr-tel-ekran {
+  height: 100%; border-radius: 22px; overflow: hidden;
+  display: flex; flex-direction: column;
+  background: #131110;                       /* grafit ocieplony w brąz — paleta QRenta */
+  color: #EDE7E0;                            /* kość słoniowa, nie czysta biel */
+  font-family: var(--font-display);
+}
+.qr-tel-pasek {
+  display: flex; align-items: center; gap: 7px;
+  padding: 11px 13px; font-size: 11px; font-weight: 700; letter-spacing: .04em;
+  border-bottom: 1px solid rgba(255, 255, 255, .07);
+}
+.qr-tel-kropka {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--produkt); box-shadow: 0 0 8px var(--produkt);
+}
+.qr-tel-skan { padding: 18px 13px 14px; text-align: center; }
+.qr-ramka {
+  position: relative; display: block; width: 108px; height: 76px; margin: 0 auto 12px;
+  /* Cztery narożniki celownika — ten sam język co ramki galerii na stronie. */
+  background:
+    linear-gradient(var(--produkt), var(--produkt)) 0 0 / 16px 2px no-repeat,
+    linear-gradient(var(--produkt), var(--produkt)) 0 0 / 2px 16px no-repeat,
+    linear-gradient(var(--produkt), var(--produkt)) 100% 0 / 16px 2px no-repeat,
+    linear-gradient(var(--produkt), var(--produkt)) 100% 0 / 2px 16px no-repeat,
+    linear-gradient(var(--produkt), var(--produkt)) 0 100% / 16px 2px no-repeat,
+    linear-gradient(var(--produkt), var(--produkt)) 0 100% / 2px 16px no-repeat,
+    linear-gradient(var(--produkt), var(--produkt)) 100% 100% / 16px 2px no-repeat,
+    linear-gradient(var(--produkt), var(--produkt)) 100% 100% / 2px 16px no-repeat;
+}
+.qr-ramka i {
+  position: absolute; left: 6px; right: 6px; top: 50%; height: 1px;
+  background: var(--produkt); box-shadow: 0 0 10px var(--produkt);
+  animation: qr-skan 2.6s ease-in-out infinite;
+}
+@keyframes qr-skan { 0%, 100% { transform: translateY(-28px); } 50% { transform: translateY(28px); } }
+@media (prefers-reduced-motion: reduce) { .qr-ramka i { animation: none; } }
+.qr-tel-model { margin: 0; font-size: 13px; font-weight: 700; }
+.qr-tel-rola  { margin: 3px 0 0; font-family: var(--font-mono); font-size: 10.5px; color: rgba(237, 231, 224, .5); }
+.qr-tel-lista { padding: 4px 13px; display: grid; gap: 7px; }
+.qr-tel-lista div {
+  display: flex; justify-content: space-between; align-items: baseline;
+  font-family: var(--font-mono); font-size: 10.5px; color: rgba(237, 231, 224, .62);
+  padding-bottom: 6px; border-bottom: 1px solid rgba(255, 255, 255, .05);
+}
+.qr-tel-lista b { color: var(--produkt); font-weight: 400; }
+.qr-tel-stopka {
+  margin-top: auto; padding: 11px 13px;
+  font-family: var(--font-mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase;
+  color: rgba(237, 231, 224, .42);
+  border-top: 1px solid rgba(255, 255, 255, .07);
+}
+.qr-etykieta {
+  margin: 0 0 8px;
+  font-family: var(--font-mono); font-size: 10px; letter-spacing: .18em; text-transform: uppercase;
+  color: color-mix(in srgb, var(--produkt) 62%, #fff);
+}
+.qr-mobil-txt h3 { margin: 0 0 10px; font-size: 20px; font-weight: 700; color: #fff; }
+.qr-mobil-txt p  { margin: 0; font-size: 13.5px; line-height: 1.65; color: rgba(255, 255, 255, .66); max-width: 46ch; }
+
+.qr-stopka {
+  display: grid; gap: 22px; padding-top: 26px;
+  border-top: 1px solid color-mix(in srgb, var(--produkt) 16%, transparent);
+}
+@media (min-width: 760px) { .qr-stopka { grid-template-columns: 1fr 1fr; align-items: center; } }
+.qr-kwota { margin: 0 0 4px; font-size: 26px; font-weight: 700; color: #fff; }
+.qr-kiedy {
+  margin: 0 0 8px;
+  font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase;
+  color: rgba(255, 255, 255, .42);
+}
+#qrent-overlay .pl-status { color: color-mix(in srgb, var(--produkt) 62%, #fff); }
+#qrent-overlay .pl-status i { background: var(--produkt); box-shadow: 0 0 8px var(--produkt); }
+.qr-nota {
+  margin: 10px 0 0;
+  font-family: var(--font-mono); font-size: 11px; line-height: 1.55;
+  color: rgba(255, 255, 255, .45); max-width: 40ch;
+}
+/* Nadkreślenie „Qubatura Lab · …" — `.qp-kicker` jest amberowy, bo powstał pod kartę
+   Qplayera. W karcie QRenta ma być w kolorze TEGO produktu, inaczej dwa softy mówią
+   tym samym kolorem i cały system barw przestaje cokolwiek znaczyć. */
+#qrent-overlay .qp-kicker { color: color-mix(in srgb, var(--produkt) 78%, #fff); }
+/* Guzik główny karty — `.qp-btn.primary` jest amberowy z karty Qplayera. Ta sama
+   zasada co przy nadkreśleniu: kolor guzika = kolor produktu, nie kolor sąsiada. */
+#qrent-overlay .qp-btn.primary {
+  background: var(--produkt);
+  border-color: var(--produkt);
+  color: #0B1416;                     /* ciemny tekst na jasnym cyjanie — kontrast, nie biel na biel */
+}
+#qrent-overlay .qp-btn.primary:hover {
+  background: color-mix(in srgb, var(--produkt) 84%, #fff);
+  border-color: color-mix(in srgb, var(--produkt) 84%, #fff);
+  box-shadow: 0 0 28px -6px var(--produkt);
+}
+/* Makieta telefonu: 232/470 zostawiało pustą przestrzeń pod listą — proporcja
+   dobrana zanim treść była gotowa. Zmierzone na zrzucie, nie oszacowane. */
+.qr-tel { aspect-ratio: 232 / 418; }
