@@ -1,7 +1,7 @@
 // i18n-boot.js — spięcie przełącznika #lang-toggle z silnikiem i18n.js.
 // Osobno od i18n.js, żeby ten pozostał czystym silnikiem (t/applyDom/setLang) bez wiedzy o UI.
 
-import { setLang, getLang, storedLang, applyDom } from './i18n.js?v=msekplen';
+import { setLang, getLang, storedLang, applyDom } from './i18n.js?v=mtb5ablp';
 
 export function initI18n() {
   const btn = document.getElementById('lang-toggle');

@@ -14,8 +14,11 @@
   RewriteEngine On
   RewriteBase /
 
-  RewriteRule ^(events|studio|lab|qplayer)/$ /$1 [R=301,L]
-  RewriteRule ^(events|studio|lab|qplayer)$ index.html [L]
+  RewriteRule ^(events|studio|lab|qplayer|qrent)/$ /$1 [R=301,L]
+    # ⚠️ Adresy są WYLICZONE Z NAZWY — nowa karta produktu MUSI trafić tutaj,
+  #    inaczej wejście z linku albo F5 na /qrent kończy się 404 (router w JS
+  #    nigdy się nie odpali, bo serwer nie odda index.html).
+RewriteRule ^(events|studio|lab|qplayer|qrent)$ index.html [L]
 </IfModule>
 
 ErrorDocument 404 /404.html
