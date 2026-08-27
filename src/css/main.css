@@ -1504,7 +1504,10 @@ body.lb-locked { overflow: hidden; }
    po lewej. `margin-top:auto` robi to bez magicznej liczby i trzyma się przy każdej
    wysokości okna. Celowo BIAŁE, nie cyjanowe: to wyjście na zewnątrz, nie kolejny
    guzik Laba — nie może konkurować z „Opisz projekt", który jest główną akcją. */
-.asc-wrap { margin-top: auto; padding-top: 22px; }
+/* 22 -> 33: termin premiery zmieścił się w jednej linii, więc kolumna schudła
+   o 11 px i wyrównanie odjechało o 6 w każdą stronę. Oddaję te piksele na oddech
+   pod kaflami — dokładnie tam, gdzie Kuba go chciał. ⚠️ Zmierzone, nie zgadnięte. */
+.asc-wrap { margin-top: auto; padding-top: 33px; }
 .asc-btn {
   display: flex;
   align-items: center;
@@ -3889,3 +3892,54 @@ body.page-active #tagline {
 /* Makieta telefonu: 232/470 zostawiało pustą przestrzeń pod listą — proporcja
    dobrana zanim treść była gotowa. Zmierzone na zrzucie, nie oszacowane. */
 .qr-tel { aspect-ratio: 232 / 418; }
+
+/* ── Poprawki po ocenie Kuby na żywej stronie, 27.08 ─────────────────────────
+   1) Guzik WRACA do cyjanu działu. Kolor produktu zostaje WYŁĄCZNIE na literze Q.
+      Kuba: „amber na guziku brzydko to wygląda". Miał rację — guzik to duża plama
+      koloru i przy dwóch kaflach obok siebie robiło się z tego dwie różne sekcje,
+      zamiast dwóch produktów w jednej rodzinie. Litera wystarczy, bo jest znakiem,
+      nie powierzchnią. */
+.lab-card .pl-cta {
+  color: var(--pg-color, var(--color-lab));
+  border-color: color-mix(in srgb, var(--pg-color, var(--color-lab)) 45%, transparent);
+}
+.lab-card .pl-cta:hover {
+  color: #fff;
+  background: color-mix(in srgb, var(--pg-color, var(--color-lab)) 16%, transparent);
+  box-shadow: 0 0 22px color-mix(in srgb, var(--pg-color, var(--color-lab)) 40%, transparent);
+}
+
+/* 2) Termin premiery w JEDNEJ linii. „…KOMERCYJNEJ · WRZESIEŃ / 2026" łamało się
+      na sierotę i cały blok wyglądał na upchany. Nie skracam tekstu — zwężam
+      rozstrzelenie, bo to ono zjadało szerokość (42 znaki × 1,05 px samego
+      light-spacingu to ~44 px, czyli więcej niż brakowało). */
+.lab-card .pl-kiedy { font-size: 10px; letter-spacing: 0.045em; }
+
+/* 3) Cechy produktu były NIECZYTELNE — rgba(255,255,255,.56) to za mało na szkle
+      leżącym na zdjęciu tła. Kuba obstawił kolor i trafił: rozmiar i krój zostają,
+      podnosimy sam kontrast. Kreska przed pozycją też mocniejsza, bo gubiła się
+      razem z tekstem. */
+.lab-card .pl-cechy li { color: rgba(255, 255, 255, 0.82); }
+.lab-card .pl-cechy li::before {
+  background: color-mix(in srgb, var(--pg-color, var(--color-lab)) 95%, transparent);
+}
+
+/* 4) Guzik ASC — krój był odziedziczony po `body`, czyli przypadkowy. Teraz 1:1
+      z „Opisz projekt" i „Zbudujemy to pod Twoją branżę" (.ps-hook / .page-cta na Lab).
+      Nadkreślenie w cyjanie, tak jak „SYSTEMY · PLATFORMY · APLIKACJE" (.ps-kicker) —
+      ta sama rola na ekranie ma mieć ten sam kolor. */
+.asc-btn { font-family: var(--font-display); }
+.asc-hook {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 15px;
+  color: #fff;
+}
+.asc-kicker {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--color-lab) 75%, #fff);
+  margin-bottom: 5px;
+}
