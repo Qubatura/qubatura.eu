@@ -2597,6 +2597,14 @@ body.page-active #tagline {
   transition: color 0.3s ease;
 }
 .contact-data a:hover { color: #E0218A; }
+.contact-osoba {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.05em;
+  color: var(--color-white);
+  opacity: 0.6;
+}
 
 /* QR placeholder — ramka HUD z narożnikami */
 .contact-qr {
