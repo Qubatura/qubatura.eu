@@ -122,13 +122,34 @@ export function initPlayer() {
   // po powrocie na home stoi, klik w przełącznik ją włącza. Tylko pause(), nie volume (iOS je ignoruje).
   let cudzeGralo = false;
   function ogloszStart() { document.dispatchEvent(new CustomEvent('qb:audio', { detail: { zrodlo: 'muzyka' } })); }
+  // Strategia (Kuba 02.11): KAŻDY inny dźwięk wycisza muzykę strony — płynnie (~0,6 s), potem pauza.
+  // iOS ignoruje audio.volume (tylko odczyt = 1) → tam od razu pauza; karta w tle → od razu pauza
+  // (rAF w tle stoi). Nowe źródło dźwięku na stronie = jedna linijka: dispatch `qb:audio` z własną nazwą.
+  const glosnoscDziala = (() => { const t = new Audio(); t.volume = 0.5; return t.volume === 0.5; })();
+  let wyciszanie = null;
+  audio.addEventListener('play', () => { cancelAnimationFrame(wyciszanie); wyciszanie = null; audio.volume = 1; });
+  function wycisz(odRazu) {
+    playing = false;
+    if (toggle) toggle.dataset.active = 'false';
+    root.dataset.playing = 'false';
+    if (audio.paused) return;
+    if (odRazu || !glosnoscDziala) { audio.pause(); return; }
+    const v0 = audio.volume, t0 = performance.now();
+    const krok = now => {
+      const x = Math.min(1, Math.max(0, (now - t0) / 600));
+      audio.volume = v0 * (1 - x) * (1 - x);
+      if (x < 1) wyciszanie = requestAnimationFrame(krok);
+      else { wyciszanie = null; audio.pause(); audio.volume = 1; }
+    };
+    wyciszanie = requestAnimationFrame(krok);
+  }
   document.addEventListener('qb:audio', e => {
     if (!e.detail || e.detail.zrodlo === 'muzyka') return;
     cudzeGralo = true; zdejmijKick();
-    playing = false; audio.pause();
-    if (toggle) toggle.dataset.active = 'false';
-    root.dataset.playing = 'false';
+    wycisz(false);
   });
+  // karta w tle (np. ktoś otworzył Kliklaka w nowej karcie) → muzyka staje i sama nie wraca
+  document.addEventListener('visibilitychange', () => { if (document.hidden && !audio.paused) wycisz(true); });
   let zdejmijKick = () => {};
   if (location.pathname === '/qplayer') return;      // wejście prosto z linku w mailu
 
