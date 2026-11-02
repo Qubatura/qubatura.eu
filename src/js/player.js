@@ -88,7 +88,7 @@ export function initPlayer() {
       playing = !playing;
       toggle.dataset.active = String(playing);
       root.dataset.playing = String(playing);   // hook pod ew. akcent „gra" (magenta) — do decyzji
-      if (playing) applyTrack();
+      if (playing) { applyTrack(); ogloszStart(); }
       else audio.pause();
     });
   }
@@ -103,6 +103,7 @@ export function initPlayer() {
     playing = true;
     if (toggle) toggle.dataset.active = 'true';
     root.dataset.playing = 'true';
+    ogloszStart();
   }
   loadedIdx = cur;
   audio.src = asset(TRACKS[cur].src);
@@ -115,10 +116,28 @@ export function initPlayer() {
   // którego nie ma jak wyłączyć. Do tego wchodzi z maila po program, a nie po zwiedzanie.
   // Zachowanie na home zostaje nietknięte.
   const kartaOtwarta = () => !!document.querySelector('#product-overlay.is-open');
+
+  // Wyłączność audio (02.11, Kuba: iPhone + Chrome, Studio). Gdy rusza inne źródło (player Studio),
+  // muzyka robi pauzę, przełącznik na górze pokazuje „stop” i NIC jej potem samo nie wznawia —
+  // po powrocie na home stoi, klik w przełącznik ją włącza. Tylko pause(), nie volume (iOS je ignoruje).
+  let cudzeGralo = false;
+  function ogloszStart() { document.dispatchEvent(new CustomEvent('qb:audio', { detail: { zrodlo: 'muzyka' } })); }
+  document.addEventListener('qb:audio', e => {
+    if (!e.detail || e.detail.zrodlo === 'muzyka') return;
+    cudzeGralo = true; zdejmijKick();
+    playing = false; audio.pause();
+    if (toggle) toggle.dataset.active = 'false';
+    root.dataset.playing = 'false';
+  });
+  let zdejmijKick = () => {};
   if (location.pathname === '/qplayer') return;      // wejście prosto z linku w mailu
 
   audio.play().then(armPlaying).catch(() => {
     const kick = (e) => {
+      if (cudzeGralo) return zdejmijKick();          // coś innego już grało → muzyka nie startuje sama
+      // dotknięcie playera Studio to gest „chcę słuchać materiału”, nie muzyki strony (iPhone: autoplay
+      // zablokowany, więc ten gest odpalał muzykę RAZEM z materiałem)
+      if (e && e.target && e.target.closest && e.target.closest('.pl-card')) return zdejmijKick();
       if (toggle && e && e.target && toggle.contains(e.target)) return;  // niech toggle sam steruje
       if (kartaOtwarta()) return;                    // gest na karcie produktu nie budzi muzyki
       if (e && e.target && e.target.closest && e.target.closest('#product-overlay')) return;
@@ -126,6 +145,7 @@ export function initPlayer() {
       window.removeEventListener('keydown', kick);
       audio.play().then(armPlaying).catch(() => {});
     };
+    zdejmijKick = () => { window.removeEventListener('pointerdown', kick); window.removeEventListener('keydown', kick); };
     window.addEventListener('pointerdown', kick);
     window.addEventListener('keydown', kick);
   });

@@ -3,6 +3,8 @@
 // Wskaźnik postępu = pierścień wokół przycisku play (reużycie motywu obręczy sygnetu z HOME):
 // świecąca linia zapełnia się zegarowo (stroke-dashoffset), środek = ikona play/pause.
 // Tylko JEDEN player gra naraz — start nowego pauzuje poprzedni.
+// Wyłączność audio na całej stronie (02.11): start playera ogłasza `qb:audio` → muzyka strony (player.js)
+// robi pauzę; włączenie muzyki strony pauzuje grający player Studio.
 //
 // Skeleton (stan na teraz): karty mają data-audio="" (pusto) → odpalamy SYMULACJĘ postępu
 // na podstawie data-dur (sekundy), żeby UI żyło przed podpięciem realnych nagrań. Po wrzuceniu
@@ -17,6 +19,9 @@ export function initPlayers() {
   if (!cards.length) return;
 
   let active = null;                // aktualnie grający kontroler (jeden naraz)
+  document.addEventListener('qb:audio', e => {
+    if (e.detail && e.detail.zrodlo !== 'studio' && active) active.pause(false);
+  });
 
   cards.forEach(card => {
     const ring = card.querySelector('.pl-ring');
@@ -70,6 +75,7 @@ export function initPlayers() {
 
     const play = () => {
       if (active && active !== ctrl) active.pause(false);   // tylko jeden gra naraz
+      document.dispatchEvent(new CustomEvent('qb:audio', { detail: { zrodlo: 'studio' } }));
       playing = true;
       ring.classList.add('is-playing');
       card.classList.add('is-active');
